@@ -28,7 +28,7 @@ Hits many of the criteria for this work.
 == Simile Exhibit JSON format ==
 http://simile.mit.edu/wiki/Exhibit/Creating,_Importing,_and_Managing_Data
 
-Exhibit uses an RDF-like [http://simile.mit.edu/wiki/Exhibit/Understanding_Exhibit_Database data model] and provides a JSON representation of that format [http://simile.mit.edu/wiki/Exhibit/Understanding_Exhibit_JSON_Format]. An online translator ([http://simile.mit.edu/babel/ Bable) offers zero-configuration translation. The format is also supported by the RPI [http://data-gov.tw.rpi.edu/ws/sparqlproxy.php SPARQL Proxy].
+Exhibit uses an RDF-like [http://simile.mit.edu/wiki/Exhibit/Understanding_Exhibit_Database data model] and provides a JSON representation of that [http://simile.mit.edu/wiki/Exhibit/Understanding_Exhibit_JSON_Format format]. An online translator ([http://simile.mit.edu/babel/ Babel]) offers zero-configuration translation. The format is also supported by the RPI [http://data-gov.tw.rpi.edu/ws/sparqlproxy.php SPARQL Proxy].
 
 Hits many of the criteria for this work.
 
