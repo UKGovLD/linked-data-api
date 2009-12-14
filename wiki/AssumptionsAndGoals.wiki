@@ -5,11 +5,13 @@
 
  * A pure publishing format for RDF that is optimised for approachability for normal developers, not an interchange format.
 
- * An API that supports access to linked data sets in this format, including support for lists of results with pagination.
+ * An API that supports access to linked data sets in this format.
 
- * As a publisher it should be possible to make data available through this API with a minimum of configuration. Configuration options to tune how the data is presented should be available but not required to get started.
+ * Support for accessing RDF graphs, lists of results with associated descriptions (with pagination) and results of SPARQL queries. These may overlap.
 
- * The ability to invert the formatting so that interested clients can recover RDF triples from the simplified format. This is a nice-to-have extra and must not come at the expense of convenience of the format for normal developers. In particular, it is quite acceptable for the mapping to only be invertible in the simple 80% of cases.
+ * As a publisher it should be possible to make data available through this API with a minimum of configuration. Configuration options to tune how the data is presented should be available but not required to get started. Convention over configuration.
+
+ * The ability to invert the formatting, so that interested clients can recover RDF triples from the simplified format, is a nice-to-have extra. Must not come at the expense of convenience of the format for normal developers. In particular, it is quite acceptable for the mapping to only be invertible in the simple 80% of cases.
 
 = Assumptions =
 
