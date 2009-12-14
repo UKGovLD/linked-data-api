@@ -1,4 +1,5 @@
 #summary Index page for the discussion, used to drive sidebar
+#sidebar TableOfContents
 
 =Site index=
  * [AssumptionsAndGoals Assumptions and Goals]
