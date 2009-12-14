@@ -1,4 +1,5 @@
 #summary What are we trying to achieve and what are we assuming?
+#sidebar TableOfContents
 
 = Aims =
 
