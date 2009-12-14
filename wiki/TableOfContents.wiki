@@ -1,7 +1,7 @@
 #summary Index page for the discussion, used to drive sidebar
 #sidebar TableOfContents
 
-=Site index=
+==Site index==
  * [AssumptionsAndGoals Assumptions and Goals]
  * [ProcessingModel Processing model]
  * [JSONFormats Existing JSON formats]
