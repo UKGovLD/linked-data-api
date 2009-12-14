@@ -1,0 +1,15 @@
+#summary What are we trying to achieve and what are we assuming?
+
+= Aims =
+
+ * A pure publishing format for RDF that is optimised for approachability for normal developers, not an interchange format.
+
+ * An API that supports access to linked data sets in this format, including support for lists of results with pagination.
+
+ * As a publisher it should be possible to make data available through this API with a minimum of configuration. Configuration options to tune how the data is presented should be available but not required to get started.
+
+ * The ability to invert the formatting so that interested clients can recover RDF triples from the simplified format. This is a nice-to-have extra and must not come at the expense of convenience of the format for normal developers. In particular, it is quite acceptable for the mapping to only be invertible in the simple 80% of cases.
+
+= Assumptions =
+
+TBD
