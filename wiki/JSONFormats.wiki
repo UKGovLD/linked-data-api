@@ -3,18 +3,18 @@
 
 = Existing JSON RDF formats to use or learn from =
 
-== [http://n2.talis.com/wiki/RDF_JSON_Specification RDF/JSON] ==
+== RDF/JSON ==
 http://n2.talis.com/wiki/RDF_JSON_Specification
 
 Full interchange format, faithful to the underlying RDF model. Not developer-friendly in the sense we mean here.
 
-== [http://www.w3.org/TR/rdf-sparql-json-res/ SPARQL Results JSON format] ==
+== SPARQL Results JSON format ==
 http://www.w3.org/TR/rdf-sparql-json-res/
 
 Faithful representation of variable bindings preserving the RDF structure. Again not quite as developer-friendly as we are aiming for in this context.
 
-== [http://code.google.com/p/backplanejs/wiki/Rdfj RDFj] ==
-http://code.google.com/p/ubiquity-rdfa/wiki/Rdfj
+== RDFj ==
+http://code.google.com/p/backplanejs/wiki/Rdfj
 
 RDFj is a set of conventions for:
 
@@ -32,7 +32,8 @@ Exhibit uses an RDF-like [http://simile.mit.edu/wiki/Exhibit/Understanding_Exhib
 
 Hits many of the criteria for this work.
 
-== [http://openstructs.org/iron/iron-specification#mozTocId462570 irJSON] ==
+== irJSON ==
+http://openstructs.org/iron/iron-specification#mozTocId462570
 
 A JSON serialization profile of [http://openstructs.org/iron/iron-specification irON].
 
