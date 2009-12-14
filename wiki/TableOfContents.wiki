@@ -1,0 +1,8 @@
+#summary Index page for the discussion, used to drive sidebar
+
+=Site index=
+ * [AssumptionsAndGoals Assumptions and Goals]
+ * [ProcessingModel Processing model]
+ * [JSONFormats Existing JSON formats]
+ * [DesignQuestions Open design questions]
+ * [ProposedFormat Proposed Format]
