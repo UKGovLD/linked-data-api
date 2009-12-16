@@ -141,9 +141,9 @@ When the object of a triple is a resource `http://example.com/foo` then the corr
  # `"<foo>"`                   -  RDFj with `base` set in the context
  # `"someid"`                  - Exhibit where someid is the id of another object
 
-Simple strings break round tripping, pointy-bracketed strings are arguably more surprising to target developers (and break round tripping in pathological cases). 
+Simple strings break round tripping, pointy-bracketed strings are arguably more surprising to target developers (and break round tripping in pathological cases), short form ID strings (similar to the abbreviation of properties) may be useful when referencing things like concepts in ontologies (e.g. `{ "type" : "Person" }`).
 
-*Status:* Open?
+*Status:* Open
 
 == Multi-valued properties ==
 
@@ -344,6 +344,10 @@ In general there will be some non-tree graphs so nesting is not sufficient and i
 _Der comment_: RDF/XML has the same issues. Experience with Jena suggests that controlling which nestings to prefer for the most common cases is possible ([http://www.openjena.org/IO/iohowto.html#output pretty types]) but that there are always some applications that need a different nesting. Given our goals of simplicity I'm inclined to put everything at the top level, or only nest tree-structured references.
 
 *Status:* open
+
+== rdf:type shortcut ==
+
+Do we want a shortcut for denoting the rdf:type of an object? Such as "a" instead of the plain "type" that would result from the rules so far?
 
 == bNodes - graphs ==
 
