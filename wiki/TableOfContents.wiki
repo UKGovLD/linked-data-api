@@ -4,5 +4,5 @@
 ==Site index==
  * [AssumptionsAndGoals Assumptions and Goals]
  * [JSONFormats Existing JSON formats]
- * [DesignQuestions Open design questions]
- * [ProposedFormat Proposed Format]
+ * [DesignQuestions Design questions] and resolutions so far
+ * [ProposedFormat Proposed Format] TBD!
