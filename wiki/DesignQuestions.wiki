@@ -1,0 +1,37 @@
+#summary Summary of design questions and resolutions so far
+#sidebar TableOfContents
+
+= Design questions and resolutions =
+
+This is an attempt to break the problem down in to a series of design decisions where we can test how much agreement there is on the options.
+
+The current breakdown is probably not right and certainly not complete. The summary of status is probably wrong in places. Please improve.
+
+<wiki:toc max_depth="1" />
+
+== API result wrapper ==
+
+== Simple resource description ==
+
+== Property naming ==
+
+== Multi-valued properties ==
+
+== List-valued properites ==
+
+== Resource references ==
+
+== Language tagged literals ==
+
+== Typed literals - XSD types ==
+
+== Typed literals - others ==
+
+== bNodes - single reference ==
+
+== bNodes - graphs ==
+
+== Nesting resource references ==
+
+== Named graphs? ==
+
