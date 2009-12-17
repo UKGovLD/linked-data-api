@@ -1,0 +1,7 @@
+#summary Design issues - Specifying the mapping
+
+== Specifying the mapping ==
+
+In cases where the publisher (and, potentially the consumer for sophisticated consumers) wants to override the default mappings there should be a declarative format for defining the mapping.  This format should be expressed in RDF? JSON? ad hoc API parameters?
+
+*Status:* Jeni proposes using RDF for this at least at the publisher end, Mark uses JSON when mapping the other way.
