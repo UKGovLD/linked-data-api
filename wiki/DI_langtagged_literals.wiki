@@ -1,0 +1,39 @@
+#summary Design issues - Language tagged literals
+
+== Language tagged literals ==
+
+Literals with a language tag such as:
+
+{{{
+  <http://statistics.data.gov.uk/id/local-authority-district/00PB>
+    skos:prefLabel "The County Borough of Bridgend"@en ;
+    skos:prefLabel "Pen-y-bont ar Ogwr"@cy ;
+}}}
+
+could be handled in different ways.
+
+1. Use lexical encoding of rdf:PlainLiteral (dropping trailing `@` for simple strings with no lang tag).
+
+{{{
+{
+  "@" : "http://statistics.data.gov.uk/id/local-authority-district/00PB"
+  "prefLabel" : "The County Borough of Bridgend@en" ,
+  "prefLabel" :  "Pen-y-bont ar Ogwr@cy" 
+}
+}}}
+
+This is the RDFj approach and Mark points out that a JSON API could easily provide access to the value/lang parts of the string as if they were separate object fields.
+
+2. Move the language encoding into the property name either by explicit mapping (based on some pattern language which matches on lang tags) or some generic mapping (Jeni).
+
+{{{
+{
+  "@" : "http://statistics.data.gov.uk/id/local-authority-district/00PB"
+  "prefLabel_en" : "The County Borough of Bridgend" ,
+  "welshLabel" :  "Pen-y-bont ar Ogwr" 
+}
+}}}
+ 
+3. Encode as a structured object.
+
+*Status:* Under discussion.
