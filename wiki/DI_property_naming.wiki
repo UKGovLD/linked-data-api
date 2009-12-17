@@ -1,0 +1,11 @@
+#summary Design issues - Property naming
+
+== Property naming ==
+
+Properties in the JSON should have short simple names.
+
+In the absence of any explicit configuration the name should be the `rdfs:label` where available or the localName part of the URI. The publisher should be able to override these via a configuration.
+
+This is underspecified. The implementation will have to cope with clashes, multiple labels, possibly name mangling to ensure the names are legal Javascript identifiers. However, so long as the translation is stable and recorded the implementations could chose to handle these differently?
+
+*Status:* Agreed on principle, not necessarily deatils.
