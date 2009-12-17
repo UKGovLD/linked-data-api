@@ -1,0 +1,14 @@
+#summary Design issues - Resource references
+
+== Resource references ==
+
+When the object of a triple is a resource `http://example.com/foo` then the corresponding JSON encoding could be what?
+
+ # `"http://example.com/foo"`  - Jeni
+ # `"<http://example.com/foo>"` - RDFj
+ # `"<foo>"`                   -  RDFj with `base` set in the context
+ # `"someid"`                  - Exhibit where someid is the id of another object
+
+Simple strings break round tripping, pointy-bracketed strings are arguably more surprising to target developers (and break round tripping in pathological cases), short form ID strings (similar to the abbreviation of properties) may be useful when referencing things like concepts in ontologies (e.g. `{ "type" : "Person" }`).
+
+*Status:* Open
