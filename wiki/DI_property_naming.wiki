@@ -2,10 +2,52 @@
 
 == Property naming ==
 
-Properties in the JSON should have short simple names.
+Linked Data APIs need to use short names for properties in two ways:
 
-In the absence of any explicit configuration the name should be the `rdfs:label` where available or the localName part of the URI. The publisher should be able to override these via a configuration.
+  * within simple formats such as JSON that are generated from existing RDF
+  * in mapping names used in the path or query within a URI to SPARQL queries
 
-This is underspecified. The implementation will have to cope with clashes, multiple labels, possibly name mangling to ensure the names are legal Javascript identifiers. However, so long as the translation is stable and recorded the implementations could chose to handle these differently?
+To avoid confusion, the short names used in the two scenarios should be exactly the same: if a developer wants to sort search results on district (say), they will expect the short name to be `district` in both the URI that's used to carry out the search (ie it will contain `?sort=district`) and in the JSON results. The rules for the short name of a given property must work in both directions: generation and recognition.
 
-*Status:* Agreed on principle, not necessarily deatils.
+It is also important that the short name for a given property is stable across an API: it would be confusing if different names were used for a given property depending on what information were available about a given resource, for example.
+
+=== Sources of Short Names ===
+
+The following can be used, with lowest priority first, to determine a short name that is used for a given property by a given API:
+
+  * the local part of the URI for the property, namely the part after the `#` if it exists or the final `/` if there is no `#`
+  * the value of the `rdfs:label` property of the property whose datatype is `xsd:NCName`, if there is one (other labels are ignored since they are likely to be human readable and therefore less suitable as short names than the local part of the URI)
+  * the value of the `api:altLabel` property of the property
+  * the value of the `api:prefLabel` property of the property
+  * the value of the `api:altPropertyLabel` property of the `api:Mapping` whose `api:property` is the property
+  * the value of the `api:prefPropertyLabel` property of the `api:Mapping` whose `api:property` is the property
+
+These options may lead to a number of possible short names being available for a given property, and the same short name being a possibility for multiple properties. We therefore need to specify an extra set of rules that deals with possible clashes.
+
+APIs must create a semi-permanent mapping between properties and short names, used both when creating JSON and other formats, and for recognising those terms in URIs. Initially, the mapping can be created as follows:
+
+_Note (JeniT): Suggested algorithm; maybe something better?_
+
+  # For each available property, construct a list of possible labels in order of priority as described above. Where two labels are supplied at a given priority, the highest priority should be given to those first in alphabetical order.
+  # Each property should be assigned its highest priority label unless that label is also the highest priority label of another property; properties with labels assigned in this manner are then removed from the list and their labels are reserved and removed from the lists of possible labels for the remaining properties.
+  # Working alphabetically through each highest priority label, collect together a list of properties with that label as their highest priority label. The label should be assigned to the property that (a) has the lowest number of alternative labels or (so long as there aren't two properties with no other alternatives) (b) whose URI comes first alphabetically. Where a label is assigned, the property is removed from the list, and the label reserved and removed from the lists of possible labels for the remaining properties.
+  # The remaining properties will be properties with only one possible label, where that label is shared with other properties who have it as their only (remaining) possible label. In these cases the labels must be prefixed or suffixed to create a unique label. Adding a prefix is preferable, if one is known for the namespace of the property and it can be added without clashing with a reserved label. Any remaining properties should be sorted alphabetically (based on the URI) and a numeric suffix added.
+
+After an initial set of mappings has been created, APIs may need to assign labels to new properties. These mappings must not change existing mappings, since that would introduce backwards-incompatible changes in the API, breaking downstream code. To create a mapping for a new property:
+
+  # Create the prioritised list of possible labels as above.
+  # Remove any reserved (already assigned) labels from that list.
+  # If any labels remain, use the one with the highest priority. If not, use the highest priority label from the initial list, adding a prefix (if one is known) or a suffix.
+
+=== Guidelines For Names ===
+
+There are no technical limitations on the content of a short name: any name can be used within a JSON property or (with appropriate escaping) within a URI. However, to make the short names more usable within both Javascript and URIs, the short names should:
+
+  * begin with upper or lowercase A-Z, an underscore (`_`) or dollar sign (`$`)
+  * contain only upper or lowercase A-Z, decimal digits 0-9, underscores (`_`) and dollar signs (`$`)
+
+Names that follow these constraints will not require escaping and can be used with dot-notation within Javascript. 
+
+Additionally, names that begin with an underscore (`_`) are usually set aside for reserved properties (such as `_about`), so should be avoided. [https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Reserved_Words Words that are reserved within Javascript] should also be avoided.
+
+*Status:* Agreed on principle, not necessarily details.
