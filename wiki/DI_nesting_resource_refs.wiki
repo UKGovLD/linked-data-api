@@ -45,6 +45,7 @@ or:
 or:
 
 {{{
+[
   {
     "@": "http://example.org/anna",
     "name": "Anna Wilder",
@@ -55,9 +56,10 @@ or:
     "title": "Anna's Homepage",
     "maker": "http://example.org/anna"
   }
+]
 }}}
 
-In general there will be some non-tree graphs so nesting is not sufficient and in some cases clients will need to decide when to check up a URI link to see if it references to another resource in the results set. This interacts with [#Resource_references].
+In general there will be some non-tree graphs so nesting is not sufficient and in some cases clients will need to decide when to check up a URI link to see if it references to another resource in the results set. This interacts with [DI_resource_ref].
 
 _Der comment_: RDF/XML has the same issues. Experience with Jena suggests that controlling which nestings to prefer for the most common cases is possible ([http://www.openjena.org/IO/iohowto.html#output pretty types]) but that there are always some applications that need a different nesting. Given our goals of simplicity I'm inclined to put everything at the top level, or only nest tree-structured references.
 
