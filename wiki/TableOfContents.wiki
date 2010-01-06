@@ -24,4 +24,6 @@
       * [DI_type_shortcut rdf:type shortcut]
       * [DI_bnodes_graph bNodes - graphs]
       * [DI_named_graphs Named graphs?]
+ * Resources
+      * [Experimental translator]
  * [ProposedFormat Proposed Format] TBD!
