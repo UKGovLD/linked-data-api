@@ -31,7 +31,7 @@ The corresponding web endpoint is [http://epimorph-pubx1.appspot.com/rdfToJSON] 
 
 The GET interface enables the endpoint to act as a proxy onto public linked data. So, for example, the following will fetch the DBPedia description of Cambridge, convert it to JSON and return a wrapped array of resources with the first entry corresponding to `http://dbpedia.org/resource/Cambridge` and the remainder encoding all referenced resources that are included in the same RDF graph:
 
-[http://epimorph-pubx1.appspot.com/rdfToJSON?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FCamridge&PrettyPrint=true]
+[http://epimorph-pubx1.appspot.com/rdfToJSON?url=http%3A%2F%2Fdbpedia.org%2Fresource%2FCambridge&PrettyPrint=true]
 
 There is no web endpoint for the decoder yet. @@TODO
 
