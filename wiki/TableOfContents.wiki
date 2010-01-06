@@ -25,5 +25,5 @@
       * [DI_bnodes_graph bNodes - graphs]
       * [DI_named_graphs Named graphs?]
  * Resources
-      * [Experimental translator]
+      * [DI_expimental_translator Experimental translator]
  * [ProposedFormat Proposed Format] TBD!
