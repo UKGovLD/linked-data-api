@@ -4,34 +4,36 @@
 
 = Introduction =
 
-This page describes and experimental translator which implements a default set of the design decisions.
+This page describes an experimental translator which implements a starting set of design choices.
 
-The intention is to update this implementation as we agree on the design decisions so that at any point there should be a live version to test against.
+The intention is to update this implementation as we agree on the design decisions so that at any point there could be a live version to test against.
 
 = API structure =
 
-The translator is implemented in Java, built on top of Jena. Code and artefacts (javadoc, jar) will be released shortly (once I figure our how to switch from SVN to Mercurial).
+The translator is implemented in Java, built on top of Jena. Code and artefacts will be released shortly (once I figure our how to switch from SVN to Mercurial, and disentagle a few things).
 
 The translator supports:
-  * encoding an ordered list of RDF resources, with or without any referenced resources
+  * encoding an ordered list of RDF resources from a single graph, with or without any resources then reference
   * encoding an entire RDF graph 
   * encoding a !DataSet (a default graph plus a set of named graphs)
   * customizing the coding by supplying an ontology 
   * decoding back to an RDF graph (plus ordered list of root resources) or to a !DataSet
 
-Encoding can be optionally done relative to a base URI, in which case resource references which are extensions of that base will be encoded as relative URIs.
+Encoding can be optionally done relative to a base URI, in which case resource references that are extensions of that base will be encoded as relative URIs.
 
 = Web endpoint =
 
-To make it easy to experiment with the translation we've put up a simple web service using the Google App Engine.
+To make it easy to experiment with the translation we've put up a simple web service using Google App Engine.
 
-An interactive form which allows you to supply a source RDF graph and obtain the translation is at:  [http://epimorph-pubx1.appspot.com/]
+An interactive form that allows you to supply a source RDF graph and obtain the translation is at:  [http://epimorph-pubx1.appspot.com/]
 
-The corresponding web endpoint which is [http://epimorph-pubx1.appspot.com/rdfToJSON] and supports both a POST interface to implement the interactive form and a GET interface. Described in [http://epimorph-pubx1.appspot.com/help.html help file].
+The corresponding web endpoint is [http://epimorph-pubx1.appspot.com/rdfToJSON] and supports both a POST interface to implement the interactive form and a GET interface. Described in [http://epimorph-pubx1.appspot.com/help.html help file].
 
-The GET interface enables the endpoint to act as a proxy onto public linked data. So, for example, the following with fetach the DBPedia description of Cambridge, convert it to JSON and return a wrapped array of resources with the first entry corresponding to `http://dbpedia.org/resource/Cambridge` and the remainder encoding all referenced resources that are included in the same RDF graph:
+The GET interface enables the endpoint to act as a proxy onto public linked data. So, for example, the following will fetch the DBPedia description of Cambridge, convert it to JSON and return a wrapped array of resources with the first entry corresponding to `http://dbpedia.org/resource/Cambridge` and the remainder encoding all referenced resources that are included in the same RDF graph:
 
-[http://epimorph-pubx1.appspot.com/rdfToJSON?url=http%3dia.org%2Fresource%2FCambridge&PrettyPrint=true]
+[http://epimorph-pubx1.appspot.com/rdfToJSON?url=http%3dbpedia.org%2Fresource%2FCambridge&PrettyPrint=true]
+
+There is no web endpoint for the decoder yet. @@TODO
 
 = Design choices =
 
@@ -54,25 +56,25 @@ The proxy api supports a _callback_ optional parameter. While JSONP is a potenti
 
 == Communicating Mapping and context ==
 
-The wrapper includes a _context_ object, as RDFj, which provides a mapping table to invert the assignment of short names to properties and an (optional) base URI.
+The wrapper includes a _context_ object, as per RDFj, which provides a mapping table to invert the assignment of short names to properties and an (optional) base URI.
 
 == Specifying the mapping ==
 
 The mapping works with zero configuration.
 
-Optional short-name assignment, hiding of some properties and designating properties as multivalued is possible by supplying a separate Ontology graph. See [http://epimorph-pubx1.appspot.com/help.html#ontology help file]
+Optional short-name assignment, hiding of some properties and designating properties as multivalued, is possible by supplying a separate Ontology graph. See [http://epimorph-pubx1.appspot.com/help.html#ontology help file]
 
 == Simple resource description ==
 
-Uses `_about` as the property denoting the resource's URI, as per Jeni's suggestion.
+Currently uses `_about` as the property denoting the resource's URI.
 
 == Property naming ==
 
-Uses rdfs:label from the source graph or the separate (optional) ontology graph, if there is none uses localname if possible, if not possible (e.g. a clash with current usage) it appends a suffix to the localname.
+Uses rdfs:label from the source graph or the separate (optional) ontology graph, if there is none uses localname if possible, if not possible (e.g. a clash) it appends a suffix to the localname.
 
-Use of other labelling properties (e.g. skos:prefLabel) can be done by the caller by mapping such information to the ontology graph.
+Use of other labelling properties (e.g. skos:prefLabel) can be done by the caller by mapping such information to the labels in the ontology graph.
 
-Note: The current code fails to check labels match the NCName production. @@TODO
+Note: The current code fails to check that labels match the NCName production. @@TODO
 
 == bNodes - single reference ==
 
@@ -86,7 +88,7 @@ Strings starting with `<` get escaped.
 
 == Multi-valued properties ==
 
-An instance of a property with multiple values is mapped to a JSON Array, and instance with a single value maps to a single value.
+An instance of a property with multiple values is mapped to a JSON Array, an instance with a single value maps to a single value.
 
 Using the ontology graph it is possible to mark a Property as multivalued in which case it will always map to a JSON Array.
 
@@ -94,11 +96,11 @@ Using the ontology graph it is possible to mark a Property as multivalued in whi
 
 Mapped to a JSON Array as well.
 
-If a property is consistently used to reference a list or, possibly multiple, simple nodes then then the round tripping works (by recording range information in the context object).
+If a property is consistently used to reference a list or simple nodes then the round tripping works (by recording range information in the context object).
 
 == Language tagged literals ==
 
-Encoded using `"lexical@lan"` format as in `rdf:PlainLiteral`. A literal without language tag will not have a trailing `@` (thus diverging from `rdf:PlainLiteral` but in keeping with developer expectations).
+Encoded using `"lexical@lang"` format as in `rdf:PlainLiteral`. A plain literal without language tag will not have a trailing `@` (thus diverging from `rdf:PlainLiteral` but in keeping with developer expectations).
 
 A non-language-tagged string which already includes an `@` will be escaped to `\@` to avoid confusion.
 
@@ -114,7 +116,7 @@ All other types are mapped to `"lexical"^^type`. Plain strings containing `^^` w
 
 == Nesting resource references ==
 
-Resource references are encoded purely as URIs, using `<...>` notation (absolute or relative). Depending on the API call used referenced resources which are in the source graph and not in the list of root resources to be serialized may or may not be tacked on the end of the serialized results array.  In the simple case of serializing an whole RDF graph then each distinct subject URI node in the graph will be encoded as a top level object in the result array.
+Resource references are encoded purely as URIs, using `<...>` notation (absolute or relative). Depending on the API call used referenced resources which are in the source graph and not in the list of root resources to be serialized may or may not be tacked on the end of the serialized results array.  In the simple case of serializing a whole RDF graph then each distinct subject URI node in the graph will be encoded as a top level object in the result array.
 
 == rdf:type shortcut ==
 
@@ -122,7 +124,7 @@ None at present.
 
 == bNodes - graphs ==
 
-A bNoded referenced from multi places will be serialized using `_:id`.
+A bNode referenced from multiple places will be serialized using `_:id`.
 
 == Named graphs? ==
 
@@ -157,6 +159,5 @@ Any additional named graphs in the !DataSet will be serialized as objects in a `
 }
 }}}
 
-
-
+There is a single `context` object for the whole !DataSet, unlike RDFj which supports nested and inherited contexts.
 
