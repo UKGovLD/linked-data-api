@@ -10,8 +10,7 @@ The intention is to update this implementation as we agree on the design decisio
 
 = API structure =
 
-The translator is implemented in Java, built on top of Jena. Code and artefacts will be released shortly (once I figure our how to switch from SVN to Mercurial, and disentagle a few things).
-
+The translator is implemented in Java, built on top of Jena.
 The translator supports:
   * encoding an ordered list of RDF resources from a single graph, with or without any resources then reference
   * encoding an entire RDF graph 
