@@ -5,7 +5,7 @@
   <groupId>com.epimorphics.json</groupId>
   <artifactId>json-rdf</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>sdx-json</name>
+  <name>json-rdf</name>
   <url>http://maven.apache.org</url>
   <build>
   	<plugins>
