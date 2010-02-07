@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>API Deployment page</title>
+   <link rel="stylesheet" type="text/css" href="styles/style.css" />
+</head>
+
+<body>
+<h1>Experimental API Deployment page</h1>
+
+<form action="proxy/deploy" method="post">
+  <p>
+  <label>Endpoint definition: </label>
+     <p><textarea name="source" cols="80" rows="30">
+@prefix rdf:  &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix owl:  &lt;http://www.w3.org/2002/07/owl#&gt; .
+@prefix lda:  &lt;http://www.epimorphics.com/vocabularies/lda#&gt; .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+@prefix spec:  &lt;http://www.epimorphics.com/apispecifications/testing1#&gt; .
+@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .
+@prefix school-ont: &lt;http://education.data.gov.uk/def/school/&gt; .
+@prefix ex:  &lt;http://www.epimorphics.com/examples/eg1#&gt; .
+
+spec:apiTest a lda:API;
+    lda:endpoint &lt;http://localhost:8081/sdx-api/sparql&gt;;
+    .
+    
+spec:schools
+    a lda:List;
+    lda:uriTemplate "/doc/schools";
+    lda:api spec:apiTest;
+    lda:view [
+    	lda:type school-ont:School;
+    ] ;
+    lda:template [
+        rdfs:label "default";
+        lda:properties (rdf:type ex:name);
+        ];
+    .
+	</textarea>
+	</p>
+      <p>
+      <label>Security key: <input type="text" value="key" name="key"/></label><input type="submit" value="submit" /></p>
+  </form>
+
+
+</body>
+</html>
+
