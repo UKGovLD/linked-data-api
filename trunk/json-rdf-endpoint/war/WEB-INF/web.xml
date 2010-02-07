@@ -13,10 +13,30 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
     <servlet-class>com.epimorphics.jsonrdf.servlets.RDFtoJSON</servlet-class>
   </servlet>
 
+  <servlet>
+      <servlet-name>jersey</servlet-name>
+      <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+      <init-param>
+          <param-name>javax.ws.rs.Application</param-name>
+          <param-value>com.epimorphics.restful.api.APIApplication</param-value>
+      </init-param>
+  </servlet>
+
+  <servlet>
+    <servlet-name>api-loader</servlet-name>
+    <servlet-class>com.epimorphics.restful.api.GAELoader</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  
   <!-- MAPPINGS -->
   <servlet-mapping>
     <servlet-name>rdfToJSON</servlet-name>
     <url-pattern>/rdfToJSON</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>jersey</servlet-name>
+    <url-pattern>/proxy/*</url-pattern>
   </servlet-mapping>
 
 	<welcome-file-list>
