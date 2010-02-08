@@ -12,6 +12,7 @@ import javax.jdo.annotations.*;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Text;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
@@ -20,7 +21,8 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
     @Persistent protected String uri;
     @Persistent protected String userKey;
     @Persistent protected byte [] keyDigest;
-    @Persistent protected String modelAsNTriples;
+//    @Persistent protected String modelAsNTriples;
+    @Persistent protected Text modelAsNTriples;
     
     @PrimaryKey @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY) protected Key key;
     
@@ -29,7 +31,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
         this.uri = uri;
         this.userKey = userKey;
         this.keyDigest = SpecUtils.digestKey( uri, userKey );
-        this.modelAsNTriples = asNTriples( model );
+        this.modelAsNTriples = new Text( asNTriples( model ) );
         this.key = KeyFactory.createKey( PersistentSpecEntry.class.getSimpleName(), SpecManagerGAE.SPEC_KEY + "/" + uri );
         }
     
@@ -44,7 +46,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
         {
         try
             {
-            InputStream in = new ByteArrayInputStream( modelAsNTriples.getBytes( "UTF-8" ) );
+            InputStream in = new ByteArrayInputStream( modelAsNTriples.toString().getBytes( "UTF-8" ) );
             Model result = ModelFactory.createDefaultModel();
             result.read( in, "N-TRIPLES" );
             return result;

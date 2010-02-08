@@ -28,7 +28,6 @@ public class GAELoader extends HttpServlet {
     static Logger log = LoggerFactory.getLogger(Loader.class);
     
     public void init() {
-        // TODO Create a GAE SpecManager
 //        SpecManagerFactory.set( new SpecManagerImpl(RouterFactory.get()) );
         SpecManagerFactory.set( SpecManagerGAE.loadOrCreate( RouterFactory.get() ) );
     }

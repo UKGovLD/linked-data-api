@@ -30,27 +30,30 @@ import com.hp.hpl.jena.rdf.model.Model;
         String uri;
         APISpec spec;
         byte[] keyDigest;
+        Model specModel;
     
-        SpecEntry(String uri, String key, APISpec spec) {
+        SpecEntry(String uri, String key, APISpec spec, Model specModel) {
             this.uri = uri;
             this.keyDigest = SpecUtils.digestKey(uri, key);
             this.spec = spec;
+            this.specModel = specModel;
         } 
     }
     
     @NotPersistent protected static Map<String, SpecEntry> specs = new HashMap<String, SpecEntry>();
 
-    @Override public void addSpec( String uri, String userKey, Model spec ) throws APISecurityException
+    @Override public APISpec addSpec( String uri, String userKey, Model spec ) throws APISecurityException
         {        
         PersistenceManager pm = pmf.getPersistenceManager();
         removeExistingEntries( pm, uri, userKey );
-        addNewEntry( pm, uri, userKey, spec );
+        APISpec apiSpec = addNewEntry( pm, uri, userKey, spec );
         pm.close();
+        return apiSpec;
         }
 
     private void removeExistingEntries( PersistenceManager pm, String uri, String userKey ) throws APISecurityException
         {
-        PersistentSpecEntry current = pm.getObjectById( PersistentSpecEntry.class, SPEC_KEY + "/" + uri );
+        PersistentSpecEntry current = getExistingSpec(pm, SPEC_KEY + "/" + uri );
         if (current != null) 
             {
             deleteSpec( uri, userKey );
@@ -58,29 +61,33 @@ import com.hp.hpl.jena.rdf.model.Model;
             }
         }
 
-    private void addNewEntry( PersistenceManager pm, String uri, String userKey, Model spec )
+    private APISpec addNewEntry( PersistenceManager pm, String uri, String userKey, Model spec )
         {
         PersistentSpecEntry fresh = new PersistentSpecEntry( uri, userKey, spec );
         pm.makePersistent( fresh );
         APISpec apiSpec = new APISpec( spec.getResource( uri ) );
-        synchronized (specs) { specs.put( uri, new SpecEntry( uri, userKey, apiSpec ) ); }
+        synchronized (specs) { specs.put( uri, new SpecEntry( uri, userKey, apiSpec, spec ) ); }
         APIFactory.registerApi( router, apiSpec );
+        return apiSpec;
         }
     
     @Override public void deleteSpec( String uri, String key ) throws APISecurityException
         {        
         PersistenceManager pm = pmf.getPersistenceManager();
-        PersistentSpecEntry current = pm.getObjectById( PersistentSpecEntry.class, SPEC_KEY );
+        PersistentSpecEntry current = getExistingSpec(pm, SPEC_KEY );
         if (current == null)
             {
+            pm.close();         // TODO check this should be in here
             throw new APISecurityException( "API does not exist: " + uri );
             }
         else if (!keyMatches( uri, key, current.keyDigest ))
             {
+            pm.close();         // TODO check this should be in here
             throw new APISecurityException("This key is not permited to modify API " + uri);
             }
         removeEndpoints( uri );
         pm.deletePersistent( current );
+        pm.close();         // TODO check this should be in here
     }
 
     private void removeEndpoints( String uri )
@@ -94,20 +101,23 @@ import com.hp.hpl.jena.rdf.model.Model;
     @Override public void loadSpecFor( String uri ) 
         {        
         PersistenceManager pm = pmf.getPersistenceManager();
-        PersistentSpecEntry current = pm.getObjectById( PersistentSpecEntry.class, SPEC_KEY + "/" + uri );
+        PersistentSpecEntry current = getExistingSpec(pm, SPEC_KEY + "/" + uri );
+        pm.close();         // TODO check this should be in here
         if (current == null)
             throw new RuntimeException( new APISecurityException( "API does not exist: " + uri ) );
         else
             {
-            APISpec aSpec = new APISpec( current.getModel().getResource( uri ) );     
+            Model m = current.getModel();
+            APISpec aSpec = new APISpec( m.getResource( uri ) );     
             APIFactory.registerApi( router, aSpec );
+            synchronized (specs) { specs.put( uri, new SpecEntry( uri, current.userKey, aSpec, m) ); }
             }
         }
 
-    @Override public void updateSpec( String uri, String key, Model spec ) throws APISecurityException
+    @Override public APISpec updateSpec( String uri, String key, Model spec ) throws APISecurityException
         {
         deleteSpec( uri, key );
-        addSpec( uri, key, spec );
+        return addSpec( uri, key, spec );
         }
     
     @NotPersistent protected Router router;
@@ -127,6 +137,7 @@ import com.hp.hpl.jena.rdf.model.Model;
         if (answer == null) answer = createAndSaveNewSpecManager( pm );
         System.err.println( ">> created one, hooray!" );
         answer.router = router;
+        pm.close();         // TODO check this should be in here
         return answer;
         }
 
@@ -149,6 +160,32 @@ import com.hp.hpl.jena.rdf.model.Model;
         }
     
     @NotPersistent static final PersistenceManagerFactory pmf = JDOHelper.getPersistenceManagerFactory("transactions-optional");
+
+    private PersistentSpecEntry getExistingSpec(PersistenceManager pm, String key) {
+        try {
+            return pm.getObjectById( PersistentSpecEntry.class, key );
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public Model getSpecForAPI(String api) {
+        SpecEntry entry = specs.get(api);
+        if (entry != null) 
+            return entry.specModel;
+        return null;
+    }
+
+    @Override
+    public Model getSpecForEndpoint(String url) {
+        Match match = router.getMatch(url);
+        if (match != null) {
+            String apiURI = match.getEndpoint().getSpec().getAPISpec().getSpecURI();
+            return getSpecForAPI(apiURI);
+        } 
+        return null;
+    }
     }
 
     
