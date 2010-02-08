@@ -143,7 +143,10 @@ import com.hp.hpl.jena.rdf.model.Model;
     @Persistent static final String MANAGER_KEY = "spec-manager-key-from:eh@epicmorphics.com"; // TODO
 
     private static SpecManagerGAE findExistingSpecManager( PersistenceManager pm )
-        { return pm.getObjectById( SpecManagerGAE.class, MANAGER_KEY ); }    
+        { 
+        try { return pm.getObjectById( SpecManagerGAE.class, MANAGER_KEY ); }    
+        catch (Exception e) { return null; }
+        }
     
     @NotPersistent static final PersistenceManagerFactory pmf = JDOHelper.getPersistenceManagerFactory("transactions-optional");
     }
