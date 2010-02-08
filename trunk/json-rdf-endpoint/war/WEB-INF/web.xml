@@ -20,6 +20,17 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
           <param-name>javax.ws.rs.Application</param-name>
           <param-value>com.epimorphics.restful.api.APIApplication</param-value>
       </init-param>
+      
+    <init-param>
+      <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
+      <param-value>com.epimorphics.restful.workarounds.POSTReplaceFilter</param-value>
+    </init-param>  
+      
+    <init-param>
+      <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
+      <param-value>com.epimorphics.restful.support.SDX_URI_ConnegFilter</param-value>
+    </init-param>
+             
   </servlet>
 
   <servlet>
