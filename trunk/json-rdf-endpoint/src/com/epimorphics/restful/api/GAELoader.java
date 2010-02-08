@@ -29,7 +29,8 @@ public class GAELoader extends HttpServlet {
     
     public void init() {
         // TODO Create a GAE SpecManager
-        SpecManagerFactory.set( new SpecManagerImpl(RouterFactory.get()) );
+//        SpecManagerFactory.set( new SpecManagerImpl(RouterFactory.get()) );
+        SpecManagerFactory.set( SpecManagerGAE.loadOrCreate( RouterFactory.get() ) );
     }
     
 }
