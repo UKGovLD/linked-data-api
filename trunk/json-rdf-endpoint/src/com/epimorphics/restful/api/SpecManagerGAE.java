@@ -16,8 +16,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 public class SpecManagerGAE implements SpecManager
     {
-    
-    static Logger log = LoggerFactory.getLogger(SpecManagerGAE.class);
+    static final Logger log = LoggerFactory.getLogger(SpecManagerGAE.class);
     
     final protected EndpointToAPIMapper endpointMapper;
     
@@ -31,27 +30,38 @@ public class SpecManagerGAE implements SpecManager
         this.endpointMapper = new EndpointToAPIMapper( "myTag" );
         }
     
+    /**
+        Create a new SpecManager that persists its data in the GAE 
+        darastore. Set the manager's router to that supplied.
+    */
+    public static SpecManager create( Router router )
+        { return new SpecManagerGAE( router ); }
+    
     static class SpecEntry 
         {
-        String uri;
         APISpec spec;
-        byte[] keyDigest;
         Model specModel;
     
-        SpecEntry(String uri, String key, APISpec spec, Model specModel) {
-            this.uri = uri;
-            this.keyDigest = SpecUtils.digestKey(uri, key);
+        SpecEntry( APISpec spec, Model specModel) {
             this.spec = spec;
             this.specModel = specModel;
         } 
     }
     
+    /**
+        Discard any existing specification for the given uri. Install a new
+        specification with the given model.
+     */
     @Override public APISpec addSpec( String uri, String userKey, Model spec ) throws APISecurityException
         {        
         removeExistingEntries( uri, userKey );
         return addNewEntry( uri, userKey, spec );
         }
-
+    
+    /**
+        Remove any existing spec at the given uri from both the transient and
+        persistent records.
+    */
     private void removeExistingEntries( String uri, String userKey ) throws APISecurityException
         {
         PersistentSpecEntry current = PersistentSpecEntry.find( uri );
@@ -62,20 +72,24 @@ public class SpecManagerGAE implements SpecManager
             }
         }
 
+    /**
+        Add a new spec entry at the given uri with the given spec model
+        to both the transient and persistent records.
+    */
     private APISpec addNewEntry( String uri, String userKey, Model spec )
         {
         new PersistentSpecEntry( uri, userKey, spec ).persist();
         APISpec apiSpec = new APISpec( spec.getResource( uri ) );
-        synchronized (specs) { specs.put( uri, new SpecEntry( uri, userKey, apiSpec, spec ) ); }
+        synchronized (specs) { specs.put( uri, new SpecEntry( apiSpec, spec ) ); }
         APIFactory.registerApi( router, apiSpec );
-        synchronized (this) 
-            {
-            // TOODO make persistent
-            endpointMapper.put(apiSpec);
-            }
+        synchronized (this) { endpointMapper.put(apiSpec); }
         return apiSpec;
         }
     
+    /**
+        Delete any spec at the given URI from both the persistent and 
+        transient records.
+    */
     @Override public void deleteSpec( String uri, String userKey ) throws APISecurityException
         {
         PersistentSpecEntry current = PersistentSpecEntry.find( uri );
@@ -91,6 +105,10 @@ public class SpecManagerGAE implements SpecManager
         current.unpersist();
         }
 
+    /**
+        Remove all the endpoints for the spec at the given uri, if there are
+        any.
+    */
     private void removeEndpoints( String uri )
         {
         SpecEntry entry = null;
@@ -103,12 +121,13 @@ public class SpecManagerGAE implements SpecManager
                 return;
                 }
         }
-        synchronized (this) {
-            endpointMapper.remove(entry.spec, router);
-            // TODO make (un)persistent
-            }
+        synchronized (this) 
+            { endpointMapper.remove(entry.spec, router); }
         }
 
+    /**
+        load the spec for the given url.
+    */
     @Override public void loadSpecFor( String url ) 
         {        
         log.info("Trying to unpick encoding " + url);
@@ -125,7 +144,7 @@ public class SpecManagerGAE implements SpecManager
             Model m = current.getModel();
             APISpec aSpec = new APISpec( m.getResource( uri ) );     
             APIFactory.registerApi( router, aSpec );
-            synchronized (specs) { specs.put( uri, new SpecEntry( uri, current.userKey, aSpec, m) ); }
+            synchronized (specs) { specs.put( uri, new SpecEntry( aSpec, m) ); }
             }
         }
 
@@ -133,16 +152,6 @@ public class SpecManagerGAE implements SpecManager
         {
         deleteSpec( uri, key );
         return addSpec( uri, key, spec );
-        }
-    
-    /**
-        Create a new persistent SpecManager, or load the existing one.
-        Set the router field to that supplied.
-    */
-    public static SpecManager create( Router router )
-        {
-        SpecManagerGAE result = new SpecManagerGAE( router );
-        return result;
         }
 
     @Override public Model getSpecForAPI( String api ) 
