@@ -34,6 +34,10 @@ public class PersistentSpecEntry
         this.modelAsNTriples = new Text( asNTriples( model ) );
         }
     
+    /**
+        Answer a string containing the N-TRIPLES representation of the
+        given Model.
+    */
     private static String asNTriples( Model model )
         {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -41,19 +45,23 @@ public class PersistentSpecEntry
         return bos.toString();
         }
     
+    /**
+        Answer the model represented in N-TRIPLES in this persistent spec entry's
+        modelAsNTriples Text.
+    */
     public Model getModel()
         { return getModelFromText( modelAsNTriples ); }
 
+    /**
+        Answer the model represented in N-TRIPLES in the given Text. 
+    */
     private static Model getModelFromText( Text modelText )
         {
         try
             {
             String modelString = modelText.getValue();
-//            log.info( ">> the model string is\n" + modelString );
             InputStream in = new ByteArrayInputStream( modelString.getBytes( "UTF-8" ) );
-            Model result = ModelFactory.createDefaultModel();
-            result.read( in, "", "N-TRIPLES" );
-            return result;
+            return ModelFactory.createDefaultModel().read( in, "", "N-TRIPLES" );
             }
         catch (UnsupportedEncodingException e)
             { throw new RuntimeException( e ); }
