@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/wstx-asl-3.2.9.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/xercesImpl-2.7.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/arq-2.8.3-SNAPSHOT.jar" sourcepath="/ARQ/src"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jena-2.6.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jena-2.6.3-SNAPSHOT.jar" sourcepath="/JenaCore/src"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/asm-3.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-core-asl-1.1.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jaxb-api-2.1.jar"/>

@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Bootstrap loader for use in a GAE environment
  * 
@@ -29,7 +28,7 @@ public class GAELoader extends HttpServlet {
     
     public void init() {
 //        SpecManagerFactory.set( new SpecManagerImpl(RouterFactory.get()) );
-        SpecManagerFactory.set( SpecManagerGAE.loadOrCreate( RouterFactory.get() ) );
+        SpecManagerFactory.set( SpecManagerGAE.create( RouterFactory.get() ) );
     }
     
 }
