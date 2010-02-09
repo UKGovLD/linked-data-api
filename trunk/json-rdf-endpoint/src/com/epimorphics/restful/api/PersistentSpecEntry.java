@@ -49,7 +49,7 @@ public class PersistentSpecEntry
         try
             {
             String modelString = modelText.getValue();
-            log.info( ">> the model string is\n" + modelString );
+//            log.info( ">> the model string is\n" + modelString );
             InputStream in = new ByteArrayInputStream( modelString.getBytes( "UTF-8" ) );
             Model result = ModelFactory.createDefaultModel();
             result.read( in, "", "N-TRIPLES" );
