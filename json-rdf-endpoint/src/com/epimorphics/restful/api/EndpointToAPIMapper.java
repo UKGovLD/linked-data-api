@@ -12,11 +12,7 @@ package com.epimorphics.restful.api;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
+import com.google.appengine.api.datastore.*;
 
 import com.google.appengine.api.datastore.Key;
 import com.sun.jersey.api.uri.UriTemplate;
@@ -27,18 +23,55 @@ import com.sun.jersey.api.uri.UriTemplate;
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
  * @version $Revision: $
  */
-@PersistenceCapable(identityType = IdentityType.APPLICATION, detachable="true")
+
 public class EndpointToAPIMapper {
     
-    @Persistent(serialized="true") protected Map<String,  String> endpointToAPI = new HashMap<String, String>();
+    protected Map<String, String> endpointToAPI = new HashMap<String, String>();
 
-    @PrimaryKey
-    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    private Key key;
+    static final String KIND = EndpointToAPIMapper.class.getName();
+    
+    protected final Entity myEntity;
+    
+    public EndpointToAPIMapper( String tag )
+        {
+        myEntity = findOrCreate( tag );
+        Map <String, Object> properties = myEntity.getProperties();
+        for (String key: properties.keySet())
+            endpointToAPI.put( key, (String) properties.get( key ) );
+        }
 
-    public void setKey(Key key) {
-        this.key = key;
-    }        
+    private Entity findOrCreate( String tag )
+        {
+        DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+        Key key = KeyFactory.createKey( KIND, tag );
+        try 
+            { return ds.get( key ); }
+        catch (EntityNotFoundException e) 
+            { 
+            Entity fresh = new Entity( KIND, tag );
+            ds.put( fresh );
+            return fresh; 
+            }
+        }
+    
+    private void persist()
+        {
+        clearEntity();
+        setEntity();
+        DatastoreServiceFactory.getDatastoreService().put( myEntity );
+        }
+
+    private void setEntity()
+        {
+        for (String key: endpointToAPI.keySet())
+            myEntity.setProperty( key, endpointToAPI.get( key ) );
+        }
+
+    private void clearEntity()
+        {
+        for (String key: myEntity.getProperties().keySet())
+            myEntity.removeProperty( key );
+        }
 
     /**
      * Record all the endpoints URLs for this API
@@ -47,6 +80,7 @@ public class EndpointToAPIMapper {
         for (APISpec.APIEndpointSpec eps : spec.getEndpoints()) {
             endpointToAPI.put(eps.getURITemplate(), spec.getSpecURI());
         }
+        persist();
     }
     
     /**
@@ -58,6 +92,7 @@ public class EndpointToAPIMapper {
             router.unregister( template );
             endpointToAPI.remove( template );
         }
+        persist();
     }
     
     /**
@@ -84,6 +119,5 @@ public class EndpointToAPIMapper {
         }
         return match;
     }
-    
 }
 

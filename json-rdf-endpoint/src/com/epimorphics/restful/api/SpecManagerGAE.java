@@ -19,15 +19,16 @@ public class SpecManagerGAE implements SpecManager
     
     static Logger log = LoggerFactory.getLogger(SpecManagerGAE.class);
     
-    protected EndpointToAPIMapper endpointMapper;
+    final protected EndpointToAPIMapper endpointMapper;
     
     protected Map<String, SpecEntry> specs = new HashMap<String, SpecEntry>();
     
-    protected Router router;
+    final protected Router router;
     
-    private SpecManagerGAE( EndpointToAPIMapper mapper )
+    private SpecManagerGAE( Router router )
         {
-        this.endpointMapper = mapper;
+        this.router = router;
+        this.endpointMapper = new EndpointToAPIMapper( "myTag" );
         }
     
     static class SpecEntry 
@@ -140,10 +141,7 @@ public class SpecManagerGAE implements SpecManager
     */
     public static SpecManager create( Router router )
         {
-        EndpointToAPIMapper epm = new EndpointToAPIMapper();
-        // TODO make it persistent ...
-        SpecManagerGAE result = new SpecManagerGAE( epm );
-        result.router = router;
+        SpecManagerGAE result = new SpecManagerGAE( router );
         return result;
         }
 

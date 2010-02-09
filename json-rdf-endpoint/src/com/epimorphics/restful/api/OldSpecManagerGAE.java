@@ -183,15 +183,15 @@ import com.google.appengine.api.datastore.Key;
     private static OldSpecManagerGAE createAndSaveNewSpecManager( PersistenceManager pm )
         {
         Key mapkey = KeyFactory.createKey(EndpointToAPIMapper.class.getSimpleName(), ENDPOINT_MAP_KEY);
-        EndpointToAPIMapper endpointMapper = new EndpointToAPIMapper();
-        endpointMapper.setKey(mapkey);
-        pm.makePersistent(endpointMapper);
-        endpointMapper = pm.detachCopy(endpointMapper);   // Detach to allow future update
+        // EndpointToAPIMapper endpointMapper = new EndpointToAPIMapper();
+       // endpointMapper.setKey(mapkey);
+        // pm.makePersistent(endpointMapper);
+        // endpointMapper = pm.detachCopy(endpointMapper);   // Detach to allow future update
 
         Key key = KeyFactory.createKey( SpecManagerGAE.class.getSimpleName(), MANAGER_KEY );
-        OldSpecManagerGAE result = new OldSpecManagerGAE( key, endpointMapper );
-        pm.makePersistent( result );
-        return result;
+//        OldSpecManagerGAE result = new OldSpecManagerGAE( key, endpointMapper );
+//        pm.makePersistent( result );
+        return null; // result;
         }
 
     private static OldSpecManagerGAE findExistingSpecManager( PersistenceManager pm ) {
