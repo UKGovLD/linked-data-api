@@ -8,23 +8,23 @@ package com.epimorphics.restful.api;
 
 import java.io.*;
 
-import javax.jdo.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.datastore.*;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-@PersistenceCapable(identityType = IdentityType.APPLICATION) class PersistentSpecEntry
+public class PersistentSpecEntry
     {
-    @Persistent protected String uri;
-    @Persistent protected String userKey;
-    @Persistent protected byte [] keyDigest;
-//    @Persistent protected String modelAsNTriples;
-    @Persistent protected Text modelAsNTriples;
+    protected static final String KIND = PersistentSpecEntry.class.getSimpleName();
     
-    @PrimaryKey @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY) protected Key key;
+    protected String uri;
+    protected String userKey;
+    protected byte [] keyDigest;
+    protected Text modelAsNTriples;
+
+    static Logger log = LoggerFactory.getLogger( PersistentSpecEntry.class );
     
     PersistentSpecEntry( String uri, String userKey, Model model )
         {
@@ -32,7 +32,6 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
         this.userKey = userKey;
         this.keyDigest = SpecUtils.digestKey( uri, userKey );
         this.modelAsNTriples = new Text( asNTriples( model ) );
-        this.key = KeyFactory.createKey( PersistentSpecEntry.class.getSimpleName(), SpecManagerGAE.SPEC_KEY + "/" + uri );
         }
     
     private static String asNTriples( Model model )
@@ -43,16 +42,61 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
         }
     
     public Model getModel()
+        { return getModelFromText( modelAsNTriples ); }
+
+    private static Model getModelFromText( Text modelText )
         {
         try
             {
-            InputStream in = new ByteArrayInputStream( modelAsNTriples.toString().getBytes( "UTF-8" ) );
+            String modelString = modelText.getValue();
+            log.info( ">> the model string is\n" + modelString );
+            InputStream in = new ByteArrayInputStream( modelString.getBytes( "UTF-8" ) );
             Model result = ModelFactory.createDefaultModel();
-            result.read( in, "N-TRIPLES" );
+            result.read( in, "", "N-TRIPLES" );
             return result;
             }
         catch (UnsupportedEncodingException e)
             { throw new RuntimeException( e ); }
+        }
+
+    /**
+        Persist this entry in the datastore
+    */
+    public void persist()
+        {
+        log.info( ">> persisting " + uri + " in the datastore." );
+        Entity representation = new Entity( KIND, uri );
+        representation.setProperty( "uri", uri );
+        representation.setProperty( "userKey", userKey );
+        representation.setProperty( "modelAsNTriples", modelAsNTriples );
+        DatastoreServiceFactory.getDatastoreService().put( representation );
+        log.info( ">> well, that should have worked." );
+        }
+
+    /**
+        Remove this entry from the datastore.
+    */
+    public void unpersist()
+        {
+        log.info( ">> removing " + uri + " from the datastore." );
+        Key key = KeyFactory.createKey( KIND, uri );
+        DatastoreServiceFactory.getDatastoreService().delete( key );
+        }
+
+    public static PersistentSpecEntry find( String uri )
+        {
+        log.info( ">> looking for " + uri + " in the datastore." );
+        Key key = KeyFactory.createKey( KIND, uri );
+        Entity representation = lookup( key );
+        if (representation == null) return null; // throw new NotFoundException( KIND + "(" + uri + ")" );
+        log.info( ">> we found it! making the matching Jva object." );
+        return new PersistentSpecEntry( uri, uri, getModelFromText( (Text) representation.getProperty( "modelAsNTriples" ) ) );
+        }
+
+    private static Entity lookup( Key key )
+        {
+        try { return DatastoreServiceFactory.getDatastoreService().get( key ); }
+        catch (EntityNotFoundException e) { return null; }
         }
     }
     
