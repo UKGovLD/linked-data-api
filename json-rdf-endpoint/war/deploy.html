@@ -25,19 +25,19 @@
 @prefix ex:  &lt;http://www.epimorphics.com/examples/eg1#&gt; .
 
 spec:apiTest a lda:API;
-    lda:endpoint &lt;http://localhost:8081/sdx-api/sparql&gt;;
+    lda:endpoint &lt;http://services.data.gov.uk/education/sparql&gt;;
     .
     
 spec:schools
     a lda:List;
-    lda:uriTemplate "/doc/schools";
+    lda:uriTemplate "/docMini/schools";
     lda:api spec:apiTest;
     lda:view [
     	lda:type school-ont:School;
     ] ;
     lda:template [
         rdfs:label "default";
-        lda:properties (rdf:type ex:name);
+        lda:properties (rdf:type rdfs:label);
         ];
     .
 	</textarea>
