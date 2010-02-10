@@ -14,15 +14,18 @@ import org.slf4j.LoggerFactory;
 import com.google.appengine.api.datastore.*;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.util.FileUtils;
 
 public class PersistentSpecEntry
     {
     protected static final String KIND = PersistentSpecEntry.class.getSimpleName();
+    final static String WRITE_FORMAT = "N3-TRIPLES";
+    final static String READ_FORMAT = "Turtle";
     
     protected String uri;
     protected String userKey;
     protected byte [] keyDigest;
-    protected Text modelAsNTriples;
+    protected Text modelAsTurtle;
 
     static Logger log = LoggerFactory.getLogger( PersistentSpecEntry.class );
     
@@ -31,17 +34,17 @@ public class PersistentSpecEntry
         this.uri = uri;
         this.userKey = userKey;
         this.keyDigest = SpecUtils.digestKey( uri, userKey );
-        this.modelAsNTriples = new Text( asNTriples( model ) );
+        this.modelAsTurtle = new Text( asTurtle( model ) );
         }
     
     /**
         Answer a string containing the N-TRIPLES representation of the
         given Model.
     */
-    private static String asNTriples( Model model )
+    private static String asTurtle( Model model )
         {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        model.write( bos, "N-TRIPLES" );
+        model.write( bos, WRITE_FORMAT );
         return bos.toString();
         }
     
@@ -50,7 +53,7 @@ public class PersistentSpecEntry
         modelAsNTriples Text.
     */
     public Model getModel()
-        { return getModelFromText( modelAsNTriples ); }
+        { return getModelFromText( modelAsTurtle ); }
 
     /**
         Answer the model represented in N-TRIPLES in the given Text. 
@@ -61,7 +64,7 @@ public class PersistentSpecEntry
             {
             String modelString = modelText.getValue();
             InputStream in = new ByteArrayInputStream( modelString.getBytes( "UTF-8" ) );
-            return ModelFactory.createDefaultModel().read( in, "", "N-TRIPLES" );
+            return ModelFactory.createDefaultModel().read( in, "", READ_FORMAT );
             }
         catch (UnsupportedEncodingException e)
             { throw new RuntimeException( e ); }
@@ -76,7 +79,7 @@ public class PersistentSpecEntry
         Entity representation = new Entity( KIND, uri );
         representation.setProperty( "uri", uri );
         representation.setProperty( "userKey", userKey );
-        representation.setProperty( "modelAsNTriples", modelAsNTriples );
+        representation.setProperty( "modelasTurtle", modelAsTurtle );
         DatastoreServiceFactory.getDatastoreService().put( representation );
         log.info( ">> well, that should have worked." );
         }
@@ -97,8 +100,8 @@ public class PersistentSpecEntry
         Key key = KeyFactory.createKey( KIND, uri );
         Entity representation = lookup( key );
         if (representation == null) return null; // throw new NotFoundException( KIND + "(" + uri + ")" );
-        log.info( ">> we found it! making the matching Jva object." );
-        return new PersistentSpecEntry( uri, uri, getModelFromText( (Text) representation.getProperty( "modelAsNTriples" ) ) );
+        log.info( ">> we found it! making the matching Java object." );
+        return new PersistentSpecEntry( uri, uri, getModelFromText( (Text) representation.getProperty( "modelasTurtle" ) ) );
         }
 
     private static Entity lookup( Key key )
