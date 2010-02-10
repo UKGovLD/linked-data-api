@@ -132,6 +132,10 @@ public class SpecManagerGAE implements SpecManager
         {        
         log.info("Trying to unpick encoding " + url);
         String uri = getAPIURIforEndpointURL(url);
+        if (uri == null) {
+            log.error("No endpoint for " + url);
+            return;
+        }
         log.info("Mapped this to API " + uri);
         PersistentSpecEntry current = PersistentSpecEntry.find( uri );
         if (current == null) 
