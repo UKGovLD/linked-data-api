@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.google.appengine.api.datastore.*;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.util.FileUtils;
 
 public class PersistentSpecEntry
     {
