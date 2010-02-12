@@ -17,27 +17,27 @@
 @prefix rdf:  &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
 @prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
 @prefix owl:  &lt;http://www.w3.org/2002/07/owl#&gt; .
-@prefix lda:  &lt;http://www.epimorphics.com/vocabularies/lda#&gt; .
+@prefix api:  &lt;http://www.epimorphics.com/vocabularies/api#&gt; .
 @prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
 @prefix spec:  &lt;http://www.epimorphics.com/apispecifications/testing1#&gt; .
 @prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .
 @prefix school-ont: &lt;http://education.data.gov.uk/def/school/&gt; .
 @prefix ex:  &lt;http://www.epimorphics.com/examples/eg1#&gt; .
 
-spec:apiTest a lda:API;
-    lda:endpoint &lt;http://services.data.gov.uk/education/sparql&gt;;
+spec:apiTest a api:API;
+    api:sparqlEndpoint &lt;http://services.data.gov.uk/education/sparql&gt;;
+    api:endpoint spec:schools;
     .
     
 spec:schools
-    a lda:List;
-    lda:uriTemplate "/docMini/schools";
-    lda:api spec:apiTest;
-    lda:view [
-    	lda:type school-ont:School;
+    a api:ListEndpoint;
+    api:uriTemplate "/docMini/schools";
+    api:selector [
+    	api:type school-ont:School;
     ] ;
-    lda:template [
+    api:viewer [
         rdfs:label "default";
-        lda:properties (rdf:type rdfs:label);
+        api:properties rdf:type, rdfs:label;
         ];
     .
 	</textarea>
