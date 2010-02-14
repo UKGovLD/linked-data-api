@@ -27,6 +27,7 @@ public class APIApplication extends Application {
         Set<Class<?>> s = new HashSet<Class<?>>();
         s.add(DeploymentRestlet.class);
         s.add(RouterRestlet.class);
+        s.add(ControlRestlet.class);
         s.add(MetadataRestlet.class);
         return s;
     }
