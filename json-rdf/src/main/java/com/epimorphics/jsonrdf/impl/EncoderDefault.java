@@ -28,17 +28,17 @@ package com.epimorphics.jsonrdf.impl;
 
 import java.text.ParseException;
 import java.util.Iterator;
-import java.util.regex.Pattern;
+
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
 import com.epimorphics.jsonrdf.Context;
 import com.epimorphics.jsonrdf.Decoder;
 import com.epimorphics.jsonrdf.EncoderPlugin;
 import com.epimorphics.jsonrdf.EncodingException;
+import com.epimorphics.jsonrdf.JSONWriterFacade;
 import com.epimorphics.jsonrdf.RDFUtil;
-import com.epimorphics.jsonrdf.org.json.JSONArray;
-import com.epimorphics.jsonrdf.org.json.JSONException;
-import com.epimorphics.jsonrdf.org.json.JSONObject;
-import com.epimorphics.jsonrdf.org.json.JSONWriter;
 import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
@@ -70,7 +70,7 @@ public class EncoderDefault implements EncoderPlugin {
     public static final String Format = "linked-data-api"; 
     
     /** version number of format */
-    public static final String Version = "0.0"; 
+    public static final String Version = "0.1"; 
     
     /** property name for the format name property */    
     public static final String PNFormat = "format"; 
@@ -101,20 +101,33 @@ public class EncoderDefault implements EncoderPlugin {
     
     /** Encode a resource URI */
     public String encodeResourceURI(String uri) {
-        return "<" + uri + ">";
-//        return uri;
+        return uri;
+    }
+    
+    /** Encode a resource URI, shortening it if possible */
+    public String encodeResourceURI(String uri, Context context, boolean shorten) {
+        if (shorten) {
+            String name = context.getNameForURI(uri);
+            if (name != null) return name;
+        }
+        // Try URI relative to base
+        String base = context.getBase();
+        if (base != null && ! base.isEmpty() && uri.startsWith(base)) {
+            String name = uri.substring(base.length());
+            return "<" + name + ">";
+        } else {
+            return uri;
+        }
     }
     
     /** Decode a resource URI */
-    public String decodeResourceURI(String code) {
+    public String decodeResourceURI(String code, Context context) {
         if (code.startsWith("<") && code.endsWith(">")) {
-            return code.substring(1, code.length()-1);
+            String relUri = code.substring(1, code.length()-1);
+            return context.getBase() + relUri;
         } else {
-//            if (looksLikeURI(code)) {
-                return code;
-//            } else {
-//                throw new EncodingException("Expected URI, found: " + code);
-//            }
+            String uri = context.getURIfromName(code);
+            return (uri == null) ? code : uri;
         }
     }
     
@@ -154,7 +167,7 @@ public class EncoderDefault implements EncoderPlugin {
     }
 
     /** Write the context object to a JSON stream */
-    public void writeContext(Context context, JSONWriter jw) throws JSONException {
+    public void writeContext(Context context, JSONWriterFacade jw) {
         jw.key(PNContext);
         jw.object();
         String base = context.getBase();
@@ -195,17 +208,9 @@ public class EncoderDefault implements EncoderPlugin {
     }
     
     /**
-     * Check whether a string looks like an (absolute) URI
-     */
-    private static final Pattern uriPattern = Pattern.compile("(mailto:|file:|https?://|ftp://|urn:)\\S+");
-    public static boolean looksLikeURI(String s) {
-        return uriPattern.matcher(s).matches();
-    }
-    
-    /**
      * Write the outer result wrapper.
      */
-    public void writeHeader(JSONWriter jw) throws JSONException {
+    public void writeHeader(JSONWriterFacade jw)  {
         jw.object()
         .key(PNFormat).value(Format)
         .key(PNVersion).value(Version);
@@ -214,41 +219,41 @@ public class EncoderDefault implements EncoderPlugin {
     /**
      * Writer header for a results/model array object
      */
-    public void startResults(JSONWriter jw) throws JSONException {
+    public void startResults(JSONWriterFacade jw)  {
         jw.key(PNContent)
             .array();
     }
     
     /** Start a sub-section for outputing named graphs */
-    public void startNamedGraphs(JSONWriter jw) throws JSONException {
+    public void startNamedGraphs(JSONWriterFacade jw)  {
         jw.key(PNgraphs);
         jw.array();
     }
     
     /** Start a specific named graph */
-    public void startNamedGraph(JSONWriter jw, String name) throws JSONException {
+    public void startNamedGraph(JSONWriterFacade jw, String name)  {
         jw.object();
         jw.key(getPNResourceID()).value(encodeResourceURI(name));
     }
     
     /** Finish a specific named graph */
-    public void finishNamedGraph(JSONWriter jw) throws JSONException {
+    public void finishNamedGraph(JSONWriterFacade jw)  {
         jw.endObject();
     }
     
     /** Finish the entire second of named graphs, assumes last graph has been closed */
-    public void finishNamedGraphs(JSONWriter jw) throws JSONException {
+    public void finishNamedGraphs(JSONWriterFacade jw)  {
         jw.endArray();
     }
     
     /** Return the array of encoded graphs from a top level JSON results set, or null if there is none */
-    public JSONArray getNamedGraphs(JSONObject jobj) {
+    public JSONArray getNamedGraphs(JSONObject jobj) throws JSONException {
         return jobj.optJSONArray(PNgraphs);
     }
     
     /** Return the name of a named graph */
-    public String getGraphName(JSONObject graph) throws JSONException {
-        return decodeResourceURI( graph.getString(getPNResourceID()) );
+    public String getGraphName(JSONObject graph, Context context) throws JSONException {
+        return decodeResourceURI( graph.getString(getPNResourceID()), context );
     }
     
     /** Extract the context part of a deserialized JSON object  */
@@ -262,6 +267,7 @@ public class EncoderDefault implements EncoderPlugin {
     }
     
     /** Extract the context part of an embedded deserialized JSON object, no version checks  */
+    @SuppressWarnings("unchecked")
     public Context getEmbeddedContext(JSONObject jObj) throws JSONException {
         JSONObject cObj = jObj.getJSONObject(PNContext);
         Context context = new Context(cObj.optString(PNbase));
@@ -277,7 +283,7 @@ public class EncoderDefault implements EncoderPlugin {
                 prop.setType(range);
                 context.setProperty(uri, prop);
             } else {
-                context.setName(uri, key);
+                context.recordPreferredName(key, uri);
             }
         }
         return context;
@@ -295,12 +301,14 @@ public class EncoderDefault implements EncoderPlugin {
         } if (jsonValue instanceof Boolean) {
             return ResourceFactory.createTypedLiteral(jsonValue);
         } else if (jsonValue instanceof String) {
-            String lex = unescapeString( (String)jsonValue );
+            String lex = (String)jsonValue;  // Check for relative URIs before unescaping
+            if (lex.startsWith("<") && lex.endsWith(">")) {
+                return decoder.resourceForURI(lex);
+            }
+            lex = unescapeString( (String)jsonValue );
             if (lex.startsWith("_:")) {
                 // Multi reference bNode 
                 return decoder.bNodeForID( lex );
-            } else if (lex.startsWith("<") && lex.endsWith(">")) {
-                return decoder.resourceForURI(lex.substring(1, lex.length()-1));
             } else if (OWL.Thing.getURI().equals(type)) {
                 return decoder.resourceForURI(lex);
             } else if (lex.contains("^^")) { 

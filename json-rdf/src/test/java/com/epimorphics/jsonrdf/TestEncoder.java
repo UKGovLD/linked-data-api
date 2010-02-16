@@ -26,6 +26,7 @@
 
 package com.epimorphics.jsonrdf;
 import static org.junit.Assert.*;
+import static com.hp.hpl.jena.rdf.model.test.ModelTestBase.assertIsoModels;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -41,6 +42,7 @@ import com.epimorphics.jsonrdf.org.json.JSONArray;
 import com.epimorphics.jsonrdf.org.json.JSONException;
 import com.epimorphics.jsonrdf.org.json.JSONObject;
 import com.epimorphics.jsonrdf.org.json.JSONTokener;
+import com.epimorphics.vocabs.API;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -55,7 +57,7 @@ public class TestEncoder {
                 ModelFactory.createDefaultModel(), 
                 new ArrayList<Resource>(), 
                 writer);
-        assertEquals("{\"format\":\"linked-data-api\",\"version\":\"0.0\",\"results\":[],\"context\":{\"mapping\":{}}}",
+        assertEquals("{\"format\":\"linked-data-api\",\"version\":\"0.1\",\"results\":[],\"context\":{\"mapping\":{}}}",
                 writer.toString());
     }
     
@@ -77,6 +79,7 @@ public class TestEncoder {
         } else {
             enc.encode(src, roots, writer);
         }
+//        System.out.println("Encoding: " + writer.toString());
         StringReader reader = new StringReader( writer.toString() );
         
         List<Resource> results = Decoder.decode(reader);
@@ -89,13 +92,13 @@ public class TestEncoder {
         }
         if ( ! results.isEmpty() ) {
             Model found = results.get(0).getModel();
+//            assertIsoModels(expected, found);
             boolean ok = found.isIsomorphicWith(expected);
             if (!ok) {
+                System.out.println("Found:");
                 found.write(System.out, "Turtle");
-//                System.out.println("Found:");
-//                found.write(System.out, "N-TRIPLE");
-//                System.out.println("Expected:");
-//                expected.write(System.out, "N-TRIPLE");
+                System.out.println("Expected:");
+                expected.write(System.out, "Turtle");
                 assertTrue("Compare returned model", ok);
             }
         }
@@ -107,7 +110,7 @@ public class TestEncoder {
         + "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
         + "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
         + "@prefix xsd: <" + XSD.getURI() + "> .\n"
-        + "@prefix lda: <" + LDA.getURI() + "> .\n"
+        + "@prefix lda: <" + API.getURI() + "> .\n"
         + "@prefix alt: <http://www.epimorphics.com/tools/exampleAlt#> .\n"
        + "@prefix : <http://www.epimorphics.com/tools/example#> .\n";
 
@@ -225,7 +228,7 @@ public class TestEncoder {
     
     @Test public void testResourcesWithLabels() throws IOException {
         testEncoding(":r :p :res. :res rdfs:label 'resource label'.", Encoder.get(), ":r :p :res.",  new String[]{":r"},
-        "[{'_about':'<http://www.epimorphics.com/tools/example#r>', 'p':'<http://www.epimorphics.com/tools/example#res>'}]");
+        "[{'_about':'http://www.epimorphics.com/tools/example#r', 'p':'http://www.epimorphics.com/tools/example#res'}]");
     }
     
     @Test public void testSimpleLists() throws IOException {
@@ -237,31 +240,31 @@ public class TestEncoder {
     }
     
     @Test public void testOntologyNaming() throws IOException {
-        testEncoding(":r :p 'foo'; :q 'bar'.", ":p rdfs:label 'pee'.", new String[]{":r"}, 
-                "[{'_about':'<http://www.epimorphics.com/tools/example#r>','pee':'foo','q':'bar'}]" );
+        testEncoding(":r :p 'foo'; :q 'bar'.", ":p rdf:type rdf:Property; rdfs:label 'pee'.", new String[]{":r"}, 
+                "[{'_about':'http://www.epimorphics.com/tools/example#r','pee':'foo','q':'bar'}]" );
     }
     
     @Test public void testForcedMultivalue() throws IOException {
-        testEncoding(":r :p 'foo'; :q 'bar'.", ":p rdf:type lda:Multivalued.", new String[]{":r"}, 
-                "[{'_about':'<http://www.epimorphics.com/tools/example#r>','p':['foo'],'q':'bar'}]" );
+        testEncoding(":r :p 'foo'; :q 'bar'.", ":p rdf:type lda:Multivalued, rdf:Property.", new String[]{":r"}, 
+                "[{'_about':'http://www.epimorphics.com/tools/example#r','p':['foo'],'q':'bar'}]" );
     }
     
     @Test public void testForcedMultivalue2() throws IOException {
-        roundTripOntTester(":r :p 'foo'. :r2 :p 'foo', 'bar'.", ":p rdf:type lda:Multivalued.", new String[]{":r", ":r2"});
+        roundTripOntTester(":r :p 'foo'. :r2 :p 'foo', 'bar'.", ":p rdf:type lda:Multivalued, rdf:Property.", new String[]{":r", ":r2"});
     }
     
     @Test public void testHide() throws IOException {
-        roundTripOntTester(":r :p 'foo'; :q 'bar'.", ":p rdf:type lda:Hidden.", ":r :q 'bar'.", new String[]{":r"});
+        roundTripOntTester(":r :p 'foo'; :q 'bar'.", ":p rdf:type lda:Hidden, rdf:Property.", ":r :q 'bar'.", new String[]{":r"});
     }
     
     @Test public void testPropertyBase() throws IOException {
         testEncoding(":r :p 'foo'.", Encoder.get( new Context("http://www.epimorphics.com/tools/")), 
-                new String[]{":r"}, "[{'_about':'<example#r>','example#p':'foo'}]");
+                new String[]{":r"}, "[{'_about':'<example#r>','p':'foo'}]");
     }
     
     @Test public void testResourceBase() throws IOException {
         testEncoding(":r :p :r2. :r2 :p :r3.", Encoder.get( new Context("http://www.epimorphics.com/tools/")), 
-                new String[]{":r", ":r2"}, "[{'_about':'<example#r>','example#p':'<example#r2>'},{'_about':'<example#r2>','example#p':'<example#r3>'}]");
+                new String[]{":r", ":r2"}, "[{'_about':'<example#r>','p':'<example#r2>'},{'_about':'<example#r2>','p':'<example#r3>'}]");
     }
 
     @Test public void testResourceList() throws IOException {
@@ -274,7 +277,7 @@ public class TestEncoder {
         Context context = new Context();
         context.setSorted(true);
         testEncoding(":r :p 'foo'; :q 'bar'; :s 'baz'.", Encoder.get( context ), 
-                new String[]{":r"}, "[{'_about':'<http://www.epimorphics.com/tools/example#r>','p':'foo','q':'bar','s':'baz'}]");
+                new String[]{":r"}, "[{'_about':'http://www.epimorphics.com/tools/example#r','p':'foo','q':'bar','s':'baz'}]");
     }
     
     @Test public void testLiterals() throws IOException {
@@ -282,15 +285,15 @@ public class TestEncoder {
                 Encoder.get(),
                 ":r :p 'foo'@en; :q '2.3'^^xsd:double; :s 'bar'.",
                 new String[]{":r"}, 
-                "[{'_about':'<http://www.epimorphics.com/tools/example#r>','q':2.3,'p':'foo@en','s':'bar'}]" );
+                "[{'_about':'http://www.epimorphics.com/tools/example#r','q':2.3,'p':'foo@en','s':'bar'}]" );
         testEncoding(":r :p 'true'^^xsd:boolean.", 
                 Encoder.get(),
                 new String[]{":r"}, 
-                "[{'_about':'<http://www.epimorphics.com/tools/example#r>','p':true}]" );
+                "[{'_about':'http://www.epimorphics.com/tools/example#r','p':true}]" );
         testEncoding(":r :p 'http://example.com/eg'^^xsd:anyURI.", 
                 Encoder.get(),
                 new String[]{":r"}, 
-                "[{'_about':'<http://www.epimorphics.com/tools/example#r>','p':'http://example.com/eg'}]");                
+                "[{'_about':'http://www.epimorphics.com/tools/example#r','p':'http://example.com/eg'}]");                
         // Problem with Jena datatype equality blocks testing
         // If we weren't using Maven this would be easy to fix. Sigh.
 //        testEncoding(":r :p 'foobar'^^alt:mytype.", 
@@ -304,7 +307,7 @@ public class TestEncoder {
         testEncoding(":r :p '1999-05-31T02:09:32Z'^^xsd:dateTime.", 
                 Encoder.get(),
                 new String[]{":r"}, 
-                "[{'_about':'<http://www.epimorphics.com/tools/example#r>','p':'Mon, 31 May 1999 02:09:32 GMT+0000'}]" );
+                "[{'_about':'http://www.epimorphics.com/tools/example#r','p':'Mon, 31 May 1999 02:09:32 GMT+0000'}]" );
     }
     
     @Test public void testWholeModels() throws IOException, JSONException {
@@ -351,11 +354,12 @@ public class TestEncoder {
         assertNotNull(results);
         assertFalse(results.isEmpty());
         Model found = results.get(0).getModel();
-        boolean ok = found.isIsomorphicWith(expected);
-        if (!ok) {
-            found.write(System.out, "Turtle");
-            assertTrue("Compare returned model", ok);
-        }
+        assertIsoModels(expected, found);
+//        boolean ok = found.isIsomorphicWith(expected);
+//        if (!ok) {
+//            found.write(System.out, "Turtle");
+//            assertTrue("Compare returned model", ok);
+//        }
         
     }
     

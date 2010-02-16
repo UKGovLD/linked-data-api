@@ -26,16 +26,22 @@
 
 package com.epimorphics.jsonrdf;
 
+import static com.epimorphics.jsonrdf.RDFUtil.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import com.epimorphics.vocabs.API;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.rdf.model.impl.Util;
+import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
@@ -57,8 +63,8 @@ public class Context {
     protected Map<String, String> uriToName = new HashMap<String, String>();
     protected Map<String, String> nameToURI = new HashMap<String, String>();
     protected int nameCount = 0;
-    protected Model ontology;
     protected boolean sortProperties = false;
+    protected boolean completedMappingTable = false;
     
     /**
      * Construct an empty context
@@ -72,7 +78,7 @@ public class Context {
      * @param ontology ontology model used for naming, and annotation to control serializations
      */
     public Context(Model ontology) {
-        this.ontology = ontology;
+        loadVocabularyAnnotations(ontology);
     }
     
     /**
@@ -90,9 +96,127 @@ public class Context {
      */
     public Context(String base, Model ontology) {
         this.base = base;
-        this.ontology = ontology;
+        loadVocabularyAnnotations(ontology);
     }
 
+    /**
+     * Scan the given vocabulary file to find shortname and property type
+     * annotations
+     */
+    public void loadVocabularyAnnotations(Model m, PrefixMapping prefixes) {                
+        for(Resource r : RES_TYPES_TO_SHORTEN) 
+            loadAnnotations(m, m.listSubjectsWithProperty(RDF.type, r), false, prefixes);
+        for(Resource r : PROP_TYPES_TO_SHORTEN) 
+            loadAnnotations(m, m.listSubjectsWithProperty(RDF.type, r), true, prefixes);
+        loadAnnotations(m, m.listSubjectsWithProperty(API.label), false, prefixes);
+    }
+    static Resource[] RES_TYPES_TO_SHORTEN = new Resource[] {RDFS.Class, OWL.Class};
+        // TODO add SKOS
+    static Resource[] PROP_TYPES_TO_SHORTEN = new Resource[] {RDF.Property, OWL.DatatypeProperty, OWL.ObjectProperty, API.Hidden};
+    static Pattern labelPattern = Pattern.compile("[_a-zA-Z][0-9a-zA-Z_]*");
+    
+    protected void loadAnnotations(Model m, ResIterator ri, boolean isProperty, PrefixMapping prefixes) {
+        while (ri.hasNext()) {
+            Resource res = ri.next();
+            String uri = res.getURI();
+            String shortform = null;
+            if (uri != null) {
+                recordAltName(uri, prefixes);
+                if (res.hasProperty(API.label)) {
+                    shortform = getStringValue(res, API.label);
+                    recordPreferredName(shortform, uri);
+                } else if (res.hasProperty(RDFS.label)) {
+                    shortform = getStringValue(res, RDFS.label);
+                    if (labelPattern.matcher(shortform).matches()) {
+                        recordPreferredName(shortform, uri);
+                    }
+                }
+                if (isProperty) {
+                    // Make sure there is a property record of some sort
+                    if (shortform == null) shortform = getLocalName(uri);
+                    createPropertyRecord(shortform, res);
+                }
+            }
+        }
+    }
+    
+    public void loadVocabularyAnnotations(Model m) {
+        loadVocabularyAnnotations(m, m);
+    }
+    
+    /**
+     * Record the preferred name to use to shorten a URI.
+     * If the name is already in use then only record as an alternate name
+     */
+    public void recordPreferredName(String name, String uri) {
+        if (isNameFree(name)) {
+            nameToURI.put(name, uri);
+            uriToName.put(uri, name);
+            Prop prop = uriToProp.get(uri);
+            if (prop != null && !prop.getName().equals(name)) {
+                prop.setName(name);
+            }
+        } 
+    }
+    
+    protected void createPropertyRecord(String name, Resource res) {
+        String uri = res.getURI();
+        Prop prop = uriToProp.get(uri);
+        if (prop == null) {
+            prop = makeProp(uri, name);
+            uriToProp.put(uri, prop);
+        }
+        if (res.hasProperty(RDF.type, API.Multivalued)) 
+            prop.setMultivalued(true);
+        if (res.hasProperty(RDF.type, API.Hidden))
+            prop.setHidden(true);
+        String typeURI = getStringValue(res, RDFS.range);
+        if (typeURI != null)
+            prop.setType(typeURI);
+    }
+    
+    /**
+     * Record an alternative named to use to to shorted a URI.
+     * Will only be used when expanding queries, not for generation of shortform listings
+     */
+    protected void recordAltName(String name, String uri) {
+        if ( ! nameToURI.containsKey(name))
+            nameToURI.put(name, uri);
+        // Only the preferred name goes in the uriToName mapping
+    }
+    
+    protected void recordAltName(String uri, PrefixMapping pm) {
+        // Note local name
+        recordAltName(getLocalName(uri), uri );
+        // Note prefixed name
+        String sf = pm.shortForm(uri);
+        if ( ! sf.equals(uri)) {
+            sf = sf.replace(':', '_');
+        }
+        recordAltName(sf, uri);
+    }
+
+    protected String getLocalName(String uri) {
+        return uri.substring( Util.splitNamespace( uri ));
+    }
+
+    /**
+     * Finish off the mapping table filling in anything we have useful prefixes for
+     * and inventing non-clashing forms.
+     */
+    protected void completeContext() {
+        if ( !completedMappingTable ) {
+            completedMappingTable = true;
+            for (Map.Entry<String, String> e : nameToURI.entrySet()) {
+                String uri = e.getValue();
+                String name = e.getKey();
+                if ( ! uriToName.containsKey(uri)) {
+                    uriToName.put(uri, name);
+                }
+            }
+        }
+    }
+    
     /** Return the base URI assumed during serialization */
     public String getBase() {
         return base;
@@ -127,150 +251,91 @@ public class Context {
         return getPropertyByURI( getURIfromName(name) );
     }
     
-    /** Assign a property definition to a property URI */
-    public void setProperty(String uri, Prop prop) {
-        String name = prop.getName();
-        if (name != null) {
-            setName(uri, name);
-        }
-        uriToProp.put(uri, prop);
-    }
-    
     /** Lookup the shortened form for a URI, can apply to non-properties (e.g. classes) as well as properties */
     public String getNameForURI(String uri) {
+        completeContext();
         return uriToName.get(uri);
     }
     
     /** Lookup the URI for a shortened name. Returns null if no mapping is known */
     public String getURIfromName(String name) {
+        completeContext();
         return nameToURI.get(name);
     }
-        
-    /** Lookup the URI for a shortened name. Returns name if no mapping is known */
-    public String exapandURIfromName(String name) {
-        String uri = getURIfromName(name);
-        if (uri == null) {
-            if (getBase() != null) {
-                return getBase() + name;
-            } else {
-                return name;
-            }
-        } 
-        return uri;
-    }
     
-    /** Assign a shortened name for a URI. 
-     */
-    public void setName(String uri, String name) {
-        String currName = getNameForURI(uri);
-        if (currName != null && !currName.equals(name)) {
-            throw new EncodingException("Name already assigned: " + name);
-        }
-        String currUri = getURIfromName(name);
-        if (currUri != null && !currUri.equals(uri)) {
-            throw new EncodingException("URI already assigned different name: " + uri);
-        }
-        nameToURI.put(name, uri);
-        uriToName.put(uri, name);
-    }
-
-    /**
-     * Determine an appropriate name for a uri resource, creating a new
-     * context entry if required. Assumes that the resource is "in" the
-     * model containing relevant naming information.
-     */
-    public String findNameForResource(Resource r) {
-        String uri = r.getURI();
-        String name = getNameForURI(uri);
-        if (name == null) {
-            // Try URI relative to base
-            if (base != null && ! base.isEmpty() && uri.startsWith(base)) {
-                name = uri.substring(base.length());
-                if (isNameFree(name)) {
-                    return name;
-                }
-            }
-            return null;  // No natural name
-        } else {
-            return name;
-        }
-    }
-    
-    /**
-     * Find the right name representation for a non-property resource
-     */
-    public String findResource(Resource r) {
-        String name = findNameForResource(r);
-        return (name == null) ? r.getURI() : name;
-    }
-
     /**
      * Determine an appropriate name for a property resource, creating a new
-     * context entry if required. Assumes that the resource is "in" the
-     * model containing relevant naming information.
+     * context entry if required. 
      */
-    public String findNameForProperty(Resource r) {
-        String name = findNameForResource(r);
+    protected String findNameForProperty(Resource r) {
+        String uri = r.getURI();
+        String name = getNameForURI( uri );
         if (name == null) {
-            // No assignment yet, invent one if appropriate
-            // Best option - find a label from the ontology or model
-            ExtendedIterator<RDFNode> ni = r.getModel().listObjectsOfProperty(r, RDFS.label);
-            if (ontology != null) {
-                ni = ontology.listObjectsOfProperty(r, RDFS.label).andThen( ni );
+            // Try just using localname
+            String localname = r.getLocalName(); 
+            if ( nameUpdateOK(localname, uri) ) return localname;
+            
+            // See if we can generate a prefix form
+            name = r.getModel().shortForm(uri);
+            if (! name.equals(uri)) {
+                name = name.replace(':', '_');
+                if ( nameUpdateOK(name, uri) ) return name;
             }
-            while (ni.hasNext()) {
-                RDFNode lnode = ni.next();
-                if (lnode.isLiteral()) {
-                    name = ((Literal)lnode).getLexicalForm();
-                    if (isNameFree(name)) {
-                        setName(r.getURI(), name);
-                        return name;
-                    }
-                }
-            }
-            // Try localname
-            name = r.getLocalName();
-            if (!name.isEmpty() && isNameFree(name))  return name;
-            // Start making up names
+            
+            // Start making ones up as a last resort
             while (true) {
-                name = "P" + nameCount++;
-                if (isNameFree(name)) return name;
+                name = localname + nameCount++;
+                if ( nameUpdateOK(name, uri) ) return name;
             }
         } else {
             return name;
         }
     }
 
+    protected boolean nameUpdateOK(String name, String uri) {
+        if (isNameFree(name)) {
+            recordPreferredName(name, uri);
+            return true;
+        }
+        return false;
+    }
+
     /**
-     * Determine an appropriate name for a property, creating a new
-     * context entry if required. Assumes that the resource is "in" the
-     * model containing relevant naming information.
+     * Determine record for a property, creating a new
+     * context entry if required.
      */
     public Prop findProperty(Property p) {
         String uri = p.getURI();
         Prop prop = getPropertyByURI(uri);
         if (prop == null) {
             String name = findNameForProperty(p);
-            prop = makeProp(uri, name);
-            if (ontology != null) {
-                prop.setMultivalued(ontology.contains(p, RDF.type, LDA.Multivalued));
-                prop.setHidden(ontology.contains(p, RDF.type, LDA.Hidden));
+            prop = getPropertyByURI(uri);
+            if (prop == null) {
+                prop = makeProp(uri, name);
+                uriToProp.put(uri, prop);
             }
         }
         return prop;
     }
     
     /** Test if a name is not already in use */
-    public boolean isNameFree( String name ) {
-        return ! nameToURI.containsKey(name);
+    protected boolean isNameFree( String name ) {
+        String uri = nameToURI.get(name);
+        if (uri == null) {
+            // No entry at all so it is definitely free
+            return true;
+        } else {
+            // Might be a non-preferred entry
+            String prefname = uriToName.get(uri);
+            return (prefname == null) || (! prefname.equals(name));
+        }
     }
     
     /**
      * Construct and register a Prop record for a newly named resource 
      */
-    Prop makeProp(String uri, String name) {
+    protected Prop makeProp(String uri, String name) {
         Prop prop = new Prop(uri, name);
-        setProperty(uri, prop);
         return prop;
     }
     
@@ -325,22 +390,30 @@ public class Context {
         
         /** Record the type of a sample value, if there is a clash with prior type then default to rdfs:Resource */
         public void addType(RDFNode value) {
-            if (this.type == null) {
-                this.type = decideType(value);
+            if (type == null) {
+                type = decideType(value);
             } else {
                 String ty = decideType(value);
                 if ( ! this.type.equals(ty) ) {
-                    this.type = RDFS.Resource.getURI();
+                    if (TypeUtil.isSubTypeOf(ty, type)) {
+                        // Current type is OK
+                    } if (TypeUtil.isSubTypeOf(type, ty)) {
+                        type = ty;
+                    } else {
+                        // Generalize type
+                        type = RDFS.Resource.getURI();
+                    }
                 }
             }
         }
         
         private String decideType(RDFNode value) {
             if (value instanceof Resource) {
-                if (RDFUtil.isList(value)) {
+                if (RDFUtil.isList(value) || value.equals(RDF.nil)) {
                     return RDF.List.getURI();
+                } else {
+                    return OWL.Thing.getURI();
                 }
-                return OWL.Thing.getURI();
             } else {
                 Literal l = (Literal)value;
                 String ty = l.getDatatypeURI();
@@ -373,6 +446,12 @@ public class Context {
         public int compareTo(Prop o) {
            return name.compareTo(o.name);     
         }
+    }
+
+    public void setProperty(String uri, Prop prop) {
+        uriToProp.put(uri, prop);
+        String name = prop.getName();
+        recordPreferredName(name, uri);  // False to isProperty because we are registering an externally created prop ourselves
     }
     
 }

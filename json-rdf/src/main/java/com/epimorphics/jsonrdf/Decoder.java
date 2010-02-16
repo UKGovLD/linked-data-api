@@ -26,18 +26,21 @@
 
 package com.epimorphics.jsonrdf;
 
+import java.io.IOException;
 import java.io.Reader;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.codehaus.jettison.json.JSONTokener;
+
 import com.epimorphics.jsonrdf.impl.EncoderDefault;
-import com.epimorphics.jsonrdf.org.json.JSONArray;
-import com.epimorphics.jsonrdf.org.json.JSONException;
-import com.epimorphics.jsonrdf.org.json.JSONObject;
-import com.epimorphics.jsonrdf.org.json.JSONTokener;
 import com.hp.hpl.jena.query.DataSource;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -58,13 +61,27 @@ public class Decoder {
      * @throws EncodingException if there is a jsonrdf level error or JSON error
      */
     public static List<Resource> decode(Reader reader) {
+        
         try {
-            JSONObject jObj = new JSONObject( new JSONTokener(reader) );
+            JSONObject jObj = new JSONObject( new JSONTokener( readFull(reader) ) );
             Context context = encoder.getContext(jObj);
             return new Decoder(context, jObj).decodeResources();
         } catch (JSONException e) {
             throw new EncodingException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new EncodingException(e.getMessage(), e);
         }
+    }
+    
+    protected final static int BUFLEN = 1000;
+    protected static String readFull(Reader reader) throws IOException {
+        StringBuffer whole = new StringBuffer();
+        char[] buff = new char[BUFLEN];
+        int len = 0;
+        while ((len = reader.read(buff)) != -1) {
+            whole.append(buff, 0, len);
+        }
+        return whole.toString();
     }
     
     /**
@@ -89,7 +106,7 @@ public class Decoder {
      */
     public static DataSource decodeGraphs(Reader reader) {
         try {
-            JSONObject jObj = new JSONObject( new JSONTokener(reader) );
+            JSONObject jObj = new JSONObject( new JSONTokener( readFull(reader) ) );
             Context context = encoder.getContext(jObj);
             Model def = modelFromRoots( new Decoder(context, jObj).decodeResources() );
             DataSource set = DatasetFactory.create(def);
@@ -97,13 +114,15 @@ public class Decoder {
             if (graphs != null) {
                 for (int i = 0; i < graphs.length(); i++) {
                     JSONObject graph = graphs.getJSONObject(i);
-                    String name = encoder.getGraphName(graph);
+                    String name = encoder.getGraphName(graph, context);
                     Model model = modelFromRoots( new Decoder(context, graph).decodeResources() );
                     set.addNamedModel(name, model);
                 }
             }
             return set;
         } catch (JSONException e) {
+            throw new EncodingException(e.getMessage(), e);
+        } catch (IOException e) {
             throw new EncodingException(e.getMessage(), e);
         }
     }
@@ -133,7 +152,7 @@ public class Decoder {
         String uriCode = rObj.optString( encoder.getPNResourceID(), null );
         Resource r = (uriCode == null || uriCode.startsWith("_:")) 
                         ? bNodeForID( uriCode ) 
-                        : resourceForURI( encoder.decodeResourceURI(uriCode) );
+                        : resourceForURI( encoder.decodeResourceURI(uriCode, context) );
         Iterator<String> keys = rObj.keys();
         while(keys.hasNext()) {
             String key = keys.next();
@@ -149,6 +168,8 @@ public class Decoder {
                 JSONArray vala = (JSONArray)val;
                 if (prop != null && prop.getType().equals(RDF.List.getURI())) {
                     r.addProperty(p, decodeList(vala));
+                } else if (vala.length() == 0) {
+                    r.addProperty(p, RDF.nil);
                 } else {
                     for (int i = 0; i < vala.length(); i++) {
                         r.addProperty(p, decodeNode( vala.get(i), range ));
@@ -172,11 +193,15 @@ public class Decoder {
     }
     
     protected RDFNode decodeList(JSONArray array) throws JSONException {
-        RDFNode[] listContents = new RDFNode[ array.length() ];
-        for (int i = 0; i < array.length(); i++) {
-            listContents[i] =  decodeNode(array.get(i), null);
+        if (array.length() == 0) {
+            return RDF.nil;
+        } else {
+            RDFNode[] listContents = new RDFNode[ array.length() ];
+            for (int i = 0; i < array.length(); i++) {
+                listContents[i] =  decodeNode(array.get(i), null);
+            }
+            return model.createList(listContents);
         }
-        return model.createList(listContents);
     }
     
     public Resource bNodeForID(String id) {
@@ -197,7 +222,9 @@ public class Decoder {
     }
     
     public Resource resourceForURI(String uri) {
-        return model.createResource( context.exapandURIfromName(uri) );
+//        return model.createResource( context.exapandURIfromName(uri) );
+        // TODO check
+        return model.createResource( encoder.decodeResourceURI(uri, context) );
     }
     
 
