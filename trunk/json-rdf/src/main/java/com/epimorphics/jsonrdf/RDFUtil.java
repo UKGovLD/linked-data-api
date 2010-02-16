@@ -31,13 +31,16 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
 import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.XSD;
 
@@ -45,6 +48,43 @@ public class RDFUtil {
 
     public static final String RDFPlainLiteral = RDF.getURI() + "PlainLiteral";
 
+    /**
+     * Return one of the values of the property on the resource in string form.
+     * If there are no values return the defaultValue. If the value is not
+     * a String but is a literal return it's lexical form. If it is a resource
+     * return it's URI. 
+     */
+    public static String getStringValue(Resource r, Property p, String defaultValue) {
+        Statement s = r.getProperty(p);
+        if (s == null) {
+            return defaultValue;
+        } else {
+            return getLexicalForm( s.getObject() );
+        }
+    }
+
+    /**
+     * Return one of the values of the property on the resource in string form.
+     * If there are no values return null.
+     */
+    public static String getStringValue(Resource r, Property p) {
+        return getStringValue(r, p, null);
+    }
+    
+    /**
+     * Return the lexical form of a node. This is the lexical form of a
+     * literal, the URI of a URIResource or the annonID of a bNode.
+     */
+    public static String getLexicalForm(RDFNode value) {
+        if (value.isLiteral()) {
+            return ((Literal)value).getLexicalForm();
+        } else if (value.isURIResource()) {
+            return ((Resource)value).getURI();
+        } else {
+            return value.toString();
+        }
+    }
+    
     /**
      * test if a node corresponds to an RDF List
      */
@@ -93,4 +133,14 @@ public class RDFUtil {
             return ResourceFactory.createTypedLiteral( dt );
         }
     }
+    
+    
+    /**
+     * Check whether a string looks like an (absolute) URI
+     */
+    private static final Pattern uriPattern = Pattern.compile("(mailto:|file:|https?://|ftp://|urn:)\\S+");
+    public static boolean looksLikeURI(String s) {
+        return uriPattern.matcher(s).matches();
+    }
+
 }

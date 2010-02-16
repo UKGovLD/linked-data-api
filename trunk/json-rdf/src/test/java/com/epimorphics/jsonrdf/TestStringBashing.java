@@ -40,6 +40,7 @@ public class TestStringBashing {
         doTestEncode("foo^^bar", "foo\\^\\^bar");
         doTestEncode("foo\\bar", "foo\\\\bar");
         doTestEncode("/foo/bar", "/foo/bar");
+        doTestEncode("http://foo/bar", "http://foo/bar");
     }
     
     private void doTestEncode(String src, String expected) {
@@ -49,13 +50,13 @@ public class TestStringBashing {
     }
     
     @Test public void testURIs() {
-        assertEquals(true, EncoderDefault.looksLikeURI("http://www.foo.bar/baz"));
-        assertEquals(true, EncoderDefault.looksLikeURI("https://www.foo.bar/baz"));
-        assertEquals(true, EncoderDefault.looksLikeURI("mailto:dave@epimorphics.com"));
-        assertEquals(true, EncoderDefault.looksLikeURI("file://c:\\mydrive/foo.bar"));
-        assertEquals(true, EncoderDefault.looksLikeURI("urn:isbn:12345908"));
-        assertEquals(false, EncoderDefault.looksLikeURI("foo:baz"));
-        assertEquals(false, EncoderDefault.looksLikeURI("http//fool"));
+        assertEquals(true, RDFUtil.looksLikeURI("http://www.foo.bar/baz"));
+        assertEquals(true, RDFUtil.looksLikeURI("https://www.foo.bar/baz"));
+        assertEquals(true, RDFUtil.looksLikeURI("mailto:dave@epimorphics.com"));
+        assertEquals(true, RDFUtil.looksLikeURI("file://c:\\mydrive/foo.bar"));
+        assertEquals(true, RDFUtil.looksLikeURI("urn:isbn:12345908"));
+        assertEquals(false, RDFUtil.looksLikeURI("foo:baz"));
+        assertEquals(false, RDFUtil.looksLikeURI("http//fool"));
     }
 }
 

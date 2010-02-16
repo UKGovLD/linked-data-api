@@ -56,7 +56,7 @@ public class TestNamedGraphs {
             source.addNamedModel(names[i], modelFromTurtle(graphs[i]));
         }
         StringWriter writer = new StringWriter();
-        Encoder.get().encode(source, writer, true);
+        Encoder.get().encode(source, writer);
         String encoding = writer.toString();
 //        System.out.println(encoding);
         

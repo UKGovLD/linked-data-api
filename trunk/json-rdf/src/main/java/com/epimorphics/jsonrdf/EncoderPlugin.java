@@ -26,10 +26,10 @@
 
 package com.epimorphics.jsonrdf;
 
-import com.epimorphics.jsonrdf.org.json.JSONArray;
-import com.epimorphics.jsonrdf.org.json.JSONException;
-import com.epimorphics.jsonrdf.org.json.JSONObject;
-import com.epimorphics.jsonrdf.org.json.JSONWriter;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
@@ -46,6 +46,9 @@ public interface EncoderPlugin {
     /** Encode a resource URI */
     public String encodeResourceURI(String uri);
     
+    /** Encode a resource URI, use relative URIs if possible, use shortnames only if flag is set */
+    public String encodeResourceURI(String uri, Context context, boolean shortNames);
+    
     /** Encode a reference to a bNode via a mapped identifier number */
     public String encodebNodeId(int id);
     
@@ -53,35 +56,35 @@ public interface EncoderPlugin {
     public Object encode(Literal lit);
     
     /** Write the outer result wrapper.  */
-    public void writeHeader(JSONWriter jw) throws JSONException;
+    public void writeHeader(JSONWriterFacade jw);
     
     /** Writer header for a results/model array object   */
-    public void startResults(JSONWriter jw) throws JSONException ;
+    public void startResults(JSONWriterFacade jw) ;
     
     /** Write the context object to a JSON stream */
-    public void writeContext(Context context, JSONWriter jw) throws JSONException;
+    public void writeContext(Context context, JSONWriterFacade jw);
     
     /** Start a sub-section for outputing named graphs */
-    public void startNamedGraphs(JSONWriter jw) throws JSONException ;
+    public void startNamedGraphs(JSONWriterFacade jw);
     
     /** Start a specific named graph */
-    public void startNamedGraph(JSONWriter jw, String name) throws JSONException ;
+    public void startNamedGraph(JSONWriterFacade jw, String name) ;
     
     /** Finish a specific named graph */
-    public void finishNamedGraph(JSONWriter jw) throws JSONException ;
+    public void finishNamedGraph(JSONWriterFacade jw);
     
     /** Finish the entire second of named graphs, assumes last graph has been closed */
-    public void finishNamedGraphs(JSONWriter jw) throws JSONException ;
+    public void finishNamedGraphs(JSONWriterFacade jw);
     
     /** Return the array of encoded graphs from a top level JSON results set, or null if there is none */
-    public JSONArray getNamedGraphs(JSONObject jobj);
+    public JSONArray getNamedGraphs(JSONObject jobj)  throws JSONException;
     
     /** Return the name of a named graph */
-    public String getGraphName(JSONObject graph) throws JSONException ;
+    public String getGraphName(JSONObject graph, Context context) throws JSONException ;
     
     /** Extract the context part of a deserialized JSON object 
      * @throws JSONException */
-    public Context getContext(JSONObject jobj) throws JSONException ;
+    public Context getContext(JSONObject jobj) throws JSONException;
     
     /** Extract the context part of an embedded deserialized JSON object, no version checks  */
     public Context getEmbeddedContext(JSONObject jObj) throws JSONException;
@@ -90,7 +93,7 @@ public interface EncoderPlugin {
     public JSONArray getResults(JSONObject jobj) throws JSONException;
     
     /** Decode a resource URI */
-    public String decodeResourceURI(String code);
+    public String decodeResourceURI(String code, Context context);
     
     /** Decode an RDF value (object of a statement) */
     public RDFNode decodeValue(Object jsonValue, Decoder decoder, String type);
