@@ -4,7 +4,7 @@
 ==Site index==
  * [AssumptionsAndGoals Assumptions and Goals]
  * [JSONFormats Existing JSON formats]
- * [DesignQuestions Design questions] and resolutions so far
+ * [DesignQuestions JSON Design questions] and resolutions so far
  * API Design Issues
       * [DI_API_wrapper API result wrapper]
       * [DI_JSONP JSONP support]
@@ -26,4 +26,4 @@
       * [DI_named_graphs Named graphs?]
  * Resources
       * [DI_expimental_translator Experimental translator]
- * [ProposedFormat Proposed Format] TBD!
+ * [JSONFormat JSON Format]
