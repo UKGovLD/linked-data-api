@@ -271,7 +271,7 @@ For List Endpoints the query to be executed may be explicitly defined or assembl
   * the set of namespace prefixes, which is the same as those in the configuration file (or the in-scope prefixes if the configuration is not loaded from a file)
   * the LIMIT and OFFSET clauses, to support automatic paging
 
-The query itself is a "SELECT query":http://www.w3.org/TR/rdf-sparql-query/#select based on a combination of the request parameters and the *selector* associated with the endpoint through the `api:selector` property. The query can be specified directly or constructed automatically.
+The query itself is a [http://www.w3.org/TR/rdf-sparql-query/#select SELECT query] based on a combination of the request parameters and the *selector* associated with the endpoint through the `api:selector` property. The query can be specified directly or constructed automatically.
 
 Paginated is supported by adding an OFFSET clause based on the `_page` request parameter, if present (otherwise no OFFSET clause is added) and a LIMIT clause with the value:
 
