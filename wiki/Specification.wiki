@@ -315,7 +315,7 @@ Note that the order specification may also involve adding filters to the WHERE c
 
 ====Filters====
 
-Resources are filtered based on a "GroupGraphPattern":http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern constructed by combining:
+Resources are filtered based on a [http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern GroupGraphPattern] constructed by combining:
 
   * the `_where` request parameter
   * the unreserved request parameters (those that don't start with an underscore)
@@ -333,7 +333,7 @@ The `api:filter` property should be turned into a set of parameter bindings as i
 
 The set of parameter bindings from the `api:filter` should be combined with the unreserved request parameters. Where both sets contain the same parameter binding, the one from the request parameters should override the one from the `api:filter`.
 
-This set of parameter bindings should be converted into something matching "TriplesSameSubject":http://www.w3.org/TR/rdf-sparql-query/#rTriplesSameSubject. The subject is `?item`.
+This set of parameter bindings should be converted into something matching [http://www.w3.org/TR/rdf-sparql-query/#rTriplesSameSubject TriplesSameSubject]. The subject is `?item`.
 
 For each parameter binding, the name should be mapped to a list of properties by 
 
@@ -397,7 +397,7 @@ A prefix of `exists-` is a special case that involves further changes to the pat
 
 ====Ordering====
 
-The ordering of resources is based on a "ORDER BY clause":http://www.w3.org/TR/rdf-sparql-query/#rOrderClause. The clause is created using:
+The ordering of resources is based on a [http://www.w3.org/TR/rdf-sparql-query/#rOrderClause ORDER BY clause]. The clause is created using:
 
   * the `_orderBy` request parameter, if present
   * otherwise, the `_sort` request parameter, if present
@@ -406,7 +406,7 @@ The ordering of resources is based on a "ORDER BY clause":http://www.w3.org/TR/r
   * otherwise, the ordering specified by the selector indicated by the `api:parent` property of the selector, if present; implementations should issue a warning if the parent orders its items through an explicit query as opposed to using a separate ordering specification
   * otherwise no ORDER BY is applied
 
-The `_orderBy` request parameter and `api:orderBy` property contain space-separated "OrderConditions":http://www.w3.org/TR/rdf-sparql-query/#rOrderCondition which are turned into an ORDER BY clause simply by prepending `ORDER BY `. Note that this can only practically be used with `_where` and `api:where` since the variable bindings from the WHERE clause must be known for the ordering to be specified.
+The `_orderBy` request parameter and `api:orderBy` property contain space-separated [http://www.w3.org/TR/rdf-sparql-query/#rOrderCondition OrderConditions] which are turned into an ORDER BY clause simply by prepending `ORDER BY `. Note that this can only practically be used with `_where` and `api:where` since the variable bindings from the WHERE clause must be known for the ordering to be specified.
 
 The `_sort` request parameter and `api:sort` property contain a sort specification which can be converted into a sequence of OrderConditions by first splitting the string based on commas and then, for each one:
 
@@ -470,7 +470,7 @@ _der: Not sure if we definitely resolved it but I think it has to be the latter 
 
 A viewer may include other viewers through its `api:include` property. In that case, the graph will include the properties specified by the included viewers as well as those specified locally on the viewer itself.
 
-The graph can be constructed explicitly using SPARQL syntax (specifically  "ConstructTriples":http://www.w3.org/TR/rdf-sparql-query/#rConstructTriples) within:
+The graph can be constructed explicitly using SPARQL syntax (specifically  [http://www.w3.org/TR/rdf-sparql-query/#rConstructTriples ConstructTriples]) within:
 
   * the `_template` request parameter or
   * the `api:template` property on the viewer
@@ -622,11 +622,11 @@ Implementations must support `api:RdfXmlFormatter`s and `api:JsonFormatter`s. Su
 
 ===RDF/XML Formatting===
 
-RDF/XML formatters should create "RDF/XML":http://www.w3.org/TR/rdf-syntax-grammar/. They should use the prefix bindings that they are passed as namespace declarations within the RDF/XML.
+RDF/XML formatters should create [http://www.w3.org/TR/rdf-syntax-grammar/ RDF/XML]. They should use the prefix bindings that they are passed as namespace declarations within the RDF/XML.
 
 ===Turtle Formatting===
 
-Turtle formatters should create "Turtle":http://www.w3.org/TeamSubmission/turtle/. They should use the prefix bindings that they are passed as prefix declarations within the Turtle.
+Turtle formatters should create [http://www.w3.org/TeamSubmission/turtle/ Turtle]. They should use the prefix bindings that they are passed as prefix declarations within the Turtle.
 
 ===JSON Formatting===
 
@@ -781,8 +781,8 @@ In addition, we define the following built-in query parameters:
   * `_pageSize` is a number; the number of items per page
   * `_sort` is a comma-separated list of property paths to values that should be sorted on. A `-` prefix on a property path indicates a descending search
   * `_where` is a "GroupGraphPattern":http://www.w3.org/TR/rdf-sparql-query/#GroupPatterns (without the wrapping `{}`s)
-  * `_orderBy` is a space-separated list of "OrderConditions":http://www.w3.org/TR/rdf-sparql-query/#rOrderCondition
-  * `_select` is a "SELECT query":http://www.w3.org/TR/rdf-sparql-query/#select
+  * `_orderBy` is a space-separated list of [http://www.w3.org/TR/rdf-sparql-query/#rOrderCondition OrderConditions]
+  * `_select` is a [http://www.w3.org/TR/rdf-sparql-query/#select SELECT query]
 
 ===Examples===
 
@@ -1057,8 +1057,8 @@ Selectors are used to select items that belong to a list. They have the followin
 
   * `api:parent` points to another selector that this one specialises
   * `api:select` holds a WHERE clause followed by an ORDER BY clause and is used to select items using SPARQL
-  * `api:where` holds a "GroupGraphPattern":http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern which is used to construct a WHERE clause
-  * `api:orderBy` holds a space separated list of "OrderConditions":http://www.w3.org/TR/rdf-sparql-query/#rOrderCondition which are used to construct an ORDER BY clause
+  * `api:where` holds a [http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern GroupGraphPattern] which is used to construct a WHERE clause
+  * `api:orderBy` holds a space separated list of [http://www.w3.org/TR/rdf-sparql-query/#rOrderCondition OrderConditions] which are used to construct an ORDER BY clause
   * `api:filter` specifies a set of parameter bindings using the same syntax as is found in a URI query, using property paths
   * `api:sort` specifies a comma-separated list of sort specifications, using property paths
 
