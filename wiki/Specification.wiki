@@ -60,7 +60,7 @@ Non-requirements are:
 
 The following examples provide an illustration of the range of access patterns that the API is intended to support. The example URIs are taken from the Edubase data published by the data.gov.uk project at `http://education.data.gov.uk/`:
 
-  * `/doc/school/12345` should respond with a document that includes information about `/id/school/12345` (a "concise bounded description":http://www.w3.org/Submission/CBD/ of that resource)
+  * `/doc/school/12345` should respond with a document that includes information about `/id/school/12345` (a [http://www.w3.org/Submission/CBD/ concise bounded description] of that resource)
   * `/doc/school` should return the first page of a list of schools in alphabetical order based on their name, including only the labels and types of those schools
   * `/doc/school?_page=2` should return the second page of results
   * `/doc/school?_view=detailed` should return a list of schools, including a certain (larger) set of properties of those schools
