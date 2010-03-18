@@ -1,0 +1,145 @@
+#summary Generating views of resources
+
+=Viewing Resources=
+
+Having selected the resources of interest, some or all of the properties of those resources must be retrieved from the configured SPARQL endpoint to construct an RDF graph. This is done by selecting a *Viewer* that is used to construct an RDF graph for each item in the sequence. The relevant viewer is selected as follows:
+
+  * if there is a `_view` request parameter, then matching that to the `api:name` of a viewer that is specified through the `api:viewer` property on the endpoint or the `api:viewer` property on the API. If the `_view` request parameter is present, but there is no viewer with that name, the result is a `400 Bad Request` error.
+  * otherwise, if the endpoint has a `api:defaultViewer` property, the viewer specified by that property
+  * otherwise, if the API has a `api:defaultViewer` property, the viewer specified by that property
+  * otherwise, the `api:describeViewer` viewer, which is built in
+
+The API supports a set of built-in viewers and also the ability to create specialised, custom viewers to support specific use cases.
+
+==Built-in Viewers==
+
+The following viewers are built in to the API.
+
+`api:describeViewer` is named "description" and returns a graph that is exactly what is returned by a DESCRIBE query for the item on the SPARQL endpoint. How the SPARQL endpoint implements DESCRIBE will determine exactly what is returned (it may be a concise bounded description, for example).
+
+`api:labelledDescribeViewer` is named "all" and returns a graph that is whatever is returned by a DESCRIBE query for the item on the SPARQL endpoint, supplemented by `rdfs:label` properties for all referenced resources. Again, the precise details of what's returned will depend on the SPARQL endpoint.
+
+`api:basicViewer` is named "basic" and returns a graph that includes just the `rdfs:label` and `rdf:type` of each item. This is equivalent to:
+
+{{{
+api:basicViewer a api:Viewer ;
+  api:name "basic" ;
+  api:property rdfs:label, rdf:type .
+}}}
+
+==Specialised Viewers==
+
+Specialised viewers need to create a graph for each item.
+
+_JT: Did we resolve whether this was done through a CONSTRUCT query or through a DESCRIBE followed by a filtering of properties?_
+
+_der: Not sure if we definitely resolved it but I think it has to be the latter due to the handling of bNodes._
+
+A viewer may include other viewers through its `api:include` property. In that case, the graph will include the properties specified by the included viewers as well as those specified locally on the viewer itself.
+
+The graph can be constructed explicitly using SPARQL syntax (specifically  [http://www.w3.org/TR/rdf-sparql-query/#rConstructTriples ConstructTriples]) within:
+
+  * the `_template` request parameter or
+  * the `api:template` property on the viewer
+
+If neither of these are specified, the viewer must specify the properties that are included in the graph for each item, and the properties of the resources that these items reference and so on. In other words, a viewer needs to specify a set of property chains.
+
+The set of property chains is constructed by combining:
+
+  * the property chains specified in the `_properties` request parameter
+  * the property chains specified in the `api:properties` property of the viewer
+  * the property chains specified in the `api:property` property of the viewer
+
+The `api:property` property should point to either individual instances of `rdf:Property` or `rdf:List`s whose items are all instances of `rdf:Property`.
+
+Similar `rdf:List`s can be created from the value of the `_properties` request parameter or `api:properties` property. These are created by first splitting the value based on commas. The individual values should be property paths. These property paths can be split on dots, each short property name mapped to an `rdf:Property`, and these used to create a list of properties.
+
+Each property chain can be used to identify a particular property within the graph by navigating from the selected item through the properties in the chain. All triples en route to the final property are included, even if there is no final property. For example, given the source graph:
+
+{{{
+<http://education.data.gov.uk/id/school/12345>
+  a sch:School ;
+  sch:localAuthority <http://statistics.data.gov.uk/id/local-authority/00BX> .
+
+<http://statistics.data.gov.uk/id/local-authority/00BX>
+  a admin:UnitaryAuthority ;
+  rdfs:label "Knowsley Borough Council"@en ;
+  admin:area <http://statistics.data.gov.uk/id/local-authority-area/00BX> .
+
+<http://statistics.data.gov.uk/id/local-authority-area/00BX>
+  a admin:UnitaryAuthorityArea ;
+  rdfs:label "Knowsley"@en ;
+  admin:country <http://statistics.data.gov.uk/id/country/921> .
+
+<http://statistics.data.gov.uk/id/country/921>
+  a admin:Country ;
+  rdfs:label "England"@en .
+}}}
+
+Where the school is the item, the property chains:
+
+{{{
+(rdf:type)
+(sch:localAuthority admin:area rdfs:label)
+(sch:localAuthority admin:area admin:country stats:population)
+}}}
+
+would result in the graph:
+
+{{{
+<http://education.data.gov.uk/id/school/12345>
+  a sch:School ;
+  sch:localAuthority <http://statistics.data.gov.uk/id/local-authority/00BX> .
+
+<http://statistics.data.gov.uk/id/local-authority/00BX>
+  admin:area <http://statistics.data.gov.uk/id/local-authority-area/00BX> .
+
+<http://statistics.data.gov.uk/id/local-authority-area/00BX>
+  rdfs:label "Knowsley"@en ;
+  admin:country <http://statistics.data.gov.uk/id/country/921> .
+}}}
+
+which includes the `admin:country` property of the local authority area despite the source graph not including the `stats:population` property for the country.
+
+==Additional Graph Metadata==
+
+In addition to the graph that is generated about the items in the list, extra information is included about the graph itself, and the formats that it is available in.
+
+For an item endpoint, this metadata should include:
+
+  * a `foaf:primaryTopic` link from the request URI to the item
+  * a `foaf:isPrimaryTopicOf` link from the item to the request URI
+
+For a list endpoint, this metadata should include statements about:
+
+  * the list that's being viewed, whose URI is the same as the request URI after removing the `_page` URI parameter, if there is one
+  * the page that's being viewed, whose URI is the same as the request URI, with the `_page` parameter set to the current page
+
+The statements should include:
+
+  * a `rdf:type` statement stating that the list is an `api:List`
+  * a `rdf:type` statement stating that the page is an `api:Page`
+  * `dct:hasPart`/`dct:isPartOf` links from the list to the page and the reverse
+  * a `xhv:first` link from the page to the first page
+  * a `xhv:last` link from the page to the last page if this is identifiable
+  * a `xhv:next` link from the page to the next page
+  * a `xhv:prev` link from the page to the previous page
+  * a `openSearch:itemsPerPage` property on the page indicating the LIMIT used to select the items
+  * a `openSearch:startIndex` property on the page indicating the OFFSET used to select the items
+  * a `api:items` link from the page to a `rdf:List` containing the items, in order
+
+Both item and list endpoints should include the following statements for the page:
+
+  * a `api:metadata` link from the page to the URI for the endpoint specification
+  * `dct:hasVersion`/`dct:isVersionOf` links to/from URIs that will provide different views of the selected items (ie with different values of the `_view` parameter)
+  * `dct:hasFormat`/`dct:isFormatOf` links to/from URIs that specify the different formats of the page, using either a suffix on the URI or a `_format` URI parameter, depending on the `api:contentNegotiation` property on the API
+
+The different versions (views) of the page should each have a `rdfs:label` which is the `api:name` of the view.
+
+The different formats of the page should each have a `rdfs:label` which is the `api:name` of the format, and a `dct:format` which is a blank node whose `rdfs:label` is the `api:mimeType` of the format.
+
+The graph should also include:
+
+  * statements from the SPARQL endpoint about the list or page, including a full description of the objects of such statements
+  * statements from the configuration about the list or page, including a full descriptions of the objects of such statements
+  * statements within a named graph accessible at the SPARQL endpoint whose URI is the same as the item (when viewing a single item), list or page
