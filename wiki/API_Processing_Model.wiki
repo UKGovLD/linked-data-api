@@ -6,6 +6,8 @@ The API layer is intended to associate URLs with processing logic that will extr
 
 A URL may identify a single resource whose properties are to be retrieved. The URL may also identify a set of resources, either through structure of the URL or through query parameters.
 
+[http://linked-data-api.googlecode.com/files/processing-model.png] 
+
 This process can be summarised with the following steps:
 
   # *Identifying an Endpoint* -- the API receives a `GET` request made to a particular URI. This request is is mapped to an *Endpoint* that describes further processing logic
