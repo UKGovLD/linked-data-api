@@ -1,7 +1,5 @@
 #summary Linked Data API Specification
 
-=Introduction=
-
 This document defines a vocabulary and processing model for a configurable API layer intended to support the creation of simple RESTful APIs over RDF triple stores. 
 
 The API layer is intended to be deployed as a proxy in front of a SPARQL endpoint to support:
