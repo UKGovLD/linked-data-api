@@ -8,24 +8,7 @@ The API layer is intended to be deployed as a proxy in front of a SPARQL endpoin
   * Provision of sophisticated querying and data extraction features, without the need for end-users to write SPARQL queries
   * Delivery of multiple output formats from these APIs, including a simple serialisation of RDF in JSON syntax
 
-==Document Outline==
-
-  * Overview of the goals and requirements
-  * Detailed processing model & specification of behaviour for each of the key components
-  * Vocabulary & Configuration
-
-==Document Conventions==
-
-The examples used in this document assume that the following namespaces have been defined, unless otherwise states
-
-||rdf||`http://www.w3.org/1999/02/22-rdf-syntax-ns#`||
-||rdfs||`http://www.w3.org/2000/01/rdf-schema#`||
-||xsd||`http://www.w3.org/2001/XMLSchema#`||
-||api||`TODO`||
-
-API configuration examples use the Turtle syntax for readability in the specification. This is not meant to constrain the syntaxes supported by implementations.
-
-== Table of Contents ==
+== Table of Contents == 
 
   # [API_Rationale Rationale]
   # [API_Deployment_Example Deployment Example]
@@ -38,3 +21,14 @@ API configuration examples use the Turtle syntax for readability in the specific
   # [API_Property_Paths Property Paths]
   # [API_Query_Parameters Query Parameters]
   # [API_Vocabulary Vocabulary]
+
+==Document Conventions==
+
+The examples used in this document assume that the following namespaces have been defined, unless otherwise states
+
+||rdf||`http://www.w3.org/1999/02/22-rdf-syntax-ns#`||
+||rdfs||`http://www.w3.org/2000/01/rdf-schema#`||
+||xsd||`http://www.w3.org/2001/XMLSchema#`||
+||api||`TODO`||
+
+API configuration examples use the Turtle syntax for readability in the specification. This is not meant to constrain the syntaxes supported by implementations.
