@@ -1,0 +1,5 @@
+#summary List of API implementations
+
+Several API implementations are currently being developed in Java, PHP and Ruby.
+
+TODO: add links to relevant code & projects.
