@@ -1,4 +1,5 @@
 #summary Linked Data API Specification
+#labels Featured
 
 This document defines a vocabulary and processing model for a configurable API layer intended to support the creation of simple RESTful APIs over RDF triple stores. 
 
