@@ -16,7 +16,7 @@ The XSLT Formatter provides a built-in extension point for supporting a range of
 
 The following table identifies the five built in formatters. Each formatter is listed along with its name, its URI, the mimetype it generates, and whether implementations are required to support it:
 
-|| Description || Name || URI || Mimetype || Required?
+|| Description || Name || URI || Mimetype || Required? ||
 || RDF Formatter || `rdf` || `api:RdfXmlFormatter` ||`application/rdf+xml`|| Yes ||
 || JSON Formatter || `json` || `api:JsonFormatter` ||`application/json`|| Yes ||
 || Turtle Formatter || `ttl` || `api:TurtleFormatter` || `text/turtle` || No ||
