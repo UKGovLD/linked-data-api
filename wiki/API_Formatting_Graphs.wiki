@@ -43,7 +43,7 @@ For example a `'json'` formatter defined on an Endpoint will override the built-
 
 == Formatter Selection ==
 
-The formatter that is used is determined as follows:
+The formatter that is to be used when producing results from a request is determined as follows:
 
   * if the `_format` request parameter is specified, and the API's `api:contentNegotiation` property is `api:parameterBased`, the formatter named in that parameter. If there is no such formatter, a `400 Bad Request` response is given.
 
@@ -57,22 +57,36 @@ _JT: What if they clash? Which takes precedence? Or you do get a 400 error if th
   * otherwise, if the API contains a `api:defaultFormatter`, use that
   * otherwise use the `api:jsonFormatter`
 
-The formatter itself is passed:
+== Formatter Inputs ==
+
+A Formatter component is passed the following logical parameters when executed:
 
   * the RDF graph constructed by the viewer
-  * the root resource in the graph: in the case of an item endpoint, this is the item itself; in the case of a list endpoint, it is the current page
+  * the URI of the root resource in the graph: in the case of an item endpoint, this is the item itself; in the case of a list endpoint, it is the current page
   * the variable bindings, as described above
   * the prefix bindings present within the configuration file
 
+Implementations are free to pass these parameters to the formatter in whatever manner is best suited. Additional parameters or context can also be made available.
+
+== Output Formats ==
+
+__TODO Example data/inputs.__
+
 ===RDF/XML Formatting===
 
-RDF/XML formatters should create [http://www.w3.org/TR/rdf-syntax-grammar/ RDF/XML]. They should use the prefix bindings that they are passed as namespace declarations within the RDF/XML.
+RDF/XML formatters should create [http://www.w3.org/TR/rdf-syntax-grammar/ RDF/XML]. 
+
+They should use the prefix bindings that they are passed as namespace declarations within the RDF/XML.
 
 ===Turtle Formatting===
 
-Turtle formatters should create [http://www.w3.org/TeamSubmission/turtle/ Turtle]. They should use the prefix bindings that they are passed as prefix declarations within the Turtle.
+Turtle formatters should create [http://www.w3.org/TeamSubmission/turtle/ Turtle]. 
+
+They should use the prefix bindings that they are passed as prefix declarations within the Turtle.
 
 ===JSON Formatting===
+
+__TODO: separate document/schema?__
 
 The JSON formatter creates a simple JSON format based on the RDF graph that it's given.
 
