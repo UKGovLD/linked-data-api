@@ -99,10 +99,6 @@ The result is a single object, that looks like:
 }
 }}}
 
-_der: The current implementation also includes the "context" property which provides the name/uri mapping and inferred type information for every property. See GoogleCode. This enables round tripping for well-behaved RDF. While round tripping is a non-goal at this stage we-Epimorphics need a simple update version of the protocol and including the context enables that. As a side effect the context also means that all the available properties are communicated to the client._
-
-_JT: The disadvantage is that it can add a huge amount of weight to the JSON representation, at least in its current form. Putting the information at the metadata endpoint makes it accessible (for the purposes of round-tripping) without having the repetitive burden in every single document._
-
 The resource described in the `result` property is the entry point into the graph, as described above (the item for an item endpoint, the page for a list endpoint).
 
 Resources are mapped onto JSON objects as follows:
