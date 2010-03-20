@@ -48,13 +48,8 @@ For example a `'json'` formatter defined on an Endpoint will override the built-
 The formatter that is to be used when producing results from a request is determined as follows:
 
   * if the `_format` request parameter is specified, and the API's `api:contentNegotiation` property is `api:parameterBased`, the formatter named in that parameter. If there is no such formatter, a `400 Bad Request` response is given.
-
-_der: Is the `api:contentNegotiation` necessary? Why not just allow dot and `_format` notation freely?_
-
-_JT: What if they clash? Which takes precedence? Or you do get a 400 error if that happens?_
-
   * otherwise, if the last path segment in the request URI uses an extension, such as `.ttl`, the formatter name is the one given after the final dot in that path segment. If there is no such formatter, continue (note that in this case the suffix will not be stripped from the request path prior to matching against endpoint URIs).
-  * otherwise, use the `Accept` header in the request to perform content negotiation based on the `api:mimeType` properties of the available formatters _(JT: This is under-specified at the moment: if there are multiple formatters that match the Accept header, which gets used?)_
+  * otherwise, use the `Accept` header in the request to perform content negotiation based on the `api:mimeType` properties of the available formatters
   * otherwise, if the endpoint contains a `api:defaultFormatter`, use that
   * otherwise, if the API contains a `api:defaultFormatter`, use that
   * otherwise use the `api:jsonFormatter`
