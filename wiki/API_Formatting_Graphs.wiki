@@ -1,5 +1,7 @@
 #summary Selecting an outout format and serialising results to the client
 
+<wiki:toc max_depth="3" />
+
 =Formatting Graphs=
 
 The representation that is finally returned for a request is determined by a Formatter.
