@@ -1,16 +1,47 @@
-#summary Serialising results to the client
+#summary Selecting an outout format and serialising results to the client
 
-==Formatting Graphs==
+=Formatting Graphs=
 
-The representation that is finally returned for a request is determined by a formatter. A list of possible formatters is constructed from:
+The representation that is finally returned for a request is determined by a Formatter.
 
-  * the built-in formatters supported by the implementation
+An API may have a number of formatters available for generating responses for a request. Clients may choose from amongst these formatters using content negotiation.
+
+== Built-In Formatters ==
+
+This specification defines five types of "built-in" Formatters that produce outputs in a range of different serialisations. 
+
+Conforming implementations MUST support the RDF and JSON formatters and SHOULD support the additional formatters in order to provide clients with additional flexibility in quering an API. 
+
+The XSLT Formatter provides a built-in extension point for supporting a range of additional serializations through transformation of the simple XML format.
+
+The following table identifies the five built in formatters. Each formatter is listed along with its name, its URI, the mimetype it generates, and whether implementations are required to support it:
+
+|| Description || Name || URI || Mimetype || Required?
+|| RDF Formatter || `rdf` || `api:RdfXmlFormatter` ||`application/rdf+xml`|| Yes ||
+|| JSON Formatter || `json` || `api:JsonFormatter` ||`application/json`|| Yes ||
+|| Turtle Formatter || `ttl` || `api:TurtleFormatter` || `text/turtle` || No ||
+|| XML Formatter || `xml` || `api:XmlFormatter` || `application/xml` || No ||
+|| XSLT Formatter || N/A  || `api:XsltFormatter` || N/A || No ||
+
+The XSLT Formatter does not specify a name or a mimetype. Instances of that formatter are intended to be configured with a name and mimetype appropriate to the XSLT stylesheet used to serialize the results.
+
+Implementations may support other formatter types, or support additional configuration of the built-in formatter types through implementation-specific properties as long as their basic behaviours remain unchanged.
+
+== Formatter Configuration ==
+
+For a request to an endpoint, the list of possible formatters is constructed from:
+
+  * the built-in formatters supported by the API implementation
   * the `api:defaultFormatter` property on the API
   * the `api:formatter` property on the API
   * the `api:defaultFormatter` property on the selected endpoint
   * the `api:formatter` property on the selected endpoint
 
-If two formatters have the same name (indicated by `api:name`) then the one from lower in the list overrides the one from higher in the list. For example, a `'json'` formatter defined on an endpoint will override the built-in `'json'` formatter.
+Two formatters may have the same name, indicated by the `api:name` property. A formatter lower in this list overrides the one from higher in the list.
+
+For example a `'json'` formatter defined on an Endpoint will override the built-in `'json'` formatter.
+
+== Formatter Selection ==
 
 The formatter that is used is determined as follows:
 
@@ -32,16 +63,6 @@ The formatter itself is passed:
   * the root resource in the graph: in the case of an item endpoint, this is the item itself; in the case of a list endpoint, it is the current page
   * the variable bindings, as described above
   * the prefix bindings present within the configuration file
-
-There are five types of built-in formatter, with the `api:XsltFormatter` providing flexibility for programmatic addition of different formats as required:
-
-  * `api:RdfXmlFormatter` instances are formatters that generate RDF/XML
-  * `api:TurtleFormatter` instances are formatters that generate Turtle
-  * `api:JsonFormatter` instances are formatters that generate simple JSON
-  * `api:XmlFormatter` instances are formatters that generate simple XML
-  * `api:XsltFormatter` instances are formatters that use XSLT stylesheets to format the results
-
-Implementations must support `api:RdfXmlFormatter`s and `api:JsonFormatter`s. Support for the other formatter types is optional. Implementations may support other formatter types, or support additional configuration of the built-in formatter types through implementation-specific properties as long as their basic behaviours remain unchanged.
 
 ===RDF/XML Formatting===
 
