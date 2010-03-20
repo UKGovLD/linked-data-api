@@ -1,12 +1,12 @@
 #summary Selecting an outout format and serialising results to the client
 
-<wiki:toc max_depth="3" />
-
 =Formatting Graphs=
 
 The representation that is finally returned for a request is determined by a Formatter.
 
 An API may have a number of formatters available for generating responses for a request. Clients may choose from amongst these formatters using content negotiation.
+
+<wiki:toc max_depth="3" />
 
 == Built-In Formatters ==
 
