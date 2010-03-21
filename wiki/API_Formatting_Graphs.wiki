@@ -77,6 +77,84 @@ They should use the prefix bindings that they are passed as namespace declaratio
 
 The "Viewing Resources" section of the specification includes a [http://code.google.com/p/linked-data-api/wiki/API_Viewing_Resources#List_Endpoint worked example for a list endpoint] that uses the Turtle syntax. Continuing that example, an RDF/XML Formatter would serialize that graph as RDF/XML, applying the available prefix bindings.
 
+The following document illustrates on possible serialization of that example graph:
+
+{{{
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:api="http://purl.org/linked-data/api/vocab#"
+   xmlns:dct="http://purl.org/dc/terms/"
+   xmlns:foaf="http://xmlns.com/foaf/0.1/"
+   xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/"
+   xmlns:owl="http://www.w3.org/2002/07/owl#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+   xmlns:xhv="http://www.w3.org/1999/xhtml/vocab#"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <api:List rdf:about="http://api.example.org/people">
+    <dct:hasPart rdf:resource="http://api.example.org/people?_page=0"/>
+    <api:definition rdf:resource="http://api.example.org/spec/people"/>
+    <rdfs:label xml:lang="en">List of people</rdfs:label>
+  </api:List>
+  <api:Page rdf:about="http://api.example.org/people?_page=0">
+    <opensearch:itemsPerPage rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10</opensearch:itemsPerPage>
+    <opensearch:startIndex rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</opensearch:startIndex>
+    <dct:hasFormat rdf:resource="http://api.example.org/people.json?_page=0&amp;_view=default"/>
+    <dct:hasFormat rdf:resource="http://api.example.org/people.rdf?_page=0&amp;_view=default"/>
+    <dct:hasFormat rdf:resource="http://api.example.org/people.ttl?_page=0&amp;_view=default"/>
+    <dct:isPartOf rdf:resource="http://api.example.org/people"/>
+    <api:items>
+      <rdf:Description>
+        <rdf:first rdf:resource="http://people.example.org/bob"/>
+        <rdf:rest>
+          <rdf:Description>
+            <rdf:first rdf:resource="http://people.example.org/mary"/>
+            <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+          </rdf:Description>
+        </rdf:rest>
+      </rdf:Description>
+    </api:items>
+    <xhv:next rdf:resource="http://api.example.org/people?_page=1"/>
+    <rdfs:label xml:lang="en">First page of the list of people</rdfs:label>
+    <owl:sameAs rdf:resource="http://api.example.org/people?_page=0&amp;_view=default"/>
+  </api:Page>
+  <foaf:Person rdf:about="http://people.example.org/bob">
+    <foaf:name>Bob</foaf:name>
+  </foaf:Person>
+  <foaf:Person rdf:about="http://people.example.org/mary">
+    <foaf:name>Mary</foaf:name>
+  </foaf:Person>
+  <rdf:Description rdf:about="http://api.example.org/people.json?_page=0&amp;_view=default">
+    <dct:format>
+      <rdf:Description>
+        <rdfs:label>application/json</rdfs:label>
+      </rdf:Description>
+    </dct:format>
+    <dct:isFormatOf rdf:resource="http://api.example.org/people?_page=0&amp;_view=default"/>
+    <rdfs:label xml:lang="en">JSON format of the default view of the first page of the list of people</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://api.example.org/people.rdf?_page=0&amp;_view=default">
+    <dct:format>
+      <rdf:Description>
+        <rdfs:label>application/rdf+xml</rdfs:label>
+      </rdf:Description>
+    </dct:format>
+    <dct:isFormatOf rdf:resource="http://api.example.org/people?_page=0&amp;_view=default"/>
+    <rdfs:label xml:lang="en">RDF/XML format of the default view of the first page of the list of people</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://api.example.org/people.ttl?_page=0&amp;_view=default">
+    <dct:format>
+      <rdf:Description>
+        <rdfs:label>text/turtle</rdfs:label>
+      </rdf:Description>
+    </dct:format>
+    <dct:isFormatOf rdf:resource="http://api.example.org/people?_page=0&amp;_view=default"/>
+    <xhv:next rdf:resource="http://api.example.org/people.ttl?_page=1&amp;_view=default"/>
+    <rdfs:label xml:lang="en">Turtle format of the default view of the first page of the list of people</rdfs:label>
+  </rdf:Description>
+</rdf:RDF>
+}}}
+
 ==Turtle Formatting==
 
 Turtle formatters should create [http://www.w3.org/TeamSubmission/turtle/ Turtle]. 
