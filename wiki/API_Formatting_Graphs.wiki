@@ -178,9 +178,9 @@ The result is a single JSON object, that has the following basic structure:
 
 The object has three properties:
 
-* `format`: a fixed string that identifies this JSON structure as conforming to the JSON format described in this specification
-* `version`: a string version indicator tied to the version of this document
-* `result`: a JSON object that is the main entry point into the returned data.
+  * `format`: a fixed string that identifies this JSON structure as conforming to the JSON format described in this specification
+  * `version`: a string version indicator tied to the version of this document
+  * `result`: a JSON object that is the main entry point into the returned data.
 
 === Serialization Algorithm ===
 
@@ -190,9 +190,9 @@ After locating the resource the implementation should iterate through its proper
 
 This results in a traversal of the graph, touching each resource that is connected to the `api:Page` resource. This will include
 
-* the `api:List` (via the `dct:isPartOf` property)
-* the selected items and any resources that they reference (via the `api:items`) property
-* the available alternate formats and versions (via `dct:hasFormat` and `dct:hasVersion` properties)
+  * the `api:List` (via the `dct:isPartOf` property)
+  * the selected items and any resources that they reference (via the `api:items`) property
+  * the available alternate formats and versions (via `dct:hasFormat` and `dct:hasVersion` properties)
 
 Implementations should detect loops and for any resource that has already been visited in the graph, simply serialize its URI.
 
