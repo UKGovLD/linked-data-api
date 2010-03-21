@@ -67,13 +67,15 @@ Implementations are free to pass these parameters to the formatter in whatever m
 
 = Output Formats =
 
-__TODO Example data/inputs.__
-
 ==RDF/XML Formatting==
 
 RDF/XML formatters should create [http://www.w3.org/TR/rdf-syntax-grammar/ RDF/XML]. 
 
 They should use the prefix bindings that they are passed as namespace declarations within the RDF/XML.
+
+=== Example Document ===
+
+The "Viewing Resources" section of the specification includes a [http://code.google.com/p/linked-data-api/wiki/API_Viewing_Resources#List_Endpoint worked example for a list endpoint] that uses the Turtle syntax. Continuing that example, an RDF/XML Formatter would serialize that graph as RDF/XML, applying the available prefix bindings.
 
 ==Turtle Formatting==
 
@@ -81,11 +83,13 @@ Turtle formatters should create [http://www.w3.org/TeamSubmission/turtle/ Turtle
 
 They should use the prefix bindings that they are passed as prefix declarations within the Turtle.
 
+=== Example Document ===
+
+The "Viewing Resources" section of the specification includes a [http://code.google.com/p/linked-data-api/wiki/API_Viewing_Resources#List_Endpoint worked example for a list endpoint] that uses the Turtle syntax. Continuing that example, a Turtle Formatter would serialize that graph, applying the available prefix bindings.
+
 ==JSON Formatting==
 
-__TODO: separate document/schema?__
-
-The JSON formatter creates a simple JSON format based on the RDF graph that it's given.
+The JSON formatter creates a simple JSON format based on the RDF graph that it is provided.
 
 The result is a single object, that looks like:
 
@@ -128,6 +132,95 @@ Each RDF value is mapped onto a JSON value as follows:
   * otherwise, if the value is a resource it is mapped onto a string whose value is the URI of the resource
   * otherwise, if the JSON property is an array (because the RDF property has multiple values or is marked as multi-valued) then the value is represented as a string; if the value has a language then `@{lang}` is appended to the string; if the value has a datatype then `^^{datatype}` is appended to the string
   * otherwise (the value is a literal that isn't a boolean or number), it is mapped onto a string
+
+=== Example Document ===
+
+The "Viewing Resources" section of the specification includes a [http://code.google.com/p/linked-data-api/wiki/API_Viewing_Resources#List_Endpoint worked example for a list endpoint] that uses the Turtle syntax.
+
+The default JSON Formatter would serialize that graph into the following JSON document:
+
+{{{
+{
+    "format": "linked-data-api" ,
+    "version": "0.2" ,
+    "result": {
+        "_about": "http://api.example.org/people?_page=0",
+        "type": "http://purl.org/linked-data/api/vocab#Page",
+        "itemsPerPage": 10,
+        "startIndex": 1,
+        "items": [
+            {
+                "_about": "http://people.example.org/bob",
+                "type": "http://xmlns.com/foaf/0.1/Person",
+                "name": "Bob" 
+            },
+            {
+                "_about": "http://people.example.org/mary",
+                "type": "http://xmlns.com/foaf/0.1/Person",
+                "name": "Mary" 
+            } 
+        ],
+        "label": {
+            "_value": "First page of the list of people",
+            "_lang": "en" 
+        },
+        "isPartOf": {
+            "_about": "http://api.example.org/people",
+            "type": "http://purl.org/linked-data/api/vocab#",
+            "label": {
+                "_value": "List of people",
+                "_lang": "en" 
+            },
+            "definition": "http://api.example.org/spec/people",
+            "hasPart": "http://api.example.org/people?_page=0" 
+        },
+        "sameAs": "http://api.example.org/people?_page=0&_view=default",
+        "hasFormat": [
+            {
+                "_about": "http://api.example.org/people.ttl?_page=0&_view=default",
+                "label": {
+                    "_value": "Turtle format of the default view of the first page of the list of people",
+                    "_lang": "en" 
+                },
+                "format": {
+                    "label": {
+                        "_value": "text/turtle" 
+                    } 
+                },
+                "isFormatOf": "http://api.example.org/people?_page=0&_view=default"
+            },
+            {
+                "_about": "http://api.example.org/people.json?_page=0&_view=default",
+                "label": {
+                    "_value": "JSON format of the default view of the first page of the list of people",
+                    "_lang": "en" 
+                },
+                "format": {
+                    "label": {
+                        "_value": "application/json" 
+                    } 
+                },
+                "isFormatOf": "http://api.example.org/people?_page=0&_view=default",
+                "next": "http://api.example.org/people.json?_page=1&_view=default"  
+            },
+            {
+                "_about": "http://api.example.org/people.rdf?_page=0&_view=default",
+                "label": {
+                    "_value": "RDF/XML format of the default view of the first page of the list of people",
+                    "_lang": "en" 
+                },
+                "format": {
+                    "label": {
+                        "_value": "application/rdf+xml" 
+                    } 
+                },
+                "isFormatOf": "http://api.example.org/people?_page=0&_view=default" 
+            } 
+        ],
+        "next": "http://api.example.org/people?_page=1" 
+    }
+}
+}}}
 
 ==XML Formatting==
 
