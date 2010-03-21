@@ -130,7 +130,7 @@ The statements should include:
 
 Both item and list endpoints should include the following statements for the page:
 
-  * a `api:metadata` link from the page to the URI for the endpoint specification
+  * a `api:metadata` link from the list to the URI for the endpoint specification
   * `dct:hasVersion`/`dct:isVersionOf` links to/from URIs that will provide different views of the selected items (ie with different values of the `_view` parameter)
   * `dct:hasFormat`/`dct:isFormatOf` links to/from URIs that specify the different formats of the page, using either a suffix on the URI or a `_format` URI parameter, depending on the `api:contentNegotiation` property on the API
 
