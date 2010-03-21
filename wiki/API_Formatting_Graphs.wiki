@@ -103,16 +103,9 @@ The following document illustrates on possible serialization of that example gra
     <dct:hasFormat rdf:resource="http://api.example.org/people.rdf?_page=0&amp;_view=default"/>
     <dct:hasFormat rdf:resource="http://api.example.org/people.ttl?_page=0&amp;_view=default"/>
     <dct:isPartOf rdf:resource="http://api.example.org/people"/>
-    <api:items>
-      <rdf:Description>
-        <rdf:first rdf:resource="http://people.example.org/bob"/>
-        <rdf:rest>
-          <rdf:Description>
-            <rdf:first rdf:resource="http://people.example.org/mary"/>
-            <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
-          </rdf:Description>
-        </rdf:rest>
-      </rdf:Description>
+    <api:items rdf:parseType="Collection">
+      <rdf:Description rdf:resource="http://people.example.org/bob"/>
+      <rdf:Description rdf:resource="http://people.example.org/mary"/>
     </api:items>
     <xhv:next rdf:resource="http://api.example.org/people?_page=1"/>
     <rdfs:label xml:lang="en">First page of the list of people</rdfs:label>
