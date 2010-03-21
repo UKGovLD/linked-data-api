@@ -162,7 +162,9 @@ The "Viewing Resources" section of the specification includes a [http://code.goo
 
 The JSON formatter creates a simple JSON format based on the RDF graph that it is provided.
 
-The result is a single object, that looks like:
+=== JSON Structure ===
+
+The result is a single JSON object, that has the following basic structure:
 
 {{{
 {
@@ -174,12 +176,29 @@ The result is a single object, that looks like:
 }
 }}}
 
-The resource described in the `result` property is the entry point into the graph, as described above (the item for an item endpoint, the page for a list endpoint).
+The object has three properties:
 
-Resources are mapped onto JSON objects as follows:
+* `format`: a fixed string that identifies this JSON structure as conforming to the JSON format described in this specification
+* `version`: a string version indicator tied to the version of this document
+* `result`: a JSON object that is the main entry point into the returned data.
 
-  * if the resource is a blank node that is the object or more than one statement within the graph, the object is given a `_id` property that contains a unique identifier for that blank node
-  * otherwise, if the resource is not a blank node, the object is given a `_about` property that contains the URI of the resource
+=== Serialization Algorithm ===
+
+When serialising into JSON the JSON Formatter should first identify the `api:Page` resource in the provided RDF graph. This resource will be serialized as the value of the `result` property in the JSON response.
+
+After locating the resource the implementation should iterate through its properties, applying the following rules for serializing objects that are resources and literals. 
+
+This results in a traversal of the graph, touching each resource that is connected to the `api:Page` resource. This will include
+
+* the `api:List` (via the `dct:isPartOf` property)
+* the selected items and any resources that they reference (via the `api:items`) property
+* the available alternate formats and versions (via `dct:hasFormat` and `dct:hasVersion` properties)
+
+Implementations should detect loops and for any resource that has already been visited in the graph, simply serialize its URI.
+
+Any resources that are not reachable from the `api:Page` resource, or resources to which it can be related, will not be included in the output.
+
+==== Mapping RDF Property URIs to JSON Object Properties ====
 
 The RDF properties of a resource are mapped onto JSON properties. The name of the JSON property is:
 
@@ -188,21 +207,39 @@ The RDF properties of a resource are mapped onto JSON properties. The name of th
   * the local name of the property (the part after the last hash or slash), if it is a legal short name for a property that doesn't clash with an existing name
   * the prefix associated with the namespace of the property (the part before the last hash or slash), concatenated with an underscore, concatenated with the local name of the property
 
+==== Serializing Resources ====
+
+RDF resources are either mapped onto JSON objects or simple string values depending on the amount of detail available about the resource in the graph being serialized.
+
+The reserved property `_about` is used to serialize the URI of a resource.
+
+  * if the resource has a URI, and is not the subject of any other statements in the graph then it is mapped onto a string whose value is the URI of the resource
+  * otherwise, if the resource has a URI, and is the subject of statements in the RDF graph, it is mapped onto a JSON object as described here. The object is given an `_about` property that contains the URI of the resource
+  * otherwise, if the value is a blank node with no properties it is mapped onto a JSON object with no properties
+  * if the resource is a blank node that is the object or more than one statement within the graph, the object is given a `_id` property that contains a unique identifier for that blank node
+  * otherwise, if the value is a `rdf:List`, it is mapped to an array whose items are the result of mapping the members of the list to JSON
+
+==== Serializing Literals ====
+
+Where possible literal values are mapped onto simple JSON literals or types.
+
 The value of the JSON property is an array if the RDF property has more than one value in the RDF graph or if the `api:multiValued` property of the RDF property has the value `true`.
 
-Each RDF value is mapped onto a JSON value as follows:
+Each RDF literal is mapped onto a JSON value as follows:
 
   * if the `api:structured` property of the RDF property has the value `true` then the value is represented as an object with a `_value` property holding the value itself, and `_lang` or `_datatype` properties holding the language code and the short name of the datatype as applicable
   * otherwise, if the value has a datatype of `xsd:boolean`, it becomes `true` or `false`
   * otherwise, if the value has a numeric datatype (one of the XML Schema numeric datatypes), it becomes a number in the JSON
   * otherwise, if the value has the datatype `xsd:dateTime` it is mapped to a string in the date/time format recognised by `Date.parse`, namely `EEE, d MMM yyyy HH:mm:ss 'GMT'Z`
   * otherwise, if the value has the datatype `xsd:date` it is mapped to a string in the date format recognised by `Date.parse`, namely `yyyy-MM-dd`
-  * otherwise, if the value is a `rdf:List`, it is mapped to an array whose items are the result of mapping the members of the list to JSON
-  * otherwise, if the value is a resource which is the subject of a statement in the RDF graph, it is mapped onto a JSON object as described here
-  * otherwise, if the value is a blank node with no properties it is mapped onto a JSON object with no properties
-  * otherwise, if the value is a resource it is mapped onto a string whose value is the URI of the resource
   * otherwise, if the JSON property is an array (because the RDF property has multiple values or is marked as multi-valued) then the value is represented as a string; if the value has a language then `@{lang}` is appended to the string; if the value has a datatype then `^^{datatype}` is appended to the string
   * otherwise (the value is a literal that isn't a boolean or number), it is mapped onto a string
+
+Note: if a literal has a language, but is not marked as a being an `api:structured` value, then it is mapped to a string, i.e. the language is lost in the serialization
+
+Note: if the literal has a datatype, that is not an `xsd:dateTime`, `xsd:boolean`, or a number, but is not marked as being an `api:structured` value, then it is mapped to a string.
+
+Therefore this serialization of RDF to JSON is lossy. A trade-off is being made to provide a simple JSON format vs encompassing the full RDF model. Flexibility is provided to allow data publishers to preserve this data, as the cost of more complex JSON structures.
 
 === Example Document ===
 
@@ -231,17 +268,11 @@ The default JSON Formatter would serialize that graph into the following JSON do
                 "name": "Mary" 
             } 
         ],
-        "label": {
-            "_value": "First page of the list of people",
-            "_lang": "en" 
-        },
+        "label": "First page of the list of people",
         "isPartOf": {
             "_about": "http://api.example.org/people",
-            "type": "http://purl.org/linked-data/api/vocab#",
-            "label": {
-                "_value": "List of people",
-                "_lang": "en" 
-            },
+            "type": "http://purl.org/linked-data/api/vocab#List",
+            "label": "List of people",
             "definition": "http://api.example.org/spec/people",
             "hasPart": "http://api.example.org/people?_page=0" 
         },
@@ -249,43 +280,30 @@ The default JSON Formatter would serialize that graph into the following JSON do
         "hasFormat": [
             {
                 "_about": "http://api.example.org/people.ttl?_page=0&_view=default",
-                "label": {
-                    "_value": "Turtle format of the default view of the first page of the list of people",
-                    "_lang": "en" 
-                },
+                "label": "Turtle format of the default view of the first page of the list of people",
                 "format": {
-                    "label": {
-                        "_value": "text/turtle" 
-                    } 
+                    "label": "text/turtle"
                 },
-                "isFormatOf": "http://api.example.org/people?_page=0&_view=default"
+                "isFormatOf": "http://api.example.org/people?_page=0&_view=default",
+                "next": "http://api.example.org/people.ttl?_page=1&_view=default"  
             },
             {
                 "_about": "http://api.example.org/people.json?_page=0&_view=default",
-                "label": {
-                    "_value": "JSON format of the default view of the first page of the list of people",
-                    "_lang": "en" 
-                },
+                "label": "JSON format of the default view of the first page of the list of people",
                 "format": {
-                    "label": {
-                        "_value": "application/json" 
-                    } 
+                    "label":"application/json" 
                 },
                 "isFormatOf": "http://api.example.org/people?_page=0&_view=default",
                 "next": "http://api.example.org/people.json?_page=1&_view=default"  
             },
             {
                 "_about": "http://api.example.org/people.rdf?_page=0&_view=default",
-                "label": {
-                    "_value": "RDF/XML format of the default view of the first page of the list of people",
-                    "_lang": "en" 
-                },
+                "label": "RDF/XML format of the default view of the first page of the list of people",
                 "format": {
-                    "label": {
-                        "_value": "application/rdf+xml" 
-                    } 
+                    "label": "application/rdf+xml"
                 },
-                "isFormatOf": "http://api.example.org/people?_page=0&_view=default" 
+                "isFormatOf": "http://api.example.org/people?_page=0&_view=default",
+                "next": "http://api.example.org/people.rdf?_page=1&_view=default"   
             } 
         ],
         "next": "http://api.example.org/people?_page=1" 
