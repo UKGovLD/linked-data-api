@@ -8,6 +8,7 @@
   <name>json-rdf</name>
   <url>http://maven.apache.org</url>
   <build>
+  
   	<plugins>
   		<plugin>
   			<groupId>org.apache.maven.plugins</groupId>
@@ -47,6 +48,31 @@
 	    </plugin>  		
   	</plugins>
   </build>
+   <repositories>
+    <!-- jena-repo is mirrored to Maven central repository -->
+    <!-- In case mirroring has not happened yet ... -->
+    <repository>
+      <id>repo-jena</id>
+      <name>Jena Maven - Repository</name>
+      <layout>default</layout>
+      <url>http://openjena.org/repo</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+
+    <!-- jena-repo-dev is where SNAPSHOTs and RCs are published -->  
+    <repository>
+      <id>repo-jena-dev</id>
+      <name>Jena Maven - Development Repository</name>
+      <layout>default</layout>
+      <url>http://openjena.org/repo-dev</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  
   <dependencies>
   	<dependency>
   		<groupId>com.hp.hpl.jena</groupId>
