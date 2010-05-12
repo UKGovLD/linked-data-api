@@ -329,7 +329,7 @@ The RDF properties of a resource are mapped onto XML elements. The name of the X
   * the local name of the property (the part after the last hash or slash), if it is a legal short name for a property that doesn't clash with an existing name
   * the prefix associated with the namespace of the property (the part before the last hash or slash), concatenated with an underscore, concatenated with the local name of the property
 
-The contents of the XML element is a sequence of `<list>` elements if the RDF property has more than one value in the RDF graph or if the `api:multiValued` property of the RDF property has the value `true`.
+The contents of the XML element is a sequence of `<item>` elements if the RDF property has more than one value in the RDF graph or if the `api:multiValued` property of the RDF property has the value `true`.
 
 Each RDF value is mapped onto some XML content as follows:
 
