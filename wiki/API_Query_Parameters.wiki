@@ -77,7 +77,7 @@ We can find all schools in the local authority whose name is 'Surrey' with:
 ==Viewing==
 
 We define the following built-in parameters:
-
+  * `_template` is a "GroupGraphPattern":http://www.w3.org/TR/rdf-sparql-query/#GroupPatterns (without the wrapping `{}`s) used to generate a CONSTRUCT query for retrieving the triples to be formatted.
   * `_view` is the name of a viewer associated with the URI
   * `_properties` is a comma-separated list of property paths that should be included in the description of the resources in the list
 
