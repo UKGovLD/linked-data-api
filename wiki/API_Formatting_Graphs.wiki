@@ -241,6 +241,23 @@ Note: if the literal has a datatype, that is not an `xsd:dateTime`, `xsd:boolean
 
 Therefore this serialization of RDF to JSON is lossy. A trade-off is being made to provide a simple JSON format vs encompassing the full RDF model. Flexibility is provided to allow data publishers to preserve this data, as the cost of more complex JSON structures.
 
+===JSONP===
+
+Implementations may provide a [http://en.wikipedia.org/wiki/JSON#JSONP JSONP] option, whereby, if the `callback` request parameter is present, its value is a valid Javascript function name (matching the regular expression `/^[a-zA-Z_][a-zA-Z0-9]*$/`), and the JSON Formatter is being used, the body of the response should consist of a line of Javascript calling the function named in the `callback` parameter, with the JSON object as the argument of that function.
+
+Eg:
+
+If the request URI is:
+`/schools.json?callback=showSchoolsOnMap`
+ 
+The response body should be:
+
+`showSchoolsOnMap({})`
+
+(`{}` here represents the full JSON object, as described above, and detailed below. )
+
+
+
 === Example Document ===
 
 The "Viewing Resources" section of the specification includes a [http://code.google.com/p/linked-data-api/wiki/API_Viewing_Resources#List_Endpoint worked example for a list endpoint] that uses the Turtle syntax.
