@@ -39,7 +39,7 @@ In addition, we define the following built-in query parameters:
   * `_where` is a "GroupGraphPattern":http://www.w3.org/TR/rdf-sparql-query/#GroupPatterns (without the wrapping `{}`s)
   * `_orderBy` is a space-separated list of [http://www.w3.org/TR/rdf-sparql-query/#rOrderCondition OrderConditions]
   * `_select` is a [http://www.w3.org/TR/rdf-sparql-query/#select SELECT query]
-
+  * `callback` is a valid javascript function name. If present when JSON is requested, it will be served as JSONP, where the JSON object is wrapped in a call to the function named with the `callback` request parameter.
 ===Examples===
 
 Let us say that `/doc/school` has been configured to return all schools.
