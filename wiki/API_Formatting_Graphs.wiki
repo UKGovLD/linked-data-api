@@ -254,7 +254,8 @@ The response body should be:
 
 `showSchoolsOnMap({})`
 
-(`{}` here represents the full JSON object, as described above, and detailed below. )
+
+(`{}` here, for the sake of brevity, represents the full JSON object, as described above, and detailed below. )
 
 
 
