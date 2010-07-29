@@ -61,7 +61,7 @@ Note that the order specification may also involve adding filters to the WHERE c
 Resources are filtered based on a [http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern GroupGraphPattern] constructed by combining:
 
   * the `_where` request parameter
-  * the unreserved request parameters (those that don't start with an underscore)
+  * the unreserved request parameters (any parameter except 'callback' and those that begin with an underscore )
   * the `api:where` property of the selector
   * the `api:filter` property of the selector
   * the filters specified by the ancestors of the selector, as identified through the `api:parent` property; implementations should issue a warning if the parent selects its items through an explicit query as opposed to using filters
