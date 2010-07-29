@@ -257,6 +257,8 @@ The response body should be:
 
 (`{}` here, for the sake of brevity, represents the full JSON object, as described above, and detailed below. )
 
+If the callback is not a valid function name, a `400 Bad Request` should be returned.
+
 
 
 === Example Document ===
