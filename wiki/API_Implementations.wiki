@@ -3,6 +3,6 @@
 Several API implementations are currently being developed in Java, PHP and Ruby.
 
 
-* [http://code.google.com/p/puelia-php/ Puelia]
+* [http://code.google.com/p/puelia-php/ Puelia (PHP) ]
 
 TODO: add links to relevant code & projects.
