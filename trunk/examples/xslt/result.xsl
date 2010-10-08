@@ -55,6 +55,9 @@
 </xsl:template>
 
 <xsl:template match="result" mode="script">
+	<xsl:variable name="showMap">
+		<xsl:apply-templates select="." mode="showMap" />
+	</xsl:variable>
 	<xsl:comment>
 		<xsl:text>[if lt IE 9]&gt;</xsl:text>
 		<xsl:text>&lt;script src="http://html5shiv.googlecode.com/svn/trunk/html5.js">&lt;/script></xsl:text>
@@ -76,13 +79,37 @@
 				autoSize: true
 			});
 			
-			<xsl:if test="items/item[easting and northing] or primaryTopic[easting and northing]">
+			<xsl:if test="$showMap = 'true'">
 				initMap();
 				
 			</xsl:if>
 		});
 	</script>
 </xsl:template>
+
+<xsl:template match="result" mode="showMap">
+	<xsl:param name="items" select="items/item | primaryTopic[not(../items)]" />
+	<xsl:variable name="showMap">
+		<xsl:apply-templates select="$items[1]" mode="showMap" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="not($items)">false</xsl:when>
+		<xsl:when test="$showMap = 'true'">true</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="showMap">
+				<xsl:with-param name="items" select="$items[position() > 1]" />
+			</xsl:apply-templates>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="items/item | primaryTopic" mode="showMap">
+	<xsl:choose>
+		<xsl:when test="easting and northing">true</xsl:when>
+		<xsl:otherwise>false</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
 
 <xsl:template match="result" mode="header">
 	<nav class="site" />
@@ -161,8 +188,11 @@
 </xsl:template>
 	
 <xsl:template match="result" mode="map">
+	<xsl:variable name="showMap">
+		<xsl:apply-templates select="." mode="showMap" />
+	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="items/item[easting and northing] or (not(items) and primaryTopic[easting and northing])">
+		<xsl:when test="$showMap = 'true'">
 			<xsl:variable name="minEasting">
 				<xsl:call-template name="min">
 					<xsl:with-param name="values" select="items/item/easting | primaryTopic/easting" />
@@ -203,7 +233,7 @@
 						<xsl:choose>
 							<xsl:when test="items">
 					      var bounds = new OpenLayers.Bounds(<xsl:value-of select="$minEasting"/>, <xsl:value-of select="$minNorthing"/>, <xsl:value-of select="$maxEasting"/>, <xsl:value-of select="$maxNorthing"/>);
-								var zoom = osMap.getZoomForExtent(bounds);
+								var zoom = Math.min(7, osMap.getZoomForExtent(bounds));
 								var center = new OpenSpace.MapPoint(<xsl:value-of select="$minEasting + floor(($maxEasting - $minEasting) div 2)" />, <xsl:value-of select="$minNorthing + floor(($maxNorthing - $minNorthing) div 2)" />);
 							</xsl:when>
 							<xsl:otherwise>
@@ -323,10 +353,15 @@
 	</xsl:variable>
 	<xsl:if test="not(starts-with($param, '_'))">
 		<xsl:variable name="paramName" select="substring-before($param, '=')" />
+		<xsl:variable name="isLabelParam">
+			<xsl:call-template name="isLabelParam">
+				<xsl:with-param name="paramName" select="$paramName" />
+			</xsl:call-template>
+		</xsl:variable>
 		<tr>
 			<th class="label">
 				<xsl:choose>
-					<xsl:when test="$paramName = 'label' or $paramName = 'prefLabel' or $paramName = 'altLabel' or $paramName = 'name' or $paramName = 'alias' or $paramName = 'title'">
+					<xsl:when test="$isLabelParam = 'true'">
 						<xsl:value-of select="$paramName" />
 					</xsl:when>
 					<xsl:otherwise>
@@ -495,6 +530,11 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
+	<xsl:variable name="isLabelParam">
+		<xsl:call-template name="isLabelParam">
+			<xsl:with-param name="paramName" select="$paramName" />
+		</xsl:call-template>
+	</xsl:variable>
 	<li class="selected">
 		<a title="remove this sort">
 			<xsl:attribute name="href">
@@ -554,7 +594,7 @@
 		</a>
 		<xsl:text> </xsl:text>
 		<xsl:choose>
-			<xsl:when test="$paramName = 'label' or $paramName = 'prefLabel' or $paramName = 'altLabel' or $paramName = 'name' or $paramName = 'alias' or $paramName = 'title'">
+			<xsl:when test="$isLabelParam = 'true'">
 				<xsl:value-of select="$paramName" />
 			</xsl:when>
 			<xsl:otherwise>
@@ -577,8 +617,11 @@
 	<xsl:variable name="paramName">
 		<xsl:apply-templates select="." mode="paramName" />
 	</xsl:variable>
+	<xsl:variable name="hasNonLabelProperties">
+		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
+	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="*[not(self::label or self::prefLabel or self::altLabel or self::name or self::alias or self::title)]">
+		<xsl:when test="$hasNonLabelProperties = 'true'">
 			<xsl:for-each select="key('properties', $paramName)/*[generate-id(key('properties', concat($paramName, '.', name(.)))[1]) = generate-id(.)]">
 				<xsl:sort select="boolean(@datatype)" order="descending" />
 				<xsl:sort select="@datatype" />
@@ -597,7 +640,7 @@
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="*[(not(*) or prefLabel or name or title or label or altLabel or alias)]" mode="sort">
+<xsl:template match="*" mode="sort">
 	<xsl:param name="current" />
 	<xsl:variable name="name">
 		<xsl:apply-templates select="." mode="paramName" />
@@ -801,8 +844,6 @@
 	</div>
 	<script type="text/javascript">
 		var controls = [
-<!--	new OpenLayers.Control.Navigation(), -->
-<!--	new OpenLayers.Control.KeyboardDefaults(), -->
 			new OpenLayers.Control.ArgParser()
 		];
 		osMap = new OpenSpace.Map('<xsl:value-of select="$id"/>', {controls: controls});
@@ -823,24 +864,12 @@
 	<table>
 		<xsl:choose>
 			<xsl:when test="self::primaryTopic/parent::result" />
-			<xsl:when test="prefLabel">
-				<xsl:apply-templates select="prefLabel" mode="caption" />
-			</xsl:when>
-			<xsl:when test="name">
-				<xsl:apply-templates select="name" mode="caption" />
-			</xsl:when>
-			<xsl:when test="title">
-				<xsl:apply-templates select="title" mode="caption" />
-			</xsl:when>
-			<xsl:when test="label">
-				<xsl:apply-templates select="label" mode="caption" />
-			</xsl:when>
-			<xsl:when test="alias">
-				<xsl:apply-templates select="alias" mode="caption" />
-			</xsl:when>
-			<xsl:when test="altLabel">
-				<xsl:apply-templates select="altLabel" mode="caption" />
-			</xsl:when>
+			<xsl:when test="prefLabel"><xsl:apply-templates select="prefLabel" mode="caption" /></xsl:when>
+			<xsl:when test="name"><xsl:apply-templates select="name" mode="caption" /></xsl:when>
+			<xsl:when test="title"><xsl:apply-templates select="title" mode="caption" /></xsl:when>
+			<xsl:when test="label"><xsl:apply-templates select="label" mode="caption" /></xsl:when>
+			<xsl:when test="alias"><xsl:apply-templates select="alias" mode="caption" /></xsl:when>
+			<xsl:when test="altLabel"><xsl:apply-templates select="altLabel" mode="caption" /></xsl:when>
 			<xsl:when test="@href and not(starts-with(@href, 'http://api.talis.com'))">
 				<caption>
 					<a>
@@ -875,7 +904,7 @@
 	</table>
 </xsl:template>
 	
-<xsl:template match="prefLabel | name | title | label | altLabel | alias" mode="caption">
+<xsl:template match="*" mode="caption">
 	<caption>
 		<xsl:apply-templates select=".." mode="link">
 			<xsl:with-param name="content"><xsl:value-of select="." /></xsl:with-param>
@@ -883,55 +912,66 @@
 	</caption>
 </xsl:template>
 
-<xsl:template match="prefLabel | name | title | label | altLabel | alias" mode="row" priority="5" />
-
 <xsl:template match="*" mode="row">
-	<tr class="{name(.)}">
-		<th class="label"><xsl:apply-templates select="." mode="label" /></th>
-		<xsl:choose>
-			<xsl:when test="self::easting and ../northing">
-				<td class="value">
-					<xsl:apply-templates select="." mode="value" />
-				</td>
-				<td class="map" colspan="2">
-					<xsl:choose>
-						<xsl:when test="../lat and ../long">
-							<xsl:attribute name="rowspan">4</xsl:attribute>
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:attribute name="rowspan">2</xsl:attribute>
-						</xsl:otherwise>
-					</xsl:choose>
-					<xsl:apply-templates select="parent::*" mode="map" />
-				</td>
-			</xsl:when>
-			<xsl:when test="../easting and (self::northing or (self::lat and ../long) or (self::long and ../lat))">
-				<td class="value">
-					<xsl:apply-templates select="." mode="value" />
-				</td>
-			</xsl:when>
-			<xsl:when test="*[not(self::label or self::prefLabel or self::altLabel or self::name or self::alias or self::title)]">
-				<td class="value nested">
-					<xsl:attribute name="colspan">
+	<xsl:variable name="isLabelParam">
+		<xsl:apply-templates select="." mode="isLabelParam" />
+	</xsl:variable>
+	<xsl:if test="$isLabelParam = 'false'">
+		<xsl:variable name="hasNonLabelProperties">
+			<xsl:apply-templates select="." mode="hasNonLabelProperties" />
+		</xsl:variable>
+		<xsl:variable name="showMap">
+			<xsl:apply-templates select=".." mode="showMap" />
+		</xsl:variable>
+		<tr class="{name(.)}">
+			<th class="label"><xsl:apply-templates select="." mode="label" /></th>
+			<xsl:choose>
+				<xsl:when test="self::easting and $showMap">
+					<td class="value">
+						<xsl:apply-templates select="." mode="value" />
+					</td>
+					<td class="map" colspan="2">
 						<xsl:choose>
-							<xsl:when test="(../easting and ../northing) or (../lat and ../long)">3</xsl:when>
-							<xsl:otherwise>2</xsl:otherwise>
+							<xsl:when test="../lat and ../long">
+								<xsl:attribute name="rowspan">4</xsl:attribute>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:attribute name="rowspan">2</xsl:attribute>
+							</xsl:otherwise>
 						</xsl:choose>
-					</xsl:attribute>
-					<xsl:apply-templates select="." mode="value" />
-				</td>
-			</xsl:when>
-			<xsl:otherwise>
-				<td class="value">
-					<xsl:if test="(../easting and ../northing) or (../lat and ../long)">
-						<xsl:attribute name="colspan">2</xsl:attribute>
-					</xsl:if>
-					<xsl:apply-templates select="." mode="value" />
-				</td>
-				<td class="filter"><xsl:apply-templates select="." mode="filter" /></td>
-			</xsl:otherwise>
-		</xsl:choose>
-	</tr>
+						<xsl:apply-templates select="parent::*" mode="map" />
+					</td>
+				</xsl:when>
+				<xsl:when test="(self::northing or self::lat or self::long) and $showMap = 'true'">
+					<td class="value">
+						<xsl:apply-templates select="." mode="value" />
+					</td>
+				</xsl:when>
+				<xsl:when test="$hasNonLabelProperties = 'true'">
+					<td class="value nested">
+						<xsl:attribute name="colspan">
+							<xsl:choose>
+								<xsl:when test="$showMap = 'true'">3</xsl:when>
+								<xsl:otherwise>2</xsl:otherwise>
+							</xsl:choose>
+						</xsl:attribute>
+						<xsl:apply-templates select="." mode="value" />
+					</td>
+				</xsl:when>
+				<xsl:otherwise>
+					<td class="value">
+						<xsl:if test="$showMap = 'true'">
+							<xsl:attribute name="colspan">2</xsl:attribute>
+						</xsl:if>
+						<xsl:apply-templates select="." mode="value" />
+					</td>
+					<td class="filter">
+						<xsl:apply-templates select="." mode="filter" />
+					</td>
+				</xsl:otherwise>
+			</xsl:choose>
+		</tr>
+	</xsl:if>
 </xsl:template>
 
 <xsl:template match="*" mode="contextLabel">
@@ -968,6 +1008,11 @@
 
 <xsl:template name="splitPath">
 	<xsl:param name="paramName" />
+	<xsl:variable name="isLabelParam">
+		<xsl:call-template name="isLabelParam">
+			<xsl:with-param name="paramName" select="$paramName" />
+		</xsl:call-template>
+	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="contains($paramName, '-')">
 			<xsl:value-of select="substring-before($paramName, '-')" />
@@ -985,7 +1030,7 @@
 				<xsl:with-param name="paramName" select="substring-after($paramName, '.')" />
 			</xsl:call-template>
 		</xsl:when>
-		<xsl:when test="$paramName = 'label' or $paramName = 'prefLabel' or $paramName = 'altLabel' or $paramName = 'name' or $paramName = 'alias' or $paramName = 'title'" />
+		<xsl:when test="$isLabelParam = 'true'" />
 		<xsl:otherwise>
 			<xsl:call-template name="splitOnCapital">
 				<xsl:with-param name="string" select="$paramName" />
@@ -996,61 +1041,81 @@
 
 <xsl:template name="splitOnCapital">
 	<xsl:param name="string" />
-	<xsl:param name="letters" select="$uppercase" />
-	<xsl:variable name="letter" select="substring($letters, 1, 1)" />
-	<xsl:variable name="rest" select="substring($letters, 2)" />
+	<xsl:param name="token" select="''" />
 	<xsl:choose>
-		<xsl:when test="$string = '' or $letters = ''" />
-		<xsl:when test="contains(substring($string, 1, 1), $numbers)">
-			<xsl:variable name="charAfterNumber"
-				select="substring(translate($string, $numbers, ''), 1, 1)" />
+		<xsl:when test="$string = ''">
+			<xsl:value-of select="$token" />
+		</xsl:when>
+		<xsl:when test="contains($numbers, substring($string, 1, 1))">
+			<xsl:value-of select="$token" />
+			<xsl:if test="$token != ''">
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:call-template name="skip">
+				<xsl:with-param name="string" select="$string" />
+				<xsl:with-param name="characters" select="$numbers" />
+			</xsl:call-template>
+		</xsl:when>
+		<xsl:when test="contains($uppercase, substring($string, 1, 1))">
+			<xsl:value-of select="$token" />
+			<xsl:if test="$token != ''">
+				<xsl:text> </xsl:text>
+			</xsl:if>
 			<xsl:choose>
-				<xsl:when test="$charAfterNumber = ''">
-					<xsl:value-of select="$string" />
+				<xsl:when test="contains($uppercase, substring($string, 2, 1))">
+					<xsl:call-template name="skip">
+						<xsl:with-param name="string" select="$string" />
+						<xsl:with-param name="characters" select="$uppercase" />
+					</xsl:call-template>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:variable name="number" select="substring-before($string, $charAfterNumber)" />
-					<xsl:value-of select="$number" />
-					<xsl:text> </xsl:text>
 					<xsl:call-template name="splitOnCapital">
-						<xsl:with-param name="string" select="substring-after($string, $number)" />
-						<xsl:with-param name="letters" select="$letters" />
+						<xsl:with-param name="string" select="substring($string, 2)" />
+						<xsl:with-param name="token" select="translate(substring($string, 1, 1), $uppercase, $lowercase)" />
 					</xsl:call-template>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
-		<xsl:when test="contains($string, $letter)">
-			<xsl:variable name="before" select="substring-before($string, $letter)" />
-			<xsl:variable name="after" select="substring-after($string, $letter)" />
-			<xsl:call-template name="splitOnCapital">
-				<xsl:with-param name="string" select="$before" />
-				<xsl:with-param name="letters" select="$rest" />
-			</xsl:call-template>
-			<xsl:choose>
-				<xsl:when test="$after != '' and translate(substring($after, 1, 1), $lowercase, '') = ''">
-					<xsl:text> </xsl:text>
-					<xsl:value-of select="translate($letter, $uppercase, $lowercase)" />
-				</xsl:when>
-				<xsl:when test="$before != '' and translate(substring($before, string-length($before), 1), $lowercase, '') = ''">
-					<xsl:text> </xsl:text>
-					<xsl:value-of select="$letter" />
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="$letter" />
-				</xsl:otherwise>
-			</xsl:choose>
-			<xsl:call-template name="splitOnCapital">
-				<xsl:with-param name="string" select="$after" />
-				<xsl:with-param name="letters" select="$letters" />
-			</xsl:call-template>
-		</xsl:when>
-		<xsl:when test="$rest = '' or translate($string, $rest, '') = $string">
-			<xsl:value-of select="$string" />
-		</xsl:when>
 		<xsl:otherwise>
 			<xsl:call-template name="splitOnCapital">
+				<xsl:with-param name="string" select="substring($string, 2)" />
+				<xsl:with-param name="token" select="concat($token, substring($string, 1, 1))" />
+			</xsl:call-template>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template name="skip">
+	<xsl:param name="string" />
+	<xsl:param name="characters" />
+	<xsl:param name="token" select="''" />
+	<xsl:choose>
+		<xsl:when test="string-length($string) &lt;= 1">
+			<xsl:value-of select="concat($token, $string)" />
+		</xsl:when>
+		<xsl:when test="contains($characters, substring($string, 1, 1))">
+			<xsl:choose>
+				<xsl:when test="$characters = $uppercase and contains($lowercase, substring($string, 2, 1))">
+					<xsl:value-of select="$token" />
+					<xsl:text> </xsl:text>
+					<xsl:call-template name="splitOnCapital">
+						<xsl:with-param name="string" select="$string" />
+					</xsl:call-template>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="skip">
+						<xsl:with-param name="string" select="substring($string, 2)" />
+						<xsl:with-param name="characters" select="$characters" />
+						<xsl:with-param name="token" select="concat($token, substring($string, 1, 1))" />
+					</xsl:call-template>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="$token" />
+			<xsl:text> </xsl:text>
+			<xsl:call-template name="splitOnCapital">
 				<xsl:with-param name="string" select="$string" />
-				<xsl:with-param name="letters" select="$rest" />
 			</xsl:call-template>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -1103,40 +1168,21 @@
 	<xsl:apply-templates select="." mode="content" />
 </xsl:template>
 
-<xsl:template match="*[prefLabel]" mode="content" priority="10">
-	<xsl:apply-templates select="prefLabel" mode="content" />
-</xsl:template>
-
-<xsl:template match="*[name]" mode="content" priority="9">
-	<xsl:apply-templates select="name" mode="content" />
-</xsl:template>
-
-<xsl:template match="*[title]" mode="content" priority="8">
-	<xsl:apply-templates select="title" mode="content" />
-</xsl:template>
-
-<xsl:template match="*[label]" mode="content" priority="7">
-	<xsl:apply-templates select="label" mode="content" />
-</xsl:template>
-
-<xsl:template match="*[altLabel]" mode="content" priority="6">
-	<xsl:apply-templates select="altLabel" mode="content" />
-</xsl:template>
-
-<xsl:template match="*[alias]" mode="content" priority="5">
-	<xsl:apply-templates select="alias" mode="content" />
-</xsl:template>
-
-<xsl:template match="label[item] | prefLabel[item] | altLabel[item] | name[item] | alias[item] | title[item]" mode="content" priority="10">
-	<xsl:for-each select="item">
-		<xsl:value-of select="." />
-		<xsl:if test="position() != last()"> / </xsl:if>
-	</xsl:for-each>
-</xsl:template>
-
 <xsl:template match="*[item]" mode="content" priority="4">
+	<xsl:variable name="isLabelParam">
+		<xsl:apply-templates select="." mode="isLabelParam" />
+	</xsl:variable>
+	<xsl:variable name="anyItemHasNonLabelProperties">
+		<xsl:apply-templates select="." mode="anyItemHasNonLabelProperties" />
+	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="item[*[not(self::label or self::prefLabel or self::altLabel or self::name or self::alias or self::title)]]">
+		<xsl:when test="$isLabelParam = 'true'">
+			<xsl:for-each select="item">
+				<xsl:value-of select="." />
+				<xsl:if test="position() != last()"> / </xsl:if>
+			</xsl:for-each>
+		</xsl:when>
+		<xsl:when test="$anyItemHasNonLabelProperties = 'true'">
 			<xsl:apply-templates select="item" mode="content" />
 		</xsl:when>
 		<xsl:otherwise>
@@ -1148,7 +1194,17 @@
 </xsl:template>
 
 <xsl:template match="*[*]" mode="content" priority="3">
-	<xsl:apply-templates select="." mode="table" />
+	<xsl:choose>
+		<xsl:when test="prefLabel"><xsl:apply-templates select="prefLabel" mode="content" /></xsl:when>
+		<xsl:when test="name"><xsl:apply-templates select="name" mode="content" /></xsl:when>
+		<xsl:when test="title"><xsl:apply-templates select="title" mode="content" /></xsl:when>
+		<xsl:when test="label"><xsl:apply-templates select="label" mode="content" /></xsl:when>
+		<xsl:when test="alias"><xsl:apply-templates select="alias" mode="content" /></xsl:when>
+		<xsl:when test="altLabel"><xsl:apply-templates select="altLabel" mode="content" /></xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="table" />
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="*[@href]" mode="content">
@@ -1160,8 +1216,6 @@
 <xsl:template match="*" mode="content">
 	<xsl:value-of select="." />
 </xsl:template>
-
-<xsl:template match="*[* and not(label or prefLabel or altLabel or name or alias or title)]" mode="filter" />
 
 <xsl:template match="*" mode="filter">
 	<xsl:variable name="paramName">
@@ -1175,8 +1229,12 @@
 			<xsl:with-param name="param" select="$paramName" />
 		</xsl:call-template>
 	</xsl:variable>
+	<xsl:variable name="hasNoLabelProperties">
+		<xsl:apply-templates select="." mode="hasNoLabelProperties" />
+	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test=". = ''" />
+		<xsl:when test="* and $hasNoLabelProperties = 'true'" />
 		<xsl:when test="$paramValue = .">
 			<a title="remove filter">
 				<xsl:attribute name="href">
@@ -1388,8 +1446,11 @@
 	<xsl:variable name="paramName">
 		<xsl:apply-templates select="." mode="paramName" />
 	</xsl:variable>
+	<xsl:variable name="hasNonLabelProperties">
+		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
+	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="*[not(self::item or self::label or self::prefLabel or self::altLabel or self::name or self::alias or self::title)]">
+		<xsl:when test="$hasNonLabelProperties = 'true'">
 			<!-- there's a child of this kind of property that isn't an empty item element -->
 			<xsl:if test="key('properties', $paramName)/*[name() != 'item' or node()]">
 				<tr>
@@ -1749,6 +1810,82 @@
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:value-of select="$string" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" name="isLabelParam" mode="isLabelParam">
+	<xsl:param name="paramName" select="name(.)" />
+	<xsl:choose>
+		<xsl:when test="$paramName = 'label' or $paramName = 'prefLabel' or $paramName = 'altLabel' or $paramName = 'name' or $paramName = 'alias' or $paramName = 'title'">true</xsl:when>
+		<xsl:otherwise>false</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="hasLabelProperty">
+	<xsl:param name="properties" select="*" />
+	<xsl:variable name="first" select="$properties[1]" />
+	<xsl:variable name="firstIsLabelProperty">
+		<xsl:apply-templates select="$first" mode="isLabelParam" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="not($properties)">false</xsl:when>
+		<xsl:when test="$firstIsLabelProperty = 'true'">true</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="hasLabelProperties">
+				<xsl:with-param name="properties" select="$properties[position() > 1]" />
+			</xsl:apply-templates>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="hasNonLabelProperties">
+	<xsl:param name="properties" select="*" />
+	<xsl:variable name="first" select="$properties[1]" />
+	<xsl:variable name="firstIsLabelProperty">
+		<xsl:apply-templates select="$first" mode="isLabelParam" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="not($properties)">false</xsl:when>
+		<xsl:when test="$firstIsLabelProperty = 'false'">true</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="hasNonLabelProperties">
+				<xsl:with-param name="properties" select="$properties[position() > 1]" />
+			</xsl:apply-templates>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="hasNoLabelProperties">
+	<xsl:param name="properties" select="*" />
+	<xsl:variable name="first" select="$properties[1]" />
+	<xsl:variable name="firstIsLabelProperty">
+		<xsl:apply-templates select="$first" mode="isLabelParam" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="not($properties)">true</xsl:when>
+		<xsl:when test="$firstIsLabelProperty = 'true'">false</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="hasNoLabelProperties">
+				<xsl:with-param name="properties" select="$properties[position() > 1]" />
+			</xsl:apply-templates>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="anyItemHasNonLabelProperties">
+	<xsl:param name="items" select="item" />
+	<xsl:variable name="first" select="$items[1]" />
+	<xsl:variable name="firstHasNonLabelProperties">
+		<xsl:apply-templates select="$first" mode="hasNonLabelProperties" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="not($items)">false</xsl:when>
+		<xsl:when test="$firstHasNonLabelProperties = 'true'">true</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="anyItemHasNonLabelProperties">
+				<xsl:with-param name="items" select="$items[position() > 1]" />
+			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>

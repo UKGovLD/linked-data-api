@@ -189,6 +189,7 @@ section.filter td.filter {
 
 td.filter {
 	width: 54px;
+	min-width: 54px;
 	text-align: center;
 }
 
