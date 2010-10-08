@@ -4,11 +4,9 @@
 <xsl:import href="result.xsl" />
 
 <xsl:template match="@href" mode="uri">
-	<xsl:variable name="domain" select="substring-before(substring-after(., 'http://'), '/')" />
 	<xsl:choose>
-		<xsl:when test="$domain = 'education.data.gov.uk'">
-			<xsl:variable name="path" select="substring-after(substring-after(., 'http://'), '/')" />
-			<xsl:value-of select="concat('/education/api/', substring-after($path, 'id/'))" />
+		<xsl:when test="starts-with(., 'http://education.data.gov.uk/id/')">
+			<xsl:value-of select="concat('/education/api/', substring-after(., 'id/'))" />
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:value-of select="." />
