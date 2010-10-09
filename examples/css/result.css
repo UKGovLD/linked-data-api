@@ -37,7 +37,6 @@ nav.topnav {
 	border-bottom: 1px solid #D3D3D3;
 	margin: 0 0 30px;
 	padding: 0 0 10px;
-	overflow: hidden;
 }
 
 .panel h1 {
@@ -69,10 +68,8 @@ nav.topnav section table {
 .panel section, nav.topnav section ul, nav.topnav section table, nav.topnav section.map div.mapWrapper {
 	background: none repeat scroll 0 0 #FFFFFF;
 	border: 1px solid #D3D3D3;
-	float: left;
 	margin: 10px 10px 0;
 	padding: 10px;
-	overflow: hidden;
 }
 
 nav.topnav section.map div.mapWrapper {
@@ -137,9 +134,10 @@ nav.topnav section h1 {
 }
 
 nav.topnav section li {
-	background: url("http://data.gov.uk/sites/all/themes/datagovuk/images/icon_li_arrow.png") no-repeat scroll 10px 4px transparent;
+	background: url("http://data.gov.uk/sites/all/themes/datagovuk/images/icon_li_arrow.png") no-repeat scroll 3px 4px transparent;
 	display: inline;
-	padding-left: 22px;
+	padding-left: 15px;
+	padding-right: 5px;
 	white-space: nowrap;
 }
 
@@ -150,33 +148,50 @@ nav.topnav section.summary li {
 	height: 1.188em;
 }
 
-nav.topnav section.sort p {
+nav.topnav section.sort p.reset, nav.topnav section.view p.reset, nav.topnav section.map p.search {
 	position: absolute;
-	top: 6px;
-	right: 9px;
+	top: 8px;
+	right: 29px;
+	z-index: 6000;
 }
 
-nav.topnav section.sort li {
+nav.topnav section.sort li, nav.topnav section.view ul.properties li {
 	display: block;
 	background: none;
 	padding-left: 0;
+	white-space: normal;
 }
 
-nav.topnav section.sort li.selected {
+nav.topnav section.sort li.selected, nav.topnav section.view ul.properties li.selected {
 	font-weight: bold;
 }
 
-nav.topnav section.sort a {
+nav.topnav section.sort li a, nav.topnav section.view ul.properties li a {
 	padding: 0 1px;
 }
 
-nav.topnav section.sort img {
+nav.topnav section.sort li img, nav.topnav section.view ul.properties li img {
 	position: relative;
 	top: 2px;
 }
 
+nav.topnav section.sort li {
+	text-indent: -40px;
+	margin-left: 40px;
+}
+
+nav.topnav section.view ul.properties li {
+	text-indent: -20px;
+	margin-left: 20px;
+}
+
 section.filter th.label {
 	padding-left: 10px;
+	width: auto;
+}
+
+#search th.label {
+	width: auto;
 }
 
 th.label {
@@ -185,6 +200,8 @@ th.label {
 
 section.filter td.filter {
 	width: 16px;
+	min-width: 16px;
+	opacity: 1;
 }
 
 td.filter {
@@ -192,6 +209,19 @@ td.filter {
 	min-width: 54px;
 	text-align: center;
 }
+
+td.filter, td.select, tr:hover td.nested td.filter, tr:hover td.nested td.select {
+	opacity: 0.5;
+}
+
+tr:hover td.filter, tr:hover td.select {
+	opacity: 1;
+}
+
+tr td.nested tr:hover td.filter, tr td.nested tr:hover td.select {
+	opacity: 1;
+}
+
 
 td.filter a {
 	margin: 0 1px;
@@ -259,6 +289,11 @@ section#search td {
 }
 
 section#search button {
+	background-color: #DE5B06;
+	border-color: #DE5806;
+	color: white;
+	font-size: 1em;
+/*
 	border: none;
 	width: 16px;
 	padding: 0;
@@ -269,6 +304,7 @@ section#search button {
 	position: relative;
 	right: 5px;
 	top: -36px;
+ */
 }
 
 button img {
@@ -342,6 +378,54 @@ td.nested {
 
 tr tr {
 	border-bottom: none;
+}
+
+.info {
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	width: 250px;
+	z-index: 5000;
+}
+
+.info p {
+	display: none;
+	background-color: white;
+	border: thin solid #D3D3D3;
+	padding: 5px;
+	margin-top: 24px;
+	line-height: 1.5em;
+	opacity: 0.95;
+}
+
+.info img.open {
+	float: right;
+	padding: 5px;
+}
+
+a.outlink:before {
+	content: '(';
+}
+
+a.outlink:after {
+	content: ')';
+}
+
+a.outlink {
+	font-size: 0.8em;
+	font-weight: normal;
+}
+
+.panel section .nested caption a:link.outlink, .panel section .nested caption a:visited.outlink, .panel section .nested caption a:active.outlink {
+	color: #999999;
+}
+
+a:link.outlink, a:visited.outlink, a:active.outlink {
+	color: #D3D3D3;
+}
+
+a:hover.outlink, .panel section .nested caption a:hover.outlink {
+	color: #1F328C;
 }
 
 a:link , a:visited , a:active , a:hover {
