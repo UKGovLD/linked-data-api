@@ -63,7 +63,7 @@
 		<xsl:text>&lt;script src="http://html5shiv.googlecode.com/svn/trunk/html5.js">&lt;/script></xsl:text>
 		<xsl:text>&lt;![endif]</xsl:text>
 	</xsl:comment>
-	<xsl:if test="items/item[easting and northing] or (not(items) and primaryTopic[easting and northing])">
+	<xsl:if test="$showMap = 'true'">
 		<script type="text/javascript"
      src="http://openspace.ordnancesurvey.co.uk/osmapapi/openspace.js?key={$openSpaceAPIkey}"></script>
 	</xsl:if>
@@ -72,6 +72,17 @@
 	<script type="text/javascript">
 		$(function() {
 		
+			$('.info img')
+				.toggle(function () {
+					$(this)
+						.attr('src', '/images/orange/16x16/Cancel.png')
+						.next().show();
+				}, function () {
+					$(this)
+						.attr('src', '/images/orange/16x16/Question.png')
+						.next().fadeOut('slow');
+				});
+			
 			$('input[type=date]').datepicker({
 				changeMonth: true,
 				changeYear: true,
@@ -82,9 +93,48 @@
 			<xsl:if test="$showMap = 'true'">
 				initMap();
 				
+				$('.map .search').click(function() {
+					var bounds = summaryMap.getExtent();
+					var minEasting = Math.ceil(bounds.left);
+					var maxEasting = Math.floor(bounds.right);
+					var minNorthing = Math.ceil(bounds.bottom);
+					var maxNorthing = Math.floor(bounds.top);
+					window.location = '<xsl:call-template name="clearPosition">
+						<xsl:with-param name="uri">
+							<xsl:apply-templates select="/result" mode="searchURI" />
+						</xsl:with-param>
+					</xsl:call-template>&amp;min-easting=' + minEasting + '&amp;max-easting=' + maxEasting + '&amp;min-northing=' + minNorthing + '&amp;max-northing=' + maxNorthing;
+				});
 			</xsl:if>
 		});
 	</script>
+</xsl:template>
+
+<xsl:template name="clearPosition">
+	<xsl:param name="uri" />
+	<xsl:call-template name="substituteParam">
+		<xsl:with-param name="uri">
+			<xsl:call-template name="substituteParam">
+				<xsl:with-param name="uri">
+					<xsl:call-template name="substituteParam">
+						<xsl:with-param name="uri">
+							<xsl:call-template name="substituteParam">
+								<xsl:with-param name="uri" select="$uri" />
+								<xsl:with-param name="param" select="'max-northing'" />
+								<xsl:with-param name="value" select="''" />
+							</xsl:call-template>
+						</xsl:with-param>
+						<xsl:with-param name="param" select="'min-northing'" />
+						<xsl:with-param name="value" select="''" />
+					</xsl:call-template>
+				</xsl:with-param>
+				<xsl:with-param name="param" select="'max-easting'" />
+				<xsl:with-param name="value" select="''" />
+			</xsl:call-template>
+		</xsl:with-param>
+		<xsl:with-param name="param" select="'min-easting'" />
+		<xsl:with-param name="value" select="''" />
+	</xsl:call-template>
 </xsl:template>
 
 <xsl:template match="result" mode="showMap">
@@ -93,7 +143,15 @@
 		<xsl:apply-templates select="$items[1]" mode="showMap" />
 	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="not($items)">false</xsl:when>
+		<xsl:when test="not($items)">
+			<xsl:variable name="minEasting">
+				<xsl:call-template name="paramValue">
+					<xsl:with-param name="uri" select="@href" />
+					<xsl:with-param name="param" select="'min-easting'" />
+				</xsl:call-template>
+			</xsl:variable>
+			<xsl:value-of select="$minEasting != ''" />
+		</xsl:when>
 		<xsl:when test="$showMap = 'true'">true</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="." mode="showMap">
@@ -194,27 +252,91 @@
 	<xsl:choose>
 		<xsl:when test="$showMap = 'true'">
 			<xsl:variable name="minEasting">
-				<xsl:call-template name="min">
-					<xsl:with-param name="values" select="items/item/easting | primaryTopic/easting" />
-				</xsl:call-template>
+				<xsl:choose>
+					<xsl:when test="items/item/easting">
+						<xsl:call-template name="min">
+							<xsl:with-param name="values" select="items/item/easting" />
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="primaryTopic/easting">
+						<xsl:value-of select="primaryTopic/easting" />
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="paramValue">
+							<xsl:with-param name="uri" select="/result/@href" />
+							<xsl:with-param name="param" select="'min-easting'" />
+						</xsl:call-template>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:variable>
 			<xsl:variable name="maxEasting">
-				<xsl:call-template name="max">
-					<xsl:with-param name="values" select="items/item/easting | primaryTopic/easting" />
-				</xsl:call-template>
+				<xsl:choose>
+					<xsl:when test="items/item/easting">
+						<xsl:call-template name="max">
+							<xsl:with-param name="values" select="items/item/easting" />
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="primaryTopic/easting">
+						<xsl:value-of select="primaryTopic/easting" />
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="paramValue">
+							<xsl:with-param name="uri" select="/result/@href" />
+							<xsl:with-param name="param" select="'max-easting'" />
+						</xsl:call-template>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:variable>
 			<xsl:variable name="minNorthing">
-				<xsl:call-template name="min">
-					<xsl:with-param name="values" select="items/item/northing | primaryTopic/northing" />
-				</xsl:call-template>
+				<xsl:choose>
+					<xsl:when test="items/item/easting">
+						<xsl:call-template name="min">
+							<xsl:with-param name="values" select="items/item/northing" />
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="primaryTopic/northing">
+						<xsl:value-of select="primaryTopic/northing" />
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="paramValue">
+							<xsl:with-param name="uri" select="/result/@href" />
+							<xsl:with-param name="param" select="'min-northing'" />
+						</xsl:call-template>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:variable>
 			<xsl:variable name="maxNorthing">
-				<xsl:call-template name="max">
-					<xsl:with-param name="values" select="items/item/northing | primaryTopic/northing" />
-				</xsl:call-template>
+				<xsl:choose>
+					<xsl:when test="items/item/easting">
+						<xsl:call-template name="max">
+							<xsl:with-param name="values" select="items/item/northing" />
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="primaryTopic/northing">
+						<xsl:value-of select="primaryTopic/northing" />
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="paramValue">
+							<xsl:with-param name="uri" select="/result/@href" />
+							<xsl:with-param name="param" select="'max-northing'" />
+						</xsl:call-template>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:variable>
 			<section class="map">
 				<h1>Map</h1>
+				<xsl:call-template name="createInfo">
+					<xsl:with-param name="text">
+						<xsl:text>This map shows the items that are listed on this page. </xsl:text>
+						<xsl:text>There might be other items that match your query that aren't shown on this map. </xsl:text>
+						<xsl:text>If you want to search in a different area, move to that area and click the </xsl:text>
+						<img src="/images/orange/16x16/Search.png" alt="search" />
+						<xsl:text> icon.</xsl:text>
+					</xsl:with-param>
+				</xsl:call-template>
+				<p class="search">
+					<img src="/images/orange/16x16/Search.png" alt="search" />
+				</p>
 				<div class="mapWrapper">
 					<div id="map">
 					</div>
@@ -227,23 +349,27 @@
 							new OpenSpace.Control.CopyrightCollection({displayClass:"osCopyright"}),
 							new OpenLayers.Control.ArgParser()
 						];
-						osMap = new OpenSpace.Map('map', {controls: controls});
-						osMap.addControl(new OpenSpace.Control.SmallMapControl());
+						summaryMap = new OpenSpace.Map('map', {controls: controls});
+						summaryMap.addControl(new OpenSpace.Control.SmallMapControl());
 						var info;
 						<xsl:choose>
 							<xsl:when test="items">
 					      var bounds = new OpenLayers.Bounds(<xsl:value-of select="$minEasting"/>, <xsl:value-of select="$minNorthing"/>, <xsl:value-of select="$maxEasting"/>, <xsl:value-of select="$maxNorthing"/>);
-								var zoom = Math.min(7, osMap.getZoomForExtent(bounds));
+								var zoom = Math.min(7, summaryMap.getZoomForExtent(bounds));
 								var center = new OpenSpace.MapPoint(<xsl:value-of select="$minEasting + floor(($maxEasting - $minEasting) div 2)" />, <xsl:value-of select="$minNorthing + floor(($maxNorthing - $minNorthing) div 2)" />);
+								summaryMap.setCenter(center, zoom);
+							</xsl:when>
+							<xsl:when test="primaryTopic/easting">
+								var center = new OpenSpace.MapPoint(<xsl:value-of select="primaryTopic/easting" />, <xsl:value-of select="primaryTopic/northing" />);
+								summaryMap.setCenter(center, 7);
 							</xsl:when>
 							<xsl:otherwise>
-								var zoom = 7;
-								var center = new OpenSpace.MapPoint(<xsl:value-of select="primaryTopic/easting" />, <xsl:value-of select="primaryTopic/northing" />);
+								var bounds = new OpenLayers.Bounds(<xsl:value-of select="$minEasting"/>, <xsl:value-of select="$minNorthing"/>, <xsl:value-of select="$maxEasting"/>, <xsl:value-of select="$maxNorthing"/>);
+								summaryMap.zoomToExtent(bounds);
 							</xsl:otherwise>
 						</xsl:choose>
-			      osMap.setCenter(center, zoom);
 			      var markers = new OpenLayers.Layer.Markers("Markers");
-			      osMap.addLayer(markers);
+			      summaryMap.addLayer(markers);
 			      var size = new OpenLayers.Size(16,16);
 						var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
 						var icon = new OpenLayers.Icon('/images/orange/16x16/Target.png', size, offset);
@@ -254,7 +380,7 @@
 			      	<xsl:sort select="easting" order="descending" data-type="number" />
 				      pos = new OpenSpace.MapPoint(<xsl:value-of select="easting" />, <xsl:value-of select="northing"/>);
 				      marker = new OpenLayers.Marker(pos, icon.clone());
-				      <xsl:if test="items">
+				      <xsl:if test="/result/items">
 					      marker.events.on({
 					      	mouseover: function () {
 					      		info.setHTML('&lt;div class=\"mapInfo\">&lt;a href=\"#item<xsl:value-of select="count(preceding-sibling::item) + 1"/>\"><xsl:call-template name="jsEscape"><xsl:with-param name="string"><xsl:apply-templates select="." mode="name" /></xsl:with-param></xsl:call-template>&lt;/a>&lt;/div>');
@@ -266,7 +392,7 @@
 						<xsl:if test="items">
 							info = new OpenSpace.Layer.ScreenOverlay("info");
 							info.setPosition(new OpenLayers.Pixel(85, 0));
-							osMap.addLayer(info);
+							summaryMap.addLayer(info);
 							info.setHTML('&lt;div class=\"mapInfo\">Mouse over a marker&lt;/div>');
 						</xsl:if>
 					};
@@ -287,7 +413,15 @@
 	<xsl:if test="count(items/item) > 1">
 		<section class="summary">
 			<h1>Quick Links</h1>
+			<xsl:call-template name="createInfo">
+				<xsl:with-param name="text">Links to the items within this page, and to the previous and/or next pages of results.</xsl:with-param>
+			</xsl:call-template>
 			<ul>
+				<xsl:if test="prev">
+					<li>
+						<xsl:apply-templates select="prev" mode="nav" />
+					</li>
+				</xsl:if>
 				<xsl:for-each select="items/item">
 					<li>
 						<a href="#item{position()}" title="jump to item on this page">
@@ -295,6 +429,11 @@
 						</a>
 					</li>
 				</xsl:for-each>
+				<xsl:if test="next">
+					<li>
+						<xsl:apply-templates select="next" mode="nav" />
+					</li>
+				</xsl:if>
 			</ul>
 		</section>
 	</xsl:if>
@@ -332,6 +471,9 @@
 	<xsl:if test="$filters != ''">
 		<section class="filter">
 			<h1>Filter</h1>
+			<xsl:call-template name="createInfo">
+				<xsl:with-param name="text">These are the filters currently being used to limit the search results. Click on the <img src="/images/orange/16x16/Back.png" alt="remove filter" /> icon to remove the filter.</xsl:with-param>
+			</xsl:call-template>
 			<table>
 				<xsl:copy-of select="$filters" />
 			</table>
@@ -351,7 +493,7 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
-	<xsl:if test="not(starts-with($param, '_'))">
+	<xsl:if test="not(starts-with($param, '_')) and not(starts-with($param, 'max-easting=') or starts-with($param, 'min-northing=') or starts-with($param, 'max-northing='))">
 		<xsl:variable name="paramName" select="substring-before($param, '=')" />
 		<xsl:variable name="isLabelParam">
 			<xsl:call-template name="isLabelParam">
@@ -359,37 +501,57 @@
 			</xsl:call-template>
 		</xsl:variable>
 		<tr>
-			<th class="label">
-				<xsl:choose>
-					<xsl:when test="$isLabelParam = 'true'">
-						<xsl:value-of select="$paramName" />
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:call-template name="splitPath">
-							<xsl:with-param name="paramName" select="$paramName" />
+			<xsl:choose>
+				<xsl:when test="$paramName = 'min-easting'">
+					<th class="label" colspan="2">area of map</th>
+					<td class="filter">
+						<a title="remove filter">
+							<xsl:attribute name="href">
+								<xsl:call-template name="clearPosition">
+									<xsl:with-param name="uri">
+										<xsl:apply-templates select="/result" mode="searchURI" />
+									</xsl:with-param>
+								</xsl:call-template>
+							</xsl:attribute>
+							<img src="/images/orange/16x16/Back.png" alt="remove filter" />
+						</a>
+					</td>
+				</xsl:when>
+				<xsl:otherwise>
+					<th class="label">
+						<xsl:choose>
+							<xsl:when test="$isLabelParam = 'true'">
+								<xsl:value-of select="$paramName" />
+							</xsl:when>
+							<xsl:when test="$paramName = 'min-easting'">area on map</xsl:when>
+							<xsl:otherwise>
+								<xsl:call-template name="splitPath">
+									<xsl:with-param name="paramName" select="$paramName" />
+								</xsl:call-template>
+							</xsl:otherwise>
+						</xsl:choose>
+					</th>
+					<td class="value">
+						<xsl:call-template name="unescapeValue">
+							<xsl:with-param name="value" select="substring-after($param, '=')" />
 						</xsl:call-template>
-					</xsl:otherwise>
-				</xsl:choose>
-			</th>
-			<td class="value">
-				<xsl:call-template name="unescapeValue">
-					<xsl:with-param name="value" select="substring-after($param, '=')" />
-				</xsl:call-template>
-			</td>
-			<td class="filter">
-				<a title="remove filter">
-					<xsl:attribute name="href">
-						<xsl:call-template name="substituteParam">
-							<xsl:with-param name="uri">
-								<xsl:apply-templates select="/result" mode="searchURI" />
-							</xsl:with-param>
-							<xsl:with-param name="param" select="$paramName" />
-							<xsl:with-param name="value" select="''" />
-						</xsl:call-template>
-					</xsl:attribute>
-					<img src="/images/orange/16x16/Back.png" alt="remove filter" />
-				</a>
-			</td>
+					</td>
+					<td class="filter">
+						<a title="remove filter">
+							<xsl:attribute name="href">
+								<xsl:call-template name="substituteParam">
+									<xsl:with-param name="uri">
+										<xsl:apply-templates select="/result" mode="searchURI" />
+									</xsl:with-param>
+									<xsl:with-param name="param" select="$paramName" />
+									<xsl:with-param name="value" select="''" />
+								</xsl:call-template>
+							</xsl:attribute>
+							<img src="/images/orange/16x16/Back.png" alt="remove filter" />
+						</a>
+					</td>
+				</xsl:otherwise>
+			</xsl:choose>
 		</tr>
 	</xsl:if>
 	<xsl:if test="contains($params, '&amp;')">
@@ -406,8 +568,39 @@
 			<xsl:with-param name="param" select="'_view'" />
 		</xsl:call-template>
 	</xsl:variable>
+	<xsl:variable name="properties">
+		<xsl:call-template name="paramValue">
+			<xsl:with-param name="uri" select="@href" />
+			<xsl:with-param name="param" select="'_properties'" />
+		</xsl:call-template>
+	</xsl:variable>
 	<section class="view">
 		<h1>View</h1>
+		<xsl:call-template name="createInfo">
+			<xsl:with-param name="text">
+				<xsl:text>Choose what information you want to view about each item. </xsl:text>
+				<xsl:text>There are some pre-defined views, but starred properties are always present no matter what the view. </xsl:text> 
+				<xsl:text>You can star properties by clicking on the </xsl:text>
+				<img src="/images/grey/16x16/Star.png" alt="star this property" />
+				<xsl:text> icon. The currently starred icons have a </xsl:text>
+				<img src="/images/orange/16x16/Star.png" alt="unstar this property" />
+				<xsl:text> icon; clicking on it will unstar the property.</xsl:text>
+			</xsl:with-param>
+		</xsl:call-template>
+		<xsl:if test="$properties != ''">
+			<p class="reset">
+				<a title="unstar all properties">
+					<xsl:attribute name="href">
+						<xsl:call-template name="substituteParam">
+							<xsl:with-param name="uri" select="/result/@href" />
+							<xsl:with-param name="param" select="'_properties'" />
+							<xsl:with-param name="value" select="''" />
+						</xsl:call-template>
+					</xsl:attribute>
+					<img src="/images/orange/16x16/Back.png" alt="reset" />
+				</a>
+			</p>
+		</xsl:if>
 		<ul>
 			<xsl:for-each select="version/item | version[not(item)]">
 				<li>
@@ -417,12 +610,145 @@
 				</li>
 			</xsl:for-each>
 		</ul>
+		<ul class="properties">
+			<xsl:if test="$properties != ''">
+				<xsl:apply-templates select="." mode="selectedProperties">
+					<xsl:with-param name="properties" select="$properties" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:for-each select="(items/item/* | primaryTopic[not(../items)]/*)[generate-id(key('properties', name(.))[1]) = generate-id(.)]">
+				<xsl:sort select="self::label or self::prefLabel or self::altLabel or self::name or self::alias or self::title" order="descending" />
+				<xsl:sort select="boolean(@datatype)" order="descending" />
+				<xsl:sort select="@datatype" />
+				<xsl:sort select="boolean(@href)" />
+				<xsl:sort select="local-name()" />
+				<xsl:apply-templates select="." mode="propertiesentry">
+					<xsl:with-param name="properties" select="$properties" />
+				</xsl:apply-templates>
+			</xsl:for-each>
+		</ul>
 	</section>
+</xsl:template>
+	
+<xsl:template match="result" mode="selectedProperties">
+	<xsl:param name="properties" />
+	<xsl:param name="previousProperties" select="''" />
+	<xsl:variable name="property" select="substring-before(concat($properties, ','), ',')" />
+	<xsl:variable name="paramName">
+		<xsl:choose>
+			<xsl:when test="starts-with($property, '-')">
+				<xsl:value-of select="substring($property, 2)" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$property" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<xsl:variable name="isLabelParam">
+		<xsl:call-template name="isLabelParam">
+			<xsl:with-param name="paramName" select="$paramName" />
+		</xsl:call-template>
+	</xsl:variable>
+	<li class="selected">
+		<a title="remove this property">
+			<xsl:attribute name="href">
+				<xsl:call-template name="substituteParam">
+					<xsl:with-param name="uri" select="@href" />
+					<xsl:with-param name="param" select="'_properties'" />
+					<xsl:with-param name="value">
+						<xsl:if test="$previousProperties != ''">
+							<xsl:value-of select="$previousProperties" />
+							<xsl:text>,</xsl:text>
+						</xsl:if>
+						<xsl:value-of select="substring-after($properties, ',')" />
+					</xsl:with-param> 
+				</xsl:call-template>
+			</xsl:attribute>
+			<img src="/images/orange/16x16/Star.png" alt="unstar this property" />
+		</a>
+		<xsl:text> </xsl:text>
+		<xsl:choose>
+			<xsl:when test="$isLabelParam = 'true'">
+				<xsl:value-of select="$paramName" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="splitPath">
+					<xsl:with-param name="paramName" select="$paramName" />
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</li>
+	<xsl:if test="contains($properties, ',')">
+		<xsl:apply-templates select="." mode="selectedProperties">
+			<xsl:with-param name="properties" select="substring-after($properties, ',')" />
+			<xsl:with-param name="previousProperties" select="concat($previousProperties, ',', $property)" />
+		</xsl:apply-templates>
+	</xsl:if>
+</xsl:template>
+
+<xsl:template match="*" mode="propertiesentry">
+	<xsl:param name="properties" />
+	<xsl:variable name="paramName">
+		<xsl:apply-templates select="." mode="paramName" />
+	</xsl:variable>
+	<xsl:variable name="hasNonLabelProperties">
+		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="$hasNonLabelProperties = 'true'">
+			<xsl:for-each select="key('properties', $paramName)/*[generate-id(key('properties', concat($paramName, '.', name(.)))[1]) = generate-id(.)]">
+				<xsl:sort select="boolean(@datatype)" order="descending" />
+				<xsl:sort select="@datatype" />
+				<xsl:sort select="boolean(@href)" />
+				<xsl:sort select="local-name()" />
+				<xsl:apply-templates select="." mode="propertiesentry">
+					<xsl:with-param name="properties" select="$properties" />
+				</xsl:apply-templates>
+			</xsl:for-each>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="properties">
+				<xsl:with-param name="properties" select="$properties" />
+			</xsl:apply-templates>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="properties">
+	<xsl:param name="properties" />
+	<xsl:variable name="name">
+		<xsl:apply-templates select="." mode="paramName" />
+	</xsl:variable>
+	<xsl:if test="not(contains(concat(',', $properties, ','), concat(',', $name, ',')))">
+		<li>
+			<a title="always include this property">
+				<xsl:attribute name="href">
+					<xsl:call-template name="substituteParam">
+						<xsl:with-param name="uri" select="/result/@href" />
+						<xsl:with-param name="param" select="'_properties'" />
+						<xsl:with-param name="value">
+							<xsl:if test="$properties != ''">
+								<xsl:value-of select="$properties" />
+								<xsl:text>,</xsl:text>
+							</xsl:if>
+							<xsl:value-of select="$name" />
+						</xsl:with-param> 
+					</xsl:call-template>
+				</xsl:attribute>
+				<img src="/images/grey/16x16/Star.png" alt="star this property" />
+				<xsl:text> </xsl:text>
+				<xsl:apply-templates select="." mode="contextLabel" />
+			</a>
+		</li>
+	</xsl:if>
 </xsl:template>
 
 <xsl:template match="result" mode="sizenav">
 	<section class="size">
 		<h1>Items per page</h1>
+		<xsl:call-template name="createInfo">
+			<xsl:with-param name="text">Choose how many items to view on each page. The more items you view, the longer the page will take to load.</xsl:with-param>
+		</xsl:call-template>
 		<ul>
 			<li>
 				<xsl:apply-templates select="." mode="pageSize">
@@ -480,6 +806,25 @@
 	</xsl:variable>
 	<section class="sort">
 		<h1>Sort by</h1>
+		<xsl:call-template name="createInfo">
+			<xsl:with-param name="text">
+				<xsl:text>This list shows the properties that you can sort by. Click on </xsl:text>
+				<img src="/images/grey/16x16/Arrow3 Up.png" alt="sort in ascending order" />
+				<xsl:text> to sort in ascending order and </xsl:text>
+				<img src="/images/grey/16x16/Arrow3 Down.png" alt="sort in descending order" />
+				<xsl:text> to sort in descending order. The properties that you're currently sorting by are shown at the top of the list. Click on </xsl:text>
+				<img src="/images/orange/16x16/Cancel.png" alt="remove this sort" />
+				<xsl:text> to remove a sort and </xsl:text>
+				<img src="/images/orange/16x16/Arrow3 Up.png" alt="sort in descending order" />
+				<xsl:text> or </xsl:text>
+				<img src="/images/orange/16x16/Arrow3 Down.png" alt="sort in ascending order" />
+				<xsl:text> to reverse the current sort order. </xsl:text>
+				<xsl:text>Click on the </xsl:text>
+				<img src="/images/orange/16x16/Back.png" alt="remove all sorting" />
+				<xsl:text> icon to remove all the sorting. </xsl:text>
+				<xsl:text>Note that sorting can significantly slow down the loading of the page.</xsl:text>
+			</xsl:with-param>
+		</xsl:call-template>
 		<xsl:if test="$current != ''">
 			<p class="reset">
 				<a title="remove sorting">
@@ -492,7 +837,7 @@
 							<xsl:with-param name="value" select="''" />
 						</xsl:call-template>
 					</xsl:attribute>
-					<img src="/images/orange/16x16/Cancel.png" alt="reset" />
+					<img src="/images/orange/16x16/Back.png" alt="reset" />
 				</a>
 			</p>
 		</xsl:if>
@@ -695,7 +1040,7 @@
 <xsl:template match="*" mode="paramHierarchy">
 	<xsl:if test="not(parent::item/parent::items/parent::result or parent::primaryTopic/parent::result)">
 		<xsl:apply-templates select="parent::*" mode="paramHierarchy" />
-		<xsl:if test="not(parent::item)">.</xsl:if>
+		<xsl:if test="not(self::item)">.</xsl:if>
 	</xsl:if>
 	<xsl:if test="not(self::item)">
 		<xsl:value-of select="name(.)" />
@@ -812,10 +1157,10 @@
 	</section>
 </xsl:template>
 
-<xsl:template match="item" mode="header">
+<xsl:template match="items/item" mode="header">
 </xsl:template>
 
-<xsl:template match="item" mode="content" priority="20">
+<xsl:template match="items/item" mode="content" priority="20">
 	<xsl:apply-templates select="." mode="table" />
 </xsl:template>
 
@@ -861,6 +1206,15 @@
 </xsl:template>
 
 <xsl:template match="*" mode="table">
+	<xsl:variable name="showMap">
+		<xsl:apply-templates select="." mode="showMap" />
+	</xsl:variable>
+	<xsl:variable name="properties">
+		<xsl:call-template name="paramValue">
+			<xsl:with-param name="uri" select="/result/@href" />
+			<xsl:with-param name="param" select="'_properties'" />
+		</xsl:call-template>
+	</xsl:variable>
 	<table>
 		<xsl:choose>
 			<xsl:when test="self::primaryTopic/parent::result" />
@@ -872,21 +1226,23 @@
 			<xsl:when test="altLabel"><xsl:apply-templates select="altLabel" mode="caption" /></xsl:when>
 			<xsl:when test="@href and not(starts-with(@href, 'http://api.talis.com'))">
 				<caption>
-					<a>
-						<xsl:attribute name="href">
-							<xsl:apply-templates select="@href" mode="uri" />
-						</xsl:attribute>
-						<xsl:call-template name="lastURIpart">
-							<xsl:with-param name="uri" select="@href" />
-						</xsl:call-template>
-					</a>
+					<xsl:apply-templates select="." mode="link">
+						<xsl:with-param name="content">
+							<xsl:call-template name="lastURIpart">
+								<xsl:with-param name="uri" select="@href" />
+							</xsl:call-template>
+						</xsl:with-param>
+					</xsl:apply-templates>
 				</caption>
 			</xsl:when>
 		</xsl:choose>
 		<colgroup>
+			<xsl:if test="$properties != ''">
+				<col width="20" />
+			</xsl:if>
 			<col width="35%" />
 			<col width="*" />
-			<xsl:if test="(easting and northing) or (lat and long)">
+			<xsl:if test="$showMap = 'true'">
 				<col width="47" />
 			</xsl:if>
 			<col width="54" />
@@ -900,6 +1256,8 @@
 			<xsl:sort select="@datatype" />
 			<xsl:sort select="boolean(@href)" />
 			<xsl:sort select="local-name()" />
+			<xsl:with-param name="showMap" select="$showMap" />
+			<xsl:with-param name="properties" select="$properties" />
 		</xsl:apply-templates>
 	</table>
 </xsl:template>
@@ -912,18 +1270,41 @@
 	</caption>
 </xsl:template>
 
+<xsl:template match="item" mode="row">
+	<tr>
+		<td class="value">
+			<xsl:apply-templates select="." mode="value" />
+		</td>
+		<td class="filter">
+			<xsl:apply-templates select="." mode="filter" />
+		</td>
+	</tr>
+</xsl:template>
+
 <xsl:template match="*" mode="row">
+	<xsl:param name="showMap" />
+	<xsl:param name="properties" />
+	<xsl:variable name="paramName">
+		<xsl:apply-templates select="." mode="paramName" />
+	</xsl:variable>
 	<xsl:variable name="isLabelParam">
-		<xsl:apply-templates select="." mode="isLabelParam" />
+		<xsl:call-template name="isLabelParam">
+			<xsl:with-param name="paramName" select="$paramName" />
+		</xsl:call-template>
 	</xsl:variable>
 	<xsl:if test="$isLabelParam = 'false'">
 		<xsl:variable name="hasNonLabelProperties">
 			<xsl:apply-templates select="." mode="hasNonLabelProperties" />
 		</xsl:variable>
-		<xsl:variable name="showMap">
-			<xsl:apply-templates select=".." mode="showMap" />
-		</xsl:variable>
 		<tr class="{name(.)}">
+			<xsl:if test="$properties != ''">
+				<td class="select">
+					<xsl:apply-templates select="." mode="select">
+						<xsl:with-param name="paramName" select="$paramName" />
+						<xsl:with-param name="properties" select="$properties" />
+					</xsl:apply-templates>
+				</td>
+			</xsl:if>
 			<th class="label"><xsl:apply-templates select="." mode="label" /></th>
 			<xsl:choose>
 				<xsl:when test="self::easting and $showMap">
@@ -966,7 +1347,9 @@
 						<xsl:apply-templates select="." mode="value" />
 					</td>
 					<td class="filter">
-						<xsl:apply-templates select="." mode="filter" />
+						<xsl:apply-templates select="." mode="filter">
+							<xsl:with-param name="paramName" select="$paramName" />
+						</xsl:apply-templates>
 					</td>
 				</xsl:otherwise>
 			</xsl:choose>
@@ -975,13 +1358,21 @@
 </xsl:template>
 
 <xsl:template match="*" mode="contextLabel">
-	<xsl:if test="not(parent::item/parent::items/parent::result)">
+	<xsl:if test="not(parent::item/parent::items/parent::result or parent::primaryTopic/parent::result)">
 		<xsl:apply-templates select="parent::*" mode="contextLabel" />
-		<xsl:if test="not(parent::item)"><xsl:text> </xsl:text></xsl:if>
+		<xsl:if test="not(parent::item)"><xsl:text> › </xsl:text></xsl:if>
 	</xsl:if>
 	<xsl:if test="not(self::item)">
 		<xsl:apply-templates select="." mode="label" />
 	</xsl:if>
+</xsl:template>
+
+<xsl:template name="createInfo">
+	<xsl:param name="text" />
+	<div class="info">
+		<img class="open" src="/images/orange/16x16/Question.png" alt="help" />
+		<p><xsl:copy-of select="$text" /></p>
+	</div>
 </xsl:template>
 
 <!-- 
@@ -1122,11 +1513,7 @@
 </xsl:template>
 
 <xsl:template match="*" mode="value">
-	<xsl:apply-templates select="." mode="link">
-		<xsl:with-param name="content">
-			<xsl:apply-templates select="." mode="display" />
-		</xsl:with-param>
-	</xsl:apply-templates>
+	<xsl:apply-templates select="." mode="display" />
 </xsl:template>
 	
 <xsl:template match="*[@datatype = 'boolean']" mode="display">
@@ -1186,41 +1573,110 @@
 			<xsl:apply-templates select="item" mode="content" />
 		</xsl:when>
 		<xsl:otherwise>
-			<ul>
-				<xsl:apply-templates select="item" mode="listitem" />
-			</ul>
+			<table>
+				<xsl:apply-templates select="item" mode="row" />
+			</table>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="*[*]" mode="content" priority="3">
+	<xsl:variable name="hasNonLabelProperties">
+		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
+	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="prefLabel"><xsl:apply-templates select="prefLabel" mode="content" /></xsl:when>
-		<xsl:when test="name"><xsl:apply-templates select="name" mode="content" /></xsl:when>
-		<xsl:when test="title"><xsl:apply-templates select="title" mode="content" /></xsl:when>
-		<xsl:when test="label"><xsl:apply-templates select="label" mode="content" /></xsl:when>
-		<xsl:when test="alias"><xsl:apply-templates select="alias" mode="content" /></xsl:when>
-		<xsl:when test="altLabel"><xsl:apply-templates select="altLabel" mode="content" /></xsl:when>
-		<xsl:otherwise>
+		<xsl:when test="$hasNonLabelProperties = 'true'">
 			<xsl:apply-templates select="." mode="table" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="link">
+				<xsl:with-param name="content">
+					<xsl:apply-templates select="." mode="name" />
+				</xsl:with-param>
+			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="*[@href]" mode="content">
-	<xsl:call-template name="lastURIpart">
-		<xsl:with-param name="uri" select="@href" />
-	</xsl:call-template>
+	<xsl:apply-templates select="." mode="link">
+		<xsl:with-param name="content">
+			<xsl:call-template name="lastURIpart">
+				<xsl:with-param name="uri" select="@href" />
+			</xsl:call-template>
+		</xsl:with-param>
+	</xsl:apply-templates>
 </xsl:template>
 
 <xsl:template match="*" mode="content">
 	<xsl:value-of select="." />
 </xsl:template>
 
+<xsl:template match="*" mode="select">
+	<xsl:param name="paramName" />
+	<xsl:param name="properties" />
+	<xsl:variable name="normalisedProperties" select="concat(',', $properties, ',')" />
+	<xsl:variable name="entry" select="concat(',', $paramName, ',')" />
+	<xsl:choose>
+		<xsl:when test="contains($normalisedProperties, $entry)">
+			<xsl:variable name="before" select="substring-before($normalisedProperties, $entry)" />
+			<xsl:variable name="after" select="substring-after($normalisedProperties, $entry)" />
+			<xsl:variable name="value">
+				<xsl:value-of select="substring($before, 2)" />
+				<xsl:if test="not($before = ',' or $before = '') and not($after = ',' or $after = '')">,</xsl:if>
+				<xsl:value-of select="substring($after, 1, string-length($after) - 1)" />
+			</xsl:variable>
+			<xsl:variable name="href">
+				<xsl:call-template name="substituteParam">
+					<xsl:with-param name="uri" select="/result/@href" />
+					<xsl:with-param name="param" select="'_properties'" />
+					<xsl:with-param name="value">
+						<xsl:value-of select="substring($before, 2)" />
+						<xsl:if test="not($before = ',' or $before = '') and not($after = ',' or $after = '')">,</xsl:if>
+						<xsl:value-of select="substring($after, 1, string-length($after) - 1)" />
+					</xsl:with-param>
+				</xsl:call-template>
+			</xsl:variable>
+			<a title="remove this property" href="{$href}">
+				<img src="/images/orange/16x16/Star.png" alt="unstar this property" />
+			</a>
+		</xsl:when>
+		<xsl:otherwise>
+			<a title="add this property">
+				<xsl:attribute name="href">
+					<xsl:call-template name="substituteParam">
+						<xsl:with-param name="uri" select="/result/@href" />
+						<xsl:with-param name="param" select="'_properties'" />
+						<xsl:with-param name="value">
+							<xsl:if test="$properties != ''">
+								<xsl:value-of select="$properties" />
+								<xsl:text>,</xsl:text>
+							</xsl:if>
+							<xsl:value-of select="$paramName" />
+						</xsl:with-param>
+					</xsl:call-template>
+				</xsl:attribute>
+				<img src="/images/grey/16x16/Star.png" alt="star this property" />
+			</a>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
 <xsl:template match="*" mode="filter">
-	<xsl:variable name="paramName">
+	<xsl:param name="paramName">
 		<xsl:apply-templates select="." mode="paramName" />
-	</xsl:variable>
+	</xsl:param>
+	<xsl:param name="value" select="." />
+	<xsl:param name="label">
+		<xsl:apply-templates select="." mode="content" />
+	</xsl:param>
+	<xsl:param name="datatype" select="@datatype" />
+	<xsl:param name="hasNonLabelProperties">
+		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
+	</xsl:param>
+	<xsl:param name="hasNoLabelProperties">
+		<xsl:apply-templates select="." mode="hasNoLabelProperties" />
+	</xsl:param>
 	<xsl:variable name="paramValue">
 		<xsl:call-template name="paramValue">
 			<xsl:with-param name="uri">
@@ -1229,13 +1685,10 @@
 			<xsl:with-param name="param" select="$paramName" />
 		</xsl:call-template>
 	</xsl:variable>
-	<xsl:variable name="hasNoLabelProperties">
-		<xsl:apply-templates select="." mode="hasNoLabelProperties" />
-	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test=". = ''" />
-		<xsl:when test="* and $hasNoLabelProperties = 'true'" />
-		<xsl:when test="$paramValue = .">
+		<xsl:when test="$value = ''" />
+		<xsl:when test="$hasNonLabelProperties = 'true' and $hasNoLabelProperties = 'true'" />
+		<xsl:when test="$paramValue = $value">
 			<a title="remove filter">
 				<xsl:attribute name="href">
 					<xsl:call-template name="substituteParam">
@@ -1249,7 +1702,7 @@
 				<img src="/images/orange/16x16/Back.png" alt="remove filter" />
 			</a>
 		</xsl:when>
-		<xsl:when test="@datatype = 'integer' or @datatype = 'decimal' or @datatype = 'float' or @datatype = 'int' or @datatype = 'date' or @datatype = 'dateTime' or @datatype = 'time'">
+		<xsl:when test="$datatype = 'integer' or $datatype = 'decimal' or $datatype = 'float' or $datatype = 'int' or $datatype = 'date' or $datatype = 'dateTime' or $datatype = 'time'">
 			<xsl:variable name="min">
 				<xsl:call-template name="paramValue">
 					<xsl:with-param name="uri">
@@ -1267,7 +1720,7 @@
 				</xsl:call-template>
 			</xsl:variable>
 			<xsl:choose>
-				<xsl:when test="$max = .">
+				<xsl:when test="$max = $value">
 					<a title="remove maximum value filter">
 						<xsl:attribute name="href">
 							<xsl:call-template name="substituteParam">
@@ -1282,22 +1735,22 @@
 					</a>
 				</xsl:when>
 				<xsl:otherwise>
-					<a title="filter to values less than {.}">
+					<a title="filter to values less than {$value}">
 						<xsl:attribute name="href">
 							<xsl:call-template name="substituteParam">
 								<xsl:with-param name="uri">
 									<xsl:apply-templates select="/result" mode="searchURI" />
 								</xsl:with-param>
 								<xsl:with-param name="param" select="concat('max-', $paramName)" />
-								<xsl:with-param name="value" select="." />
+								<xsl:with-param name="value" select="$value" />
 							</xsl:call-template>
 						</xsl:attribute>
 						<xsl:choose>
 							<xsl:when test="$max != ''">
-								<img src="/images/orange/16x16/Arrow3 Left.png" alt="less than {.}" />
+								<img src="/images/orange/16x16/Arrow3 Left.png" alt="less than {$value}" />
 							</xsl:when>
 							<xsl:otherwise>
-								<img src="/images/grey/16x16/Arrow3 Left.png" alt="less than {.}" />
+								<img src="/images/grey/16x16/Arrow3 Left.png" alt="less than {$value}" />
 							</xsl:otherwise>
 						</xsl:choose>
 					</a>
@@ -1310,13 +1763,13 @@
 							<xsl:apply-templates select="/result" mode="searchURI" />
 						</xsl:with-param>
 						<xsl:with-param name="param" select="$paramName" />
-						<xsl:with-param name="value" select="." />
+						<xsl:with-param name="value" select="$value" />
 					</xsl:call-template>
 				</xsl:attribute>
 				<img src="/images/grey/16x16/Search.png" alt="more like this" />
 			</a>
 			<xsl:choose>
-				<xsl:when test="$min = .">
+				<xsl:when test="$min = $value">
 					<a title="remove minimum value filter">
 						<xsl:attribute name="href">
 							<xsl:call-template name="substituteParam">
@@ -1331,22 +1784,22 @@
 					</a>
 				</xsl:when>
 				<xsl:otherwise>
-					<a title="more than {.}">
+					<a title="more than {$value}">
 						<xsl:attribute name="href">
 							<xsl:call-template name="substituteParam">
 								<xsl:with-param name="uri">
 									<xsl:apply-templates select="/result" mode="searchURI" />
 								</xsl:with-param>
 								<xsl:with-param name="param" select="concat('min-', $paramName)" />
-								<xsl:with-param name="value" select="." />
+								<xsl:with-param name="value" select="$value" />
 							</xsl:call-template>
 						</xsl:attribute>
 						<xsl:choose>
 							<xsl:when test="$min != ''">
-								<img src="/images/orange/16x16/Arrow3 Right.png" alt="more than {.}" />
+								<img src="/images/orange/16x16/Arrow3 Right.png" alt="more than {$value}" />
 							</xsl:when>
 							<xsl:otherwise>
-								<img src="/images/grey/16x16/Arrow3 Right.png" alt="more than {.}" />
+								<img src="/images/grey/16x16/Arrow3 Right.png" alt="more than {$value}" />
 							</xsl:otherwise>
 						</xsl:choose>
 					</a>
@@ -1361,9 +1814,7 @@
 							<xsl:apply-templates select="/result" mode="searchURI" />
 						</xsl:with-param>
 						<xsl:with-param name="param" select="$paramName" />
-						<xsl:with-param name="value">
-							<xsl:apply-templates select="." mode="content" />
-						</xsl:with-param>
+						<xsl:with-param name="value" select="$label" />
 					</xsl:call-template>
 				</xsl:attribute>
 				<img src="/images/grey/16x16/Search.png" alt="more like this" />
@@ -1376,12 +1827,25 @@
 	<xsl:param name="content" />
 	<xsl:choose>
 		<xsl:when test="@href and not(starts-with(@href, 'http://api.talis.com'))">
-			<a>
-				<xsl:attribute name="href">
-					<xsl:apply-templates select="@href" mode="uri" />
-				</xsl:attribute>
-				<xsl:copy-of select="$content" />
-			</a>
+			<xsl:variable name="adjustedHref">
+				<xsl:apply-templates select="@href" mode="uri" />
+			</xsl:variable>
+			<xsl:choose>
+				<xsl:when test="$adjustedHref = @href">
+					<a href="{@href}">
+						<xsl:copy-of select="$content" />
+					</a>
+				</xsl:when>
+				<xsl:otherwise>
+					<a href="{$adjustedHref}" title="view on this site">
+						<xsl:copy-of select="$content" />
+					</a>
+					<xsl:if test="$adjustedHref != @href">
+						<xsl:text> </xsl:text>
+						<a href="{@href}" title="view original" class="outlink">original</a>
+					</xsl:if>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:copy-of select="$content" />
@@ -1395,11 +1859,15 @@
 	</xsl:variable>
 	<section id="search">
 		<xsl:if test="items/item[@href] or (not(items) and primaryTopic)">
-			<h1>Search</h1>
 			<form action="{$searchURI}">
+				<h1>
+					<button type="submit">Search</button>
+				</h1>
+				<!--
 				<button type="submit">
 					<img src="/images/orange/16x16/Search.png" alt="search" />
 				</button>
+				-->
 				<xsl:call-template name="hiddenInputs">
 					<xsl:with-param name="params" select="substring-after($searchURI, '?')" />
 				</xsl:call-template>
@@ -1672,8 +2140,15 @@
 	<xsl:param name="uri" />
 	<xsl:param name="param" />
 	<xsl:param name="value" />
+	<xsl:variable name="paramNameValue" select="concat($param, '=', $value)" />
 	<xsl:choose>
-		<xsl:when test="$value != '' and (contains($uri, concat('&amp;', $param, '=', $value)) or contains($uri, concat('?', $param, '=', $value)))">
+		<xsl:when test="$value != '' and 
+			((contains($uri, $paramNameValue) and
+			  (substring-after($uri, concat('&amp;', $paramNameValue)) = '' or
+			   starts-with(substring-after($uri, concat('&amp;', $paramNameValue)), '&amp;'))) or
+			 (contains($uri, concat('?', $param, '=', $value)) and
+			  (substring-after($uri, concat('?', $paramNameValue)) = '' or
+			   starts-with(substring-after($uri, concat('?', $paramNameValue)), '&amp;'))))">
 			<xsl:value-of select="$uri" />
 		</xsl:when>
 		<xsl:otherwise>
