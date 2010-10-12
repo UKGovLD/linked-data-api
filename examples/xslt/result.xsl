@@ -6,6 +6,9 @@
 <xsl:key name="properties" match="/result/items/item/* | /result[not(items)]/primaryTopic/*" use="name(.)" />
 <xsl:key name="properties" match="/result/items/item/*/* | /result[not(items)]/primaryTopic/*/*" use="concat(name(..), '.', name(.))" />
 <xsl:key name="properties" match="/result/items/item/*/*/* | /result[not(items)]/primaryTopic/*/*/*" use="concat(name(../..), '.', name(..), '.', name(.))" />
+<xsl:key name="properties" match="/result/items/item/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*" use="concat(name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
+<xsl:key name="properties" match="/result/items/item/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*" use="concat(name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
+<xsl:key name="properties" match="/result/items/item/*/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*/*" use="concat(name(../../../../..), '.', name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
 	
 <xsl:template match="/">
 	<xsl:apply-templates select="result" />
@@ -440,13 +443,13 @@
 </xsl:template>
 
 <xsl:template match="*" mode="name">
+	<xsl:variable name="bestLabelParam">
+		<xsl:apply-templates select="." mode="bestLabelParam" />
+	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="prefLabel"><xsl:apply-templates select="prefLabel" mode="content" /></xsl:when>
-		<xsl:when test="name"><xsl:apply-templates select="name" mode="content" /></xsl:when>
-		<xsl:when test="title"><xsl:apply-templates select="title" mode="content" /></xsl:when>
-		<xsl:when test="label"><xsl:apply-templates select="label" mode="content" /></xsl:when>
-		<xsl:when test="alias"><xsl:apply-templates select="alias" mode="content" /></xsl:when>
-		<xsl:when test="altLabel"><xsl:apply-templates select="altLabel" mode="content" /></xsl:when>
+		<xsl:when test="$bestLabelParam != ''">
+			<xsl:apply-templates select="*[name() = $bestLabelParam]" mode="content" />
+		</xsl:when>
 		<xsl:when test="@href and not(starts-with(@href, 'http://api.talis.com/'))">
 			<xsl:call-template name="lastURIpart">
 				<xsl:with-param name="uri" select="@href" />
@@ -688,21 +691,28 @@
 
 <xsl:template match="*" mode="propertiesentry">
 	<xsl:param name="properties" />
-	<xsl:variable name="paramName">
-		<xsl:apply-templates select="." mode="paramName" />
+	<xsl:param name="parentName" select="''" />
+	<xsl:variable name="propertyName">
+		<xsl:if test="$parentName != ''">
+			<xsl:value-of select="$parentName" />
+			<xsl:text>.</xsl:text>
+		</xsl:if>
+		<xsl:value-of select="name(.)" />
 	</xsl:variable>
 	<xsl:variable name="hasNonLabelProperties">
 		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
 	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="$hasNonLabelProperties = 'true'">
-			<xsl:for-each select="key('properties', $paramName)/*[generate-id(key('properties', concat($paramName, '.', name(.)))[1]) = generate-id(.)]">
+			<xsl:for-each select="key('properties', $propertyName)/*[name() != 'item' and generate-id(key('properties', concat($propertyName, '.', name(.)))[1]) = generate-id(.)] |
+				key('properties', concat($propertyName, '.item'))/*[generate-id(key('properties', concat($propertyName, '.item.', name(.)))[1]) = generate-id(.)]">
 				<xsl:sort select="boolean(@datatype)" order="descending" />
 				<xsl:sort select="@datatype" />
 				<xsl:sort select="boolean(@href)" />
 				<xsl:sort select="local-name()" />
 				<xsl:apply-templates select="." mode="propertiesentry">
 					<xsl:with-param name="properties" select="$properties" />
+					<xsl:with-param name="parentName" select="$propertyName" />
 				</xsl:apply-templates>
 			</xsl:for-each>
 		</xsl:when>
@@ -959,21 +969,28 @@
 
 <xsl:template match="*" mode="sortentry">
 	<xsl:param name="current" />
-	<xsl:variable name="paramName">
-		<xsl:apply-templates select="." mode="paramName" />
+	<xsl:variable name="parentName" select="''" />
+	<xsl:variable name="propertyName">
+		<xsl:if test="$parentName != ''">
+			<xsl:value-of select="$parentName" />
+			<xsl:text>.</xsl:text>
+		</xsl:if>
+		<xsl:value-of select="name()" />
 	</xsl:variable>
 	<xsl:variable name="hasNonLabelProperties">
 		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
 	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="$hasNonLabelProperties = 'true'">
-			<xsl:for-each select="key('properties', $paramName)/*[generate-id(key('properties', concat($paramName, '.', name(.)))[1]) = generate-id(.)]">
+			<xsl:for-each select="key('properties', $propertyName)/*[name() != 'item' and generate-id(key('properties', concat($propertyName, '.', name(.)))[1]) = generate-id(.)] |
+				key('properties', concat($propertyName, '.item'))/*[generate-id(key('properties', concat($propertyName, '.item.', name(.)))[1]) = generate-id(.)]">
 				<xsl:sort select="boolean(@datatype)" order="descending" />
 				<xsl:sort select="@datatype" />
 				<xsl:sort select="boolean(@href)" />
 				<xsl:sort select="local-name()" />
 				<xsl:apply-templates select="." mode="sortentry">
 					<xsl:with-param name="current" select="$current" />
+					<xsl:with-param name="parentName" select="$propertyName" />
 				</xsl:apply-templates>
 			</xsl:for-each>
 		</xsl:when>
@@ -1048,14 +1065,14 @@
 </xsl:template>
 
 <xsl:template match="*" mode="paramName">
+	<xsl:variable name="bestLabelParam">
+		<xsl:apply-templates select="." mode="bestLabelParam" />
+	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="item"><xsl:apply-templates select="item[1]" mode="paramName" /></xsl:when>
-		<xsl:when test="prefLabel"><xsl:apply-templates select="prefLabel" mode="paramHierarchy" /></xsl:when>
-		<xsl:when test="name"><xsl:apply-templates select="name" mode="paramHierarchy" /></xsl:when>
-		<xsl:when test="title"><xsl:apply-templates select="title" mode="paramHierarchy" /></xsl:when>
-		<xsl:when test="label"><xsl:apply-templates select="label" mode="paramHierarchy" /></xsl:when>
-		<xsl:when test="alias"><xsl:apply-templates select="alias" mode="paramHierarchy" /></xsl:when>
-		<xsl:when test="altLabel"><xsl:apply-templates select="altLabel" mode="paramHierarchy" /></xsl:when>
+		<xsl:when test="$bestLabelParam != ''">
+			<xsl:apply-templates select="*[name() = $bestLabelParam]" mode="paramHierarchy" />
+		</xsl:when>
 		<xsl:otherwise><xsl:apply-templates select="." mode="paramHierarchy" /></xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
@@ -1215,22 +1232,27 @@
 			<xsl:with-param name="param" select="'_properties'" />
 		</xsl:call-template>
 	</xsl:variable>
+	<xsl:variable name="bestLabelParam">
+		<xsl:apply-templates select="." mode="bestLabelParam" />
+	</xsl:variable>
 	<table>
 		<xsl:choose>
 			<xsl:when test="self::primaryTopic/parent::result" />
-			<xsl:when test="prefLabel"><xsl:apply-templates select="prefLabel" mode="caption" /></xsl:when>
-			<xsl:when test="name"><xsl:apply-templates select="name" mode="caption" /></xsl:when>
-			<xsl:when test="title"><xsl:apply-templates select="title" mode="caption" /></xsl:when>
-			<xsl:when test="label"><xsl:apply-templates select="label" mode="caption" /></xsl:when>
-			<xsl:when test="alias"><xsl:apply-templates select="alias" mode="caption" /></xsl:when>
-			<xsl:when test="altLabel"><xsl:apply-templates select="altLabel" mode="caption" /></xsl:when>
+			<xsl:when test="$bestLabelParam != ''">
+				<xsl:apply-templates select="*[name() = $bestLabelParam]" mode="caption" />
+			</xsl:when>
 			<xsl:when test="@href and not(starts-with(@href, 'http://api.talis.com'))">
 				<caption>
 					<xsl:apply-templates select="." mode="link">
 						<xsl:with-param name="content">
-							<xsl:call-template name="lastURIpart">
-								<xsl:with-param name="uri" select="@href" />
-							</xsl:call-template>
+							<xsl:choose>
+								<xsl:when test="self::item/parent::items/parent::result">
+									<xsl:call-template name="lastURIpart">
+										<xsl:with-param name="uri" select="@href" />
+									</xsl:call-template>
+								</xsl:when>
+								<xsl:otherwise>more details</xsl:otherwise>
+							</xsl:choose>
 						</xsl:with-param>
 					</xsl:apply-templates>
 				</caption>
@@ -1258,6 +1280,7 @@
 			<xsl:sort select="local-name()" />
 			<xsl:with-param name="showMap" select="$showMap" />
 			<xsl:with-param name="properties" select="$properties" />
+			<xsl:with-param name="bestLabelParam" select="$bestLabelParam" />
 		</xsl:apply-templates>
 	</table>
 </xsl:template>
@@ -1281,20 +1304,21 @@
 	</tr>
 </xsl:template>
 
+<xsl:template match="primaryTopicOf[@href = /result/@href or (count(item) = 1 and item/@href = /result/@href)]" mode="row" />
+
 <xsl:template match="*" mode="row">
 	<xsl:param name="showMap" />
 	<xsl:param name="properties" />
+	<xsl:param name="bestLabelParam" />
 	<xsl:variable name="paramName">
 		<xsl:apply-templates select="." mode="paramName" />
 	</xsl:variable>
-	<xsl:variable name="isLabelParam">
-		<xsl:call-template name="isLabelParam">
-			<xsl:with-param name="paramName" select="$paramName" />
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:if test="$isLabelParam = 'false'">
+	<xsl:if test="name() != $bestLabelParam">
 		<xsl:variable name="hasNonLabelProperties">
 			<xsl:apply-templates select="." mode="hasNonLabelProperties" />
+		</xsl:variable>
+		<xsl:variable name="hasNoLabelProperties">
+			<xsl:apply-templates select="." mode="hasNoLabelProperties" />
 		</xsl:variable>
 		<tr class="{name(.)}">
 			<xsl:if test="$properties != ''">
@@ -1328,7 +1352,7 @@
 						<xsl:apply-templates select="." mode="value" />
 					</td>
 				</xsl:when>
-				<xsl:when test="$hasNonLabelProperties = 'true'">
+				<xsl:when test="$hasNonLabelProperties = 'true' or item">
 					<td class="value nested">
 						<xsl:attribute name="colspan">
 							<xsl:choose>
@@ -1360,7 +1384,7 @@
 <xsl:template match="*" mode="contextLabel">
 	<xsl:if test="not(parent::item/parent::items/parent::result or parent::primaryTopic/parent::result)">
 		<xsl:apply-templates select="parent::*" mode="contextLabel" />
-		<xsl:if test="not(parent::item)"><xsl:text> › </xsl:text></xsl:if>
+		<xsl:if test="not(self::item)"><xsl:text> › </xsl:text></xsl:if>
 	</xsl:if>
 	<xsl:if test="not(self::item)">
 		<xsl:apply-templates select="." mode="label" />
@@ -1563,12 +1587,6 @@
 		<xsl:apply-templates select="." mode="anyItemHasNonLabelProperties" />
 	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="$isLabelParam = 'true'">
-			<xsl:for-each select="item">
-				<xsl:value-of select="." />
-				<xsl:if test="position() != last()"> / </xsl:if>
-			</xsl:for-each>
-		</xsl:when>
 		<xsl:when test="$anyItemHasNonLabelProperties = 'true'">
 			<xsl:apply-templates select="item" mode="content" />
 		</xsl:when>
@@ -1911,8 +1929,13 @@
 </xsl:template>
 
 <xsl:template match="*" mode="formrow">
-	<xsl:variable name="paramName">
-		<xsl:apply-templates select="." mode="paramName" />
+	<xsl:param name="parentName" select="''" />
+	<xsl:variable name="propertyName">
+		<xsl:if test="$parentName != ''">
+			<xsl:value-of select="$parentName" />
+			<xsl:text>.</xsl:text>
+		</xsl:if>
+		<xsl:value-of select="name(.)" />
 	</xsl:variable>
 	<xsl:variable name="hasNonLabelProperties">
 		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
@@ -1920,14 +1943,22 @@
 	<xsl:choose>
 		<xsl:when test="$hasNonLabelProperties = 'true'">
 			<!-- there's a child of this kind of property that isn't an empty item element -->
-			<xsl:if test="key('properties', $paramName)/*[name() != 'item' or node()]">
+			<xsl:if test="key('properties', $propertyName)/*[name() != 'item' or node()]">
 				<tr>
 					<th class="label">
 						<xsl:apply-templates select="." mode="label" />
 					</th>
 					<td class="input nested">
+						<xsl:comment>
+							<xsl:value-of select="$propertyName"/>
+							<xsl:for-each select="key('properties', concat($propertyName, '.item'))/*">
+								<xsl:value-of select="name()"/>
+							</xsl:for-each>
+						</xsl:comment>
 						<table>
-							<xsl:for-each select="key('properties', $paramName)/*[generate-id(key('properties', concat($paramName, '.', name(.)))[1]) = generate-id(.)]">
+							<xsl:for-each 
+								select="key('properties', $propertyName)/*[name() != 'item' and generate-id(key('properties', concat($propertyName, '.', name(.)))[1]) = generate-id(.)] | 
+								key('properties', concat($propertyName, '.item'))/*[generate-id(key('properties', concat($propertyName, '.item.', name(.)))[1]) = generate-id(.)]">
 								<xsl:sort select="boolean(@datatype)" order="descending" />
 								<xsl:sort select="@datatype" />
 								<xsl:sort select="boolean(@href)" />
@@ -1940,6 +1971,9 @@
 			</xsl:if>
 		</xsl:when>
 		<xsl:otherwise>
+			<xsl:variable name="paramName">
+				<xsl:apply-templates select="." mode="paramName" />
+			</xsl:variable>
 			<tr>
 				<th class="label">
 					<label for="{$paramName}">
@@ -2289,6 +2323,17 @@
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="*" mode="bestLabelParam">
+	<xsl:choose>
+		<xsl:when test="prefLabel">prefLabel</xsl:when>
+		<xsl:when test="name">name</xsl:when>
+		<xsl:when test="title">title</xsl:when>
+		<xsl:when test="label">label</xsl:when>
+		<xsl:when test="alias">alias</xsl:when>
+		<xsl:when test="altLabel">altLabel</xsl:when>
+	</xsl:choose>
+</xsl:template>
+
 <xsl:template match="*" name="isLabelParam" mode="isLabelParam">
 	<xsl:param name="paramName" select="name(.)" />
 	<xsl:choose>
@@ -2321,6 +2366,9 @@
 		<xsl:apply-templates select="$first" mode="isLabelParam" />
 	</xsl:variable>
 	<xsl:choose>
+		<xsl:when test="$properties[self::item] and not($properties[not(self::item)])">
+			<xsl:apply-templates select="." mode="anyItemHasNonLabelProperties" />
+		</xsl:when>
 		<xsl:when test="not($properties)">false</xsl:when>
 		<xsl:when test="$firstIsLabelProperty = 'false'">true</xsl:when>
 		<xsl:otherwise>
