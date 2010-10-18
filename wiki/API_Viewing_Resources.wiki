@@ -33,10 +33,6 @@ api:basicViewer a api:Viewer ;
 
 Specialised viewers need to create a graph for each item.
 
-_JT: Did we resolve whether this was done through a CONSTRUCT query or through a DESCRIBE followed by a filtering of properties?_
-
-_der: Not sure if we definitely resolved it but I think it has to be the latter due to the handling of bNodes._
-
 A viewer may include other viewers through its `api:include` property. In that case, the graph will include the properties specified by the included viewers as well as those specified locally on the viewer itself.
 
 The graph can be constructed explicitly using SPARQL syntax (specifically  [http://www.w3.org/TR/rdf-sparql-query/#rConstructTriples ConstructTriples]) within:
@@ -102,6 +98,17 @@ would result in the graph:
 }}}
 
 which includes the `admin:country` property of the local authority area despite the source graph not including the `stats:population` property for the country.
+
+The values that are included in the view may be filtered by language. The list of included languages is provided in a comma-separated list by the first of:
+
+  * the `_lang` request parameter
+  * the `api:lang` property on the Endpoint
+  * the `api:lang` property on the API
+
+If the list is empty (because none of these is specified) then values in all languages are included in the view. If some included languages are provided, then the values that are included are:
+
+  * those with one of the specified languages
+  * if no value with a specified language is present, any plain literals (without language or datatype)
 
 =Additional Graph Metadata=
 
