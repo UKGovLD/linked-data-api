@@ -30,6 +30,6 @@ The examples used in this document assume that the following namespaces have bee
 ||rdf||`http://www.w3.org/1999/02/22-rdf-syntax-ns#`||
 ||rdfs||`http://www.w3.org/2000/01/rdf-schema#`||
 ||xsd||`http://www.w3.org/2001/XMLSchema#`||
-||api||`TODO`||
+||api||`http://purl.org/linked-data/api/vocab#`||
 
 API configuration examples use the Turtle syntax for readability in the specification. This is not meant to constrain the syntaxes supported by implementations.
