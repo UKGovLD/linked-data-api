@@ -93,7 +93,36 @@ The value should be mapped to an object. The type of the object is determined by
   * `"varValue"@varLang` if the parameter has a specific language or
   * `<resource>` if the final property has a specified range that isn't a rdfs:Literal and there is a known resource whose short name (for example indicated through `api:label`) is the variable value or
   * `"varValue"^^varType` if the final property has a range of a specific datatype or
-  * `"varValue"` otherwise
+  * an object that satisfies the constraints:
+     * the string value of the object is the value of the parameter
+     * if there are any default languages, the language of the object is one of these
+
+In this last case, the default languages are set through the first of:
+
+  * the `_lang` request parameter
+  * the `api:lang` property on the Endpoint
+  * the `api:lang` property on the API
+
+The testing of the language can be done through either a `UNION` pattern or a `FILTER` on the language of the value. For example, a search for `?label=Wrexham&_lang=en,cy` could be mapped into the SPARQL query:
+
+{{{
+{ ?item rdfs:label "Wrexham"@en }
+UNION
+{ ?item rdfs:label "Wrexham"@cy }
+}}}
+
+or:
+
+{{{
+?item rdfs:label ?value
+FILTER (
+  string(?value) = "Wrexham" &&
+  (
+    lang(?value) = "en" ||
+    lang(?value) = "cy"
+  )
+)
+}}}
 
 The query can then be constructed by creating a property list for each parameter binding. This is done as follows. In the case of a degenerate chain of a single property the triple pattern is:
 
