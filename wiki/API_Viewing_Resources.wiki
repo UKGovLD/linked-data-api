@@ -102,6 +102,7 @@ which includes the `admin:country` property of the local authority area despite 
 The values that are included in the view may be filtered by language. The list of included languages is provided in a comma-separated list by the first of:
 
   * the `_lang` request parameter
+  * the `Accept-Language` HTTP header
   * the `api:lang` property on the Endpoint
   * the `api:lang` property on the API
 
