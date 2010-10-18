@@ -15,6 +15,7 @@ The `api:API` class defines the API as a whole. It has the following properties:
   * `api:sparqlEndpoint` is the SPARQL endpoint from which the API retrieves the data it exposes. Every API must indicate a single SPARQL endpoint.
   * `api:base` is the base URI for the API
   * `api:contentNegotiation` points to either `api:suffix` or `api:parameter`.  If it points to `api:suffix` this indicates that the extension on the last segment of the path within the request URI should be used to determine the formatter that is used. If it points to `api:parameter` this indicates that the `_format` parameter should be used to determine the formatter that is used. If there is no `api:contentNegotiation` property for the API, the implementation should assume `api:suffix`.
+  * `api:lang` is the default list of languages that are used to filter items included in a list, or values included in a view
   * `api:maxPageSize` is the maximum size of lists returned by the API
   * `api:defaultPageSize` is the default size of lists returned by the API (which may be overridden by an endpoint or in a particular request by the `_pageSize` request parameter)
   * `api:vocabulary` points to any RDF that contains the definitions of resources such as properties and classes that may be referenced with a short name
@@ -84,6 +85,10 @@ api:defaultPageSize a rdf:Property ;
   rdfs:comment "The default size of lists that will be returned by the API or endpoint."@en ;
   rdfs:range xsd:integer .
 
+api:lang a rdf:Property ;
+  rdfs:label "Language"@en ;
+  rdfs:comment "A comma-separated list of languages used when filtering by value, or selecting which values to include within a view."@en .
+
 api:ContentNegotiationStrategy a rdfs:Class ;
   rdfs:label "Content negotiation type"@en .
 
@@ -120,6 +125,7 @@ List endpoints need a way of determining which items belong to a list. This is p
 All endpoints can have the following properties:
 
   * `api:uriTemplate` a template for a URI that the endpoint is used for. Within the template, variable names specified within curly braces are used to bind variables that can be used elsewhere.
+  * `api:lang` is the list of languages that are used to filter items included in a list endpoint and values included in a view
   * `api:viewer` a viewer that can be used to view the item(s)
   * `api:defaultViewer` the viewer that will be used if no viewer is specified directly within the parameters passed in the request
   * `api:formatter` a formatter that can be used to format the result of the RDF graph
