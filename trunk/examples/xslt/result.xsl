@@ -448,7 +448,18 @@
 	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="$bestLabelParam != ''">
-			<xsl:apply-templates select="*[name() = $bestLabelParam]" mode="content" />
+			<xsl:variable name="label" select="*[name() = $bestLabelParam]" />
+			<xsl:choose>
+				<xsl:when test="$label/item">
+					<xsl:for-each select="$label/item">
+						<xsl:apply-templates select="." mode="content" />
+						<xsl:if test="position() != last()"> / </xsl:if>
+					</xsl:for-each>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:apply-templates select="$label" mode="content" />
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:when>
 		<xsl:when test="@href and not(starts-with(@href, 'http://api.talis.com/'))">
 			<xsl:call-template name="lastURIpart">
@@ -1296,7 +1307,7 @@
 <xsl:template match="item" mode="row">
 	<tr>
 		<td class="value">
-			<xsl:apply-templates select="." mode="value" />
+			<xsl:apply-templates select="." mode="display" />
 		</td>
 		<td class="filter">
 			<xsl:apply-templates select="." mode="filter" />
@@ -1333,7 +1344,7 @@
 			<xsl:choose>
 				<xsl:when test="self::easting and $showMap">
 					<td class="value">
-						<xsl:apply-templates select="." mode="value" />
+						<xsl:apply-templates select="." mode="display" />
 					</td>
 					<td class="map" colspan="2">
 						<xsl:choose>
@@ -1349,7 +1360,7 @@
 				</xsl:when>
 				<xsl:when test="(self::northing or self::lat or self::long) and $showMap = 'true'">
 					<td class="value">
-						<xsl:apply-templates select="." mode="value" />
+						<xsl:apply-templates select="." mode="display" />
 					</td>
 				</xsl:when>
 				<xsl:when test="$hasNonLabelProperties = 'true' or item">
@@ -1360,7 +1371,7 @@
 								<xsl:otherwise>2</xsl:otherwise>
 							</xsl:choose>
 						</xsl:attribute>
-						<xsl:apply-templates select="." mode="value" />
+						<xsl:apply-templates select="." mode="display" />
 					</td>
 				</xsl:when>
 				<xsl:otherwise>
@@ -1368,7 +1379,7 @@
 						<xsl:if test="$showMap = 'true'">
 							<xsl:attribute name="colspan">2</xsl:attribute>
 						</xsl:if>
-						<xsl:apply-templates select="." mode="value" />
+						<xsl:apply-templates select="." mode="display" />
 					</td>
 					<td class="filter">
 						<xsl:apply-templates select="." mode="filter">
@@ -1537,7 +1548,28 @@
 </xsl:template>
 
 <xsl:template match="*" mode="value">
-	<xsl:apply-templates select="." mode="display" />
+	<xsl:variable name="hasLabelProperty">
+		<xsl:apply-templates select="." mode="hasLabelProperty" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="$hasLabelProperty = 'true'">
+			<xsl:variable name="bestLabelParam">
+				<xsl:apply-templates select="." mode="bestLabelParam" />
+			</xsl:variable>
+			<xsl:variable name="bestLabel" select="*[name() = $bestLabelParam]" />
+			<xsl:choose>
+				<xsl:when test="$bestLabel/item">
+					<xsl:value-of select="$bestLabel/item[1]" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="$bestLabel" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="." />
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 	
 <xsl:template match="*[@datatype = 'boolean']" mode="display">
@@ -1565,7 +1597,7 @@
 				<xsl:value-of select="substring(., 1, 4)" />
 				<xsl:if test="@datatype = 'dateTime'">
 					<xsl:text> </xsl:text>
-					<xsl:value-of select="substring-after(., 'T')" />
+					<xsl:value-of select="substring(substring-after(., 'T'), 1, 8)" />
 				</xsl:if>
 			</xsl:when>
 			<xsl:otherwise>
@@ -1588,11 +1620,27 @@
 	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="$anyItemHasNonLabelProperties = 'true'">
-			<xsl:apply-templates select="item" mode="content" />
+			<xsl:apply-templates select="item" mode="content">
+				<xsl:sort select="prefLabel" />
+				<xsl:sort select="name" />
+				<xsl:sort select="title" />
+				<xsl:sort select="label" />
+				<xsl:sort select="altLabel" />
+				<xsl:sort select="alias" />
+				<xsl:sort select="@href" />
+			</xsl:apply-templates>
 		</xsl:when>
 		<xsl:otherwise>
 			<table>
-				<xsl:apply-templates select="item" mode="row" />
+				<xsl:apply-templates select="item" mode="row">
+					<xsl:sort select="prefLabel" />
+					<xsl:sort select="name" />
+					<xsl:sort select="title" />
+					<xsl:sort select="label" />
+					<xsl:sort select="altLabel" />
+					<xsl:sort select="alias" />
+					<xsl:sort select="@href" />
+				</xsl:apply-templates>
 			</table>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -1686,7 +1734,7 @@
 	</xsl:param>
 	<xsl:param name="value" select="." />
 	<xsl:param name="label">
-		<xsl:apply-templates select="." mode="content" />
+		<xsl:apply-templates select="." mode="value" />
 	</xsl:param>
 	<xsl:param name="datatype" select="@datatype" />
 	<xsl:param name="hasNonLabelProperties">
@@ -2326,8 +2374,8 @@
 <xsl:template match="*" mode="bestLabelParam">
 	<xsl:choose>
 		<xsl:when test="prefLabel">prefLabel</xsl:when>
-		<xsl:when test="name">name</xsl:when>
 		<xsl:when test="title">title</xsl:when>
+		<xsl:when test="name">name</xsl:when>
 		<xsl:when test="label">label</xsl:when>
 		<xsl:when test="alias">alias</xsl:when>
 		<xsl:when test="altLabel">altLabel</xsl:when>
