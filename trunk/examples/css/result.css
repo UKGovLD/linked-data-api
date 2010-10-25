@@ -147,6 +147,11 @@ nav.topnav section.summary li {
 	height: 1.188em;
 }
 
+nav.topnav section.moreinfo li {
+	display: block;
+	white-space: normal;
+}
+
 nav.topnav section.sort p.reset, nav.topnav section.view p.reset, nav.topnav section.map p.search {
 	position: absolute;
 	top: 8px;
@@ -194,7 +199,7 @@ section.filter th.label {
 }
 
 th.label {
-	width: 35%;
+	width: 25%;
 }
 
 section.filter td.filter {

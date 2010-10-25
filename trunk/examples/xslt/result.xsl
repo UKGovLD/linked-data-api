@@ -9,7 +9,17 @@
 <xsl:key name="properties" match="/result/items/item/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*" use="concat(name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
 <xsl:key name="properties" match="/result/items/item/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*" use="concat(name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
 <xsl:key name="properties" match="/result/items/item/*/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*/*" use="concat(name(../../../../..), '.', name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
-	
+<xsl:key name="properties" match="/result/items/item/*/*/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*/*/*" 
+	use="concat(name(../../../../../..), '.', name(../../../../..), '.', name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
+<xsl:key name="properties" match="/result/items/item/*/*/*/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*/*/*/*" 
+	use="concat(name(../../../../../../..), '.', name(../../../../../..), '.', name(../../../../..), '.', name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
+<xsl:key name="properties" match="/result/items/item/*/*/*/*/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*/*/*/*/*" 
+	use="concat(name(../../../../../../../..), '.', name(../../../../../../..), '.', name(../../../../../..), '.', name(../../../../..), '.', name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
+<xsl:key name="properties" match="/result/items/item/*/*/*/*/*/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*/*/*/*/*/*" 
+	use="concat(name(../../../../../../../../..), '.', name(../../../../../../../..), '.', name(../../../../../../..), '.', name(../../../../../..), '.', name(../../../../..), '.', name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
+
+<xsl:key name="items" match="/result/items/item[@href]" use="@href" />
+
 <xsl:template match="/">
 	<xsl:apply-templates select="result" />
 </xsl:template>
@@ -230,18 +240,25 @@
 </xsl:template>
 
 <xsl:template match="result" mode="topnav">
+	<xsl:variable name="hasResults" select="items/item[@href]" />
+	<xsl:variable name="isItem" select="not(items) and primaryTopic" />
 	<nav class="topnav">
 		<xsl:apply-templates select="." mode="map" />
-		<xsl:if test="items/item[@href]">
-			<xsl:apply-templates select="." mode="summary" />
-		</xsl:if>
-		<xsl:if test="items">
+		<xsl:choose>
+			<xsl:when test="$hasResults">
+				<xsl:apply-templates select="." mode="summary" />
+			</xsl:when>
+			<xsl:when test="$isItem">
+				<xsl:apply-templates select="." mode="moreinfo" />
+			</xsl:when>
+		</xsl:choose>
+		<xsl:if test="not($isItem)">
 			<xsl:apply-templates select="." mode="filternav" />
 		</xsl:if>
-		<xsl:if test="items/item[@href] or (not(items) and primaryTopic)">
+		<xsl:if test="$hasResults or $isItem">
 			<xsl:apply-templates select="." mode="viewnav" />
 		</xsl:if>
-		<xsl:if test="items/item[@href]">
+		<xsl:if test="$hasResults">
 			<xsl:apply-templates select="." mode="sizenav" />
 			<xsl:apply-templates select="." mode="sortnav" />
 		</xsl:if>
@@ -442,6 +459,23 @@
 	</xsl:if>
 </xsl:template>
 
+<xsl:template match="result" mode="moreinfo">
+	<xsl:variable name="links">
+		<xsl:apply-templates select="primaryTopic" mode="moreinfo" />
+	</xsl:variable>
+	<xsl:if test="string($links) != ''">
+		<section class="moreinfo">
+			<h1>More Information</h1>
+			<xsl:call-template name="createInfo">
+				<xsl:with-param name="text">Links to further information.</xsl:with-param>
+			</xsl:call-template>
+			<xsl:copy-of select="$links" />
+		</section>
+	</xsl:if>
+</xsl:template>
+
+<xsl:template match="primaryTopic" mode="moreinfo" />
+
 <xsl:template match="*" mode="name">
 	<xsl:variable name="bestLabelParam">
 		<xsl:apply-templates select="." mode="bestLabelParam" />
@@ -631,7 +665,12 @@
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:for-each select="(items/item/* | primaryTopic[not(../items)]/*)[generate-id(key('properties', name(.))[1]) = generate-id(.)]">
-				<xsl:sort select="self::label or self::prefLabel or self::altLabel or self::name or self::alias or self::title" order="descending" />
+				<xsl:sort select="self::prefLabel" order="descending" />
+				<xsl:sort select="self::name" order="descending" />
+				<xsl:sort select="self::title" order="descending" />
+				<xsl:sort select="self::label" order="descending" />
+				<xsl:sort select="self::alias" order="descending" />
+				<xsl:sort select="self::altLabel" order="descending" />
 				<xsl:sort select="boolean(@datatype)" order="descending" />
 				<xsl:sort select="@datatype" />
 				<xsl:sort select="boolean(@href)" />
@@ -699,6 +738,8 @@
 		</xsl:apply-templates>
 	</xsl:if>
 </xsl:template>
+
+<xsl:template match="primaryTopicOf" mode="propertiesentry" />
 
 <xsl:template match="*" mode="propertiesentry">
 	<xsl:param name="properties" />
@@ -869,7 +910,12 @@
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:for-each select="items/item/*[generate-id(key('properties', name(.))[1]) = generate-id(.)]">
-				<xsl:sort select="self::label or self::prefLabel or self::altLabel or self::name or self::alias or self::title" order="descending" />
+				<xsl:sort select="self::prefLabel" order="descending" />
+				<xsl:sort select="self::name" order="descending" />
+				<xsl:sort select="self::title" order="descending" />
+				<xsl:sort select="self::label" order="descending" />
+				<xsl:sort select="self::alias" order="descending" />
+				<xsl:sort select="self::altLabel" order="descending" />
 				<xsl:sort select="boolean(@datatype)" order="descending" />
 				<xsl:sort select="@datatype" />
 				<xsl:sort select="boolean(@href)" />
@@ -1273,7 +1319,7 @@
 			<xsl:if test="$properties != ''">
 				<col width="20" />
 			</xsl:if>
-			<col width="35%" />
+			<col width="25%" />
 			<col width="*" />
 			<xsl:if test="$showMap = 'true'">
 				<col width="47" />
@@ -1285,6 +1331,12 @@
 			<xsl:sort select="boolean(self::northing)" order="descending" />
 			<xsl:sort select="boolean(self::lat)" order="descending" />
 			<xsl:sort select="boolean(self::long)" order="descending" />
+			<xsl:sort select="self::prefLabel" order="descending" />
+			<xsl:sort select="self::name" order="descending" />
+			<xsl:sort select="self::title" order="descending" />
+			<xsl:sort select="self::label" order="descending" />
+			<xsl:sort select="self::alias" order="descending" />
+			<xsl:sort select="self::altLabel" order="descending" />
 			<xsl:sort select="boolean(@datatype)" order="descending" />
 			<xsl:sort select="@datatype" />
 			<xsl:sort select="boolean(@href)" />
@@ -1939,7 +1991,12 @@
 				</xsl:call-template>
 				<table>
 					<xsl:for-each select="(items/item/* | primaryTopic/*)[generate-id(key('properties', name(.))[1]) = generate-id(.)]">
-						<xsl:sort select="self::label or self::prefLabel or self::altLabel or self::name or self::alias or self::title" order="descending" />
+						<xsl:sort select="self::prefLabel" order="descending" />
+						<xsl:sort select="self::name" order="descending" />
+						<xsl:sort select="self::title" order="descending" />
+						<xsl:sort select="self::label" order="descending" />
+						<xsl:sort select="self::alias" order="descending" />
+						<xsl:sort select="self::altLabel" order="descending" />
 						<xsl:sort select="boolean(@datatype)" order="descending" />
 						<xsl:sort select="@datatype" />
 						<xsl:sort select="boolean(@href)" />
@@ -2011,7 +2068,9 @@
 								<xsl:sort select="@datatype" />
 								<xsl:sort select="boolean(@href)" />
 								<xsl:sort select="local-name()" />
-								<xsl:apply-templates select="." mode="formrow" />
+								<xsl:apply-templates select="." mode="formrow">
+									<xsl:with-param name="parentName" select="$propertyName" />
+								</xsl:apply-templates>
 							</xsl:for-each>
 						</table>
 					</td>
