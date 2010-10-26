@@ -21,8 +21,6 @@
 #
 ############################################################################################
 
-# danpaulsmith - testing SVN commit
-
 spec:api
 	a api:API ;
 	rdfs:label "Organisation API"@en;
