@@ -14,6 +14,10 @@
 @prefix parl: <http://reference.data.gov.uk/def/parliament/> .
 @prefix gov: <http://reference.data.gov.uk/def/central-government/> .
 @prefix pub: <http://reference.data.gov.uk/def/public-body/> .
+@prefix unit: <http://reference.data.gov.uk/id/department/bis/unit/> .
+@prefix grade: <http://reference.data.gov.uk/id/department/bis/grade/SCS> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix central-government: <http://reference.data.gov.uk/def/central-government#> .
 
 ############################################################################################
 #
@@ -414,6 +418,25 @@ spec:postViewer
   api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,heldBy.name,heldBy.phone.label,heldBy.email.label,reportsTo.label,reportsTo.heldBy.name,reportsTo.reportsTo.label,reportsTo.reportsTo.heldBy.name,reportsTo.reportsTo.reportsTo.label,reportsTo.reportsTo.reportsTo.heldBy.name" ;
   .
 
+
+# List all Posts in a Unit
+
+spec:postsInUnit
+	a api:ListEndpoint ;
+	api:uriTemplate "/genericorg/department/{dept}/unit/{unit}/posts" ;
+	api:variable [
+ 		api:name "dept_unit";
+		api:type rdfs:Resource ;
+		api:value "http://reference.data.gov.uk/id/department/{dept}/unit/{unit}"
+	] ;
+	api:selector [
+   		api:where " ?item gov:postIn ?dept_unit . "
+	] ;
+  	api:viewer spec:postViewer ;
+  	api:defaultViewer spec:postListViewer ;
+  	.
+  	
+  	
 # Ministers #
 
 spec:ministers
