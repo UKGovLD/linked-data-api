@@ -44,6 +44,7 @@ spec:api
 	  spec:postInPublicBody ,
 	  spec:postInPublicBodyImmediateReports ,
 	  spec:postInPublicBodyReports ,
+	  spec:postsInPublicBodyUnit ,
 	  spec:departments ,
 	  spec:ministerialDepartments ,
 	  spec:nonMinisterialDepartments ,
@@ -54,6 +55,7 @@ spec:api
 	  spec:postInDepartment ,
 	  spec:postInDepartmentImmediateReports ,
 	  spec:postInDepartmentReports ,
+	  spec:postsInDepartmentUnit ,
 	  spec:ministers ,
 	  spec:minister ,
 	  spec:ministersInDepartment ,
@@ -212,6 +214,21 @@ spec:postInPublicBodyReports
   api:defaultViewer spec:postListViewer ;
   .
 
+spec:postsInPublicBodyUnit
+  a api:ListEndpoint ;
+  api:uriTemplate "/reference/doc/public-body/{code}/unit/{unit}/post" ;
+  api:variable [
+    api:name "unitResource";
+    api:type rdfs:Resource ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/unit/{unit}" ;
+  ] ;
+  api:selector [
+    api:where " ?item gov:postIn ?unitResource . "
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+.
+
 #List all Departments
 spec:departments
 	a api:ListEndpoint ;
@@ -304,7 +321,7 @@ spec:unitsViewer
 spec:unitViewer
   a api:Viewer ;
   api:name "unit" ;
-  api:properties "label,prefLabel,altLabel,post.label,post.prefLabel,post.altLabel,post.comment,post.heldBy.name,post.heldBy.phone.label,post.heldBy.email.label" ;
+  api:properties "label,prefLabel,altLabel,post.label,post.prefLabel,post.altLabel,post.comment,post.heldBy.name,post.heldBy.phone.label,post.heldBy.email.label,post.reportsTo.label" ;
   .
 
 #List all Posts in a Department
@@ -368,6 +385,21 @@ spec:postInDepartmentReports
   api:viewer spec:postViewer ;
   api:defaultViewer spec:postListViewer ;
   .
+
+spec:postsInDepartmentUnit
+  a api:ListEndpoint ;
+  api:uriTemplate "/reference/doc/department/{dept}/unit/{unit}/post" ;
+  api:variable [
+    api:name "unitResource";
+    api:type rdfs:Resource ;
+    api:value "http://reference.data.gov.uk/id/department/{dept}/unit/{unit}" ;
+  ] ;
+  api:selector [
+    api:where " ?item gov:postIn ?unitResource . "
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+.
 
 spec:postListViewer
   a api:Viewer ;
