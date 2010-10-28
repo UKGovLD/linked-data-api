@@ -23,6 +23,7 @@
 		<ul>
 			<xsl:choose>
 				<xsl:when test="contains($base, '/unit/')">
+					<li><a href="{$base}/post">Posts in <xsl:apply-templates select="." mode="name" /></a></li>
 					<li><a href="{substring-before($base, '/unit')}/unit">Other Units</a></li>
 				</xsl:when>
 				<xsl:when test="contains($base, '/post/')">
