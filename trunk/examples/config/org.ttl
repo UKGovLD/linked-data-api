@@ -14,10 +14,6 @@
 @prefix parl: <http://reference.data.gov.uk/def/parliament/> .
 @prefix gov: <http://reference.data.gov.uk/def/central-government/> .
 @prefix pub: <http://reference.data.gov.uk/def/public-body/> .
-@prefix unit: <http://reference.data.gov.uk/id/department/bis/unit/> .
-@prefix grade: <http://reference.data.gov.uk/id/department/bis/grade/SCS> .
-@prefix void: <http://rdfs.org/ns/void#> .
-@prefix central-government: <http://reference.data.gov.uk/def/central-government#> .
 
 ############################################################################################
 #
