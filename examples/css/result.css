@@ -355,7 +355,7 @@ th, td {
 }
 
 td.nested {
-	padding: 0;
+	padding: 0 5px 0 0;
 }
 
 .nested ul {
