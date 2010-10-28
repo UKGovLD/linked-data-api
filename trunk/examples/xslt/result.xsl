@@ -18,7 +18,7 @@
 <xsl:key name="properties" match="/result/items/item/*/*/*/*/*/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*/*/*/*/*/*" 
 	use="concat(name(../../../../../../../../..), '.', name(../../../../../../../..), '.', name(../../../../../../..), '.', name(../../../../../..), '.', name(../../../../..), '.', name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
 
-<xsl:key name="items" match="/result/items/item[@href]" use="@href" />
+<xsl:key name="items" match="*[@href]" use="@href" />
 
 <xsl:template match="/">
 	<xsl:apply-templates select="result" />
@@ -444,7 +444,7 @@
 				</xsl:if>
 				<xsl:for-each select="items/item">
 					<li>
-						<a href="#item{position()}" title="jump to item on this page">
+						<a href="#{generate-id(.)}" title="jump to item on this page">
 							<xsl:apply-templates select="." mode="name" />
 						</a>
 					</li>
@@ -1224,7 +1224,7 @@
 </xsl:template>
 
 <xsl:template match="item" mode="section">
-	<section id="item{position()}">
+	<section id="{generate-id(.)}">
 		<xsl:apply-templates select="." mode="header" />
 		<xsl:apply-templates select="." mode="content" />
 		<xsl:apply-templates select="." mode="footer" />
@@ -1292,7 +1292,7 @@
 	<xsl:variable name="bestLabelParam">
 		<xsl:apply-templates select="." mode="bestLabelParam" />
 	</xsl:variable>
-	<table>
+	<table id="{generate-id(.)}">
 		<xsl:choose>
 			<xsl:when test="self::primaryTopic/parent::result" />
 			<xsl:when test="$bestLabelParam != ''">
@@ -1670,8 +1670,11 @@
 	<xsl:variable name="anyItemHasNonLabelProperties">
 		<xsl:apply-templates select="." mode="anyItemHasNonLabelProperties" />
 	</xsl:variable>
+	<xsl:variable name="anyItemIsHighestDescription">
+		<xsl:apply-templates select="." mode="anyItemIsHighestDescription" />
+	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="$anyItemHasNonLabelProperties = 'true'">
+		<xsl:when test="$anyItemHasNonLabelProperties = 'true' and $anyItemIsHighestDescription = 'true'">
 			<xsl:apply-templates select="item" mode="content">
 				<xsl:sort select="prefLabel" />
 				<xsl:sort select="name" />
@@ -1702,8 +1705,11 @@
 	<xsl:variable name="hasNonLabelProperties">
 		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
 	</xsl:variable>
+	<xsl:variable name="isHighestDescription">
+		<xsl:apply-templates select="." mode="isHighestDescription" />
+	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="$hasNonLabelProperties = 'true'">
+		<xsl:when test="$hasNonLabelProperties = 'true' and $isHighestDescription = 'true'">
 			<xsl:apply-templates select="." mode="table" />
 		</xsl:when>
 		<xsl:otherwise>
@@ -1945,23 +1951,35 @@
 	<xsl:param name="content" />
 	<xsl:choose>
 		<xsl:when test="@href and not(starts-with(@href, 'http://api.talis.com'))">
-			<xsl:variable name="adjustedHref">
-				<xsl:apply-templates select="@href" mode="uri" />
+			<xsl:variable name="highestDescription">
+				<xsl:apply-templates select="." mode="highestDescription" />
 			</xsl:variable>
 			<xsl:choose>
-				<xsl:when test="$adjustedHref = @href">
-					<a href="{@href}">
+				<xsl:when test="$highestDescription != generate-id(.)">
+					<a href="#{$highestDescription}" title="view on this page">
 						<xsl:copy-of select="$content" />
 					</a>
 				</xsl:when>
 				<xsl:otherwise>
-					<a href="{$adjustedHref}" title="view on this site">
-						<xsl:copy-of select="$content" />
-					</a>
-					<xsl:if test="$adjustedHref != @href">
-						<xsl:text> </xsl:text>
-						<a href="{@href}" title="view original" class="outlink">original</a>
-					</xsl:if>
+					<xsl:variable name="adjustedHref">
+						<xsl:apply-templates select="@href" mode="uri" />
+					</xsl:variable>
+					<xsl:choose>
+						<xsl:when test="$adjustedHref = @href">
+							<a href="{@href}">
+								<xsl:copy-of select="$content" />
+							</a>
+						</xsl:when>
+						<xsl:otherwise>
+							<a href="{$adjustedHref}" title="view on this site">
+								<xsl:copy-of select="$content" />
+							</a>
+							<xsl:if test="$adjustedHref != @href">
+								<xsl:text> </xsl:text>
+								<a href="{@href}" title="view original" class="outlink">original</a>
+							</xsl:if>
+						</xsl:otherwise>
+					</xsl:choose>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
@@ -2514,6 +2532,54 @@
 		<xsl:when test="$firstHasNonLabelProperties = 'true'">true</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="." mode="anyItemHasNonLabelProperties">
+				<xsl:with-param name="items" select="$items[position() > 1]" />
+			</xsl:apply-templates>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="highestDescription">
+	<xsl:param name="otherDescriptions" select="key('items', @href)[generate-id(.) != generate-id(current())]" />
+	<xsl:param name="thisDepth" select="count(ancestor::*[not(self::item)])" />
+	<xsl:choose>
+		<xsl:when test="not($otherDescriptions)">
+			<xsl:value-of select="generate-id(.)" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:variable name="firstDepth" select="count($otherDescriptions[1]/ancestor::*[not(self::item)])" />
+			<xsl:choose>
+				<xsl:when test="$firstDepth &lt; $thisDepth">
+					<xsl:value-of select="generate-id($otherDescriptions[1])" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:apply-templates select="." mode="highestDescription">
+						<xsl:with-param name="otherDescriptions" select="$otherDescriptions[position() > 1]" />
+						<xsl:with-param name="thisDepth" select="$thisDepth" />
+					</xsl:apply-templates>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="isHighestDescription">
+	<xsl:variable name="highestDescription">
+		<xsl:apply-templates select="." mode="highestDescription" />
+	</xsl:variable>
+	<xsl:value-of select="$highestDescription = generate-id(.)" />
+</xsl:template>
+
+<xsl:template match="*" mode="anyItemIsHighestDescription">
+	<xsl:param name="items" select="item" />
+	<xsl:variable name="first" select="$items[1]" />
+	<xsl:variable name="firstIsHighestDescription">
+		<xsl:apply-templates select="$first" mode="isHighestDescription" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="not($items)">false</xsl:when>
+		<xsl:when test="$firstIsHighestDescription = 'true'">true</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="anyItemIsHighestDescription">
 				<xsl:with-param name="items" select="$items[position() > 1]" />
 			</xsl:apply-templates>
 		</xsl:otherwise>
