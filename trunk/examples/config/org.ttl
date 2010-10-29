@@ -1,4 +1,4 @@
-@prefix spec: <http://services.data.gov.uk/reference/api#> .
+@prefix spec: <http://reference.data.gov.uk/api#> .
 @prefix api: <http://purl.org/linked-data/api/vocab#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -96,7 +96,7 @@ spec:htmlFormatter
 spec:cabinetCommittees
 	a api:ListEndpoint ;
 	rdfs:label "Cabinet Committees" ;
-	api:uriTemplate "/reference/doc/cabinet-committee" ;
+	api:uriTemplate "/doc/cabinet-committee" ;
 	api:selector spec:cabinetCommitteeSelector .
 
 spec:cabinetCommiteeSelector
@@ -107,7 +107,7 @@ spec:cabinetCommiteeSelector
 spec:publicBodies
   a api:ListEndpoint ;
 	rdfs:label "Public Bodies" ;
-	api:uriTemplate "/reference/doc/public-body" ;
+	api:uriTemplate "/doc/public-body" ;
 	api:selector spec:publicBodySelector ;
 	api:defaultViewer spec:publicBodyViewer ;
 	.
@@ -120,7 +120,7 @@ spec:publicBodySelector
 spec:publicBody
   a api:ItemEndpoint ;
   rdfs:label "Public Body" ;
-  api:uriTemplate "/reference/doc/public-body/{code}" ;
+  api:uriTemplate "/doc/public-body/{code}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/public-body/{code}" ;
 	api:defaultViewer spec:publicBodyViewer ;
   .
@@ -136,7 +136,7 @@ spec:publicBodyViewer
 spec:unitsInPublicBody
   a api:ListEndpoint ;
   rdfs:label "Units in Public Body" ;
-  api:uriTemplate "/reference/doc/public-body/{code}/unit" ;
+  api:uriTemplate "/doc/public-body/{code}/unit" ;
 	api:defaultPageSize "10" ;
   api:variable [
     a api:Variable ;
@@ -153,7 +153,7 @@ spec:unitsInPublicBody
 spec:unitInPublicBody
   a api:ItemEndpoint ;
   rdfs:label "Unit in Public Body" ;
-  api:uriTemplate "/reference/doc/public-body/{code}/unit/{unit}" ;
+  api:uriTemplate "/doc/public-body/{code}/unit/{unit}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/public-body/{code}/unit/{unit}" ;
   api:defaultViewer spec:unitViewer ;
   .
@@ -161,7 +161,7 @@ spec:unitInPublicBody
 spec:unitInPublicBodyStatistics
   a api:ListEndpoint ;
   rdfs:label "Public Body Unit Statistics" ;
-  api:uriTemplate "/reference/doc/public-body/{code}/unit/{unit}/statistics" ;
+  api:uriTemplate "/doc/public-body/{code}/unit/{unit}/statistics" ;
   api:variable [
     a api:Variable ;
     api:name "unitResource" ;
@@ -179,7 +179,7 @@ spec:unitInPublicBodyStatistics
 spec:postsInPublicBody
   a api:ListEndpoint ;
   rdfs:label "Posts in Public Body" ;
-  api:uriTemplate "/reference/doc/public-body/{code}/post" ;
+  api:uriTemplate "/doc/public-body/{code}/post" ;
   api:variable [
     a api:Variable ;
     api:name "publicBody" ;
@@ -196,7 +196,7 @@ spec:postsInPublicBody
 spec:postInPublicBody
   a api:ItemEndpoint ;
   rdfs:label "Post in Public Body" ;
-  api:uriTemplate "/reference/doc/public-body/{code}/post/{post}" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
   api:viewer spec:postListViewer ;
   api:defaultViewer spec:postViewer ;
@@ -205,7 +205,7 @@ spec:postInPublicBody
 spec:postInPublicBodyImmediateReports
   a api:ListEndpoint ;
   rdfs:label "Posts in Public Body Immediate Reports" ;
-  api:uriTemplate "/reference/doc/public-body/{code}/post/{post}/immediate-reports" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/immediate-reports" ;
   api:variable [
     a api:Variable ;
     api:name "postResource" ;
@@ -222,7 +222,7 @@ spec:postInPublicBodyImmediateReports
 spec:postInPublicBodyReports
   a api:ListEndpoint ;
   rdfs:label "Posts in Public Body Reports" ;
-  api:uriTemplate "/reference/doc/public-body/{code}/post/{post}/reports" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/reports" ;
   api:variable [
     a api:Variable ;
     api:name "postResource" ;
@@ -239,7 +239,7 @@ spec:postInPublicBodyReports
 spec:postInPublicBodyStatistics
   a api:ListEndpoint ;
   rdfs:label "Posts in Public Body Statistics" ;
-  api:uriTemplate "/reference/doc/public-body/{code}/post/{post}/statistics" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/statistics" ;
   api:variable [
     a api:Variable ;
     api:name "postResource" ;
@@ -256,7 +256,7 @@ spec:postInPublicBodyStatistics
 spec:departments
 	a api:ListEndpoint ;
 	rdfs:label "Departments" ;
-	api:uriTemplate "/reference/doc/department" ;
+	api:uriTemplate "/doc/department" ;
 	api:selector spec:departmentSelector ;
 	api:defaultViewer spec:departmentViewer ;
 	.
@@ -269,7 +269,7 @@ spec:departmentSelector
 spec:department
   a api:ItemEndpoint ;
   rdfs:label "Department" ;
-  api:uriTemplate "/reference/doc/department/{code}" ;
+  api:uriTemplate "/doc/department/{code}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/department/{code}" ;
 	api:defaultViewer spec:departmentViewer ;
   .
@@ -278,7 +278,7 @@ spec:department
 spec:ministerialDepartments
 	a api:ListEndpoint ;
 	rdfs:label "Ministerial Departments" ;
-	api:uriTemplate "/reference/doc/ministerial-department" ;
+	api:uriTemplate "/doc/ministerial-department" ;
 	api:selector spec:ministerialDepartmentSelector ;
 	api:defaultViewer spec:departmentViewer ;
 	.
@@ -292,7 +292,7 @@ spec:ministerialDepartmentSelector
 spec:nonMinisterialDepartments
 	a api:ListEndpoint ;
 	rdfs:label "Non-Ministerial Departments" ;
-	api:uriTemplate "/reference/doc/non-ministerial-department" ;
+	api:uriTemplate "/doc/non-ministerial-department" ;
 	api:selector spec:nonMinisterialDepartmentSelector ;
 	api:defaultViewer api:departmentViewer ;
 	.
@@ -313,7 +313,7 @@ spec:departmentViewer
 spec:unitsInDepartment
   a api:ListEndpoint ;
   rdfs:label "Units in Department" ;
-  api:uriTemplate "/reference/doc/department/{dept}/unit" ;
+  api:uriTemplate "/doc/department/{dept}/unit" ;
 	api:defaultPageSize "10" ;
   api:variable [
     a api:Variable ;
@@ -330,7 +330,7 @@ spec:unitsInDepartment
 spec:unitInDepartment
   a api:ItemEndpoint ;
   rdfs:label "Unit in Department" ;
-  api:uriTemplate "/reference/doc/department/{dept}/unit/{unit}" ;
+  api:uriTemplate "/doc/department/{dept}/unit/{unit}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/department/{dept}/unit/{unit}" ;
   api:defaultViewer spec:unitViewer ;
   .
@@ -338,7 +338,7 @@ spec:unitInDepartment
 spec:unitInDepartmentStatistics
   a api:ListEndpoint ;
   rdfs:label "Department Unit Statistics" ;
-  api:uriTemplate "/reference/doc/department/{code}/unit/{unit}/statistics" ;
+  api:uriTemplate "/doc/department/{code}/unit/{unit}/statistics" ;
   api:variable [
     a api:Variable ;
     api:name "unitResource" ;
@@ -368,7 +368,7 @@ spec:unitViewer
 spec:postsInDepartment
   a api:ListEndpoint ;
   rdfs:label "Posts in Department" ;
-  api:uriTemplate "/reference/doc/department/{dept}/post" ;
+  api:uriTemplate "/doc/department/{dept}/post" ;
   api:variable [
     a api:Variable ;
     api:name "department" ;
@@ -385,7 +385,7 @@ spec:postsInDepartment
 spec:postInDepartment
   a api:ItemEndpoint ;
   rdfs:label "Post in Department" ;
-  api:uriTemplate "/reference/doc/department/{dept}/post/{post}" ;
+  api:uriTemplate "/doc/department/{dept}/post/{post}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/department/{dept}/post/{post}" ;
   api:viewer spec:postListViewer ;
   api:defaultViewer spec:postViewer ;
@@ -394,7 +394,7 @@ spec:postInDepartment
 spec:postInDepartmentImmediateReports
   a api:ListEndpoint ;
   rdfs:label "Posts in Department Immediate Reports" ;
-  api:uriTemplate "/reference/doc/department/{code}/post/{post}/immediate-reports" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/immediate-reports" ;
   api:variable [
     a api:Variable ;
     api:name "postResource" ;
@@ -411,7 +411,7 @@ spec:postInDepartmentImmediateReports
 spec:postInDepartmentReports
   a api:ListEndpoint ;
   rdfs:label "Posts in Department Reports" ;
-  api:uriTemplate "/reference/doc/department/{code}/post/{post}/reports" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/reports" ;
   api:variable [
     a api:Variable ;
     api:name "postResource" ;
@@ -427,7 +427,7 @@ spec:postInDepartmentReports
 
 spec:postsInDepartmentUnit
   a api:ListEndpoint ;
-  api:uriTemplate "/reference/doc/department/{dept}/unit/{unit}/post" ;
+  api:uriTemplate "/doc/department/{dept}/unit/{unit}/post" ;
   api:variable [
     api:name "unitResource";
     api:type rdfs:Resource ;
@@ -455,7 +455,7 @@ spec:postViewer
 spec:postInDepartmentStatistics
   a api:ListEndpoint ;
   rdfs:label "Posts in Department Statistics" ;
-  api:uriTemplate "/reference/doc/department/{code}/post/{post}/statistics" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/statistics" ;
   api:variable [
     a api:Variable ;
     api:name "postResource" ;
@@ -479,7 +479,7 @@ spec:statisticListViewer
 spec:ministers
 	a api:ListEndpoint ;
 	rdfs:label "Ministers" ;
-	api:uriTemplate "/reference/doc/minister" ;
+	api:uriTemplate "/doc/minister" ;
 	api:selector spec:ministerSelector ;
 	api:defaultViewer spec:ministerViewer ;
 	.
@@ -492,7 +492,7 @@ spec:ministerSelector
 spec:minister
   a api:ItemEndpoint ;
   rdfs:label "Minister" ;
-  api:uriTemplate "/reference/doc/minister/{department}/{post}" ;
+  api:uriTemplate "/doc/minister/{department}/{post}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/minister/{department}/{post}" ;
 	api:defaultViewer spec:ministerViewer ;
   .
@@ -506,7 +506,7 @@ spec:ministerViewer
 spec:ministersInDepartment
   a api:ListEndpoint ;
   rdfs:label "Ministers in Department" ;
-  api:uriTemplate "/reference/doc/minister/{id}" ;
+  api:uriTemplate "/doc/minister/{id}" ;
   api:variable [
     a api:Variable ;
     api:name "department" ;
@@ -523,7 +523,7 @@ spec:ministersInDepartment
 spec:postholdersInDepartment
   a api:ListEndpoint ;
   rdfs:label "Postholders in Department" ;
-  api:uriTemplate "/reference/doc/department/{id}/minister" ;
+  api:uriTemplate "/doc/department/{id}/minister" ;
   api:variable [
     a api:Variable ;
     api:name "department" ;
@@ -541,7 +541,7 @@ spec:postholdersInDepartment
 spec:peers
   a api:ListEndpoint ;
   rdfs:label "Peers" ;
-  api:uriTemplate "/reference/doc/peer" ;
+  api:uriTemplate "/doc/peer" ;
   api:selector [
     api:filter "uriSet=Peers" ;
   ] ;
@@ -552,7 +552,7 @@ spec:peers
 spec:peer
   a api:ItemEndpoint ;
   rdfs:label "Peer" ;
-  api:uriTemplate "/reference/doc/peer/{name}" ;
+  api:uriTemplate "/doc/peer/{name}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/peer/{name}" ;
   api:defaultViewer spec:personViewer ;
   api:viewer spec:personDetailViewer ;
@@ -563,7 +563,7 @@ spec:peer
 spec:mps
   a api:ListEndpoint ;
   rdfs:label "MPs" ;
-  api:uriTemplate "/reference/doc/mp" ;
+  api:uriTemplate "/doc/mp" ;
   api:selector [
     api:filter "uriSet=MPs" ;
   ] ;
@@ -574,7 +574,7 @@ spec:mps
 spec:mp
   a api:ItemEndpoint ;
   rdfs:label "MP" ;
-  api:uriTemplate "/reference/doc/mp/{constituency}/{name}" ;
+  api:uriTemplate "/doc/mp/{constituency}/{name}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/mp/{constituency}/{name}" ;
   api:defaultViewer spec:personViewer ;
   api:viewer spec:personDetailViewer ;
@@ -598,7 +598,7 @@ spec:personDetailViewer
 spec:mpMembership1
   a api:ItemEndpoint ;
   rdfs:label "Membership 1" ;
-  api:uriTemplate "/reference/doc/mp/{constituency}/{name}/{post}" ;
+  api:uriTemplate "/doc/mp/{constituency}/{name}/{post}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/mp/{constituency}/{name}/{post}" ;
   api:defaultViewer spec:membershipViewer ;
   .
@@ -606,7 +606,7 @@ spec:mpMembership1
 spec:mpMembership1
   a api:ItemEndpoint ;
   rdfs:label "Membership 2" ;
-  api:uriTemplate "/reference/doc/mp/{constituency}/{name}/member/{post}" ;
+  api:uriTemplate "/doc/mp/{constituency}/{name}/member/{post}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/mp/{constituency}/{name}/member/{post}" ;
   api:defaultViewer spec:membershipViewer ;
   .
@@ -622,7 +622,7 @@ spec:membershipViewer
 spec:politicalParties
   a api:ListEndpoint ;
   rdfs:label "Political Parties" ;
-  api:uriTemplate "/reference/doc/political-party" ;
+  api:uriTemplate "/doc/political-party" ;
   api:selector [
     api:filter "type=PoliticalParty" ;
   ] ;
@@ -640,7 +640,7 @@ api:politicalPartyViewer
 spec:seats
   a api:ListEndpoint ;
   rdfs:label "Seats" ;
-  api:uriTemplate "/reference/doc/seat" ;
+  api:uriTemplate "/doc/seat" ;
   api:selector [
     api:filter "type=Seat" ;
   ] ;
@@ -650,7 +650,7 @@ spec:seats
 spec:seat
   a api:ItemEndpoint ;
   rdfs:label "Seat" ;
-  api:uriTemplate "/reference/doc/mp/{constituency}" ;
+  api:uriTemplate "/doc/mp/{constituency}" ;
   api:itemTemplate "http://reference.data.gov.uk/def/mp/{constituency}" ;
   api:defaultViewer api:seatViewer ;
   .
