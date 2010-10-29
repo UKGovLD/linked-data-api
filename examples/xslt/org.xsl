@@ -6,7 +6,7 @@
 <xsl:template match="@href" mode="uri">
 	<xsl:choose>
 		<xsl:when test="starts-with(., 'http://reference.data.gov.uk/def/mp/')">
-			<xsl:value-of select="concat('/reference/doc/', substring-after(., 'def/'))" />
+			<xsl:value-of select="concat('/doc/', substring-after(., 'def/'))" />
 		</xsl:when>
 		<xsl:when test="starts-with(., 'http://reference.data.gov.uk/id/day') or
 			starts-with(., 'http://reference.data.gov.uk/id/year') or
@@ -14,7 +14,7 @@
 			<xsl:value-of select="." />
 		</xsl:when>
 		<xsl:when test="starts-with(., 'http://reference.data.gov.uk/id/')">
-			<xsl:value-of select="concat('/reference/doc/', substring-after(., 'id/'))" />
+			<xsl:value-of select="concat('/doc/', substring-after(., 'id/'))" />
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:value-of select="." />
@@ -24,7 +24,7 @@
 
 <xsl:template match="primaryTopic" mode="moreinfo">
 	<xsl:if test="starts-with(@href, 'http://reference.data.gov.uk/id/department/')">
-		<xsl:variable name="base" select="concat('/reference/doc/', substring-after(@href, '/id/'))" />
+		<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
 		<ul>
 			<xsl:choose>
 				<xsl:when test="contains($base, '/unit/')">
@@ -41,9 +41,9 @@
 				<xsl:otherwise>
 					<li><a href="{$base}/unit">Units in <xsl:apply-templates select="." mode="name" /></a></li>
 					<li><a href="{$base}/post">Posts in <xsl:apply-templates select="." mode="name" /></a></li>
-					<li><a href="/reference/doc/ministerial-department">Ministerial Departments</a></li>
-					<li><a href="/reference/doc/non-ministerial-department">Non-Ministerial Departments</a></li>
-					<li><a href="/reference/doc/department">Other Departments</a></li>
+					<li><a href="/doc/ministerial-department">Ministerial Departments</a></li>
+					<li><a href="/doc/non-ministerial-department">Non-Ministerial Departments</a></li>
+					<li><a href="/doc/department">Other Departments</a></li>
 				</xsl:otherwise>
 			</xsl:choose>
 		</ul>
