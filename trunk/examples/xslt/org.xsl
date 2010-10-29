@@ -8,6 +8,11 @@
 		<xsl:when test="starts-with(., 'http://reference.data.gov.uk/def/mp/')">
 			<xsl:value-of select="concat('/reference/doc/', substring-after(., 'def/'))" />
 		</xsl:when>
+		<xsl:when test="starts-with(., 'http://reference.data.gov.uk/id/day') or
+			starts-with(., 'http://reference.data.gov.uk/id/year') or
+			starts-with(., 'http://reference.data.gov.uk/id/gregorian-instant')">
+			<xsl:value-of select="." />
+		</xsl:when>
 		<xsl:when test="starts-with(., 'http://reference.data.gov.uk/id/')">
 			<xsl:value-of select="concat('/reference/doc/', substring-after(., 'id/'))" />
 		</xsl:when>
@@ -23,10 +28,12 @@
 		<ul>
 			<xsl:choose>
 				<xsl:when test="contains($base, '/unit/')">
+					<li><a href="{$base}/statistics">Statistics about Posts in <xsl:apply-templates select="." mode="name" /></a></li>
 					<li><a href="{$base}/post">Posts in <xsl:apply-templates select="." mode="name" /></a></li>
 					<li><a href="{substring-before($base, '/unit')}/unit">Other Units</a></li>
 				</xsl:when>
 				<xsl:when test="contains($base, '/post/')">
+					<li><a href="{$base}/statistics">Statistics</a></li>
 					<li><a href="{$base}/immediate-reports">Immediate Reports</a></li>
 					<li><a href="{$base}/reports">All Reports</a></li>
 					<li><a href="{substring-before($base, '/post')}/post">Other Posts</a></li>

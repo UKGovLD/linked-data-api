@@ -355,6 +355,10 @@ th, td {
 }
 
 td.nested {
+	padding: 0;
+}
+
+td.nested td.nested {
 	padding: 0 5px 0 0;
 }
 
@@ -408,11 +412,11 @@ tr tr {
 }
 
 a.outlink:before {
-	content: '(';
+	content: '[';
 }
 
 a.outlink:after {
-	content: ')';
+	content: ']';
 }
 
 a.outlink {

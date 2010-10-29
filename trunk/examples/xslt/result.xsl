@@ -1308,7 +1308,9 @@
 										<xsl:with-param name="uri" select="@href" />
 									</xsl:call-template>
 								</xsl:when>
-								<xsl:otherwise>more details</xsl:otherwise>
+								<xsl:otherwise>
+									<xsl:value-of select="@href" />
+								</xsl:otherwise>
 							</xsl:choose>
 						</xsl:with-param>
 					</xsl:apply-templates>
@@ -1725,9 +1727,12 @@
 <xsl:template match="*[@href]" mode="content">
 	<xsl:apply-templates select="." mode="link">
 		<xsl:with-param name="content">
+			<xsl:value-of select="@href" />
+			<!--
 			<xsl:call-template name="lastURIpart">
 				<xsl:with-param name="uri" select="@href" />
 			</xsl:call-template>
+			-->
 		</xsl:with-param>
 	</xsl:apply-templates>
 </xsl:template>
@@ -1967,7 +1972,17 @@
 					<xsl:choose>
 						<xsl:when test="$adjustedHref = @href">
 							<a href="{@href}">
-								<xsl:copy-of select="$content" />
+								<xsl:choose>
+									<xsl:when test="@href = $content">
+										<xsl:attribute name="class">outlink</xsl:attribute>
+										<xsl:call-template name="lastURIpart">
+											<xsl:with-param name="uri" select="@href" />
+										</xsl:call-template>
+									</xsl:when>
+									<xsl:otherwise>
+										<xsl:copy-of select="$content" />
+									</xsl:otherwise>
+								</xsl:choose>
 							</a>
 						</xsl:when>
 						<xsl:otherwise>
