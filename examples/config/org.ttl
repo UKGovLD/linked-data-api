@@ -10,10 +10,12 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix org: <http://www.w3.org/ns/org#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
 @prefix dgu: <http://reference.data.gov.uk/def/reference/> .
 @prefix parl: <http://reference.data.gov.uk/def/parliament/> .
 @prefix gov: <http://reference.data.gov.uk/def/central-government/> .
 @prefix pub: <http://reference.data.gov.uk/def/public-body/> .
+@prefix organogram: <http://reference.data.gov.uk/def/organogram/> .
 
 ############################################################################################
 #
@@ -40,10 +42,12 @@ spec:api
 	  spec:publicBody ,
 	  spec:unitsInPublicBody ,
 	  spec:unitInPublicBody ,
+	  spec:unitInPublicBodyStatistics ,
 	  spec:postsInPublicBody ,
 	  spec:postInPublicBody ,
 	  spec:postInPublicBodyImmediateReports ,
 	  spec:postInPublicBodyReports ,
+	  spec:postInPublicBodyStatistics ,
 	  spec:postsInPublicBodyUnit ,
 	  spec:departments ,
 	  spec:ministerialDepartments ,
@@ -51,10 +55,12 @@ spec:api
 	  spec:department ,
 	  spec:unitsInDepartment ,
 	  spec:unitInDepartment ,
+	  spec:unitInDepartmentStatistics ,
 	  spec:postsInDepartment ,
 	  spec:postInDepartment ,
 	  spec:postInDepartmentImmediateReports ,
 	  spec:postInDepartmentReports ,
+	  spec:postInDepartmentStatistics ,
 	  spec:postsInDepartmentUnit ,
 	  spec:ministers ,
 	  spec:minister ,
@@ -152,6 +158,22 @@ spec:unitInPublicBody
   api:defaultViewer spec:unitViewer ;
   .
 
+spec:unitInPublicBodyStatistics
+  a api:ListEndpoint ;
+  rdfs:label "Public Body Unit Statistics" ;
+  api:uriTemplate "/reference/doc/public-body/{code}/unit/{unit}/statistics" ;
+  api:variable [
+    a api:Variable ;
+    api:name "unitResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/unit/{unit}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item organogram:post ?post . ?post gov:postIn ?unitResource }" ;
+  ] ;
+  api:defaultViewer spec:statisticListViewer ;
+  .
+
 #List all Posts in a Public Body
 
 spec:postsInPublicBody
@@ -214,20 +236,21 @@ spec:postInPublicBodyReports
   api:defaultViewer spec:postListViewer ;
   .
 
-spec:postsInPublicBodyUnit
+spec:postInPublicBodyStatistics
   a api:ListEndpoint ;
-  api:uriTemplate "/reference/doc/public-body/{code}/unit/{unit}/post" ;
+  rdfs:label "Posts in Public Body Statistics" ;
+  api:uriTemplate "/reference/doc/public-body/{code}/post/{post}/statistics" ;
   api:variable [
-    api:name "unitResource";
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
     api:type rdfs:Resource ;
-    api:value "http://reference.data.gov.uk/id/public-body/{code}/unit/{unit}" ;
   ] ;
   api:selector [
-    api:where " ?item gov:postIn ?unitResource . "
+    api:where "{ ?item organogram:post ?postResource . }" ;
   ] ;
-  api:viewer spec:postViewer ;
-  api:defaultViewer spec:postListViewer ;
-.
+  api:defaultViewer spec:statisticListViewer ;
+  .
 
 #List all Departments
 spec:departments
@@ -310,6 +333,22 @@ spec:unitInDepartment
   api:uriTemplate "/reference/doc/department/{dept}/unit/{unit}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/department/{dept}/unit/{unit}" ;
   api:defaultViewer spec:unitViewer ;
+  .
+
+spec:unitInDepartmentStatistics
+  a api:ListEndpoint ;
+  rdfs:label "Department Unit Statistics" ;
+  api:uriTemplate "/reference/doc/department/{code}/unit/{unit}/statistics" ;
+  api:variable [
+    a api:Variable ;
+    api:name "unitResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/unit/{unit}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item organogram:post ?post . ?post gov:postIn ?unitResource }" ;
+  ] ;
+  api:defaultViewer spec:statisticListViewer ;
   .
 
 spec:unitsViewer
@@ -406,7 +445,6 @@ spec:postListViewer
   api:name "post list" ;
   api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,reportsTo.label,heldBy.name,heldBy.email.label,heldBy.phone.label" ;
   .
-  
 
 spec:postViewer
   a api:Viewer ;
@@ -414,25 +452,28 @@ spec:postViewer
   api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,heldBy.name,heldBy.phone.label,heldBy.email.label,reportsTo.label,reportsTo.heldBy.name,reportsTo.reportsTo.label,reportsTo.reportsTo.heldBy.name,reportsTo.reportsTo.reportsTo.label,reportsTo.reportsTo.reportsTo.heldBy.name" ;
   .
 
+spec:postInDepartmentStatistics
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Department Statistics" ;
+  api:uriTemplate "/reference/doc/department/{code}/post/{post}/statistics" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item organogram:post ?postResource . }" ;
+  ] ;
+  api:defaultViewer spec:statisticListViewer ;
+  .
 
-# List all Posts in a Unit
+spec:statisticListViewer
+  a api:Viewer ;
+  api:name "statistic list" ;
+  api:properties "date,aboutPost.label,salaryCostOfReports" ;
+  .
 
-spec:postsInUnit
-	a api:ListEndpoint ;
-	api:uriTemplate "/reference/doc/department/{dept}/unit/{unit}/posts" ;
-	api:variable [
- 		api:name "dept_unit";
-		api:type rdfs:Resource ;
-		api:value "http://reference.data.gov.uk/id/department/{dept}/unit/{unit}"
-	] ;
-	api:selector [
-   		api:where " ?item gov:postIn ?dept_unit . "
-	] ;
-  	api:viewer spec:postViewer ;
-  	api:defaultViewer spec:postListViewer ;
-  	.
-  	
-  	
 # Ministers #
 
 spec:ministers
@@ -671,6 +712,13 @@ org:reportsTo api:label "reportsTo" ;
   api:multiValued true .
 
 dgu:uriSet api:label "uriSet" .
+
+organogram:post api:label "aboutPost" .
+organogram:date api:label "date" .
+organogram:salaryCostOfReports api:label "salaryCostOfReports" ;
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:integer ;
+  .
 
 <http://reference.data.gov.uk/id/peer> api:label "Peers" .
 <http://reference.data.gov.uk/id/mp> api:label "MPs" .
