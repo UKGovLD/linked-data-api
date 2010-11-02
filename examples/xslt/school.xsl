@@ -14,4 +14,7 @@
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="establishmentNumber | uniqueReferenceNumber" mode="showBarchart">false</xsl:template>
+<xsl:template match="establishmentNumber | uniqueReferenceNumber" mode="showBoxplot">false</xsl:template>
+	
 </xsl:stylesheet>
