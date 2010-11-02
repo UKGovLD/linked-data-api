@@ -5,3 +5,4 @@
   * http://services.data.gov.uk/education/api/ (schools)
   * http://gov.tso.co.uk/transport/api (transport)
   * http://www.johngoodwin.me.uk/bis/api/ (BIS research grants and patent applications)
+  * http://reference.data.gov.uk/doc/department 
