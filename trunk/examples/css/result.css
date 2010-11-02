@@ -21,12 +21,14 @@ nav.site {
 
 nav.topnav {
 	float: right;
+	clear: right;
 	padding-right: 30px;
 	width: 286px;
 }
 
 #result {
 	float: left;
+	clear: left;
 	padding-right: 43px;
 	padding-left: 43px;
 	width: 538px;
@@ -297,18 +299,6 @@ section#search button {
 	border-color: #DE5806;
 	color: white;
 	font-size: 1em;
-/*
-	border: none;
-	width: 16px;
-	padding: 0;
-	margin: 0;
-	height: 14px;
-	width: 14px;
-	float: right;
-	position: relative;
-	right: 5px;
-	top: -36px;
- */
 }
 
 button img {
@@ -408,6 +398,7 @@ tr tr {
 
 .info img.open {
 	float: right;
+	clear: right;
 	padding: 5px;
 }
 
@@ -439,6 +430,20 @@ a:hover.outlink, .panel section .nested caption a:hover.outlink {
 a:link , a:visited , a:active , a:hover {
 	color: #1F328C;
 	text-decoration: none;
+}
+
+.boxplot {
+	float: right;
+	padding-right: 20%;
+}
+
+.graphs th.label {
+	width: auto;
+}
+
+.barchart {
+	width: 100px;
+	text-align: center;
 }
 
 #ui-datepicker-div {

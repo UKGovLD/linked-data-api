@@ -82,6 +82,7 @@
 	</xsl:if>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="/scripts/jquery.sparkline.js"></script>
 	<script type="text/javascript">
 		$(function() {
 		
@@ -246,6 +247,9 @@
 		<xsl:apply-templates select="." mode="map" />
 		<xsl:choose>
 			<xsl:when test="$hasResults">
+				<xsl:if test="not(next)">
+					<xsl:apply-templates select="." mode="graphs" />
+				</xsl:if>
 				<xsl:apply-templates select="." mode="summary" />
 			</xsl:when>
 			<xsl:when test="$isItem">
@@ -415,6 +419,20 @@
 							summaryMap.addLayer(info);
 							info.setHTML('&lt;div class=\"mapInfo\">Mouse over a marker&lt;/div>');
 						</xsl:if>
+						<xsl:for-each select="items/item[easting and northing] | primaryTopic[not(../items) and easting and northing]">
+							var controls = [new OpenLayers.Control.ArgParser()];
+							osMap = new OpenSpace.Map('<xsl:value-of select="concat('map', position())"/>', {controls: controls});
+							var center = new OpenSpace.MapPoint(<xsl:value-of select="easting" />, <xsl:value-of select="northing" />);
+					    osMap.setCenter(center, 9);
+					    var markers = new OpenLayers.Layer.Markers("Markers");
+					    osMap.addLayer(markers);
+					    var size = new OpenLayers.Size(16,16);
+							var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+							var icon = new OpenLayers.Icon('/images/orange/16x16/Target.png', size, offset);
+					    pos = new OpenSpace.MapPoint(<xsl:value-of select="easting" />, <xsl:value-of select="northing"/>);
+					    marker = new OpenLayers.Marker(pos, icon);
+					    markers.addMarker(marker);
+						</xsl:for-each>
 					};
 				</script>
 			</section>
@@ -425,6 +443,159 @@
 					return null;
 				};
 			</script>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+	
+<xsl:template match="result" mode="graphs">
+	<xsl:variable name="rows">
+		<xsl:for-each select="items/item/*[generate-id(key('properties', name(.))[1]) = generate-id(.)]">
+			<xsl:sort select="local-name()" />
+			<xsl:apply-templates select="." mode="graphRow" />
+		</xsl:for-each>
+	</xsl:variable>
+	<xsl:if test="$rows != ''">
+		<section class="graphs">
+			<h1>Graphs</h1>
+			<xsl:call-template name="createInfo">
+				<xsl:with-param name="text">These graphs summarise the values of the numeric properties of these items.</xsl:with-param>
+			</xsl:call-template>
+			<table>
+				<xsl:copy-of select="$rows" />
+			</table>
+		</section>
+	</xsl:if>
+</xsl:template>
+	
+<xsl:template match="*" mode="graphRow">
+	<xsl:param name="parentName" select="''" />
+	<xsl:variable name="propertyName">
+		<xsl:if test="$parentName != ''">
+			<xsl:value-of select="$parentName" />
+			<xsl:text>.</xsl:text>
+		</xsl:if>
+		<xsl:value-of select="name()" />
+	</xsl:variable>
+	<xsl:variable name="hasNonLabelProperties">
+		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="self::lat or self::long or self::easting or self::northing" />
+		<xsl:when test="$hasNonLabelProperties = 'true'">
+			<xsl:for-each select="key('properties', $propertyName)/*[name() != 'item' and generate-id(key('properties', concat($propertyName, '.', name(.)))[1]) = generate-id(.)] |
+				key('properties', concat($propertyName, '.item'))/*[generate-id(key('properties', concat($propertyName, '.item.', name(.)))[1]) = generate-id(.)]">
+				<xsl:sort select="local-name()" />
+				<xsl:apply-templates select="." mode="graphRow">
+					<xsl:with-param name="parentName" select="$propertyName" />
+				</xsl:apply-templates>
+			</xsl:for-each>
+		</xsl:when>
+		<xsl:when test="@datatype = 'integer' or @datatype = 'decimal' or @datatype = 'int' or @datatype = 'float' or @datatype = 'double'">
+			<xsl:variable name="properties" select="key('properties', $propertyName)" />
+			<xsl:variable name="valueSummary">
+				<xsl:for-each select="$properties">
+					<xsl:sort select="." data-type="number" />
+					<xsl:value-of select="." />
+					<xsl:choose>
+						<xsl:when test="position() = last()">!<xsl:value-of select="."/></xsl:when>
+						<xsl:otherwise>,</xsl:otherwise>
+					</xsl:choose>
+				</xsl:for-each>
+			</xsl:variable>
+			<xsl:variable name="values" select="substring-before($valueSummary, '!')" />
+			<xsl:variable name="distinctValues">
+				<xsl:call-template name="numberDistinctValues">
+					<xsl:with-param name="values" select="$properties" />
+				</xsl:call-template>
+			</xsl:variable>
+			<xsl:variable name="showBarchart">
+				<xsl:apply-templates select="." mode="showBarchart">
+					<xsl:with-param name="values" select="$properties" />
+					<xsl:with-param name="distinctValues" select="$distinctValues" />
+				</xsl:apply-templates>
+			</xsl:variable>
+			<xsl:if test="$showBarchart = 'true'">
+				<xsl:variable name="groups">
+					<xsl:choose>
+						<xsl:when test="$distinctValues &lt; 10">10</xsl:when>
+						<xsl:otherwise>20</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
+				<xsl:variable name="maximum" select="substring-after($valueSummary, '!')" />
+				<xsl:variable name="minimum" select="substring-before($valueSummary, ',')" />
+				<xsl:variable name="start">
+					<xsl:choose>
+						<xsl:when test="$minimum &lt; ($maximum div 2)">0</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="$minimum" />
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
+				<xsl:variable name="step" select="($maximum - $start) div $groups" />
+				<xsl:variable name="grouped">
+					<xsl:call-template name="valueGroups">
+						<xsl:with-param name="values" select="concat($values, ',')" />
+						<xsl:with-param name="step" select="$step" />
+						<xsl:with-param name="limit" select="$start + $step" />
+					</xsl:call-template>
+				</xsl:variable>
+				<tr>
+					<th class="label">
+						<xsl:apply-templates select="." mode="contextLabel" />
+					</th>
+					<td class="barchart" id="barchart{generate-id(.)}">
+						<script type="text/javascript">
+						$('#barchart<xsl:value-of select="generate-id(.)"/>').sparkline([<xsl:value-of select="$grouped" />], { type: 'bar', barColor: '#DE5B06' });
+					</script>
+					</td>
+				</tr>
+			</xsl:if>
+		</xsl:when>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="showBarchart">
+	<xsl:param name="values" />
+	<xsl:param name="distinctValues">
+		<xsl:call-template name="numberDistinctValues">
+			<xsl:with-param name="values" select="$values" />
+		</xsl:call-template>
+	</xsl:param>
+	<xsl:value-of select="$distinctValues > 5" />
+</xsl:template>
+
+<xsl:template name="valueGroups">
+	<xsl:param name="values" />
+	<xsl:param name="step" />
+	<xsl:param name="limit" />
+	<xsl:param name="count" select="0" />
+	<xsl:variable name="first" select="substring-before($values, ',')" />
+	<xsl:variable name="rest" select="substring-after($values, ',')" />
+	<xsl:choose>
+		<xsl:when test="$first &lt;= $limit">
+			<xsl:choose>
+				<xsl:when test="$rest = ''">
+					<xsl:value-of select="$count + 1" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="valueGroups">
+						<xsl:with-param name="values" select="$rest" />
+						<xsl:with-param name="step" select="$step" />
+						<xsl:with-param name="limit" select="$limit" />
+						<xsl:with-param name="count" select="$count + 1" />
+					</xsl:call-template>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="$count" />
+			<xsl:text>,</xsl:text>
+			<xsl:call-template name="valueGroups">
+				<xsl:with-param name="values" select="$values" />
+				<xsl:with-param name="step" select="$step" />
+				<xsl:with-param name="limit" select="$limit + $step" />
+				<xsl:with-param name="count" select="0" />
+			</xsl:call-template>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
@@ -1261,22 +1432,6 @@
 		<div id="{$id}" class="itemMap">
 		</div>
 	</div>
-	<script type="text/javascript">
-		var controls = [
-			new OpenLayers.Control.ArgParser()
-		];
-		osMap = new OpenSpace.Map('<xsl:value-of select="$id"/>', {controls: controls});
-		var center = new OpenSpace.MapPoint(<xsl:value-of select="easting" />, <xsl:value-of select="northing" />);
-    osMap.setCenter(center, 9);
-    var markers = new OpenLayers.Layer.Markers("Markers");
-    osMap.addLayer(markers);
-    var size = new OpenLayers.Size(16,16);
-		var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-		var icon = new OpenLayers.Icon('/images/orange/16x16/Target.png', size, offset);
-    pos = new OpenSpace.MapPoint(<xsl:value-of select="easting" />, <xsl:value-of select="northing"/>);
-    marker = new OpenLayers.Marker(pos, icon);
-    markers.addMarker(marker);
-	</script>
 </xsl:template>
 
 <xsl:template match="*" mode="table">
@@ -1659,6 +1814,65 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</time>
+</xsl:template>
+
+<xsl:template match="*[@datatype = 'integer' or @datatype = 'decimal' or @datatype = 'int' or @datatype = 'float' or @datatype = 'double']" mode="display">
+	<xsl:apply-templates select="." mode="content" />
+	<xsl:if test="not(/result/next) and not(self::item)">
+		<xsl:variable name="path">
+			<xsl:apply-templates select="." mode="nodePath" />
+		</xsl:variable>
+		<xsl:variable name="allValues" select="key('properties', $path)" />
+		<xsl:variable name="showBoxplot">
+			<xsl:apply-templates select="." mode="showBoxplot">
+				<xsl:with-param name="values" select="$allValues" />
+			</xsl:apply-templates>
+		</xsl:variable>
+		<xsl:if test="$showBoxplot = 'true'">
+			<span class="boxplot" id="boxplot{generate-id()}">
+			</span>
+			<script type="text/javascript">
+				$('#boxplot<xsl:value-of select="generate-id()"/>').sparkline([
+					<xsl:for-each select="$allValues">
+						<xsl:value-of select="." />
+						<xsl:if test="position() != last()">,</xsl:if>
+					</xsl:for-each>],
+					{
+						type: 'box',
+						showOutliers: false,
+						lineColor: '#555555',
+						boxLineColor: '#555555',
+						boxFillColor: '#EBEBEB',
+						whiskerColor: '#555555',
+						outlierLineColor: '#555555',
+						outlierFillColor: '#EBEBEB',
+						medianColor: '#555555',
+						target: <xsl:value-of select="." />,
+						targetColor: '#DE5B06'
+					}
+				)
+			</script>
+		</xsl:if>
+	</xsl:if>
+</xsl:template>
+
+<xsl:template match="*" mode="showBoxplot">
+	<xsl:param name="values" />
+	<xsl:variable name="distinctValues">
+		<xsl:call-template name="numberDistinctValues">
+			<xsl:with-param name="values" select="$values" />
+		</xsl:call-template>
+	</xsl:variable>
+	<xsl:value-of select="$distinctValues != 1 and count($values) > 5 and not($values/item)" />
+</xsl:template>
+
+<xsl:template match="/result/items/item | /result/primaryTopic" mode="nodePath" />
+<xsl:template match="*" mode="nodePath">
+	<xsl:if test="not(parent::item/parent::items/parent::result or parent::primaryTopic/parent::result)">
+		<xsl:apply-templates select="parent::*" mode="nodePath" />
+		<xsl:text>.</xsl:text>
+	</xsl:if>
+	<xsl:value-of select="name()" />
 </xsl:template>
 
 <xsl:template match="*" mode="display">
@@ -2599,6 +2813,20 @@
 			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
+</xsl:template>
+
+<xsl:template name="numberDistinctValues">
+	<xsl:param name="values" />
+	<!-- this is a hack to work out how many distinct values there are by
+		creating a string that contains a dot for each value that hasn't come
+		earlier in the set, and then taking its length -->
+	<xsl:variable name="dots">
+		<xsl:for-each select="$values">
+			<xsl:variable name="position" select="position()" />
+			<xsl:if test="not(. = $values[position() &lt; $position])">.</xsl:if>
+		</xsl:for-each>
+	</xsl:variable>
+	<xsl:value-of select="string-length($dots)" />
 </xsl:template>
 
 </xsl:stylesheet>
