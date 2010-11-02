@@ -27,16 +27,30 @@
 		<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
 		<ul>
 			<xsl:choose>
+				<xsl:when test="contains($base, '/statistics')">
+					<xsl:choose>
+						<xsl:when test="contains($base, '/unit/')">
+							<li><a href="{substring-before($base, '/statistics')}">Unit</a></li>
+							<li><a href="{substring-before($base, '/unit')}">Organisation</a></li>
+						</xsl:when>
+						<xsl:otherwise>
+							<li><a href="{substring-before($base, '/statistics')}">Post</a></li>
+							<li><a href="{substring-before($base, '/post')}">Organisation</a></li>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
 				<xsl:when test="contains($base, '/unit/')">
 					<li><a href="{$base}/statistics">Statistics about Posts in <xsl:apply-templates select="." mode="name" /></a></li>
 					<li><a href="{$base}/post">Posts in <xsl:apply-templates select="." mode="name" /></a></li>
 					<li><a href="{substring-before($base, '/unit')}/unit">Other Units</a></li>
+					<li><a href="{substring-before($base, '/unit')}">Organisation</a></li>
 				</xsl:when>
 				<xsl:when test="contains($base, '/post/')">
 					<li><a href="{$base}/statistics">Statistics</a></li>
 					<li><a href="{$base}/immediate-reports">Immediate Reports</a></li>
 					<li><a href="{$base}/reports">All Reports</a></li>
 					<li><a href="{substring-before($base, '/post')}/post">Other Posts</a></li>
+					<li><a href="{substring-before($base, '/post')}">Organisation</a></li>
 				</xsl:when>
 				<xsl:otherwise>
 					<li><a href="{$base}/unit">Units in <xsl:apply-templates select="." mode="name" /></a></li>

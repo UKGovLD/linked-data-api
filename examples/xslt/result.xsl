@@ -480,7 +480,6 @@
 		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
 	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="self::lat or self::long or self::easting or self::northing" />
 		<xsl:when test="$hasNonLabelProperties = 'true'">
 			<xsl:for-each select="key('properties', $propertyName)/*[name() != 'item' and generate-id(key('properties', concat($propertyName, '.', name(.)))[1]) = generate-id(.)] |
 				key('properties', concat($propertyName, '.item'))/*[generate-id(key('properties', concat($propertyName, '.item.', name(.)))[1]) = generate-id(.)]">
@@ -553,6 +552,8 @@
 		</xsl:when>
 	</xsl:choose>
 </xsl:template>
+
+<xsl:template match="easting | northing | lat | long" mode="showBarchart">false</xsl:template>
 
 <xsl:template match="*" mode="showBarchart">
 	<xsl:param name="values" />
@@ -1855,6 +1856,8 @@
 		</xsl:if>
 	</xsl:if>
 </xsl:template>
+
+<xsl:template match="easting | northing | lat | long" mode="showBoxplot">false</xsl:template>
 
 <xsl:template match="*" mode="showBoxplot">
 	<xsl:param name="values" />
