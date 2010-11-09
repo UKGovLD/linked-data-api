@@ -65,6 +65,11 @@
 	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" />
 	<link rel="stylesheet" href="/css/black-tie/jquery-ui-1.8.5.custom.css" type="text/css" />
 	<link rel="stylesheet" href="/css/result.css" type="text/css" />
+	<xsl:comment>
+		<xsl:text>[if lt IE 9]&gt;</xsl:text>
+		<xsl:text>&lt;link rel="stylesheet" href="/css/ie.css" type="text/css">&lt;/link></xsl:text>
+		<xsl:text>&lt;![endif]</xsl:text>
+	</xsl:comment>
 </xsl:template>
 
 <xsl:template match="result" mode="script">
@@ -899,6 +904,7 @@
 			<xsl:otherwise>
 				<xsl:call-template name="splitPath">
 					<xsl:with-param name="paramName" select="$paramName" />
+					<xsl:with-param name="omitLabel" select="false()" />
 				</xsl:call-template>
 			</xsl:otherwise>
 		</xsl:choose>
@@ -1644,6 +1650,7 @@
 
 <xsl:template name="splitPath">
 	<xsl:param name="paramName" />
+	<xsl:param name="omitLabel" select="true()" />
 	<xsl:variable name="isLabelParam">
 		<xsl:call-template name="isLabelParam">
 			<xsl:with-param name="paramName" select="$paramName" />
@@ -1655,18 +1662,25 @@
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="splitPath">
 				<xsl:with-param name="paramName" select="substring-after($paramName, '-')" />
+				<xsl:with-param name="omitLabel" select="$omitLabel" />
 			</xsl:call-template>
 		</xsl:when>
 		<xsl:when test="contains($paramName, '.')">
 			<xsl:call-template name="splitOnCapital">
 				<xsl:with-param name="string" select="substring-before($paramName, '.')" />
 			</xsl:call-template>
-			<xsl:text> </xsl:text>
-			<xsl:call-template name="splitPath">
-				<xsl:with-param name="paramName" select="substring-after($paramName, '.')" />
-			</xsl:call-template>
+			<xsl:variable name="rest">
+				<xsl:call-template name="splitPath">
+					<xsl:with-param name="paramName" select="substring-after($paramName, '.')" />
+					<xsl:with-param name="omitLabel" select="$omitLabel" />
+				</xsl:call-template>
+			</xsl:variable>
+			<xsl:if test="string($rest) != ''">
+				<xsl:text> › </xsl:text>
+				<xsl:copy-of select="$rest" />
+			</xsl:if>
 		</xsl:when>
-		<xsl:when test="$isLabelParam = 'true'" />
+		<xsl:when test="$omitLabel and $isLabelParam = 'true'" />
 		<xsl:otherwise>
 			<xsl:call-template name="splitOnCapital">
 				<xsl:with-param name="string" select="$paramName" />
