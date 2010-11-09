@@ -1,0 +1,37 @@
+body {
+	text-align: center;
+}
+
+#page {
+	margin-right: auto;
+	margin-left: auto;
+	text-align: left;
+}
+
+nav.topnav {
+	width: 286px;
+}
+
+nav.topnav section {
+	width: 286px;
+}
+
+nav.topnav section h1 {
+	margin-bottom: 10px;
+}
+
+nav.topnav section ul {
+	width: 266px;
+}
+
+nav.topnav section.view li {
+	display: block;
+}
+
+div.info {
+	top: 8px;
+}
+
+div.panel h1 {
+	width: 518px;
+}
