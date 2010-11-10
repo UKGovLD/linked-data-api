@@ -53,8 +53,9 @@
 					<li><a href="{substring-before($base, '/post')}">Organisation</a></li>
 				</xsl:when>
 				<xsl:otherwise>
+					<li><a href="{$base}/minister">Ministers in <xsl:apply-templates select="." mode="name" /></a></li>
 					<li><a href="{$base}/unit">Units in <xsl:apply-templates select="." mode="name" /></a></li>
-					<li><a href="{$base}/post">Posts in <xsl:apply-templates select="." mode="name" /></a></li>
+					<li><a href="{$base}/post"><abbr title="Senior Civil Service">SCS</abbr> Posts in <xsl:apply-templates select="." mode="name" /></a></li>
 					<li><a href="/doc/ministerial-department">Ministerial Departments</a></li>
 					<li><a href="/doc/non-ministerial-department">Non-Ministerial Departments</a></li>
 					<li><a href="/doc/department">Other Departments</a></li>
