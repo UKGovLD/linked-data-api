@@ -114,7 +114,7 @@ spec:publicBodies
 
 spec:publicBodySelector
   a api:Selector ;
-  api:filter "type=PublicBody" ;
+  api:where "?item rdf:type gov:PublicBody . FILTER regex(str(?item), '^http://reference.data.gov.uk/id/public-body/') " ;
   .
 
 spec:publicBody
@@ -259,6 +259,7 @@ spec:departments
 	api:uriTemplate "/doc/department" ;
 	api:selector spec:departmentSelector ;
 	api:defaultViewer spec:departmentViewer ;
+	api:viewer spec:departmentViewerWithPosts ;
 	.
 
 spec:departmentSelector
@@ -272,6 +273,7 @@ spec:department
   api:uriTemplate "/doc/department/{code}" ;
   api:itemTemplate "http://reference.data.gov.uk/id/department/{code}" ;
 	api:defaultViewer spec:departmentViewer ;
+	api:viewer spec:departmentViewerWithPosts ;
   .
 
 #List all Ministerial Departments
@@ -281,6 +283,7 @@ spec:ministerialDepartments
 	api:uriTemplate "/doc/ministerial-department" ;
 	api:selector spec:ministerialDepartmentSelector ;
 	api:defaultViewer spec:departmentViewer ;
+	api:viewer spec:departmentViewerWithPosts ;
 	.
 
 spec:ministerialDepartmentSelector
@@ -294,7 +297,8 @@ spec:nonMinisterialDepartments
 	rdfs:label "Non-Ministerial Departments" ;
 	api:uriTemplate "/doc/non-ministerial-department" ;
 	api:selector spec:nonMinisterialDepartmentSelector ;
-	api:defaultViewer api:departmentViewer ;
+	api:defaultViewer spec:departmentViewer ;
+	api:viewer spec:departmentViewerWithPosts ;
 	.
 
 spec:nonMinisterialDepartmentSelector
@@ -307,6 +311,12 @@ spec:departmentViewer
   api:name "department" ;
   api:properties "type.label,label,prefLabel,altLabel,comment,unit.label" ;
   .
+
+spec:departmentViewerWithPosts
+  a api:Viewer ;
+  api:name "department including posts" ;
+  api:properties "type.label,label,prefLabel,altLabel,comment,unit.label,unit.post.label,unit.post.prefLabel,unit.post.altLabel,unit.post.comment" ;
+  . 
 
 #List all Units in a Department
 
@@ -481,12 +491,18 @@ spec:ministers
 	rdfs:label "Ministers" ;
 	api:uriTemplate "/doc/minister" ;
 	api:selector spec:ministerSelector ;
-	api:defaultViewer spec:ministerViewer ;
+	api:defaultViewer spec:personViewer ;
 	.
 
 spec:ministerSelector
   a api:Selector ;
-  api:filter "type=Minister" ;
+  api:where " ?membership rdf:type org:Membership ; org:role <http://reference.data.gov.uk/def/ministerial-role/postholder> ; org:member ?item . " ;
+  .
+
+spec:ministerMembershipViewer
+  a api:Viewer ;
+  api:name "minister" ;
+  api:properties "prefLabel,altLabel,organisation.prefLabel,organisation.altLabel,organisation.ministerOf.prefLabel,member.name" ;
   .
 
 spec:minister
