@@ -110,6 +110,22 @@
 			});
 			
 			<xsl:if test="$showMap = 'true'">
+				<xsl:variable name="uri">
+					<xsl:call-template name="clearPosition">
+						<xsl:with-param name="uri">
+							<xsl:apply-templates select="/result" mode="searchURI" />
+						</xsl:with-param>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:variable name="sep">
+					<xsl:choose>
+						<xsl:when test="contains($uri, '?')">&amp;</xsl:when>
+						<xsl:otherwise>?</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
+				<xsl:variable name="properties">
+					<xsl:if test="not(/result/items)">_properties=easting,northing&amp;</xsl:if>
+				</xsl:variable>
 				initMap();
 				
 				$('.map .search').click(function() {
@@ -118,11 +134,7 @@
 					var maxEasting = Math.floor(bounds.right);
 					var minNorthing = Math.ceil(bounds.bottom);
 					var maxNorthing = Math.floor(bounds.top);
-					window.location = '<xsl:call-template name="clearPosition">
-						<xsl:with-param name="uri">
-							<xsl:apply-templates select="/result" mode="searchURI" />
-						</xsl:with-param>
-					</xsl:call-template>&amp;min-easting=' + minEasting + '&amp;max-easting=' + maxEasting + '&amp;min-northing=' + minNorthing + '&amp;max-northing=' + maxNorthing;
+					window.location = '<xsl:value-of select="concat($uri, $sep, $properties)"/>min-easting=' + minEasting + '&amp;max-easting=' + maxEasting + '&amp;min-northing=' + minNorthing + '&amp;max-northing=' + maxNorthing;
 				});
 			</xsl:if>
 		});
