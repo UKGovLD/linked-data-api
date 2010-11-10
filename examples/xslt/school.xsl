@@ -3,6 +3,7 @@
 
 <xsl:import href="result.xsl" />
 
+<!--
 <xsl:template match="@href" mode="uri">
 	<xsl:choose>
 		<xsl:when test="starts-with(., 'http://education.data.gov.uk/id/')">
@@ -13,6 +14,7 @@
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
+-->
 
 <xsl:template match="establishmentNumber | uniqueReferenceNumber" mode="showBarchart">false</xsl:template>
 <xsl:template match="establishmentNumber | uniqueReferenceNumber" mode="showBoxplot">false</xsl:template>

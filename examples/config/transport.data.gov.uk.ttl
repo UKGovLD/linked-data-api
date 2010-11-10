@@ -27,8 +27,11 @@ t:api
 	  api:labelledDescribeViewer ;
   api:defaultFormatter t:HtmlFormatter ;
 	api:endpoint
+	  t:scheme ,
+	  t:definition ,
 	  # Traffic Flow #
 	  t:localAuthorities , t:localAuthority ,
+	  t:localAuthorityDistricts , t:localAuthorityDistrict ,
 	  t:trafficCountPointsInLA ,
 	  t:trafficCountPoints , t:trafficCountPoint ,
 	  t:trafficCountPointsInLAD ,
@@ -71,6 +74,32 @@ t:HtmlFormatter
   api:mimeType "text/html" , "application/xhtml+xml" ;
   api:stylesheet "xslt/transport.xsl" .
 
+## Definitions ##
+
+t:scheme
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/{scheme}" ;
+  api:defaultViewer t:schemeViewer ;
+  .
+
+t:schemeViewer
+  a api:Viewer ;
+  api:properties "name,alias,label,note,scopeNote,topConcept.name" ;
+  .
+
+t:definition
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}/{item}" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/{scheme}/{item}" ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:definitionViewer
+  a api:Viewer ;
+  api:properties "name,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name" ;
+  .
+
 ## Traffic Flow ##
 
 # Local Authorities
@@ -86,7 +115,7 @@ t:localAuthorities
 t:localAuthorityListViewer
   a api:Viewer ;
   api:name "local-authority-list" ;
-  api:properties "label,snac,dftLAcode" .
+  api:properties "label,snac,dftLACode" .
 
 t:localAuthority
   a api:ItemEndpoint ;
@@ -97,7 +126,7 @@ t:localAuthority
 t:localAuthorityItemViewer
   a api:Viewer ;
   api:name "local-authority" ;
-  api:properties "label,snac,dftLAcode,coverage.label" .
+  api:properties "label,snac,dftLACode,coverage.label" .
 
 t:trafficCountPointsInLA
   a api:ListEndpoint ;
@@ -121,7 +150,7 @@ t:localAuthorityDistricts
 t:localAuthorityDistrictListViewer
   a api:Viewer ;
   api:name "local-authority-district-list" ;
-  api:properties "localAuthority.label,snac,dftLAcode" .
+  api:properties "localAuthority.label,snac,dftLACode" .
 
 t:localAuthorityDistrict
   a api:ItemEndpoint ;
@@ -132,7 +161,7 @@ t:localAuthorityDistrict
 t:localAuthorityDistrictItemViewer
   a api:Viewer ;
   api:name "local-authority-district" ;
-  api:properties "localAuthority.label,snac,dftLAcode,region.label,country.label" .
+  api:properties "localAuthority.label,snac,dftLACode,region.label,country.label" .
 
 t:trafficCountPointsInLAD
   a api:ListEndpoint ;
@@ -151,18 +180,18 @@ t:roadSelector
 
 t:roads
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/road" ;
+  api:uriTemplate "/doc/road" ;
   api:selector t:roadSelector ;
   api:defaultViewer t:roadListViewer .
 
 t:roadListViewer
   a api:Viewer ;
-  api:name "road-list" ;
-  api:properties "roadNumber" .
+  api:name "road list" ;
+  api:properties "roadNumber,roadRegion.label,category.name" .
 
 t:road
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/road/{number}" ;
+  api:uriTemplate "/doc/road/{number}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/road/{number}" ;
 	api:defaultViewer t:roadItemViewer .
 
@@ -173,7 +202,7 @@ t:roadItemViewer
 
 t:trafficCountPointsOnRoad
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/road/{number}/traffic-count-point" ;
+  api:uriTemplate "/doc/road/{number}/traffic-count-point" ;
   api:selector [
     api:parent t:trafficCountPointSelector ;
     api:filter "road.roadNumber={number}" ;
@@ -182,7 +211,7 @@ t:trafficCountPointsOnRoad
 
 t:roadsByCategory
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/{category}-road" ;
+  api:uriTemplate "/doc/{category}-road" ;
   api:variable [
     a api:Variable ;
     api:name "categoryResource" ;
@@ -196,7 +225,7 @@ t:roadsByCategory
 
 t:motorways
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/motorway" ;
+  api:uriTemplate "/doc/motorway" ;
   api:selector [
     api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/motorway> ." ;
   ] ;
@@ -204,7 +233,7 @@ t:motorways
 
 t:aRoads
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/a-road" ;
+  api:uriTemplate "/doc/a-road" ;
   api:selector [
     api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/a> ." ;
   ] ;
@@ -212,7 +241,7 @@ t:aRoads
 
 t:bRoads
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/b-road" ;
+  api:uriTemplate "/doc/b-road" ;
   api:selector [
     api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/b> ." ;
   ] ;
@@ -220,7 +249,7 @@ t:bRoads
 
 t:cRoads
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/c-road" ;
+  api:uriTemplate "/doc/c-road" ;
   api:selector [
     api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/c> ." ;
   ] ;
@@ -228,7 +257,7 @@ t:cRoads
 
 t:unclassifiedRoads
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/unclassified-road" ;
+  api:uriTemplate "/doc/unclassified-road" ;
   api:selector [
     api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/unclassified> ." ;
   ] ;
@@ -236,7 +265,7 @@ t:unclassifiedRoads
 
 t:ruralRoads
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/rural-road" ;
+  api:uriTemplate "/doc/rural-road" ;
   api:selector [
     api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/rural> ." ;
   ] ;
@@ -244,7 +273,7 @@ t:ruralRoads
 
 t:urbanRoads
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/urban-road" ;
+  api:uriTemplate "/doc/urban-road" ;
   api:selector [
     api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/urban> ." ;
   ] ;
@@ -258,7 +287,7 @@ t:trafficCountPointSelector
 
 t:trafficCountPoints
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/traffic-count-point" ;
+  api:uriTemplate "/doc/traffic-count-point" ;
   api:selector t:trafficCountPointSelector ;
   api:defaultViewer t:trafficCountPointListViewer .
 
@@ -269,7 +298,7 @@ t:trafficCountPointListViewer
 
 t:trafficCountPoint
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/traffic-count-point/{number}" ;
+  api:uriTemplate "/doc/traffic-count-point/{number}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/traffic-count-point/{number}" ;
 	api:defaultViewer t:trafficCountPointItemViewer .
 
@@ -282,7 +311,7 @@ t:trafficCountPointItemViewer
 
 t:countries
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/country" ;
+	api:uriTemplate "/doc/country" ;
 	api:selector [ 
 		api:filter "type=Country" ;
 	] ;
@@ -295,7 +324,7 @@ t:countryListViewer
 
 t:country
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/country/{code}" ;
+  api:uriTemplate "/doc/country/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/country/{code}" ;
 	api:defaultViewer t:countryItemViewer .
 
@@ -310,7 +339,7 @@ t:regionSelector
 
 t:regions
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/region" ;
+	api:uriTemplate "/doc/region" ;
 	api:selector t:regionSelector ;
 	api:defaultViewer t:regionListViewer .
 
@@ -321,7 +350,7 @@ t:regionListViewer
 
 t:region
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/region/{code}" ;
+  api:uriTemplate "/doc/region/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/region/{code}" ;
 	api:defaultViewer t:regionItemViewer .
 
@@ -332,7 +361,7 @@ t:regionItemViewer
 
 t:regionsInCountry
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/region/country/{code}" ;
+  api:uriTemplate "/doc/region/country/{code}" ;
   api:selector [
     api:parent t:regionSelector ;
     api:filter "country.countryCode={code}" ;
@@ -345,7 +374,7 @@ t:administrativeAreaSelector
 
 t:administrativeAreas
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/administrative-area" ;
+	api:uriTemplate "/doc/administrative-area" ;
 	api:selector t:administrativeAreaSelector ;
 	api:defaultViewer t:administrativeAreaListViewer .
 
@@ -356,7 +385,7 @@ t:administrativeAreaListViewer
 
 t:administrativeArea
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/administrative-area/{code}" ;
+  api:uriTemplate "/doc/administrative-area/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/administrative-area/{code}" ;
 	api:defaultViewer t:administrativeAreaItemViewer .
 
@@ -367,7 +396,7 @@ t:administrativeAreaItemViewer
 
 t:administrativeAreasInCountry
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/administrative-area/country/{code}" ;
+  api:uriTemplate "/doc/administrative-area/country/{code}" ;
   api:selector [
     api:parent t:administrativeAreaSelector ;
     api:filter "country.countryCode={code}" ;
@@ -376,7 +405,7 @@ t:administrativeAreasInCountry
 
 t:administrativeAreasInRegion
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/administrative-area/region/{code}" ;
+  api:uriTemplate "/doc/administrative-area/region/{code}" ;
   api:selector [
     api:parent t:administrativeAreaSelector ;
     api:filter "region.regionCode={code}" ;
@@ -389,7 +418,7 @@ t:districtSelector
 
 t:districts
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/nptg-district" ;
+	api:uriTemplate "/doc/nptg-district" ;
 	api:selector t:districtSelector ;
 	api:defaultViewer t:districtListViewer .
 
@@ -400,7 +429,7 @@ t:districtListViewer
 
 t:district
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-district/{code}" ;
+  api:uriTemplate "/doc/nptg-district/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/nptg-district/{code}" ;
 	api:defaultViewer t:districtItemViewer .
 
@@ -411,7 +440,7 @@ t:districtItemViewer
 
 t:districtsInCountry
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-district/country/{code}" ;
+  api:uriTemplate "/doc/nptg-district/country/{code}" ;
   api:selector [
     api:parent t:districtSelector ;
     api:filter "country.countryCode={code}" ;
@@ -420,7 +449,7 @@ t:districtsInCountry
 
 t:districtsInRegion
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-district/region/{code}" ;
+  api:uriTemplate "/doc/nptg-district/region/{code}" ;
   api:selector [
     api:parent t:districtSelector ;
     api:filter "region.regionCode={code}" ;
@@ -429,7 +458,7 @@ t:districtsInRegion
 
 t:districtsInAdministrativeArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-district/administrative-area/{code}" ;
+  api:uriTemplate "/doc/nptg-district/administrative-area/{code}" ;
   api:selector [
     api:parent t:districtSelector ;
     api:filter "administrativeArea.administrativeAreaCode={code}" ;
@@ -442,7 +471,7 @@ t:localitySelector
 
 t:localities
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/nptg-locality" ;
+	api:uriTemplate "/doc/nptg-locality" ;
 	api:selector t:localitySelector ;
 	api:defaultViewer t:localityListViewer .
 
@@ -453,7 +482,7 @@ t:localityListViewer
 
 t:locality
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-locality/{code}" ;
+  api:uriTemplate "/doc/nptg-locality/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
 	api:defaultViewer t:localityItemViewer .
 
@@ -464,7 +493,7 @@ t:localityItemViewer
 
 t:localitiesInCountry
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-locality/country/{code}" ;
+  api:uriTemplate "/doc/nptg-locality/country/{code}" ;
   api:selector [
     api:parent t:localitySelector ;
     api:filter "country.countryCode={code}" ;
@@ -473,7 +502,7 @@ t:localitiesInCountry
 
 t:localitiesInRegion
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-locality/region/{code}" ;
+  api:uriTemplate "/doc/nptg-locality/region/{code}" ;
   api:selector [
     api:parent t:localitySelector ;
     api:filter "region.regionCode={code}" ;
@@ -482,7 +511,7 @@ t:localitiesInRegion
 
 t:localitiesInAdministrativeArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-locality/administrative-area/{code}" ;
+  api:uriTemplate "/doc/nptg-locality/administrative-area/{code}" ;
   api:selector [
     api:parent t:localitySelector ;
     api:filter "administrativeArea.administrativeAreaCode={code}" ;
@@ -491,7 +520,7 @@ t:localitiesInAdministrativeArea
 
 t:localitiesInDistrict
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-locality/district/{code}" ;
+  api:uriTemplate "/doc/nptg-locality/district/{code}" ;
   api:selector [
     api:parent t:localitySelector ;
     api:filter "nptgDistrict.nptgDistrictCode={code}" ;
@@ -500,7 +529,7 @@ t:localitiesInDistrict
 
 t:localitiesInLocality
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/nptg-locality/parent-locality/{code}" ;
+  api:uriTemplate "/doc/nptg-locality/parent-locality/{code}" ;
   api:selector [
     api:parent t:localitySelector ;
     api:filter "parentNptgLocality.nptgLocalityCode={code}" ;
@@ -515,7 +544,7 @@ t:stopPointSelector
 
 t:stopPoints
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/stop-point" ;
+	api:uriTemplate "/doc/stop-point" ;
 	api:selector t:stopPointSelector ;
 	api:defaultViewer t:stopPointListViewer .
 
@@ -526,7 +555,7 @@ t:stopPointListViewer
 
 t:stopPoint
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/stop-point/{code}" ;
+  api:uriTemplate "/doc/stop-point/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/stop-point/{code}" ;
 	api:defaultViewer t:stopPointItemViewer .
 
@@ -537,7 +566,7 @@ t:stopPointItemViewer
 
 t:stopPointsInArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:uriTemplate "/doc/stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
   api:selector [
     api:parent t:stopPointSelector ;
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
@@ -550,13 +579,13 @@ t:busStopPointSelector
 
 t:busStopPoints
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/bus-stop-point" ;
+  api:uriTemplate "/doc/bus-stop-point" ;
   api:selector api:busStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:busStopPointsInArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/bus-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:uriTemplate "/doc/bus-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
   api:selector [
     api:parent t:busStopPointSelector ;
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
@@ -569,13 +598,13 @@ t:taxiStopPointSelector
 
 t:taxiStopPoints
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/taxi-stop-point" ;
+  api:uriTemplate "/doc/taxi-stop-point" ;
   api:selector t:taxiStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:taxiStopPointsInArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/taxi-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:uriTemplate "/doc/taxi-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
   api:selector [
     api:parent t:taxiStopPointSelector ;
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
@@ -588,13 +617,13 @@ t:airStopPointSelector
 
 t:airStopPoints
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/air-stop-point" ;
+  api:uriTemplate "/doc/air-stop-point" ;
   api:selector t:airStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:airStopPointsInArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/air-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:uriTemplate "/doc/air-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
   api:selector [
     api:parent t:airStopPointSelector ;
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
@@ -607,13 +636,13 @@ t:ferryStopPointSelector
 
 t:ferryStopPoints
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/ferry-stop-point" ;
+  api:uriTemplate "/doc/ferry-stop-point" ;
   api:selector t:ferryStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:ferryStopPointsInArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/ferry-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:uriTemplate "/doc/ferry-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
   api:selector [
     api:parent t:ferryStopPointSelector ;
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
@@ -626,13 +655,13 @@ t:railStopPointSelector
 
 t:railStopPoints
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/rail-stop-point" ;
+  api:uriTemplate "/doc/rail-stop-point" ;
   api:selector t:railStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:railStopPointsInArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/rail-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:uriTemplate "/doc/rail-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
   api:selector [
     api:parent t:railStopPointSelector ;
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
@@ -645,13 +674,13 @@ t:metroStopPointSelector
 
 t:metroStopPoints
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/metro-stop-point" ;
+  api:uriTemplate "/doc/metro-stop-point" ;
   api:selector api:metroStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:metroStopPointsInArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/metro-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:uriTemplate "/doc/metro-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
   api:selector [
     api:parent t:metroStopPointSelector ;
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
@@ -664,13 +693,13 @@ t:coachStationStopPointSelector
 
 t:coachStationStopPoints
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/coach-station-stop-point" ;
+  api:uriTemplate "/doc/coach-station-stop-point" ;
   api:selector t:coachStationStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:coachStationStopPointsInArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/coach-station-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:uriTemplate "/doc/coach-station-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
   api:selector [
     api:parent t:coachStationStopPointSelector ;
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
@@ -683,13 +712,13 @@ t:coachStopPointSelector
 
 t:coachStopPoints
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/coach-stop-point" ;
+  api:uriTemplate "/doc/coach-stop-point" ;
   api:selector t:coachStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:coachStopPointsInArea
   a api:ListEndpoint ;
-  api:uriTemplate "/transport/doc/coach-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:uriTemplate "/doc/coach-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
   api:selector [
     api:parent t:coachStopPointSelector ;
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
@@ -702,7 +731,7 @@ t:coachStopSelector
 
 t:coachStops
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/coach-stop" ;
+	api:uriTemplate "/doc/coach-stop" ;
 	api:selector t:coachStopSelector ;
 	api:defaultViewer t:coachStopListViewer .
 
@@ -713,7 +742,7 @@ t:coachStopListViewer
 
 t:coachStop
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/coach-stop/{code}" ;
+  api:uriTemplate "/doc/coach-stop/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/coach-stop/{code}" ;
 	api:defaultViewer t:coachStopItemViewer .
 
@@ -728,7 +757,7 @@ t:stationSelector
 
 t:stations
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/station" ;
+	api:uriTemplate "/doc/station" ;
 	api:selector t:stationSelector ;
 	api:defaultViewer t:stationListViewer .
 
@@ -739,7 +768,7 @@ t:stationListViewer
 
 t:station
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/station/{code}" ;
+  api:uriTemplate "/doc/station/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/station/{code}" ;
 	api:defaultViewer t:stationItemViewer .
 
@@ -754,7 +783,7 @@ t:airportSelector
 
 t:airports
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/airport" ;
+	api:uriTemplate "/doc/airport" ;
 	api:selector t:airportSelector ;
 	api:defaultViewer t:airportListViewer .
 
@@ -765,7 +794,7 @@ t:airportListViewer
 
 t:airport
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/airport/{code}" ;
+  api:uriTemplate "/doc/airport/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/airport/{code}" ;
 	api:defaultViewer t:airportItemViewer .
 
@@ -780,7 +809,7 @@ t:ferryTerminalSelector
 
 t:ferryTerminals
 	a api:ListEndpoint ;
-	api:uriTemplate "/transport/doc/ferry-terminal" ;
+	api:uriTemplate "/doc/ferry-terminal" ;
 	api:selector t:ferryTerminalSelector ;
 	api:defaultViewer t:ferryTerminalListViewer .
 
@@ -791,7 +820,7 @@ t:ferryTerminalListViewer
 
 t:ferryTerminal
   a api:ItemEndpoint ;
-  api:uriTemplate "/transport/doc/ferry-terminal/{code}" ;
+  api:uriTemplate "/doc/ferry-terminal/{code}" ;
   api:itemTemplate "http://transport.data.gov.uk/id/ferry-terminal/{code}" ;
 	api:defaultViewer t:ferryTerminalItemViewer .
 
@@ -814,6 +843,11 @@ skos:prefLabel api:label "name" .
 skos:altLabel api:label "alias" .
 skos:note api:label "note" .
 skos:notation api:label "notation" .
+skos:scopeNote api:label "scopeNote" .
+skos:topConceptOf api:label "topConceptOf" .
+skos:hasTopConcept api:label "topConcept" .
+skos:broader api:label "broader" .
+skos:narrower api:label "narrower" ; api:multiValued true .
 
 dgu:uriSet api:label "uriSet" .
 
@@ -852,15 +886,33 @@ admingeo:StandardCode a rdfs:Datatype .
 
 traffic:lacode
   a owl:DatatypeProperty ;
-  api:label "dftLAcode" ;
+  api:label "dftLACode" ;
   rdfs:range traffic:LAcode .
 
+traffic:Road api:label "Road" .
 traffic:CountPoint api:label "CountPoint" .
 
 traffic:countPointNumber 
   a owl:DatatypeProperty ;
   api:label "countPointNumber" ;
   rdfs:range traffic:CountPointNumber .
+
+traffic:countPointRoadCategory 
+  api:label "category" ; 
+  api:multiValued true ;
+  .
+traffic:countPointRegion 
+  api:label "roadRegion" ;
+  api:multiValued true ;
+  .
+traffic:countPointCountry 
+  api:label "roadCountry" ;
+  api:multiValued true ;
+  .
+traffic:countPointDistrict 
+  api:label "roadDistrict" ;
+  api:multiValued true ;
+  .
 
 traffic:road api:label "road" .
 traffic:roadName api:label "roadName" .
@@ -872,12 +924,6 @@ traffic:roadNumber
 traffic:roadCategory 
   api:label "roadCategory" ;
   api:multiValued true .
-
-<http://transport.data.gov.uk/def/road-category/motorway> api:label "motorway" .
-<http://transport.data.gov.uk/def/road-category/a> api:label "A" .
-<http://transport.data.gov.uk/def/road-category/b> api:label "B" .
-<http://transport.data.gov.uk/def/road-category/c> api:label "C" .
-<http://transport.data.gov.uk/def/road-category/unclassified> api:label "unclassified" .
 
 traffic:LAcode a rdfs:Datatype .
 traffic:CountPointNumber a rdfs:Datatype .
@@ -892,7 +938,7 @@ naptan:NptgDistrict api:label "NptgDistrict" .
 naptan:NptgLocality api:label "NptgLocality" .
 
 naptan:country api:label "country" .
-naptan:region api:label "region" .
+naptan:region api:label "transport region" .
 naptan:administrativeArea api:label "administrativeArea" .
 naptan:nptgDistrict api:label "nptgDistrict" .
 naptan:nptgLocality api:label "nptgLocality" .

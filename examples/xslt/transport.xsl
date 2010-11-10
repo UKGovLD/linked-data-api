@@ -3,10 +3,10 @@
 
 <xsl:import href="result.xsl" />
 
+<!--
 <xsl:template match="@href" mode="uri">
-  <xsl:variable name="domain" select="substring-before(substring-after(., 'http://'), '/')" />
   <xsl:choose>
-    <xsl:when test="contains($domain, '.data.gov.uk')">
+    <xsl:when test="starts-with(., 'transport.data.gov.uk')">
     	<xsl:variable name="sector" select="substring-before($domain, '.data.gov.uk')" />
     	<xsl:variable name="path" select="substring-after(substring-after(., 'http://'), '/')" />
     	<xsl:choose>
@@ -23,5 +23,6 @@
   	</xsl:otherwise>
   </xsl:choose>
 </xsl:template>
+-->
 
 </xsl:stylesheet>
