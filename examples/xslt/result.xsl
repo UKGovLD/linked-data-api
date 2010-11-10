@@ -57,7 +57,7 @@
 </xsl:template>
 
 <xsl:template match="format/item" mode="metalink">
-	<link rel="alternate" href="{@href}" type="format/label" />
+	<link rel="alternate" href="{@href}" type="{format/label}" />
 </xsl:template>
 
 <xsl:template match="result" mode="style">
@@ -169,10 +169,7 @@
 </xsl:template>
 
 <xsl:template match="result" mode="showMap">
-	<xsl:param name="items" select="items/item | primaryTopic[not(../items)]" />
-	<xsl:variable name="showMap">
-		<xsl:apply-templates select="$items[1]" mode="showMap" />
-	</xsl:variable>
+	<xsl:param name="items" select="items//*[*] | primaryTopic[not(../items)]/descendant-or-self::*[*]" />
 	<xsl:choose>
 		<xsl:when test="not($items)">
 			<xsl:variable name="minEasting">
@@ -183,22 +180,36 @@
 			</xsl:variable>
 			<xsl:value-of select="$minEasting != ''" />
 		</xsl:when>
-		<xsl:when test="$showMap = 'true'">true</xsl:when>
 		<xsl:otherwise>
-			<xsl:apply-templates select="." mode="showMap">
+			<xsl:apply-templates select="." mode="showMapForItems">
+				<xsl:with-param name="items" select="$items" />
+			</xsl:apply-templates>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="result" mode="showMapForItems">
+	<xsl:param name="items" />
+	<xsl:variable name="showMap">
+		<xsl:apply-templates select="$items[1]" mode="showMap" />
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="$showMap = 'true'">true</xsl:when>
+		<xsl:when test="not($items)">false</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="showMapForItems">
 				<xsl:with-param name="items" select="$items[position() > 1]" />
 			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="items/item | primaryTopic" mode="showMap">
+<xsl:template match="*" mode="showMap">
 	<xsl:choose>
 		<xsl:when test="easting and northing">true</xsl:when>
 		<xsl:otherwise>false</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
-
 
 <xsl:template match="result" mode="header">
 	<nav class="site" />
@@ -292,15 +303,17 @@
 	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="$showMap = 'true'">
+			<xsl:variable name="markers" select="items//*[easting and northing] | primaryTopic[not(../items)]/descendant-or-self::*[easting and northing]" />
+			<xsl:variable name="multipleMarkers" select="count($markers) > 1" />
 			<xsl:variable name="minEasting">
 				<xsl:choose>
-					<xsl:when test="items/item/easting">
+					<xsl:when test="$multipleMarkers">
 						<xsl:call-template name="min">
-							<xsl:with-param name="values" select="items/item/easting" />
+							<xsl:with-param name="values" select="$markers/easting" />
 						</xsl:call-template>
 					</xsl:when>
-					<xsl:when test="primaryTopic/easting">
-						<xsl:value-of select="primaryTopic/easting" />
+					<xsl:when test="$markers">
+						<xsl:value-of select="$markers/easting" />
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:call-template name="paramValue">
@@ -312,13 +325,13 @@
 			</xsl:variable>
 			<xsl:variable name="maxEasting">
 				<xsl:choose>
-					<xsl:when test="items/item/easting">
+					<xsl:when test="$multipleMarkers">
 						<xsl:call-template name="max">
-							<xsl:with-param name="values" select="items/item/easting" />
+							<xsl:with-param name="values" select="$markers/easting" />
 						</xsl:call-template>
 					</xsl:when>
-					<xsl:when test="primaryTopic/easting">
-						<xsl:value-of select="primaryTopic/easting" />
+					<xsl:when test="$markers">
+						<xsl:value-of select="$markers/easting" />
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:call-template name="paramValue">
@@ -330,13 +343,13 @@
 			</xsl:variable>
 			<xsl:variable name="minNorthing">
 				<xsl:choose>
-					<xsl:when test="items/item/easting">
+					<xsl:when test="$multipleMarkers">
 						<xsl:call-template name="min">
-							<xsl:with-param name="values" select="items/item/northing" />
+							<xsl:with-param name="values" select="$markers/northing" />
 						</xsl:call-template>
 					</xsl:when>
-					<xsl:when test="primaryTopic/northing">
-						<xsl:value-of select="primaryTopic/northing" />
+					<xsl:when test="$markers">
+						<xsl:value-of select="$markers/northing" />
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:call-template name="paramValue">
@@ -348,13 +361,13 @@
 			</xsl:variable>
 			<xsl:variable name="maxNorthing">
 				<xsl:choose>
-					<xsl:when test="items/item/easting">
+					<xsl:when test="$multipleMarkers">
 						<xsl:call-template name="max">
-							<xsl:with-param name="values" select="items/item/northing" />
+							<xsl:with-param name="values" select="$markers/northing" />
 						</xsl:call-template>
 					</xsl:when>
-					<xsl:when test="primaryTopic/northing">
-						<xsl:value-of select="primaryTopic/northing" />
+					<xsl:when test="$markers">
+						<xsl:value-of select="$markers/northing" />
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:call-template name="paramValue">
@@ -394,14 +407,14 @@
 						summaryMap.addControl(new OpenSpace.Control.SmallMapControl());
 						var info;
 						<xsl:choose>
-							<xsl:when test="items">
+							<xsl:when test="$multipleMarkers">
 					      var bounds = new OpenLayers.Bounds(<xsl:value-of select="$minEasting"/>, <xsl:value-of select="$minNorthing"/>, <xsl:value-of select="$maxEasting"/>, <xsl:value-of select="$maxNorthing"/>);
 								var zoom = Math.min(7, summaryMap.getZoomForExtent(bounds));
 								var center = new OpenSpace.MapPoint(<xsl:value-of select="$minEasting + floor(($maxEasting - $minEasting) div 2)" />, <xsl:value-of select="$minNorthing + floor(($maxNorthing - $minNorthing) div 2)" />);
 								summaryMap.setCenter(center, zoom);
 							</xsl:when>
-							<xsl:when test="primaryTopic/easting">
-								var center = new OpenSpace.MapPoint(<xsl:value-of select="primaryTopic/easting" />, <xsl:value-of select="primaryTopic/northing" />);
+							<xsl:when test="$markers">
+								var center = new OpenSpace.MapPoint(<xsl:value-of select="$markers/easting" />, <xsl:value-of select="$markers/northing" />);
 								summaryMap.setCenter(center, 7);
 							</xsl:when>
 							<xsl:otherwise>
@@ -416,7 +429,7 @@
 						var icon = new OpenLayers.Icon('/images/orange/16x16/Target.png', size, offset);
 			      var pos;
 			      var marker;
-			      <xsl:for-each select="items/item[easting and northing] | primaryTopic[easting and northing]">
+			      <xsl:for-each select="$markers">
 			      	<xsl:sort select="northing" order="descending" data-type="number" />
 			      	<xsl:sort select="easting" order="descending" data-type="number" />
 				      pos = new OpenSpace.MapPoint(<xsl:value-of select="easting" />, <xsl:value-of select="northing"/>);
@@ -430,15 +443,15 @@
 				      </xsl:if>
 				      markers.addMarker(marker);
 			      </xsl:for-each>
-						<xsl:if test="items">
+						<xsl:if test="$multipleMarkers">
 							info = new OpenSpace.Layer.ScreenOverlay("info");
 							info.setPosition(new OpenLayers.Pixel(85, 0));
 							summaryMap.addLayer(info);
 							info.setHTML('&lt;div class=\"mapInfo\">Mouse over a marker&lt;/div>');
 						</xsl:if>
-						<xsl:for-each select="items/item[easting and northing] | primaryTopic[not(../items) and easting and northing]">
+						<xsl:for-each select="$markers">
 							var controls = [new OpenLayers.Control.ArgParser()];
-							osMap = new OpenSpace.Map('<xsl:value-of select="concat('map', position())"/>', {controls: controls});
+							osMap = new OpenSpace.Map('<xsl:value-of select="concat('map', generate-id(.))"/>', {controls: controls});
 							var center = new OpenSpace.MapPoint(<xsl:value-of select="easting" />, <xsl:value-of select="northing" />);
 					    osMap.setCenter(center, 9);
 					    var markers = new OpenLayers.Layer.Markers("Markers");
@@ -1461,8 +1474,8 @@
 	</li>
 </xsl:template>
 
-<xsl:template match="item | primaryTopic" mode="map">
-	<xsl:variable name="id" select="concat('map', count(preceding-sibling::item) + 1)" />
+<xsl:template match="*" mode="map">
+	<xsl:variable name="id" select="concat('map', generate-id(.))" />
 	<div class="mapWrapper">
 		<div id="{$id}" class="itemMap">
 		</div>
@@ -1590,7 +1603,7 @@
 			</xsl:if>
 			<th class="label"><xsl:apply-templates select="." mode="label" /></th>
 			<xsl:choose>
-				<xsl:when test="self::easting and $showMap">
+				<xsl:when test="self::easting and $showMap = 'true'">
 					<td class="value">
 						<xsl:apply-templates select="." mode="display" />
 					</td>
@@ -2889,6 +2902,22 @@
 		</xsl:for-each>
 	</xsl:variable>
 	<xsl:value-of select="string-length($dots)" />
+</xsl:template>
+
+<xsl:template name="escapeUri">
+	<xsl:param name="uri" />
+	<xsl:choose>
+		<xsl:when test="contains($uri, '+')">
+			<xsl:value-of select="substring-before($uri, '+')"/>
+			<xsl:text>%2B</xsl:text>
+			<xsl:call-template name="escapeUri">
+				<xsl:with-param name="uri" select="substring-after($uri, '+')" />
+			</xsl:call-template>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="$uri" />
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>
