@@ -18,7 +18,7 @@
 <xsl:key name="properties" match="/result/items/item/*/*/*/*/*/*/*/*/*/* | /result[not(items)]/primaryTopic/*/*/*/*/*/*/*/*/*/*" 
 	use="concat(name(../../../../../../../../..), '.', name(../../../../../../../..), '.', name(../../../../../../..), '.', name(../../../../../..), '.', name(../../../../..), '.', name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
 
-<xsl:key name="items" match="*[@href]" use="@href" />
+<xsl:key name="items" match="*[not(parent::result or self::item/parent::*[not(self::items)]/parent::result) and @href]" use="@href" />
 
 <xsl:template match="/">
 	<xsl:apply-templates select="result" />
@@ -848,6 +848,10 @@
 				<xsl:sort select="self::label" order="descending" />
 				<xsl:sort select="self::alias" order="descending" />
 				<xsl:sort select="self::altLabel" order="descending" />
+				<xsl:sort select="boolean(self::easting)" order="descending" />
+				<xsl:sort select="boolean(self::northing)" order="descending" />
+				<xsl:sort select="boolean(self::lat)" order="descending" />
+				<xsl:sort select="boolean(self::long)" order="descending" />
 				<xsl:sort select="boolean(@datatype)" order="descending" />
 				<xsl:sort select="@datatype" />
 				<xsl:sort select="boolean(@href)" />
@@ -936,6 +940,10 @@
 		<xsl:when test="$hasNonLabelProperties = 'true'">
 			<xsl:for-each select="key('properties', $propertyName)/*[name() != 'item' and generate-id(key('properties', concat($propertyName, '.', name(.)))[1]) = generate-id(.)] |
 				key('properties', concat($propertyName, '.item'))/*[generate-id(key('properties', concat($propertyName, '.item.', name(.)))[1]) = generate-id(.)]">
+				<xsl:sort select="boolean(self::easting)" order="descending" />
+				<xsl:sort select="boolean(self::northing)" order="descending" />
+				<xsl:sort select="boolean(self::lat)" order="descending" />
+				<xsl:sort select="boolean(self::long)" order="descending" />
 				<xsl:sort select="boolean(@datatype)" order="descending" />
 				<xsl:sort select="@datatype" />
 				<xsl:sort select="boolean(@href)" />
@@ -1094,6 +1102,10 @@
 				<xsl:sort select="self::label" order="descending" />
 				<xsl:sort select="self::alias" order="descending" />
 				<xsl:sort select="self::altLabel" order="descending" />
+				<xsl:sort select="boolean(self::easting)" order="descending" />
+				<xsl:sort select="boolean(self::northing)" order="descending" />
+				<xsl:sort select="boolean(self::lat)" order="descending" />
+				<xsl:sort select="boolean(self::long)" order="descending" />
 				<xsl:sort select="boolean(@datatype)" order="descending" />
 				<xsl:sort select="@datatype" />
 				<xsl:sort select="boolean(@href)" />
@@ -1219,6 +1231,10 @@
 		<xsl:when test="$hasNonLabelProperties = 'true'">
 			<xsl:for-each select="key('properties', $propertyName)/*[name() != 'item' and generate-id(key('properties', concat($propertyName, '.', name(.)))[1]) = generate-id(.)] |
 				key('properties', concat($propertyName, '.item'))/*[generate-id(key('properties', concat($propertyName, '.item.', name(.)))[1]) = generate-id(.)]">
+				<xsl:sort select="boolean(self::easting)" order="descending" />
+				<xsl:sort select="boolean(self::northing)" order="descending" />
+				<xsl:sort select="boolean(self::lat)" order="descending" />
+				<xsl:sort select="boolean(self::long)" order="descending" />
 				<xsl:sort select="boolean(@datatype)" order="descending" />
 				<xsl:sort select="@datatype" />
 				<xsl:sort select="boolean(@href)" />
@@ -1490,7 +1506,9 @@
 			</xsl:if>
 			<col width="54" />
 		</colgroup>
-		<xsl:apply-templates mode="row">
+		<!-- This for-each is a hack around what seems to be a bug in older versions
+			of libxslt, which ignores ordering in an xsl:apply-templates -->
+		<xsl:for-each select="*">
 			<xsl:sort select="boolean(self::easting)" order="descending" />
 			<xsl:sort select="boolean(self::northing)" order="descending" />
 			<xsl:sort select="boolean(self::lat)" order="descending" />
@@ -1505,10 +1523,12 @@
 			<xsl:sort select="@datatype" />
 			<xsl:sort select="boolean(@href)" />
 			<xsl:sort select="local-name()" />
-			<xsl:with-param name="showMap" select="$showMap" />
-			<xsl:with-param name="properties" select="$properties" />
-			<xsl:with-param name="bestLabelParam" select="$bestLabelParam" />
-		</xsl:apply-templates>
+			<xsl:apply-templates select="." mode="row">
+				<xsl:with-param name="showMap" select="$showMap" />
+				<xsl:with-param name="properties" select="$properties" />
+				<xsl:with-param name="bestLabelParam" select="$bestLabelParam" />
+			</xsl:apply-templates>
+		</xsl:for-each>
 	</table>
 </xsl:template>
 	
@@ -1908,27 +1928,37 @@
 	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="$anyItemHasNonLabelProperties = 'true' and $anyItemIsHighestDescription = 'true'">
-			<xsl:apply-templates select="item" mode="content">
+			<xsl:for-each select="item">
 				<xsl:sort select="prefLabel" />
 				<xsl:sort select="name" />
 				<xsl:sort select="title" />
 				<xsl:sort select="label" />
 				<xsl:sort select="altLabel" />
 				<xsl:sort select="alias" />
+				<xsl:sort select="boolean(self::easting)" order="descending" />
+				<xsl:sort select="boolean(self::northing)" order="descending" />
+				<xsl:sort select="boolean(self::lat)" order="descending" />
+				<xsl:sort select="boolean(self::long)" order="descending" />
 				<xsl:sort select="@href" />
-			</xsl:apply-templates>
+				<xsl:apply-templates select="." mode="content" />
+			</xsl:for-each>
 		</xsl:when>
 		<xsl:otherwise>
 			<table>
-				<xsl:apply-templates select="item" mode="row">
+				<xsl:for-each select="item">
 					<xsl:sort select="prefLabel" />
 					<xsl:sort select="name" />
 					<xsl:sort select="title" />
 					<xsl:sort select="label" />
 					<xsl:sort select="altLabel" />
 					<xsl:sort select="alias" />
+					<xsl:sort select="boolean(self::easting)" order="descending" />
+					<xsl:sort select="boolean(self::northing)" order="descending" />
+					<xsl:sort select="boolean(self::lat)" order="descending" />
+					<xsl:sort select="boolean(self::long)" order="descending" />
 					<xsl:sort select="@href" />
-				</xsl:apply-templates>
+					<xsl:apply-templates select="." mode="row" />
+				</xsl:for-each>
 			</table>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -2245,11 +2275,6 @@
 				<h1>
 					<button type="submit">Search</button>
 				</h1>
-				<!--
-				<button type="submit">
-					<img src="/images/orange/16x16/Search.png" alt="search" />
-				</button>
-				-->
 				<xsl:call-template name="hiddenInputs">
 					<xsl:with-param name="params" select="substring-after($searchURI, '?')" />
 				</xsl:call-template>
@@ -2261,6 +2286,10 @@
 						<xsl:sort select="self::label" order="descending" />
 						<xsl:sort select="self::alias" order="descending" />
 						<xsl:sort select="self::altLabel" order="descending" />
+						<xsl:sort select="boolean(self::easting)" order="descending" />
+						<xsl:sort select="boolean(self::northing)" order="descending" />
+						<xsl:sort select="boolean(self::lat)" order="descending" />
+						<xsl:sort select="boolean(self::long)" order="descending" />
 						<xsl:sort select="boolean(@datatype)" order="descending" />
 						<xsl:sort select="@datatype" />
 						<xsl:sort select="boolean(@href)" />
@@ -2328,6 +2357,10 @@
 							<xsl:for-each 
 								select="key('properties', $propertyName)/*[name() != 'item' and generate-id(key('properties', concat($propertyName, '.', name(.)))[1]) = generate-id(.)] | 
 								key('properties', concat($propertyName, '.item'))/*[generate-id(key('properties', concat($propertyName, '.item.', name(.)))[1]) = generate-id(.)]">
+								<xsl:sort select="boolean(self::easting)" order="descending" />
+								<xsl:sort select="boolean(self::northing)" order="descending" />
+								<xsl:sort select="boolean(self::lat)" order="descending" />
+								<xsl:sort select="boolean(self::long)" order="descending" />
 								<xsl:sort select="boolean(@datatype)" order="descending" />
 								<xsl:sort select="@datatype" />
 								<xsl:sort select="boolean(@href)" />
