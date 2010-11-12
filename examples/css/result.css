@@ -19,6 +19,16 @@ nav.site {
 	padding-top: 54px;
 }
 
+header h1 {
+	background: url("/images/molecule.png") no-repeat scroll 0 0 transparent;
+	color: #555555;
+	font-size: 3em;
+	font-weight: normal;
+	font-family: Gill Sans, Arial, sans-serif;
+	margin-left: 42px;
+	padding: 0.5em 66px 1em;
+}
+
 nav.topnav {
 	float: right;
 	clear: right;
@@ -140,6 +150,10 @@ nav.topnav section li {
 	padding-left: 15px;
 	padding-right: 5px;
 	white-space: nowrap;
+}
+
+nav.topnav section.formats li {
+	background: none;
 }
 
 nav.topnav section.summary li {
@@ -430,6 +444,11 @@ a:hover.outlink, .panel section .nested caption a:hover.outlink {
 a:link , a:visited , a:active , a:hover {
 	color: #1F328C;
 	text-decoration: none;
+}
+
+h1 a.id {
+	color: #CCCCCC;
+	font-size: 0.5em;
 }
 
 .boxplot {

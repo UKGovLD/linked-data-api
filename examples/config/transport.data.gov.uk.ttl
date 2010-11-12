@@ -4,14 +4,17 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix api: <http://purl.org/linked-data/api/vocab#> .
 
+@prefix time: <http://www.w3.org/2006/time#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix spatialrelations: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
+@prefix scovo: <http://purl.org/NET/scovo#> .
 
 @prefix dgu: <http://reference.data.gov.uk/def/reference/> .
 @prefix admingeo: <http://statistics.data.gov.uk/def/administrative-geography/> .
 @prefix naptan: <http://transport.data.gov.uk/def/naptan/> .
 @prefix traffic: <http://transport.data.gov.uk/def/traffic/> .
+@prefix vehicle: <http://transport.data.gov.uk/def/vehicle/> .
 
 @prefix t: <http://transport.data.gov.uk/api#> .
 
@@ -37,6 +40,11 @@ t:api
 	  t:trafficCountPointsInLAD ,
 	  t:roads, t:road ,
 	  t:trafficCountPointsOnRoad ,
+	  t:trafficCounts , t:trafficCount ,
+	  t:trafficCountsAtCountPoint ,
+	  t:observations , t:observation ,
+	  t:observationsDuringCount ,
+	  t:observationsAtCountPoint ,
 	  t:motorways ,
 #	  t:roadsByCategory ,
 	  t:aRoads , t:bRoads , t:cRoads , t:unclassifiedRoads ,
@@ -198,7 +206,7 @@ t:road
 t:roadItemViewer
   a api:Viewer ;
   api:name "road" ;
-  api:properties "roadNumber" .
+  api:properties "roadNumber,roadCountry.label,roadRegion.label,roadDistrict.label,roadDistrict.snac,category.name" .
 
 t:trafficCountPointsOnRoad
   a api:ListEndpoint ;
@@ -206,8 +214,15 @@ t:trafficCountPointsOnRoad
   api:selector [
     api:parent t:trafficCountPointSelector ;
     api:filter "road.roadNumber={number}" ;
+    api:sort "easting,-northing" ;
   ] ;
-  api:defaultViewer t:trafficCountPointListViewer .
+  api:defaultViewer t:countPointOnRoadViewer .
+
+t:countPointOnRoadViewer
+  a api:Viewer ;
+  api:name "count points" ;
+  api:properties "lat,long,easting,northing,roadCategory.name,roadName,localAuthority.label,district.snac,road.roadNumber" ;
+  .
 
 t:roadsByCategory
   a api:ListEndpoint ;
@@ -293,8 +308,8 @@ t:trafficCountPoints
 
 t:trafficCountPointListViewer
   a api:Viewer ;
-  api:name "count-point-list" ;
-  api:properties "countPointNumber,lat,long,easting,northing" .
+  api:name "count point list" ;
+  api:properties "lat,long,easting,northing,road.roadNumber,roadName" .
 
 t:trafficCountPoint
   a api:ItemEndpoint ;
@@ -305,7 +320,124 @@ t:trafficCountPoint
 t:trafficCountPointItemViewer
   a api:Viewer ;
   api:name "count-point" ;
-  api:properties "countPointNumber,lat,long,easting,northing,comment,road.roadNumber,roadName,roadCategory.name,localAuthority.label,district.label" .
+  api:properties "countPointNumber,lat,long,easting,northing,comment,road.roadNumber,roadName,roadCategory.name,localAuthority.label,district.label,district.snac" .
+
+# Traffic Counts
+
+t:trafficCounts
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/traffic-count" ;
+  api:selector t:trafficCountSelector ;
+  api:defaultViewer t:trafficCountsViewer ;
+  .
+
+t:trafficCountSelector
+  a api:Selector ;
+  api:filter "type=Count" ;
+  .
+
+t:trafficCountsViewer
+  a api:Viewer ;
+  api:properties "countPoint.lat,countPoint.long,countPoint.easting,countPoint.northing,countPoint.road.roadNumber,countPoint.roadName,direction.label,hour.label,observation.vehicleType.name" ;
+  .
+
+t:trafficCount
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}" ;
+  api:defaultViewer t:trafficCountViewer ;
+  .
+
+t:trafficCountViewer
+  a api:Viewer ;
+  api:name "traffic count" ;
+  api:properties "countPoint.lat,countPoint.long,countPoint.easting,countPoint.northing,countPoint.road.roadNumber,countPoint.roadName,direction.label,hour.label,hour.beginning.asDateTime,observation.vehicleType.name,observation.value" ;
+  .
+
+t:trafficCountsAtCountPoint
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/count" ;
+  api:variable [
+    api:name "countPointResource" ;
+    api:value "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item traffic:countPoint ?countPointResource . "
+  ] ;
+  api:defaultViewer t:trafficCountsAtCountPointViewer ;
+  .
+
+t:trafficCountsAtCountPointViewer
+  a api:Viewer ;
+  api:properties "direction.label,hour.label" ;
+  .
+
+# Observations
+
+t:observations
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/observation" ;
+  api:selector t:observationSelector ;
+  api:defaultViewer t:observationsViewer ;
+  .
+
+t:observationSelector
+  a api:Selector ;
+  api:filter "type=Observation" ;
+  .
+
+t:observationsViewer
+  a api:Viewer ;
+  api:name "observation" ;
+  api:properties "value,count,vehicleType.name,observationCountPoint.lat,observationCountPoint.long,observationCountPoint.easting,observationCountPoint.northing,observationCountPoint.roadName,observationDirection.label,observationHour.label,observationHour.beginning.asDateTime,observationRoad.roadNumber" ;
+  .
+
+t:observation
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}/type/{type}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}/type/{type}" ;
+  api:defaultViewer t:observationViewer ;
+  .
+
+t:observationViewer
+  a api:Viewer ;
+  api:name "observation" ;
+  api:properties "value,count,vehicleType.name,observationCountPoint.lat,observationCountPoint.long,observationCountPoint.easting,observationCountPoint.northing,observationCountPoint.roadName,observationDirection.label,observationHour.label,observationHour.beginning.asDateTime,observationRoad.roadNumber" ;
+  .
+
+t:observationsAtCountPoint
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/observation" ;
+  api:variable [
+    api:name "countPointResource" ;
+    api:value "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item traffic:observationCountPoint ?countPointResource . "
+  ] ;
+  api:defaultViewer t:observationsAtCountPointViewer ;
+  .
+
+t:observationsAtCountPointViewer
+  a api:Viewer ;
+  api:properties "value,count,vehicleType.name,observationDirection.label,observationHour.label,observationHour.beginning.asDateTime" ;
+  .
+
+t:observationsDuringCount
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}/observation" ;
+  api:variable [
+    api:name "countResource" ;
+    api:value "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item traffic:count ?countResource . "
+  ] ;
+  api:defaultViewer t:observationsAtCountPointViewer ;
+  .
 
 ## NPTG ##
 
@@ -834,10 +966,22 @@ t:ferryTerminalItemViewer
 
 # Common #
 
+rdf:Property api:label "Property" .
+
 rdf:type api:label "type" .
+rdf:value api:label "value" .
+
+rdfs:Class api:label "Class" .
+
 rdfs:label api:label "label" .
 rdfs:comment api:label "comment" .
+rdfs:range api:label "range" .
+rdfs:domain api:label "domain" .
+
 owl:sameAs api:label "sameAs" .
+
+skos:Concept api:label "Concept" .
+skos:ConceptScheme api:label "ConceptScheme" .
 
 skos:prefLabel api:label "name" .
 skos:altLabel api:label "alias" .
@@ -848,6 +992,19 @@ skos:topConceptOf api:label "topConceptOf" .
 skos:hasTopConcept api:label "topConcept" .
 skos:broader api:label "broader" .
 skos:narrower api:label "narrower" ; api:multiValued true .
+
+scovo:Item api:label "Observation" .
+scovo:Dataset api:label "Dataset" .
+
+scovo:dataset api:label "dataset" .
+
+time:hasBeginning api:label "beginning" .
+time:hasEnd api:label "end" .
+time:inXSDDateTime
+  a owl:DatatypeProperty ;
+  api:label "asDateTime" ;
+  rdfs:range xsd:dateTime ;
+  .
 
 dgu:uriSet api:label "uriSet" .
 
@@ -882,6 +1039,11 @@ admingeo:LocalAuthorityDistrict api:label "LocalAuthorityDistrict" .
 
 admingeo:StandardCode a rdfs:Datatype .
 
+<http://dbpedia.org/resource/North> api:label "north" .
+<http://dbpedia.org/resource/South> api:label "south" .
+<http://dbpedia.org/resource/East> api:label "east" .
+<http://dbpedia.org/resource/West> api:label "west" .
+
 # Traffic Flow #
 
 traffic:lacode
@@ -891,6 +1053,17 @@ traffic:lacode
 
 traffic:Road api:label "Road" .
 traffic:CountPoint api:label "CountPoint" .
+traffic:Count api:label "Count" .
+
+traffic:count api:label "count" .
+traffic:countPoint api:label "countPoint" .
+traffic:direction api:label "direction" .
+traffic:countHour api:label "hour" .
+traffic:observation api:label "observation" .
+traffic:observationRoad api:label "observationRoad" .
+traffic:observationCountHour api:label "observationHour" .
+traffic:observationDirection api:label "observationDirection" .
+traffic:observationCountPoint api:label "observationCountPoint" .
 
 traffic:countPointNumber 
   a owl:DatatypeProperty ;
@@ -928,6 +1101,8 @@ traffic:roadCategory
 traffic:LAcode a rdfs:Datatype .
 traffic:CountPointNumber a rdfs:Datatype .
 traffic:RoadNumber a rdfs:Datatype .
+
+vehicle:vehicleType api:label "vehicleType" .
 
 # NPTG #
 
