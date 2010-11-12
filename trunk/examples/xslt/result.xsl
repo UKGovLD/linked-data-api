@@ -270,8 +270,10 @@
 		<div class="panel">
 			<xsl:choose>
 				<xsl:when test="items">
-					<h1>Search Results</h1>
-					<p id="openSearch">Show Search Form</p>
+					<header>
+						<p id="openSearch">Show Search Form</p>
+						<h1>Search Results</h1>
+					</header>
 					<xsl:apply-templates select="." mode="search" />
 					<xsl:apply-templates select="items" mode="content" />
 				</xsl:when>
@@ -1473,11 +1475,11 @@
 </xsl:template>
 
 <xsl:template match="/result/primaryTopic" mode="content" priority="10">
-	<h1>
-		<xsl:apply-templates select="." mode="name" /><br />
-		<a class="id" href="{@href}"><xsl:value-of select="@href" /></a>
-	</h1>
-	<p id="openSearch">Show Search Form</p>
+	<header>
+		<p id="openSearch">Show Search Form</p>
+		<h1><xsl:apply-templates select="." mode="name" /></h1>
+		<p class="id"><a href="{@href}"><xsl:value-of select="@href" /></a></p>
+	</header>
 	<xsl:apply-templates select="/result" mode="search" />
 	<section>
 		<xsl:apply-templates select="." mode="header" />

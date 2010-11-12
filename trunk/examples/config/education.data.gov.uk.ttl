@@ -17,6 +17,7 @@
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
 ############################################################################################
 #
@@ -89,6 +90,7 @@ spec:api
     api:describeViewer ,
 	  api:labelledDescribeViewer ;
 	api:endpoint 
+	  spec:scheme , spec:definition ,
 	  spec:school ,
 	  spec:schools , 
 	  spec:schoolsPrimary , 
@@ -107,6 +109,32 @@ spec:api
 	.
     
 #ENDPOINTS
+
+## Definitions ##
+
+spec:scheme
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}" ;
+  api:itemTemplate "http://education.data.gov.uk/def/{scheme}" ;
+  api:defaultViewer spec:schemeViewer ;
+  .
+
+spec:schemeViewer
+  a api:Viewer ;
+  api:properties "prefLabel,altLabel,label,note,scopeNote,topConcept.prefLabel,comment" ;
+  .
+
+spec:definition
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}/{item}" ;
+  api:itemTemplate "http://education.data.gov.uk/def/{scheme}/{item}" ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:definitionViewer
+  a api:Viewer ;
+  api:properties "type.label,prefLabel,altLabel,label,note,scopeNote,topConceptOf,broader.prefLabel,narrower.prefLabel,comment,range.label,domain.label" ;
+  .
 
 #Describe a school
 spec:school
@@ -347,10 +375,34 @@ spec:schoolCensuses
 # VOCABULARY
 #
 ############################################################################################
-
-rdf:type
-  api:label "type" .
   
+rdf:Property api:label "Property" .
+
+rdf:type api:label "type" .
+rdf:value api:label "value" .
+
+rdfs:Class api:label "Class" .
+
+rdfs:label api:label "label" .
+rdfs:comment api:label "comment" .
+rdfs:range api:label "range" .
+rdfs:domain api:label "domain" .
+
+owl:sameAs api:label "sameAs" .
+
+skos:Concept api:label "Concept" .
+skos:ConceptScheme api:label "ConceptScheme" .
+
+skos:prefLabel api:label "prefLabel" .
+skos:altLabel api:label "altLabel" .
+skos:note api:label "note" .
+skos:notation api:label "notation" .
+skos:scopeNote api:label "scopeNote" .
+skos:topConceptOf api:label "topConceptOf" .
+skos:hasTopConcept api:label "topConcept" .
+skos:broader api:label "broader" .
+skos:narrower api:label "narrower" ; api:multiValued true .
+
 geo:lat
   a owl:DatatypeProperty ;
   api:label "lat" ;
