@@ -48,6 +48,7 @@
 </xsl:template>
 
 <xsl:template match="result" mode="meta">
+	<link rel="shortcut icon" href="http://data.gov.uk/sites/default/files/datagovuk_favicon.png" type="image/x-icon" /> 
 	<xsl:apply-templates select="first | prev | next | last" mode="metalink" />
 	<xsl:apply-templates select="format/item" mode="metalink" />
 </xsl:template>
@@ -217,31 +218,35 @@
 
 <xsl:template match="result" mode="footer">
 	<footer>
-		<xsl:apply-templates select="." mode="formats" />
 		<p>
+			<xsl:text>Powered by a </xsl:text><a href="http://code.google.com/p/linked-data-api">Linked Data API</a><br />
 			<a href="http://www.axialis.com/free/icons">Icons</a> by <a href="http://www.axialis.com">Axialis Team</a>
 		</p>
 	</footer>
 </xsl:template>
 
 <xsl:template match="result" mode="formats">
-	<nav>
-		<section class="formats">
-			<ul>
-				<xsl:for-each select="format/item">
-					<li>
-						<xsl:if test="position() = 1">
-							<xsl:attribute name="class">first</xsl:attribute>
-						</xsl:if>
-						<xsl:if test="position() = last()">
-							<xsl:attribute name="class">last</xsl:attribute>
-						</xsl:if>
-						<xsl:apply-templates select="." mode="nav" />
-					</li>
-				</xsl:for-each>
-			</ul>
-		</section>
-	</nav>
+	<section class="formats">
+		<h1>Formats</h1>
+		<xsl:call-template name="createInfo">
+			<xsl:with-param name="text">
+				<xsl:text>This information is available in multiple formats for reuse in your application.</xsl:text>
+			</xsl:with-param>
+		</xsl:call-template>
+		<ul>
+			<xsl:for-each select="format/item">
+				<li>
+					<xsl:if test="position() = 1">
+						<xsl:attribute name="class">first</xsl:attribute>
+					</xsl:if>
+					<xsl:if test="position() = last()">
+						<xsl:attribute name="class">last</xsl:attribute>
+					</xsl:if>
+					<xsl:apply-templates select="." mode="nav" />
+				</li>
+			</xsl:for-each>
+		</ul>
+	</section>
 </xsl:template>
 
 <xsl:template match="result" mode="lastmod">
@@ -252,6 +257,9 @@
 
 <xsl:template match="result" mode="content" priority="10">
 	<xsl:apply-templates select="." mode="topnav" />
+	<header>
+		<h1>Linked Data API</h1>
+	</header>
 	<div id="result">
 		<div class="panel">
 			<xsl:choose>
@@ -272,18 +280,15 @@
 	<xsl:variable name="hasResults" select="items/item[@href]" />
 	<xsl:variable name="isItem" select="not(items) and primaryTopic" />
 	<nav class="topnav">
+		<xsl:apply-templates select="." mode="formats" />
+		<xsl:apply-templates select="." mode="moreinfo" />
 		<xsl:apply-templates select="." mode="map" />
-		<xsl:choose>
-			<xsl:when test="$hasResults">
-				<xsl:if test="not(next)">
-					<xsl:apply-templates select="." mode="graphs" />
-				</xsl:if>
-				<xsl:apply-templates select="." mode="summary" />
-			</xsl:when>
-			<xsl:when test="$isItem">
-				<xsl:apply-templates select="." mode="moreinfo" />
-			</xsl:when>
-		</xsl:choose>
+		<xsl:if test="$hasResults">
+			<xsl:if test="not(next)">
+				<xsl:apply-templates select="." mode="graphs" />
+			</xsl:if>
+			<xsl:apply-templates select="." mode="summary" />
+		</xsl:if>
 		<xsl:if test="not($isItem)">
 			<xsl:apply-templates select="." mode="filternav" />
 		</xsl:if>
@@ -388,9 +393,11 @@
 						<xsl:text> icon.</xsl:text>
 					</xsl:with-param>
 				</xsl:call-template>
-				<p class="search">
-					<img src="/images/orange/16x16/Search.png" alt="search" />
-				</p>
+				<xsl:if test="items/item[easting and northing] or primaryTopic[not(../items) and easting and northing]">
+					<p class="search">
+						<img src="/images/orange/16x16/Search.png" alt="search" />
+					</p>
+				</xsl:if>
 				<div class="mapWrapper">
 					<div id="map">
 					</div>
@@ -437,7 +444,7 @@
 				      <xsl:if test="/result/items">
 					      marker.events.on({
 					      	mouseover: function () {
-					      		info.setHTML('&lt;div class=\"mapInfo\">&lt;a href=\"#item<xsl:value-of select="count(preceding-sibling::item) + 1"/>\"><xsl:call-template name="jsEscape"><xsl:with-param name="string"><xsl:apply-templates select="." mode="name" /></xsl:with-param></xsl:call-template>&lt;/a>&lt;/div>');
+					      		info.setHTML('&lt;div class=\"mapInfo\">&lt;a href=\"#<xsl:value-of select="generate-id(.)"/>\"><xsl:call-template name="jsEscape"><xsl:with-param name="string"><xsl:apply-templates select="." mode="name" /></xsl:with-param></xsl:call-template>&lt;/a>&lt;/div>');
 					      	}
 					      });
 				      </xsl:if>
@@ -579,11 +586,44 @@
 					</td>
 				</tr>
 			</xsl:if>
+			<xsl:variable name="showSparkline">
+				<xsl:apply-templates select="." mode="showSparkline">
+					<xsl:with-param name="values" select="$properties" />
+					<xsl:with-param name="distinctValues" select="$distinctValues" />
+					<xsl:with-param name="sort">
+						<xsl:call-template name="paramValue">
+							<xsl:with-param name="uri" select="/result/@href" />
+							<xsl:with-param name="param" select="'_sort'" />
+						</xsl:call-template>
+					</xsl:with-param>
+				</xsl:apply-templates>
+			</xsl:variable>
+			<xsl:if test="$showSparkline = 'true'">
+				<xsl:variable name="valueArray">
+					<xsl:text>[</xsl:text>
+					<xsl:for-each select="$properties">
+						<xsl:value-of select="." />
+						<xsl:if test="position() != last()">,</xsl:if>
+					</xsl:for-each>
+					<xsl:text>]</xsl:text>
+				</xsl:variable>
+				<tr>
+					<th class="label">
+						<xsl:apply-templates select="." mode="contextLabel" />
+					</th>
+					<td class="linegraph" id="linegraph{generate-id(.)}">
+						<script type="text/javascript">
+						$('#linegraph<xsl:value-of select="generate-id(.)"/>').sparkline(<xsl:value-of select="$valueArray" />, { lineColor: '#DE5B06', fillColor: false, width: '100%' });
+					</script>
+					</td>
+				</tr>
+			</xsl:if>
 		</xsl:when>
 	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="easting | northing | lat | long" mode="showBarchart">false</xsl:template>
+<xsl:template match="easting | northing | lat | long" mode="showSparkline">false</xsl:template>
 
 <xsl:template match="*" mode="showBarchart">
 	<xsl:param name="values" />
@@ -593,6 +633,13 @@
 		</xsl:call-template>
 	</xsl:param>
 	<xsl:value-of select="$distinctValues > 5" />
+</xsl:template>
+
+<xsl:template match="*" mode="showSparkline">
+	<xsl:param name="values" />
+	<xsl:param name="distinctValues" />
+	<xsl:param name="sort" />
+	<xsl:value-of select="$distinctValues > 1 and $sort != ''" />
 </xsl:template>
 
 <xsl:template name="valueGroups">
@@ -634,7 +681,7 @@
 <xsl:template match="result" mode="summary">
 	<xsl:if test="count(items/item) > 1">
 		<section class="summary">
-			<h1>Quick Links</h1>
+			<h1>On This Page</h1>
 			<xsl:call-template name="createInfo">
 				<xsl:with-param name="text">Links to the items within this page, and to the previous and/or next pages of results.</xsl:with-param>
 			</xsl:call-template>
@@ -663,11 +710,11 @@
 
 <xsl:template match="result" mode="moreinfo">
 	<xsl:variable name="links">
-		<xsl:apply-templates select="primaryTopic" mode="moreinfo" />
+		<xsl:apply-templates select="primaryTopic | isPartOf" mode="moreinfo" />
 	</xsl:variable>
 	<xsl:if test="string($links) != ''">
 		<section class="moreinfo">
-			<h1>More Information</h1>
+			<h1>Browse</h1>
 			<xsl:call-template name="createInfo">
 				<xsl:with-param name="text">Links to further information.</xsl:with-param>
 			</xsl:call-template>
@@ -676,7 +723,7 @@
 	</xsl:if>
 </xsl:template>
 
-<xsl:template match="primaryTopic" mode="moreinfo" />
+<xsl:template match="primaryTopic | items" mode="moreinfo" />
 
 <xsl:template match="*" mode="name">
 	<xsl:variable name="bestLabelParam">
@@ -1420,7 +1467,8 @@
 
 <xsl:template match="/result/primaryTopic" mode="content" priority="10">
 	<h1>
-		<xsl:apply-templates select="." mode="name" />
+		<xsl:apply-templates select="." mode="name" /><br />
+		<a class="id" href="{@href}"><xsl:value-of select="@href" /></a>
 	</h1>
 	<section>
 		<xsl:apply-templates select="." mode="header" />
@@ -2477,7 +2525,8 @@
 					</xsl:attribute>
 				</xsl:if>
 			</input>
-			<xsl:text> </xsl:text>
+			<br />
+			<br />
 			<em>or</em>
 			<xsl:text> between: </xsl:text>
 			<input name="min-{$name}">
@@ -2488,7 +2537,8 @@
 					</xsl:attribute>
 				</xsl:if>
 			</input>
-			<xsl:text> and </xsl:text>
+			<br />
+			<xsl:text>and </xsl:text>
 			<input name="max-{$name}">
 				<xsl:apply-templates select="." mode="inputAtts" />
 				<xsl:if test="$max != ''">
@@ -2603,7 +2653,12 @@
 	<xsl:param name="uri" />
 	<xsl:param name="param" />
 	<xsl:param name="value" />
-	<xsl:variable name="paramNameValue" select="concat($param, '=', $value)" />
+	<xsl:variable name="escapedValue">
+		<xsl:call-template name="escapeValue">
+			<xsl:with-param name="value" select="$value" />
+		</xsl:call-template>
+	</xsl:variable>
+	<xsl:variable name="paramNameValue" select="concat($param, '=', $escapedValue)" />
 	<xsl:choose>
 		<xsl:when test="$value != '' and 
 			((contains($uri, $paramNameValue) and
@@ -2643,10 +2698,10 @@
 					<xsl:value-of select="$base" />
 				</xsl:when>
 				<xsl:when test="contains($base, '?')">
-					<xsl:value-of select="concat($base, '&amp;', $param, '=', $value)" />
+					<xsl:value-of select="concat($base, '&amp;', $param, '=', $escapedValue)" />
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="concat($base, '?', $param, '=', $value)" />
+					<xsl:value-of select="concat($base, '?', $param, '=', $escapedValue)" />
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:otherwise>
@@ -2666,22 +2721,6 @@
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:value-of select="$uri" />
-		</xsl:otherwise>
-	</xsl:choose>
-</xsl:template>
-
-<xsl:template name="unescapeValue">
-	<xsl:param name="value" />
-	<xsl:choose>
-		<xsl:when test="contains($value, '%20')">
-			<xsl:value-of select="substring-before($value, '%20')" />
-			<xsl:text> </xsl:text>
-			<xsl:call-template name="unescapeValue">
-				<xsl:with-param name="value" select="substring-after($value, '%20')" />
-			</xsl:call-template>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:value-of select="translate($value, '+', ' ')" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
@@ -2904,18 +2943,52 @@
 	<xsl:value-of select="string-length($dots)" />
 </xsl:template>
 
-<xsl:template name="escapeUri">
-	<xsl:param name="uri" />
+<xsl:template name="escapeValue">
+	<xsl:param name="value" />
 	<xsl:choose>
-		<xsl:when test="contains($uri, '+')">
-			<xsl:value-of select="substring-before($uri, '+')"/>
+		<xsl:when test="contains($value, '+')">
+			<xsl:value-of select="substring-before($value, '+')"/>
 			<xsl:text>%2B</xsl:text>
-			<xsl:call-template name="escapeUri">
-				<xsl:with-param name="uri" select="substring-after($uri, '+')" />
+			<xsl:call-template name="escapeValue">
+				<xsl:with-param name="value" select="substring-after($value, '+')" />
 			</xsl:call-template>
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="$uri" />
+			<xsl:value-of select="$value" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template name="unescapeValue">
+	<xsl:param name="value" />
+	<xsl:choose>
+		<xsl:when test="contains($value, '%20')">
+			<xsl:call-template name="unescapeValue">
+				<xsl:with-param name="value" select="substring-before($value, '%20')" />
+			</xsl:call-template>
+			<xsl:text> </xsl:text>
+			<xsl:call-template name="unescapeValue">
+				<xsl:with-param name="value" select="substring-after($value, '%20')" />
+			</xsl:call-template>
+		</xsl:when>
+		<xsl:when test="contains($value, '%3A')">
+			<xsl:call-template name="unescapeValue">
+				<xsl:with-param name="value" select="substring-before($value, '%3A')" />
+			</xsl:call-template>
+			<xsl:text>:</xsl:text>
+			<xsl:call-template name="unescapeValue">
+				<xsl:with-param name="value" select="substring-after($value, '%3A')" />
+			</xsl:call-template>
+		</xsl:when>
+		<xsl:when test="contains($value, '%2B')">
+			<xsl:value-of select="substring-before($value, '%2B')"/>
+			<xsl:text>+</xsl:text>
+			<xsl:call-template name="unescapeValue">
+				<xsl:with-param name="value" select="substring-after($value, '%2B')" />
+			</xsl:call-template>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="translate($value, '+', ' ')" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
