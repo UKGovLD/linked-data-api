@@ -468,4 +468,18 @@
 	<xsl:value-of select="$distinctValues != 1 and count($values) > 5 and not($values/item) and $allSameType" />
 </xsl:template>
 
+<xsl:template match="result[not(items)]" mode="searchURI">
+	<xsl:choose>
+		<xsl:when test="contains(@href, '/type/')">
+			<xsl:value-of select="concat('/doc/traffic-count-point/', substring-before(substring-after(@href, '/traffic-count-point/'), '/'), '/observation')" />
+		</xsl:when>
+		<xsl:when test="contains(@href, '/hour/')">
+			<xsl:value-of select="concat('/doc/traffic-count-point/', substring-before(substring-after(@href, '/traffic-count-point/'), '/'), '/count')" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-imports />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
 </xsl:stylesheet>
