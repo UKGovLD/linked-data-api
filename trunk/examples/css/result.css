@@ -23,7 +23,7 @@ header h1 {
 	background: url("/images/molecule.png") no-repeat scroll 0 0 transparent;
 	color: #555555;
 	font-size: 3em;
-	font-weight: normal;
+	font-weight: 300;
 	font-family: Gill Sans, Arial, sans-serif;
 	margin-left: 42px;
 	padding: 0.5em 66px 1em;
@@ -42,6 +42,10 @@ nav.topnav {
 	padding-right: 43px;
 	padding-left: 43px;
 	width: 538px;
+}
+
+#result .panel {
+	position: relative;
 }
 
 .panel, nav.topnav section {
@@ -265,6 +269,12 @@ nav section.page li, nav section.formats li {
 	margin: 0 5px;
 }
 
+nav section.formats {
+	float: right;
+	margin-right: 50px;
+	margin-top: 20px;
+}
+
 nav section.formats li {
 	border-right: 1px solid #D3D3D3;
 	padding-right: 13px;
@@ -274,25 +284,33 @@ nav section.formats li.last {
 	border-right: none;
 }
 
+#openSearch {
+	background-color: #DE5B06;
+	color: white;
+	padding: 5px;
+	position: absolute;
+	right: 10px;
+	text-align: right;
+	top: 10px;
+	z-index: 5000;
+	cursor: pointer;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
 section#search {
 	background-color: #3B393F;
 	color: #FFFFFF;
-	padding: 30px 43px;
-	margin-top: 30px;
+	padding: 10px;
 }
 
-section#search h1 {
-	border-color: #626165;
-	border-style: solid;
-	border-width: 3px 0 1px;
-	margin-bottom: 15px;
+section#search p {
 	padding: 5px;
-	font-size: 1.231em;
+	text-align: right;
 }
 
 section#search table {
 	color: #FFFFFF;
-	width: auto;
 }
 
 section#search .nested table {

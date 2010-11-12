@@ -36,7 +36,6 @@
 			<div id="page">
 				<xsl:apply-templates select="." mode="header" />
 				<xsl:apply-templates select="." mode="content" />
-				<xsl:apply-templates select="." mode="search" />
 				<xsl:apply-templates select="." mode="footer" />
 			</div>
 		</body>
@@ -109,6 +108,17 @@
 				dateFormat: 'yy-mm-dd',
 				autoSize: true
 			});
+			
+			$('#search').hide();
+			
+			$('#openSearch')
+				.toggle(function () {
+					$(this).text('Hide Search Form');
+					$('#search').slideDown('slow');
+				}, function () {
+					$(this).text('Show Search Form');
+					$('#search').slideUp('slow');
+				});
 			
 			<xsl:if test="$showMap = 'true'">
 				<xsl:variable name="uri">
@@ -213,7 +223,12 @@
 </xsl:template>
 
 <xsl:template match="result" mode="header">
-	<nav class="site" />
+	<nav class="site">
+		<xsl:apply-templates select="." mode="formats" />
+	</nav>
+	<header>
+		<h1>Linked Data API</h1>
+	</header>
 </xsl:template>
 
 <xsl:template match="result" mode="footer">
@@ -227,12 +242,6 @@
 
 <xsl:template match="result" mode="formats">
 	<section class="formats">
-		<h1>Formats</h1>
-		<xsl:call-template name="createInfo">
-			<xsl:with-param name="text">
-				<xsl:text>This information is available in multiple formats for reuse in your application.</xsl:text>
-			</xsl:with-param>
-		</xsl:call-template>
 		<ul>
 			<xsl:for-each select="format/item">
 				<li>
@@ -257,14 +266,13 @@
 
 <xsl:template match="result" mode="content" priority="10">
 	<xsl:apply-templates select="." mode="topnav" />
-	<header>
-		<h1>Linked Data API</h1>
-	</header>
 	<div id="result">
 		<div class="panel">
 			<xsl:choose>
 				<xsl:when test="items">
 					<h1>Search Results</h1>
+					<p id="openSearch">Show Search Form</p>
+					<xsl:apply-templates select="." mode="search" />
 					<xsl:apply-templates select="items" mode="content" />
 				</xsl:when>
 				<xsl:otherwise>
@@ -280,7 +288,6 @@
 	<xsl:variable name="hasResults" select="items/item[@href]" />
 	<xsl:variable name="isItem" select="not(items) and primaryTopic" />
 	<nav class="topnav">
-		<xsl:apply-templates select="." mode="formats" />
 		<xsl:apply-templates select="." mode="moreinfo" />
 		<xsl:apply-templates select="." mode="map" />
 		<xsl:if test="$hasResults">
@@ -1470,6 +1477,8 @@
 		<xsl:apply-templates select="." mode="name" /><br />
 		<a class="id" href="{@href}"><xsl:value-of select="@href" /></a>
 	</h1>
+	<p id="openSearch">Show Search Form</p>
+	<xsl:apply-templates select="/result" mode="search" />
 	<section>
 		<xsl:apply-templates select="." mode="header" />
 		<xsl:apply-templates select="." mode="table" />
@@ -2345,13 +2354,14 @@
 	<section id="search">
 		<xsl:if test="items/item[@href] or (not(items) and primaryTopic)">
 			<form action="{$searchURI}">
-				<h1>
-					<button type="submit">Search</button>
-				</h1>
 				<xsl:call-template name="hiddenInputs">
 					<xsl:with-param name="params" select="substring-after($searchURI, '?')" />
 				</xsl:call-template>
 				<table>
+					<colgroup>
+						<col width="25%" />
+						<col width="70%" />
+					</colgroup>
 					<xsl:for-each select="(items/item/* | primaryTopic/*)[generate-id(key('properties', name(.))[1]) = generate-id(.)]">
 						<xsl:sort select="self::prefLabel" order="descending" />
 						<xsl:sort select="self::name" order="descending" />
@@ -2370,6 +2380,9 @@
 						<xsl:apply-templates select="." mode="formrow" />
 					</xsl:for-each>
 				</table>
+				<p>
+					<button type="submit">Search</button>
+				</p>
 			</form>
 		</xsl:if>
 	</section>
@@ -2427,6 +2440,10 @@
 							</xsl:for-each>
 						</xsl:comment>
 						<table>
+							<colgroup>
+								<col width="25%" />
+								<col width="75%" />
+							</colgroup>
 							<xsl:for-each 
 								select="key('properties', $propertyName)/*[name() != 'item' and generate-id(key('properties', concat($propertyName, '.', name(.)))[1]) = generate-id(.)] | 
 								key('properties', concat($propertyName, '.item'))/*[generate-id(key('properties', concat($propertyName, '.item.', name(.)))[1]) = generate-id(.)]">
