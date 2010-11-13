@@ -442,6 +442,73 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/country/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/nptg-locality">Localities in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="{$base}/nptg-district">Districts in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="{$base}/administrative-area">Administrative areas in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="{$base}/region">Regions in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="/doc/country">All countries</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/region/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/nptg-locality">Localities in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="{$base}/nptg-district">Districts in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="{$base}/administrative-area">Administrative areas in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="/doc/region">All regions</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/administrative-area/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/nptg-locality">Localities in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="{$base}/nptg-district">Districts in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="/doc/administrative-area">All administrative areas</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/nptg-district/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/nptg-locality">Localities in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="/doc/nptg-district">All districts</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/nptg-locality/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/bus-stop-point">Bus stop points</a></li>
+				<li><a href="{$base}/coach-stop-point">Coach stop points</a></li>
+				<li><a href="{$base}/coach-station-stop-point">Coach station stop points</a></li>
+				<li><a href="{$base}/rail-stop-point">Rail stop points</a></li>
+				<li><a href="{$base}/metro-stop-point">Metro stop points</a></li>
+				<li><a href="{$base}/air-stop-point">Air stop points</a></li>
+				<li><a href="{$base}/ferry-stop-point">Ferry stop points</a></li>
+				<li><a href="{$base}/stop-point">All stop points</a></li>
+			</ul>
+			<ul>
+				<xsl:if test="childNptgLocality">
+					<li><a href="{$base}/children">Localities in <xsl:apply-templates select="." mode="name" /></a></li>
+				</xsl:if>
+				<li><a href="/doc/nptg-locality">All localities</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/stop-area/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/stop-point">Stop points in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="/doc/stop-area">All stop areas</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/stop-point/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/stop-area">Stop areas containing <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="/doc/stop-point">All stop points</a></li>
+			</ul>
+		</xsl:when>
 	</xsl:choose>
 </xsl:template>
 

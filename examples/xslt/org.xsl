@@ -13,9 +13,11 @@
 			starts-with(., 'http://reference.data.gov.uk/id/gregorian-instant')">
 			<xsl:value-of select="." />
 		</xsl:when>
+		<!--
 		<xsl:when test="starts-with(., 'http://reference.data.gov.uk/id/')">
 			<xsl:value-of select="concat('/doc/', substring-after(., 'id/'))" />
 		</xsl:when>
+		-->
 		<xsl:otherwise>
 			<xsl:value-of select="." />
 		</xsl:otherwise>

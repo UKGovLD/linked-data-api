@@ -25,6 +25,7 @@ t:api
 	api:defaultPageSize 20 ;
 	api:sparqlEndpoint <http://services.data.gov.uk/transport/sparql> ;
 #  api:sparqlEndpoint <http://gov.tso.co.uk/transport/sparql> ;
+  api:lang "en,cy" ;
 	api:viewer 
 	  api:describeViewer ,
 	  api:labelledDescribeViewer ;
@@ -58,17 +59,22 @@ t:api
 	  t:districts , t:district ,
 	  t:districtsInCountry , t:districtsInRegion , t:districtsInAdministrativeArea ,
 	  t:localities , t:locality ,
+	  t:localityChildren ,
 	  t:localitiesInCountry , t:localitiesInRegion , t:localitiesInAdministrativeArea , t:localitiesInDistrict , t:localitiesInLocality ,
 	  # NaPTAN #
-	  t:stopPoints , t:stopPoint , t:stopPointsInArea ,
-    t:busStopPoints , t:busStopPointsInArea , 
-    t:taxiStopPoints , t:taxiStopPointsInArea , 
-    t:airStopPoints , t:airStopPointsInArea , 
-    t:ferryStopPoints , t:ferryStopPointsInArea , 
-    t:railStopPoints , t:railStopPointsInArea , 
-    t:metroStopPoints , t:metroStopPointsInArea , 
-    t:coachStationStopPoints , t:coachStationStopPointsInArea , 
-    t:coachStopPoints , t:coachStopPointsInArea ,
+	  # Stop Points #
+	  t:stopPoints , t:stopPoint , t:stopPointsInArea , t:stopPointsInNptgLocality , t:stopPointsInStopArea ,
+    t:busStopPoints , t:busStopPointsInArea , t:busStopPointsInNptgLocality ,
+    t:taxiStopPoints , t:taxiStopPointsInArea , t:taxiStopPointsInNptgLocality ,
+    t:airStopPoints , t:airStopPointsInArea , t:airStopPointsInNptgLocality ,
+    t:ferryStopPoints , t:ferryStopPointsInArea , t:ferryStopPointsInNptgLocality ,
+    t:railStopPoints , t:railStopPointsInArea , t:railStopPointsInNptgLocality ,
+    t:metroStopPoints , t:metroStopPointsInArea , t:metroStopPointsInNptgLocality ,
+    t:coachStationStopPoints , t:coachStationStopPointsInArea , t:coachStationStopPointsInNptgLocality ,
+    t:coachStopPoints , t:coachStopPointsInArea , t:coachStopPointsInNptgLocality ,
+    # Stop Areas #
+    t:stopAreas , t:stopArea , t:stopAreasInNptgLocality , t:stopAreaOfStopPoint ,
+    # Other Things #
 	  t:coachStops , t:coachStop , t:coachStopsInArea ,
 	  t:stations , t:station , t:stationsInArea ,
 	  t:airports, t:airport , t:airportsInArea ,
@@ -93,7 +99,7 @@ t:scheme
 
 t:schemeViewer
   a api:Viewer ;
-  api:properties "name,alias,label,note,scopeNote,topConcept.name" ;
+  api:properties "name,alias,label,note,scopeNote,topConcept.name,comment" ;
   .
 
 t:definition
@@ -105,7 +111,7 @@ t:definition
 
 t:definitionViewer
   a api:Viewer ;
-  api:properties "name,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name" ;
+  api:properties "name,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label" ;
   .
 
 ## Traffic Flow ##
@@ -493,7 +499,7 @@ t:regionItemViewer
 
 t:regionsInCountry
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/region/country/{code}" ;
+  api:uriTemplate "/doc/country/{code}/region" ;
   api:selector [
     api:parent t:regionSelector ;
     api:filter "country.countryCode={code}" ;
@@ -528,7 +534,7 @@ t:administrativeAreaItemViewer
 
 t:administrativeAreasInCountry
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/administrative-area/country/{code}" ;
+  api:uriTemplate "/doc/country/{code}/administrative-area" ;
   api:selector [
     api:parent t:administrativeAreaSelector ;
     api:filter "country.countryCode={code}" ;
@@ -537,7 +543,7 @@ t:administrativeAreasInCountry
 
 t:administrativeAreasInRegion
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/administrative-area/region/{code}" ;
+  api:uriTemplate "/doc/region/{code}/administrative-area" ;
   api:selector [
     api:parent t:administrativeAreaSelector ;
     api:filter "region.regionCode={code}" ;
@@ -557,7 +563,7 @@ t:districts
 t:districtListViewer
   a api:Viewer ;
   api:name "district-list" ;
-  api:properties "name,alias,nptgDistrictCode,country.name,region.name,administrativeArea.name" .
+  api:properties "name,alias,nptgDistrictCode,country.name,transportRegion.name,administrativeArea.name" .
 
 t:district
   a api:ItemEndpoint ;
@@ -568,11 +574,11 @@ t:district
 t:districtItemViewer
   a api:Viewer ;
   api:name "district" ;
-  api:properties "name,alias,nptgDistrictCode,country.name,region.name,administrativeArea.name,nptgLocality.name" .
+  api:properties "name,alias,nptgDistrictCode,country.name,transportRegion.name,administrativeArea.name,nptgLocality.name" .
 
 t:districtsInCountry
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/nptg-district/country/{code}" ;
+  api:uriTemplate "/doc/country/{code}/nptg-district" ;
   api:selector [
     api:parent t:districtSelector ;
     api:filter "country.countryCode={code}" ;
@@ -581,7 +587,7 @@ t:districtsInCountry
 
 t:districtsInRegion
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/nptg-district/region/{code}" ;
+  api:uriTemplate "/doc/region/{code}/nptg-district" ;
   api:selector [
     api:parent t:districtSelector ;
     api:filter "region.regionCode={code}" ;
@@ -590,7 +596,7 @@ t:districtsInRegion
 
 t:districtsInAdministrativeArea
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/nptg-district/administrative-area/{code}" ;
+  api:uriTemplate "/doc/administrative-area/{code}/nptg-district" ;
   api:selector [
     api:parent t:districtSelector ;
     api:filter "administrativeArea.administrativeAreaCode={code}" ;
@@ -610,7 +616,7 @@ t:localities
 t:localityListViewer
   a api:Viewer ;
   api:name "locality-list" ;
-  api:properties "name,alias,nptgLocalityCode,country.name,region.name,administrativeArea.name,nptgDistrict.name" .
+  api:properties "name,alias,nptgLocalityCode,country.name,region.name,administrativeArea.name,nptgDistrict.name,easting,northing" .
 
 t:locality
   a api:ItemEndpoint ;
@@ -621,11 +627,11 @@ t:locality
 t:localityItemViewer
   a api:Viewer ;
   api:name "locality" ;
-  api:properties "name,alias,nptgLocalityCode,country.name,region.name,administrativeArea.name,nptgDistrict.name,easting,northing,parentNptgLocality.name" .
+  api:properties "name,alias,nptgLocalityCode,country.name,region.name,administrativeArea.name,nptgDistrict.name,easting,northing,parentNptgLocality.name,childNptgLocality.name" .
 
 t:localitiesInCountry
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/nptg-locality/country/{code}" ;
+  api:uriTemplate "/doc/country/{code}/nptg-locality" ;
   api:selector [
     api:parent t:localitySelector ;
     api:filter "country.countryCode={code}" ;
@@ -634,7 +640,7 @@ t:localitiesInCountry
 
 t:localitiesInRegion
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/nptg-locality/region/{code}" ;
+  api:uriTemplate "/doc/region/{code}/nptg-locality" ;
   api:selector [
     api:parent t:localitySelector ;
     api:filter "region.regionCode={code}" ;
@@ -643,7 +649,7 @@ t:localitiesInRegion
 
 t:localitiesInAdministrativeArea
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/nptg-locality/administrative-area/{code}" ;
+  api:uriTemplate "/doc/administrative-area/{code}/nptg-locality" ;
   api:selector [
     api:parent t:localitySelector ;
     api:filter "administrativeArea.administrativeAreaCode={code}" ;
@@ -652,16 +658,16 @@ t:localitiesInAdministrativeArea
 
 t:localitiesInDistrict
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/nptg-locality/district/{code}" ;
+  api:uriTemplate "/doc/nptg-district/{code}/nptg-locality" ;
   api:selector [
     api:parent t:localitySelector ;
-    api:filter "nptgDistrict.nptgDistrictCode={code}" ;
+    api:filter "nptgDistrict.nptgDistrictCode={code}&exists-parentNptgLocality=false" ;
   ] ;
   api:defaultViewer t:localityListViewer .
 
 t:localitiesInLocality
   a api:ListEndpoint ;
-  api:uriTemplate "/doc/nptg-locality/parent-locality/{code}" ;
+  api:uriTemplate "/doc/nptg-locality/{code}/children" ;
   api:selector [
     api:parent t:localitySelector ;
     api:filter "parentNptgLocality.nptgLocalityCode={code}" ;
@@ -683,7 +689,7 @@ t:stopPoints
 t:stopPointListViewer
   a api:Viewer ;
   api:name "stop-point-list" ;
-  api:properties "name,alias,atcoCode,naptanCode,plateCode,lat,long,nptgLocality.name" .
+  api:properties "name,alias,indicator,atcoCode,naptanCode,plateCode,easting,northing,lat,long,nptgLocality.name" .
 
 t:stopPoint
   a api:ItemEndpoint ;
@@ -694,7 +700,7 @@ t:stopPoint
 t:stopPointItemViewer
   a api:Viewer ;
   api:name "stop-point" ;
-  api:properties "name,alias,atcoCode,naptanCode,plateCode,type.name,note,indicator,landmark,street,town,suburb,lat,long,easting,northing,compassPointBearing,administrativeArea.name,nptgLocality.name,type.name,plusbusZone.name,mainNptgLocality.name,localityCentre,defaultWaitTime,coachStop.label,coachStop.alias,coachStop.coachRef,station.label,station.alias,station.crs,station.tiploc,airport.name,airport.alias,airport.iata,ferryTerminal.name,ferryTerminal.alias,ferryTerminal.ferryRef" .
+  api:properties "name,alias,atcoCode,naptanCode,plateCode,type.label,note,indicator,landmark,street,town,suburb,lat,long,easting,northing,compassPointBearing,administrativeArea.name,nptgLocality.name,plusbusZone.name,mainNptgLocality.name,localityCentre,defaultWaitTime,coachStop.label,coachStop.alias,coachStop.coachRef,station.label,station.alias,station.crs,station.tiploc,airport.name,airport.alias,airport.iata,ferryTerminal.name,ferryTerminal.alias,ferryTerminal.ferryRef" .
 
 t:stopPointsInArea
   a api:ListEndpoint ;
@@ -705,6 +711,31 @@ t:stopPointsInArea
   ] ;
   api:defaultViewer t:stopPointListViewer .
 
+t:stopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:stopPointsInStopArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-area/{code}/stop-point" ;
+  api:variable [
+    api:name "stopArea" ;
+    api:value "http://transport.data.gov.uk/id/stop-area/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:where " ?stopArea naptan:stopPoint ?item . " ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
 t:busStopPointSelector
   a api:Selector ;
   api:filter "type=BusStopPoint" .
@@ -712,7 +743,7 @@ t:busStopPointSelector
 t:busStopPoints
   a api:ListEndpoint ;
   api:uriTemplate "/doc/bus-stop-point" ;
-  api:selector api:busStopPointSelector ;
+  api:selector t:busStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:busStopPointsInArea
@@ -723,6 +754,16 @@ t:busStopPointsInArea
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
   ] ;
   api:defaultViewer t:stopPointListViewer .
+
+t:busStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/bus-stop-point" ;
+  api:selector [
+    api:parent t:busStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
 
 t:taxiStopPointSelector
   a api:Selector ;
@@ -743,6 +784,16 @@ t:taxiStopPointsInArea
   ] ;
   api:defaultViewer t:stopPointListViewer .
 
+t:busStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/taxi-stop-point" ;
+  api:selector [
+    api:parent t:taxiStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
 t:airStopPointSelector
   a api:Selector ;
   api:filter "type=AirStopPoint" .
@@ -761,6 +812,16 @@ t:airStopPointsInArea
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
   ] ;
   api:defaultViewer t:stopPointListViewer .
+
+t:airStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/air-stop-point" ;
+  api:selector [
+    api:parent t:airStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
 
 t:ferryStopPointSelector
   a api:Selector ;
@@ -781,6 +842,16 @@ t:ferryStopPointsInArea
   ] ;
   api:defaultViewer t:stopPointListViewer .
 
+t:ferryStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/ferry-stop-point" ;
+  api:selector [
+    api:parent t:ferryStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
 t:railStopPointSelector
   a api:Selector ;
   api:filter "type=RailStopPoint" .
@@ -800,6 +871,16 @@ t:railStopPointsInArea
   ] ;
   api:defaultViewer t:stopPointListViewer .
 
+t:railStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/rail-stop-point" ;
+  api:selector [
+    api:parent t:railStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
 t:metroStopPointSelector
   a api:Selector ;
   api:filter "type=MetroStopPoint" .
@@ -807,7 +888,7 @@ t:metroStopPointSelector
 t:metroStopPoints
   a api:ListEndpoint ;
   api:uriTemplate "/doc/metro-stop-point" ;
-  api:selector api:metroStopPointSelector ;
+  api:selector t:metroStopPointSelector ;
   api:defaultViewer t:stopPointListViewer .
 
 t:metroStopPointsInArea
@@ -818,6 +899,16 @@ t:metroStopPointsInArea
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
   ] ;
   api:defaultViewer t:stopPointListViewer .
+
+t:metroStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/metro-stop-point" ;
+  api:selector [
+    api:parent t:metroStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
 
 t:coachStationStopPointSelector
   a api:Selector ;
@@ -838,6 +929,16 @@ t:coachStationStopPointsInArea
   ] ;
   api:defaultViewer t:stopPointListViewer .
 
+t:coachStationStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/coach-station-stop-point" ;
+  api:selector [
+    api:parent t:coachStationStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
 t:coachStopPointSelector
   a api:Selector ;
   api:filter "type=CoachStopPoint" .
@@ -856,6 +957,66 @@ t:coachStopPointsInArea
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
   ] ;
   api:defaultViewer t:stopPointListViewer .
+
+t:coachStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/coach-stop-point" ;
+  api:selector [
+    api:parent t:coachStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+# Stop Areas #
+
+t:stopAreaSelector
+  a api:Selector ;
+  api:filter "type=StopArea" .
+
+t:stopAreas
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/stop-area" ;
+	api:selector t:stopAreaSelector ;
+	api:defaultViewer t:stopAreaListViewer .
+
+t:stopAreaListViewer
+  a api:Viewer ;
+  api:name "stop-area-list" ;
+  api:properties "name,alias,easting,northing,lat,long,stopAreaCode,administrativeArea.name" .
+
+t:stopArea
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/stop-area/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/stop-area/{code}" ;
+	api:defaultViewer t:stopAreaItemViewer .
+
+t:stopAreaItemViewer
+  a api:Viewer ;
+  api:name "stop-area" ;
+  api:properties "name,alias,type.label,easting,northing,lat,long,stopAreaCode,administrativeArea.name,stopPoint.name,childStopArea.name,parentStopArea.name" .
+
+t:stopAreasInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.nptgLocality.nptgLocalityCode={code}&exists-parentStopArea=false" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:stopAreaOfStopPoint
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-point/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.atcoCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+# Other Things #
 
 t:coachStopSelector
   a api:Selector ;
@@ -977,6 +1138,7 @@ rdfs:label api:label "label" .
 rdfs:comment api:label "comment" .
 rdfs:range api:label "range" .
 rdfs:domain api:label "domain" .
+rdfs:isDefinedBy api:label "isDefinedBy" .
 
 owl:sameAs api:label "sameAs" .
 
@@ -1092,7 +1254,8 @@ traffic:roadName api:label "roadName" .
 traffic:roadNumber 
   a owl:DatatypeProperty ;
   api:label "roadNumber" ;
-  rdfs:range traffic:RoadNumber .
+  rdfs:range traffic:RoadNumber ;
+  .
 
 traffic:roadCategory 
   api:label "roadCategory" ;
@@ -1113,13 +1276,16 @@ naptan:NptgDistrict api:label "NptgDistrict" .
 naptan:NptgLocality api:label "NptgLocality" .
 
 naptan:country api:label "country" .
-naptan:region api:label "transport region" .
+naptan:region api:label "transportRegion" .
 naptan:administrativeArea api:label "administrativeArea" .
 naptan:nptgDistrict api:label "nptgDistrict" .
 naptan:nptgLocality api:label "nptgLocality" .
 naptan:parentNptgLocality api:label "parentNptgLocality" .
 naptan:childNptgLocality api:label "childNptgLocality" .
 naptan:plusbusZone api:label "plusbusZone" .
+naptan:parentStopArea api:label "parentStopArea" .
+naptan:childStopArea api:label "childStopArea" .
+naptan:stopPoint api:label "stopPoint" .
 
 naptan:countryCode 
   a owl:DatatypeProperty ;
@@ -1255,6 +1421,12 @@ naptan:plateCode
   a owl:DatatypeProperty ;
   api:label "plateCode" ;
   rdfs:range naptan:PlateCode .
+
+naptan:stopAreaCode
+  a owl:DatatypeProperty ;
+  api:label "stopAreaCode" ;
+  rdfs:range naptan:StopAreaCode .
+
 naptan:coachRef
   a owl:DatatypeProperty ;
   api:label "coachRef" ;
@@ -1279,6 +1451,7 @@ naptan:ferryRef
 naptan:AtcoCode a rdfs:Datatype .
 naptan:NaptanCode a rdfs:Datatype .
 naptan:PlateCode a rdfs:Datatype .
+naptan:StopAreaCode a rdfs:Datatype .
 naptan:CoachStopCode a rdfs:Datatype .
 naptan:CrsCode a rdfs:Datatype .
 naptan:TiplocCode a rdfs:Datatype .

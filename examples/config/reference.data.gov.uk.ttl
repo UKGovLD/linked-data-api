@@ -28,8 +28,8 @@ spec:api
 	rdfs:label "Organisation API"@en;
 	api:maxPageSize "50";
 	api:defaultPageSize "20" ;
-#	api:sparqlEndpoint <http://www.saresproject.info/openrdf-sesame/repositories/datagov2> ;
 	api:sparqlEndpoint <http://services.data.gov.uk/reference/sparql> ;
+	api:lang "en,cy" ;
 	api:defaultViewer api:labelledDescribeViewer ;
 	api:viewer 
 	  api:describeViewer ,
