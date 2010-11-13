@@ -24,7 +24,8 @@ $(document).ready(function() {
 		//global_TM.canvas.clear();
 		//$("#infovis").html("");
 		//global_TM.loadJSON(global_govJSON);  
-		global_TM.refresh(); 
+		global_TM.refresh();
+		global_TM.refresh();
 	});
 
 	$("input[name='deputies']").val("No");
@@ -45,3 +46,17 @@ $(document).ready(function() {
 
 		
 });
+
+function resetSourceLinks() {
+	
+	$("div#apiCalls a.source").click(function(){
+		$("div#apiCalls div.apiCall").hide();
+		$(this).next().fadeIn();
+	});
+	
+	$("a.close").click(function(){
+		$(this).parent().fadeOut();
+	});
+		
+	return false;
+}

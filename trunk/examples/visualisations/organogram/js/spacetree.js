@@ -164,6 +164,20 @@ function init(deptSlug,postSlug){
 			panning: 'avoid nodes',  
 			zooming: 40
 		}, 
+		Events: {  
+		enable: true,  
+		onClick: function(node, eventInfo, e) {  
+			Move: {  
+       		enable: false
+     		}
+		},  
+		onMouseEnter: function(node, eventInfo, e) {  
+		//viz.canvas.getElement().style.cursor = 'pointer';  
+		},  
+		onMouseLeave: function(node, eventInfo, e) {  
+		//viz.canvas.getElement().style.cursor = '';  
+		}  
+		},
 		// set duration for the animation
 		duration: 300,
 		orientation: 'top',
@@ -301,9 +315,9 @@ function init(deptSlug,postSlug){
 				delete adj.data.$color;
 				delete adj.data.$lineWidth;
 			}
-		}
+		}	
 	});  
-
+	
 	global_ST = st;
 
 } // end init
@@ -331,7 +345,8 @@ function loadPost(deptSlug,postSlug) {
 	api_call_info.push({
 		title:"Retrieval of root post information",
 		description:"This call retrieves information about the root post in the organogram, such as their unit, grade and contact details.",
-		url:api_url
+		url:api_url,
+		parameters:""
 	});
 	
 	$.ajax({
@@ -360,11 +375,12 @@ function loadPost(deptSlug,postSlug) {
 				api_call_info.push({
 					title:"Retrieval of posts that report to the root post",
 					description:"This call retrieves information about the posts that report to the root post, such as their unit, grade and contact details.",
-					url:api_url
+					url:api_url,
+					parameters:"?_pageSize=300"
 				});				
 				
 				$.ajax({
-					url: api_url+".json?_pageSize=300",
+					url: api_url+".json"+api_call_info[1].parameters,
 					type: "GET",
 					dataType: "json",
 					async:true,
@@ -395,7 +411,7 @@ function loadPost(deptSlug,postSlug) {
 						// emulate a click on the root node.
 						// global_ST.onClick(global_ST.json.children[0].id);
 						//global_ST.onClick(global_ST.root);
-						$("div#"+global_ST.root).click()
+						$("div#"+global_ST.root).click();
 						// end
 						
 						displayDataSources();
@@ -887,6 +903,18 @@ function loadPersonInfo(node){
 		
 		html+= '<p class="id"><span>Post ID: </span><a target="_blank" href="http://danpaulsmith.com/puelia2/doc/department/'+global_department+'/post/'+tempID+'.html">'+tempID+'</a></p>';
 		
+		html+= '<p class="unit"><span>Unit(s): </span>';
+		
+		for(var j=0;j<node.data.postIn.length;j++){
+			if(node.data.postIn[j]._about.indexOf("/unit/") >= 0){
+				var tempUnitID = node.data.postIn[j]._about.split("/");
+				tempUnitID = tempUnitID[tempUnitID.length-1];
+				html+= '<a target="_blank" href="http://danpaulsmith.com/puelia2/doc/department/'+global_department+'/unit/'+tempUnitID+'.html">'+node.data.postIn[j].label[0]+'</a>';
+			}
+		}
+		
+		html+= '</p>';
+		
 		html+= '<span class="external_posts_title">External reporting posts:</span>';
 		html+= '<ul class="external_posts"></ul>';
 
@@ -898,6 +926,7 @@ function loadPersonInfo(node){
 
 	html+= '</div><!-- end people -->';
 	html+= '<a class="close">x</a>';
+	html+= '<a class="comment">i</a>';
 	
 	return html;
 }
@@ -916,13 +945,26 @@ function displayDataSources() {
 		
 		html += '<p class="title"><span>API call '+(i+1)+':</span>'+api_call_info[i].title+'</p>';
 		html += '<p class="description"><span>Description:</span>'+api_call_info[i].description+'</p>';
-		html += '<p class="url"><span>URL:</span>'+api_call_info[i].url+'</p>';		
-		html += '<p class="formats"><span>Formats:</span>'
-		html += '<a href="'+api_call_info[i].url+'.rdf" target="_blank">RDF</a>';
-		html += '<a href="'+api_call_info[i].url+'.ttl" target="_blank">TTL</a>';
-		html += '<a href="'+api_call_info[i].url+'.xml" target="_blank">XML</a>';
-		html += '<a href="'+api_call_info[i].url+'.json" target="_blank">JSON</a>';
-		html += '<a href="'+api_call_info[i].url+'.html" target="_blank">HTML</a>';
+		html += '<p class="url"><span>URL:</span><a href="'+api_call_info[i].url+'.html" target="_blank">'+api_call_info[i].url+'</a></p>';	
+
+		if(api_call_info[i].parameters != ""){
+			html += '<p class="params"><span>Parameters:</span></p>';
+			
+			var tempParams = api_call_info[i].parameters.replace("?","").split("&");
+					
+			html += '<ul class="paramlist">';
+			for(var j=0;j<tempParams.length;j++){
+				html+= '<li>'+tempParams[j]+'</li>';
+			}
+			html += '</ul>';
+		}
+		
+		html += '<p class="formats"><span>Formats:</span>';
+		html += '<a href="'+api_call_info[i].url+'.rdf'+api_call_info[i].parameters+'" target="_blank">RDF</a>';
+		html += '<a href="'+api_call_info[i].url+'.ttl'+api_call_info[i].parameters+'" target="_blank">TTL</a>';
+		html += '<a href="'+api_call_info[i].url+'.xml'+api_call_info[i].parameters+'" target="_blank">XML</a>';
+		html += '<a href="'+api_call_info[i].url+'.json'+api_call_info[i].parameters+'" target="_blank">JSON</a>';
+		html += '<a href="'+api_call_info[i].url+'.html'+api_call_info[i].parameters+'" target="_blank">HTML</a>';
 		html += '</p>';
 		html += '<a class="close">x</a>';
 		html += '</div><!-- end apiCall -->';

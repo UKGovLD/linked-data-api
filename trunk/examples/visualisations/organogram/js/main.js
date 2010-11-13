@@ -2,10 +2,6 @@
 
 $(document).ready(function() {
 
-	//window.resize = global_ST.canvas.resize($(window).width()-200, $(window).height()-200);
-	
-	//var numberOfSources = $("p#tab span").html();
-
 	$("#infobox").hide();
 	$("#infovis").width($(window).width()-110);
 	$("#infovis").height($(window).height()-50);
@@ -14,9 +10,9 @@ $(document).ready(function() {
 	
 	$("a.close").click(function(){
 		$(this).parent().fadeOut();
-	});
+	});	
 	
-	
+		
 	$("input[name='orientation']").change(function(){
 		if($(this).val() == "top") {
 			global_ST.canvas.opt.orientation = "top";
@@ -26,6 +22,8 @@ $(document).ready(function() {
 			global_ST.refresh();
 		}
 	});
+	
+	
 	
 		
 }); // end docready
@@ -40,12 +38,7 @@ function resetSourceLinks() {
 	$("a.close").click(function(){
 		$(this).parent().fadeOut();
 	});
-	
-	//$("canvas").click(function(){
-	//	$("#infobox").fadeOut();
-	//	$("div#apiCalls div.apiCall").fadeOut();
-	//});
-	
+
 	return false;
 }
 
@@ -71,14 +64,7 @@ $("ul#tabMenu li").each(function() {
 function setInfoBoxLinks() {
 	
 	$("div.heldBy a.name").click(function() {
-		//if this is expanded {
-		//slideUp and change to +
-		//} else {
-		//slide all others up
-		//change all others to +
-		//slide this one down
-		//change to -
-		//}
+
 		if($(this).next().css("display") == "block") {
 			$(this).next().slideUp();
 			$(this).children().filter("span").html("+");
@@ -96,68 +82,16 @@ function setInfoBoxLinks() {
 		$(this).parent().fadeOut();
 	});
 	
-
-/*
-	$("a#members").toggle(function() {
-		$("ul.members").slideDown("slow");
-		$("a#members").html("Members -");
-		$("ul.salaryMap").slideUp("slow");
-		$("a#salaryMap").html("Salary map +");	
-		$("ul.members").scrollTop(0);
-	},function() {
-		$("ul.members").slideUp("slow");
-		$("a#members").html("Members +");	
-	});
-	
-	$("a#salaryMap").toggle(function() {
-		$("ul.salaryMap").slideDown("slow");
-		$("a#salaryMap").html("Salary map -");
-		$("ul.members").slideUp("slow");
-		$("a#members").html("Members +");			
-	},function() {
-		$("ul.salaryMap").slideUp("slow");
-		$("a#salaryMap").html("Salary map +");	
-	});
-	
-	$("ul.salaryMap").treemap(400,300,{getData:getDataFromUL, sort:true, headheight:10});
-	
-	var size = 0;
-	var maxSize = 0;
-	var factor = 0;
-	
-	$("div.treemapCell").each(function() {	
-		size = $(this).height()*$(this).width();		
-		if(size > maxSize) {
-			factor = size/255;
-			maxSize = $(this).height()*$(this).width();
-		}				
+	if($('div#infobox p.comment').length != 0){
+		$("a.comment").toggle(function(){
+		$("div#infobox p.comment").slideDown();
+	},function(){
+		$("div#infobox p.comment").slideUp();	
 	});	
-		
-	$("div.treemapCell").each(function() {			
-		$(this).css("background-color",rgb2hex("rgb(20, "+parseInt((($(this).height()*$(this).width())/factor)).toString()+", 20)"));
-	});
-
-	$("ul.salaryMap").css("display","none").css("position","relative").css("visibility","visible");
-	
-	$("ul.members").scrollTop(0);
-	
-	if($("a#members").length != 0) {
-		$("p#tab span").html("2");
-		$("#source2").slideDown();
-		
 	} else {
-		$("p#tab span").html("1");
-		$("#source2").slideUp();
+		$("a.comment").hide();
 	}
 	
-	*/
-	
-	/*
-	if($("p#tab span").html() != numberOfSources) {
-		glowElement($("p#tab"),"#802323", "#FFFFFF");
-		numberOfSources = $("p#tab span").html();
-	}
-	*/
 	return false;
 }
 

@@ -59,7 +59,7 @@
 <script language="javascript" type="text/javascript"
 	src="js/jquery.prettyPhoto.js"></script>
 <script language="javascript" type="text/javascript"
-	src="js/spacetree_org2.js"></script>
+	src="js/spacetree.js"></script>
 <script language="javascript" type="text/javascript" src="js/treemap.js"></script>
 <script language="javascript" type="text/javascript"
 	src="js/jquery.color.js"></script>
