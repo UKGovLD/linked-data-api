@@ -187,6 +187,10 @@ nav.topnav section.sort p.reset, nav.topnav section.view p.reset, nav.topnav sec
 	z-index: 6000;
 }
 
+nav.topnav section.map p.search img {
+	cursor: pointer;
+}
+
 nav.topnav section.sort li, nav.topnav section.view ul.properties li {
 	display: block;
 	background: none;
@@ -442,6 +446,7 @@ tr tr {
 	float: right;
 	clear: right;
 	padding: 5px;
+	cursor: pointer;
 }
 
 a.outlink:before {
