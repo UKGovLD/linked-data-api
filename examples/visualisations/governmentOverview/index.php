@@ -55,13 +55,10 @@
 
 </ul>
 
-<div id="formats">
-<a id="rdf" href="#" target="_blank" rel="external">rdf</a>
-<a id="ttl" href="#" target="_blank" rel="external">ttl</a>
-<a id="json" href="#" target="_blank" rel="external">json</a>
-<a id="xml" href="#" target="_blank" rel="external">xml</a>
-<a id="html" href="#" target="_blank" rel="external">html</a>
-</div>
+	<div id="apiCalls">
+		<p class="label">Data sources</p>
+		<!-- information about API calls goes here -->
+	</div>
 
 </div>
 
@@ -73,7 +70,7 @@
 <script language="javascript" type="text/javascript"
 	src="js/jit.js"></script>
 <script language="javascript" type="text/javascript"
-	src="js/overview2.js"></script>
+	src="js/overview.js"></script>
 <script language="javascript" type="text/javascript"
 	src="js/jquery.corner.js"></script>
 	

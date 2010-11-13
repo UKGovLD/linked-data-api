@@ -96,7 +96,7 @@ var global_post="";
 var global_TM="";
 var global_deptJSON="";
 var includeDeputyDirectors=false;
-//var lvlsToShow = 2;
+var api_call_info = [];
 
 function init(){
 	
@@ -110,7 +110,7 @@ function init(){
 	   //enable animations  
 	   animate: false,  
 	   //box offsets  
-	   offset: 1, 
+	   offset: 0, 
 	   levelsToShow: 2, 
 	   //Attach left and right click events   	   
 	   Events: {  
@@ -127,7 +127,7 @@ function init(){
 	       	}
 	       	postSlug = postSlug[postSlug.length-1];
 	       	//if(deptSlug == "bis" || deptSlug == "hmrc"){
-	       		window.location = "http://danpaulsmith.com/gov/orgvis_postview?dept="+deptSlug+"&post="+postSlug;
+	       		window.location = "../organogram?dept="+deptSlug+"&post="+postSlug;
 	       	//} else {
 	       	//	showLog("Sorry, this organogram is under construction. The BIS and HMRC organogram data is live. ");
 	       	//	setTimeout(function() {hideLog();},3000);
@@ -146,10 +146,11 @@ function init(){
 	       tm.out();  
 	     }  
 	   },  
-	   duration: 300,  
+	   duration: 300,
+	   cushion: useGradients,
 	   //Enable tips  
 	   Tips: {  
-	     enable: false,  
+	     enable: true,  
 	     //add positioning offsets  
 	     offsetX: 20,  
 	     offsetY: 20,  
@@ -173,17 +174,17 @@ function init(){
 	   //This method is called once, on label creation.  
 	   onCreateLabel: function(domElement, node){  
 	   	   $(domElement).addClass(node.data.type);
-	       domElement.innerHTML = '<span>'+node.name.valueOf()+'</span>';
+	       domElement.innerHTML = node.name.valueOf();
 	       var style = domElement.style;  
 	       style.display = '';  
 	       style.color = node.data.text;
 	       //style.border = '1px solid transparent';  
-	       domElement.onmouseover = function() {  
-	         style.border = '2px solid #FFFFFF';  
-	       };  
-	       domElement.onmouseout = function() {  
-	         style.border = '1px solid #AAAAAA';  
-	       };  
+       domElement.onmouseover = function() {  
+         style.border = '1px solid #FFFFFF';  
+       };  
+       domElement.onmouseout = function() {  
+         style.border = '1px solid transparent';  
+       };  
 	   }  
 	 });  
 	 
@@ -205,10 +206,16 @@ function loadDepts() {
 	
 	$("div#formats").fadeOut();
 	
-	// FIX: Create api_call_info object similar to post-based vis
+	// Description of API call
+	api_call_info.push({
+		title:"Retrieves a list of all departments",
+		description:"A specific API Viewer is needed to pull through each departments' units, the posts within those units and the posts that report to those posts.",
+		url:api_url,
+		parameters:"?_view=departmentWithPosts&_pageSize=100&_properties=unit.post.reportsTo"
+	});	
 	
 	$.ajax({
-		url: api_url+".json?_view=departmentWithPosts&_pageSize=100",
+		url: api_call_info[0].url+".json"+api_call_info[0].parameters,
 		type: "GET",
 		dataType: "json",
 		async:true,
@@ -356,12 +363,7 @@ function loadDepts() {
 			global_TM.loadJSON(global_govJSON);  
 			global_TM.refresh(); 
 			
-			$("div#formats a#rdf").attr("href",api_url+".rdf?_view=departmentWithPosts");
-			$("div#formats a#ttl").attr("href",api_url+".ttl?_view=departmentWithPosts");
-			$("div#formats a#json").attr("href",api_url+".json?_view=departmentWithPosts");
-			$("div#formats a#xml").attr("href",api_url+".xml?_view=departmentWithPosts");
-			$("div#formats a#html").attr("href",api_url+"?_view=departmentWithPosts");
-			$("div#formats").fadeIn();
+			displayDataSources();
 			
 			hideLog();
 
@@ -379,8 +381,8 @@ function makePostNode(item){
 				type:"Post",
 				uri:item._about,
 				processed:false,
-             	$color: "#FAFFD1", 
-             	text: "#333333",
+             	$color: "#888888", 
+             	text: "#FFFFFF",
              	$area: 1			
 			},
 			children:[]
@@ -395,8 +397,8 @@ function makeUnitNode(item){
 				type:"Unit",
 				uri:item._about,
 				processed:false,
-             	$color: "#E8FEE9",
-             	text: "#333333", 
+             	$color: "#819C9B",
+             	text: "#FFFFFF", 
              	$area: 1							
 			},
 			children:[]
@@ -411,8 +413,8 @@ function makeDeptNode(item){
 				type:"Department",
 				uri:item._about,
 				processed:false,
-             	$color: "#D2F6FD",
-             	text: "#333333", 
+             	$color: "#DE5B06",
+             	text: "#FFFFFF", 
              	$area: 1	
 			},
 			children:[]
@@ -430,4 +432,48 @@ function makeGovNode(){
 			children:[]
 	};
 	return node;
+}
+function displayDataSources() {
+	
+	var html='';
+	
+	for(var i=0;i<api_call_info.length;i++){
+		
+		html += '<a class="source">'+(i+1)+'</a>';
+		
+		html += '<div class="apiCall shadowBox">';
+		
+		html += '<p class="title"><span>API call '+(i+1)+':</span>'+api_call_info[i].title+'</p>';
+		html += '<p class="description"><span>Description:</span>'+api_call_info[i].description+'</p>';
+		html += '<p class="url"><span>URL:</span><a href="'+api_call_info[i].url+'.html" target="_blank">'+api_call_info[i].url+'</a></p>';	
+		
+		html += '<p class="params"><span>Parameters:</span></p>';
+		
+		var tempParams = api_call_info[i].parameters.replace("?","").split("&");
+		
+		html += '<ul class="paramlist">';
+		for(var j=0;j<tempParams.length;j++){
+			html+= '<li>'+tempParams[j]+'</li>';
+		}
+		html += '</ul>';
+		
+		html += '<p class="formats"><span>Formats:</span>';
+		html += '<a href="'+api_call_info[i].url+'.rdf'+api_call_info[i].parameters+'" target="_blank">RDF</a>';
+		html += '<a href="'+api_call_info[i].url+'.ttl'+api_call_info[i].parameters+'" target="_blank">TTL</a>';
+		html += '<a href="'+api_call_info[i].url+'.xml'+api_call_info[i].parameters+'" target="_blank">XML</a>';
+		html += '<a href="'+api_call_info[i].url+'.json'+api_call_info[i].parameters+'" target="_blank">JSON</a>';
+		html += '<a href="'+api_call_info[i].url+'.html'+api_call_info[i].parameters+'" target="_blank">HTML</a>';
+		html += '</p>';
+		html += '<a class="close">x</a>';
+		html += '</div><!-- end apiCall -->';
+		
+	}
+	
+	$('div#apiCalls').html($('div#apiCalls').html()+html);
+	
+	resetSourceLinks();
+	
+	$('div#apiCalls').fadeIn();
+		
+	return false;
 }
