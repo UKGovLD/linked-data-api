@@ -464,6 +464,10 @@
 		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/administrative-area/')">
 			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
 			<ul>
+				<li><a href="{$base}/stop-area">Stop areas in <xsl:apply-templates select="." mode="name" /></a></li>
+				<li><a href="{$base}/stop-point">Stop points in <xsl:apply-templates select="." mode="name" /></a></li>
+			</ul>
+			<ul>
 				<li><a href="{$base}/nptg-locality">Localities in <xsl:apply-templates select="." mode="name" /></a></li>
 				<li><a href="{$base}/nptg-district">Districts in <xsl:apply-templates select="." mode="name" /></a></li>
 				<li><a href="/doc/administrative-area">All administrative areas</a></li>
@@ -478,6 +482,12 @@
 		</xsl:when>
 		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/nptg-locality/')">
 			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/coach-stop">Coach stops</a></li>
+				<li><a href="{$base}/station">Rail stations</a></li>
+				<li><a href="{$base}/airport">Airports</a></li>
+				<li><a href="{$base}/ferry-terminal">Ferry terminals</a></li>
+			</ul>
 			<ul>
 				<li><a href="{$base}/stop-area">All stop areas</a></li>
 			</ul>
@@ -520,12 +530,36 @@
 				<li><a href="/doc/stop-point">All stop points</a></li>
 			</ul>
 		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/coach-stop/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/stop-area">Stop areas</a></li>
+				<li><a href="{$base}/stop-point">Stop points</a></li>
+				<li><a href="/doc/coach-stop">All coach stops</a></li>
+			</ul>
+		</xsl:when>
 		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/station/')">
 			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
 			<ul>
 				<li><a href="{$base}/stop-area">Stop areas</a></li>
 				<li><a href="{$base}/stop-point">Stop points</a></li>
 				<li><a href="/doc/station">All stations</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/airport/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/stop-area">Stop areas</a></li>
+				<li><a href="{$base}/stop-point">Stop points</a></li>
+				<li><a href="/doc/airport">All airports</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/ferry-terminal/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/stop-area">Stop areas</a></li>
+				<li><a href="{$base}/stop-point">Stop points</a></li>
+				<li><a href="/doc/ferry-terminal">All ferry terminals</a></li>
 			</ul>
 		</xsl:when>
 		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/def/') and type/item/@href = 'http://www.w3.org/2000/01/rdf-schema#Class'">

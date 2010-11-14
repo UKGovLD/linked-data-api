@@ -33,6 +33,7 @@ t:api
 	api:endpoint
 	  t:scheme ,
 	  t:definition ,
+	  t:subclasses , t:instances ,
 	  # Traffic Flow #
 	  t:localAuthorities , t:localAuthority ,
 	  t:localAuthorityDistricts , t:localAuthorityDistrict ,
@@ -61,9 +62,11 @@ t:api
 	  t:localities , t:locality ,
 	  t:localityChildren ,
 	  t:localitiesInCountry , t:localitiesInRegion , t:localitiesInAdministrativeArea , t:localitiesInDistrict , t:localitiesInLocality ,
+	  t:localitiesOfStopArea ,
 	  # NaPTAN #
 	  # Stop Points #
-	  t:stopPoints , t:stopPoint , t:stopPointsInArea , t:stopPointsInNptgLocality , t:stopPointsInStopArea ,
+	  t:stopPoints , t:stopPoint , t:stopPointsInArea , 
+	  t:stopPointsInAdministrativeArea , t:stopPointsInNptgLocality , t:stopPointsInStopArea , t:connections ,
     t:busStopPoints , t:busStopPointsInArea , t:busStopPointsInNptgLocality ,
     t:taxiStopPoints , t:taxiStopPointsInArea , t:taxiStopPointsInNptgLocality ,
     t:airStopPoints , t:airStopPointsInArea , t:airStopPointsInNptgLocality ,
@@ -73,12 +76,14 @@ t:api
     t:coachStationStopPoints , t:coachStationStopPointsInArea , t:coachStationStopPointsInNptgLocality ,
     t:coachStopPoints , t:coachStopPointsInArea , t:coachStopPointsInNptgLocality ,
     # Stop Areas #
-    t:stopAreas , t:stopArea , t:stopAreasInNptgLocality , t:stopAreaOfStopPoint ,
+    t:stopAreas , t:stopArea , t:stopAreasInStopArea ,
+    t:stopAreasInAdministrativeArea , t:stopAreasInNptgLocality , t:stopAreaOfStopPoint ,
     # Other Things #
-	  t:coachStops , t:coachStop , t:coachStopsInArea ,
-	  t:stations , t:station , t:stationsInArea ,
-	  t:airports, t:airport , t:airportsInArea ,
-	  t:ferryTerminals , t:ferryTerminal , t:ferryTerminalsInArea .
+	  t:coachStops , t:coachStop , t:coachStopStopAreas , t:coachStopStopPoints , t:coachStopsInLocality ,
+	  t:stations , t:station , t:stationStopAreas , t:stationStopPoints , t:stationsInLocality ,
+	  t:airports, t:airport , t:airportStopAreas , t:airportStopPoints , t:airportsInLocality ,
+	  t:ferryTerminals , t:ferryTerminal , t:ferryTerminalStopAreas , t:ferryTerminalStopPoints , t:ferryTerminalsInLocality ;
+	  .
 
 #FORMATTERS
 
@@ -104,14 +109,47 @@ t:schemeViewer
 
 t:definition
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}/{item}" ;
-  api:itemTemplate "http://transport.data.gov.uk/def/{scheme}/{item}" ;
+  api:uriTemplate "/def/{scheme}/{term}" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/{scheme}/{term}" ;
   api:defaultViewer t:definitionViewer ;
   .
 
 t:definitionViewer
   a api:Viewer ;
-  api:properties "name,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label" ;
+  api:properties "name,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
+  .
+
+t:subclasses
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item rdfs:subClassOf ?superclass . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:instances
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item a ?class . " ;
+  ] ;
+  api:defaultViewer t:instanceViewer ;
+  .
+
+t:instanceViewer
+  a api:Viewer ;
+  api:properties "name,alias,label,easting,northing,lat,long" ;
   .
 
 ## Traffic Flow ##
@@ -519,7 +557,7 @@ t:administrativeAreas
 t:administrativeAreaListViewer
   a api:Viewer ;
   api:name "administrative-area-list" ;
-  api:properties "name,alias,administrativeAreaCode,atcoAreaCode,country.name,region.name" .
+  api:properties "name,alias,administrativeAreaCode,atcoAreaCode,country.name,transportRegion.name" .
 
 t:administrativeArea
   a api:ItemEndpoint ;
@@ -530,7 +568,7 @@ t:administrativeArea
 t:administrativeAreaItemViewer
   a api:Viewer ;
   api:name "administrative-area" ;
-  api:properties "name,alias,administrativeAreaCode,atcoAreaCode,region.name,nptgDistrict.name" .
+  api:properties "name,alias,administrativeAreaCode,atcoAreaCode,transportRegion.name,nptgDistrict.name" .
 
 t:administrativeAreasInCountry
   a api:ListEndpoint ;
@@ -590,7 +628,7 @@ t:districtsInRegion
   api:uriTemplate "/doc/region/{code}/nptg-district" ;
   api:selector [
     api:parent t:districtSelector ;
-    api:filter "region.regionCode={code}" ;
+    api:filter "transportRegion.regionCode={code}" ;
   ] ;
   api:defaultViewer t:districtListViewer .
 
@@ -627,7 +665,7 @@ t:locality
 t:localityItemViewer
   a api:Viewer ;
   api:name "locality" ;
-  api:properties "name,alias,nptgLocalityCode,country.name,region.name,administrativeArea.name,nptgDistrict.name,easting,northing,parentNptgLocality.name,childNptgLocality.name" .
+  api:properties "name,alias,nptgLocalityCode,country.name,transportRegion.name,administrativeArea.name,nptgDistrict.name,easting,northing,parentNptgLocality.name,childNptgLocality.name" .
 
 t:localitiesInCountry
   a api:ListEndpoint ;
@@ -643,7 +681,7 @@ t:localitiesInRegion
   api:uriTemplate "/doc/region/{code}/nptg-locality" ;
   api:selector [
     api:parent t:localitySelector ;
-    api:filter "region.regionCode={code}" ;
+    api:filter "transportRegion.regionCode={code}" ;
   ] ;
   api:defaultViewer t:localityListViewer .
 
@@ -674,6 +712,21 @@ t:localitiesInLocality
   ] ;
   api:defaultViewer t:localityListViewer .
 
+t:localitiesOfStopArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-area/{code}/nptg-locality" ;
+  api:variable [
+    api:name "stopArea" ;
+    api:value "http://transport.data.gov.uk/id/stop-area/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:parent t:localitySelector ;
+    api:where "?stopArea naptan:stopPoint [ naptan:nptgLocality ?item ] ." ;
+  ] ;
+  api:defaultViewer t:localityListViewer ;
+  .
+
 ## NaPTAN ##
 
 t:stopPointSelector
@@ -700,7 +753,7 @@ t:stopPoint
 t:stopPointItemViewer
   a api:Viewer ;
   api:name "stop-point" ;
-  api:properties "name,alias,atcoCode,naptanCode,plateCode,type.label,note,indicator,landmark,street,town,suburb,lat,long,easting,northing,compassPointBearing,administrativeArea.name,nptgLocality.name,plusbusZone.name,mainNptgLocality.name,localityCentre,defaultWaitTime,coachStop.label,coachStop.alias,coachStop.coachRef,station.label,station.alias,station.crs,station.tiploc,airport.name,airport.alias,airport.iata,ferryTerminal.name,ferryTerminal.alias,ferryTerminal.ferryRef" .
+  api:properties "name,alias,atcoCode,naptanCode,plateCode,type.label,note,indicator,landmark,street,town,suburb,lat,long,easting,northing,compassPointBearing,administrativeArea.name,nptgLocality.name,plusbusZone.name,localityCentre,defaultWaitTime,coachStop.label,coachStop.alias,coachStop.coachRef,station.label,station.alias,station.crs,station.tiploc,airport.name,airport.alias,airport.iata,ferryTerminal.name,ferryTerminal.alias,ferryTerminal.ferryRef" .
 
 t:stopPointsInArea
   a api:ListEndpoint ;
@@ -710,6 +763,16 @@ t:stopPointsInArea
     api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
   ] ;
   api:defaultViewer t:stopPointListViewer .
+
+t:stopPointsInAdministrativeArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/administrative-area/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "administrativeArea.administrativeAreaCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
 
 t:stopPointsInNptgLocality
   a api:ListEndpoint ;
@@ -734,6 +797,21 @@ t:stopPointsInStopArea
     api:where " ?stopArea naptan:stopPoint ?item . " ;
   ] ;
   api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:connections
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-point/{code}/connection" ;
+  api:variable [
+    api:name "stopPoint" ;
+    api:value "http://transport.data.gov.uk/id/stop-point/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:mainNptgLocality ?item . OPTIONAL { ?item naptan:parentNptgLocality ?parent . } FILTER (!bound(?parent)) " ;
+    api:sort "name" ;
+  ] ;
+  api:defaultViewer t:localityListViewer ;
   .
 
 t:busStopPointSelector
@@ -994,7 +1072,17 @@ t:stopArea
 t:stopAreaItemViewer
   a api:Viewer ;
   api:name "stop-area" ;
-  api:properties "name,alias,type.label,easting,northing,lat,long,stopAreaCode,administrativeArea.name,stopPoint.name,childStopArea.name,parentStopArea.name" .
+  api:properties "name,alias,type.label,easting,northing,lat,long,stopAreaCode,administrativeArea.name,stopPoint.name,childStopArea.name,childStopArea.type.label,parentStopArea.name" .
+
+t:stopAreasInAdministrativeArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/administrative-area/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "administrativeArea.administrativeAreaCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
 
 t:stopAreasInNptgLocality
   a api:ListEndpoint ;
@@ -1012,6 +1100,16 @@ t:stopAreaOfStopPoint
   api:selector [
     api:parent t:stopAreaSelector ;
     api:filter "stopPoint.atcoCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:stopAreasInStopArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-area/{code}/children" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "parentStopArea.stopAreaCode={code}" ;
   ] ;
   api:defaultViewer t:stopAreaListViewer ;
   .
@@ -1044,6 +1142,40 @@ t:coachStopItemViewer
   api:name "coach-stop" ;
   api:properties "name,alias,northing,easting" .
 
+t:coachStopStopAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/coach-stop/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.coachStop.coachRef={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:coachStopStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/coach-stop/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "coachStop.coachRef={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:coachStopsInLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/coach-stop" ;
+  api:variable [
+    api:name "locality" ;
+    api:value "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:nptgLocality ?locality ; naptan:coachStop ?item . " ;
+  ] ;
+  api:defaultViewer t:coachStopItemViewer ;
+  .
+
 t:stationSelector
   a api:Selector ;
   api:filter "type=Station" .
@@ -1070,6 +1202,40 @@ t:stationItemViewer
   api:name "station" ;
   api:properties "name,alias,crs,tiploc,easting,northing" .
 
+t:stationStopAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/station/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.station.crs={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:stationStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/station/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "station.crs={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:stationsInLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/station" ;
+  api:variable [
+    api:name "locality" ;
+    api:value "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:nptgLocality ?locality ; naptan:station ?item . " ;
+  ] ;
+  api:defaultViewer t:stationItemViewer ;
+  .
+
 t:airportSelector
   a api:Selector ;
   api:filter "type=Airport" .
@@ -1083,7 +1249,7 @@ t:airports
 t:airportListViewer
   a api:Viewer ;
   api:name "airport-list" ;
-  api:properties "name,alias,iataRef" .
+  api:properties "name,alias,iata" .
 
 t:airport
   a api:ItemEndpoint ;
@@ -1094,7 +1260,41 @@ t:airport
 t:airportItemViewer
   a api:Viewer ;
   api:name "airport" ;
-  api:properties "name,alias,iataRef" .
+  api:properties "name,alias,iata" .
+
+t:airportStopAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/airport/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.airport.iata={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:airportStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/airport/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "airport.iata={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:airportsInLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/airport" ;
+  api:variable [
+    api:name "locality" ;
+    api:value "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:nptgLocality ?locality ; naptan:airport ?item . " ;
+  ] ;
+  api:defaultViewer t:airportItemViewer ;
+  .
 
 t:ferryTerminalSelector
   a api:Selector ;
@@ -1122,6 +1322,40 @@ t:ferryTerminalItemViewer
   api:name "ferry" ;
   api:properties "name,alias,ferryRef,northing,easting" .
 
+t:ferryTerminalStopAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/ferry-terminal/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.ferryTerminal.ferryRef={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:ferryTerminalStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/ferry-terminal/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "ferryTerminal.ferryRef={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:ferryTerminalsInLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/ferry-terminal" ;
+  api:variable [
+    api:name "locality" ;
+    api:value "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:nptgLocality ?locality ; naptan:ferryTerminal ?item . " ;
+  ] ;
+  api:defaultViewer t:ferryTerminalItemViewer ;
+  .
+
 
 ## Labels ##
 
@@ -1129,7 +1363,8 @@ t:ferryTerminalItemViewer
 
 rdf:Property api:label "Property" .
 
-rdf:type api:label "type" .
+rdf:type api:label "type" ;
+  api:multiValued true .
 rdf:value api:label "value" .
 
 rdfs:Class api:label "Class" .
@@ -1139,6 +1374,8 @@ rdfs:comment api:label "comment" .
 rdfs:range api:label "range" .
 rdfs:domain api:label "domain" .
 rdfs:isDefinedBy api:label "isDefinedBy" .
+rdfs:subClassOf api:label "subClassOf" .
+rdfs:subPropertyOf api:label "subPropertyOf" .
 
 owl:sameAs api:label "sameAs" .
 
@@ -1397,7 +1634,7 @@ naptan:stopValidity
   api:label "stopValidity" ;
   api:multiValued true .
 naptan:mainNptgLocality 
-  api:label "mainNptgLocality" ;
+  api:label "connection" ;
   api:multiValued true .
 
 naptan:defaultWaitTime
