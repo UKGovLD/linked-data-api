@@ -479,6 +479,9 @@
 		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/nptg-locality/')">
 			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
 			<ul>
+				<li><a href="{$base}/stop-area">All stop areas</a></li>
+			</ul>
+			<ul>
 				<li><a href="{$base}/bus-stop-point">Bus stop points</a></li>
 				<li><a href="{$base}/coach-stop-point">Coach stop points</a></li>
 				<li><a href="{$base}/coach-station-stop-point">Coach station stop points</a></li>
@@ -497,8 +500,16 @@
 		</xsl:when>
 		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/stop-area/')">
 			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<xsl:if test="stopPoint">
+				<ul>
+					<li><a href="{$base}/stop-point">Stop points in <xsl:apply-templates select="." mode="name" /></a></li>
+					<li><a href="{$base}/nptg-locality">Localities of <xsl:apply-templates select="." mode="name" /></a></li>
+				</ul>
+			</xsl:if>
 			<ul>
-				<li><a href="{$base}/stop-point">Stop points in <xsl:apply-templates select="." mode="name" /></a></li>
+				<xsl:if test="childStopArea">
+					<li><a href="{$base}/children">Stop areas in <xsl:apply-templates select="." mode="name" /></a></li>
+				</xsl:if>
 				<li><a href="/doc/stop-area">All stop areas</a></li>
 			</ul>
 		</xsl:when>
@@ -507,6 +518,20 @@
 			<ul>
 				<li><a href="{$base}/stop-area">Stop areas containing <xsl:apply-templates select="." mode="name" /></a></li>
 				<li><a href="/doc/stop-point">All stop points</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/id/station/')">
+			<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+			<ul>
+				<li><a href="{$base}/stop-area">Stop areas</a></li>
+				<li><a href="{$base}/stop-point">Stop points</a></li>
+				<li><a href="/doc/station">All stations</a></li>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/def/') and type/item/@href = 'http://www.w3.org/2000/01/rdf-schema#Class'">
+			<ul>
+				<li><a href="{@href}/instance">Instances</a></li>
+				<li><a href="{@href}/subclass">Subclasses</a></li>
 			</ul>
 		</xsl:when>
 	</xsl:choose>
