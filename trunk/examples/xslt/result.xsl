@@ -145,7 +145,10 @@
 					var maxEasting = Math.floor(bounds.right);
 					var minNorthing = Math.ceil(bounds.bottom);
 					var maxNorthing = Math.floor(bounds.top);
-					window.location = '<xsl:value-of select="concat($uri, $sep, $properties)"/>min-easting=' + minEasting + '&amp;max-easting=' + maxEasting + '&amp;min-northing=' + minNorthing + '&amp;max-northing=' + maxNorthing;
+					var midEasting = minEasting + ((maxEasting - minEasting) / 2);
+					var midNorthing = minNorthing + ((maxNorthing - minNorthing) / 2);
+					var orderBy = <xsl:if test="not(contains($uri, '_sort='))">(maxEasting - minEasting) &lt; 3000 ? '&amp;_orderBy=(((?easting - ' + midEasting + ')*(?easting - ' + midEasting + '))%2B((?northing - ' + midNorthing + ')*(?northing - ' + midNorthing + ')))' : </xsl:if>'';
+					window.location = '<xsl:value-of select="concat($uri, $sep, $properties)"/>min-easting=' + minEasting + '&amp;max-easting=' + maxEasting + '&amp;min-northing=' + minNorthing + '&amp;max-northing=' + maxNorthing + orderBy;
 				});
 			</xsl:if>
 		});
@@ -271,10 +274,14 @@
 			<xsl:choose>
 				<xsl:when test="items">
 					<header>
-						<p id="openSearch">Show Search Form</p>
+						<xsl:if test="items/item">
+							<p id="openSearch">Show Search Form</p>
+						</xsl:if>
 						<h1>Search Results</h1>
 					</header>
-					<xsl:apply-templates select="." mode="search" />
+					<xsl:if test="items/item">
+						<xsl:apply-templates select="." mode="search" />
+					</xsl:if>
 					<xsl:apply-templates select="items" mode="content" />
 				</xsl:when>
 				<xsl:otherwise>
@@ -1125,12 +1132,26 @@
 </xsl:template>
 
 <xsl:template match="result" mode="sortnav">
+	<xsl:variable name="searchURI">
+		<xsl:apply-templates select="/result" mode="searchURI" />
+	</xsl:variable>
 	<xsl:variable name="current">
 		<xsl:call-template name="paramValue">
-			<xsl:with-param name="uri">
-				<xsl:apply-templates select="/result" mode="searchURI" />
-			</xsl:with-param>
+			<xsl:with-param name="uri" select="$searchURI" />
 			<xsl:with-param name="param" select="'_sort'" />
+		</xsl:call-template>
+	</xsl:variable>
+	<xsl:variable name="orderBy">
+		<xsl:call-template name="paramValue">
+			<xsl:with-param name="uri" select="$searchURI" />
+			<xsl:with-param name="param" select="'_orderBy'" />
+		</xsl:call-template>
+	</xsl:variable>
+	<xsl:variable name="baseURI">
+		<xsl:call-template name="substituteParam">
+			<xsl:with-param name="uri" select="$searchURI" />
+			<xsl:with-param name="param" select="'_orderBy'" />
+			<xsl:with-param name="value" select="''" />
 		</xsl:call-template>
 	</xsl:variable>
 	<section class="sort">
@@ -1159,9 +1180,7 @@
 				<a title="remove sorting">
 					<xsl:attribute name="href">
 						<xsl:call-template name="substituteParam">
-							<xsl:with-param name="uri">
-								<xsl:apply-templates select="/result" mode="searchURI" />
-							</xsl:with-param>
+							<xsl:with-param name="uri" select="$baseURI" />
 							<xsl:with-param name="param" select="'_sort'" />
 							<xsl:with-param name="value" select="''" />
 						</xsl:call-template>
@@ -1171,11 +1190,69 @@
 			</p>
 		</xsl:if>
 		<ul>
-			<xsl:if test="$current != ''">
-				<xsl:apply-templates select="." mode="selectedSorts">
-					<xsl:with-param name="sorts" select="$current" />
-				</xsl:apply-templates>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="$orderBy != ''">
+					<xsl:variable name="description">
+						<xsl:choose>
+							<xsl:when test="starts-with($orderBy, '(((?easting - ') or starts-with($orderBy, 'desc(((?easting - ')"> proximity to centre of map</xsl:when>
+							<xsl:otherwise> custom sort</xsl:otherwise>
+						</xsl:choose>
+					</xsl:variable>
+					<li class="selected">
+						<a title="remove this sort" href="{$baseURI}">
+							<img src="/images/orange/16x16/Cancel.png" alt="remove this sort" />
+						</a>
+						<xsl:choose>
+							<!-- this is the _orderBy that's used to sort by proximity to center of the map -->
+							<xsl:when test="starts-with($orderBy, 'desc')">
+								<a title="sort in ascending order">
+									<xsl:attribute name="href">
+										<xsl:call-template name="substituteParam">
+											<xsl:with-param name="uri" select="$baseURI" />
+											<xsl:with-param name="param" select="'_orderBy'" />
+											<xsl:with-param name="value" select="substring-after($orderBy, 'desc')" />
+										</xsl:call-template>
+									</xsl:attribute>
+									<img src="/images/orange/16x16/Arrow3 Down.png" alt="sort in ascending order" />
+								</a>
+								<xsl:value-of select="$description" />
+							</xsl:when>
+							<xsl:when test="starts-with($orderBy, 'asc')">
+								<a title="sort in descending order">
+									<xsl:attribute name="href">
+										<xsl:call-template name="substituteParam">
+											<xsl:with-param name="uri" select="$baseURI" />
+											<xsl:with-param name="param" select="'_orderBy'" />
+											<xsl:with-param name="value" select="concat('desc', substring-after($orderBy, 'asc'))" />
+										</xsl:call-template>
+									</xsl:attribute>
+									<img src="/images/orange/16x16/Arrow3 Up.png" alt="sort in descending order" />
+								</a>
+								<xsl:value-of select="$description" />
+							</xsl:when>
+							<xsl:otherwise>
+								<a title="sort in descending order">
+									<xsl:attribute name="href">
+										<xsl:call-template name="substituteParam">
+											<xsl:with-param name="uri" select="$baseURI" />
+											<xsl:with-param name="param" select="'_orderBy'" />
+											<xsl:with-param name="value" select="concat('desc', $orderBy)" />
+										</xsl:call-template>
+									</xsl:attribute>
+									<img src="/images/orange/16x16/Arrow3 Up.png" alt="sort in descending order" />
+								</a>
+								<xsl:value-of select="$description" />
+							</xsl:otherwise>
+						</xsl:choose>
+					</li>
+				</xsl:when>
+				<xsl:when test="$current != ''">
+					<xsl:apply-templates select="." mode="selectedSorts">
+						<xsl:with-param name="uri" select="$baseURI" />
+						<xsl:with-param name="sorts" select="$current" />
+					</xsl:apply-templates>
+				</xsl:when>
+			</xsl:choose>
 			<xsl:for-each select="items/item/*[generate-id(key('properties', name(.))[1]) = generate-id(.)]">
 				<xsl:sort select="self::prefLabel" order="descending" />
 				<xsl:sort select="self::name" order="descending" />
@@ -1192,6 +1269,7 @@
 				<xsl:sort select="boolean(@href)" />
 				<xsl:sort select="local-name()" />
 				<xsl:apply-templates select="." mode="sortentry">
+					<xsl:with-param name="uri" select="$baseURI" />
 					<xsl:with-param name="current" select="$current" />
 				</xsl:apply-templates>
 			</xsl:for-each>
@@ -1200,6 +1278,7 @@
 </xsl:template>
 
 <xsl:template match="result" mode="selectedSorts">
+	<xsl:param name="uri" />
 	<xsl:param name="sorts" />
 	<xsl:param name="previousSorts" select="''" />
 	<xsl:variable name="sort" select="substring-before(concat($sorts, ','), ',')" />
@@ -1222,9 +1301,7 @@
 		<a title="remove this sort">
 			<xsl:attribute name="href">
 				<xsl:call-template name="substituteParam">
-					<xsl:with-param name="uri">
-						<xsl:apply-templates select="/result" mode="searchURI" />
-					</xsl:with-param>
+					<xsl:with-param name="uri" select="$uri" />
 					<xsl:with-param name="param" select="'_sort'" />
 					<xsl:with-param name="value">
 						<xsl:if test="$previousSorts != ''">
@@ -1240,9 +1317,7 @@
 		<a>
 			<xsl:attribute name="href">
 				<xsl:call-template name="substituteParam">
-					<xsl:with-param name="uri">
-						<xsl:apply-templates select="/result" mode="searchURI" />
-					</xsl:with-param>
+					<xsl:with-param name="uri" select="$uri" />
 					<xsl:with-param name="param" select="'_sort'" />
 					<xsl:with-param name="value">
 						<xsl:if test="$previousSorts != ''">
@@ -1289,6 +1364,7 @@
 	</li>
 	<xsl:if test="contains($sorts, ',')">
 		<xsl:apply-templates select="." mode="selectedSorts">
+			<xsl:with-param name="uri" select="$uri" />
 			<xsl:with-param name="sorts" select="substring-after($sorts, ',')" />
 			<xsl:with-param name="previousSorts" select="concat($previousSorts, ',', $sort)" />
 		</xsl:apply-templates>
@@ -1296,6 +1372,7 @@
 </xsl:template>
 
 <xsl:template match="*" mode="sortentry">
+	<xsl:param name="uri" />
 	<xsl:param name="current" />
 	<xsl:variable name="parentName" select="''" />
 	<xsl:variable name="propertyName">
@@ -1321,6 +1398,7 @@
 				<xsl:sort select="boolean(@href)" />
 				<xsl:sort select="local-name()" />
 				<xsl:apply-templates select="." mode="sortentry">
+					<xsl:with-param name="uri" select="$uri" />
 					<xsl:with-param name="current" select="$current" />
 					<xsl:with-param name="parentName" select="$propertyName" />
 				</xsl:apply-templates>
@@ -1328,6 +1406,7 @@
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="." mode="sort">
+				<xsl:with-param name="uri" select="$uri" />
 				<xsl:with-param name="current" select="$current" />
 			</xsl:apply-templates>
 		</xsl:otherwise>
@@ -1335,6 +1414,7 @@
 </xsl:template>
 
 <xsl:template match="*" mode="sort">
+	<xsl:param name="uri" />
 	<xsl:param name="current" />
 	<xsl:variable name="name">
 		<xsl:apply-templates select="." mode="paramName" />
@@ -1342,9 +1422,7 @@
 	<xsl:if test="not(contains(concat(',', $current, ','), concat(',', $name, ',')) or contains(concat(',', $current, ','), concat(',-', $name, ',')))">
 		<xsl:variable name="ascending">
 			<xsl:call-template name="substituteParam">
-				<xsl:with-param name="uri">
-					<xsl:apply-templates select="/result" mode="searchURI" />
-				</xsl:with-param>
+				<xsl:with-param name="uri" select="$uri" />
 				<xsl:with-param name="param" select="'_sort'" />
 				<xsl:with-param name="value">
 					<xsl:if test="$current != ''">
@@ -1362,9 +1440,7 @@
 			<a title="sort in descending order">
 				<xsl:attribute name="href">
 					<xsl:call-template name="substituteParam">
-						<xsl:with-param name="uri">
-							<xsl:apply-templates select="/result" mode="searchURI" />
-						</xsl:with-param>
+						<xsl:with-param name="uri" select="$uri" />
 						<xsl:with-param name="param" select="'_sort'" />
 						<xsl:with-param name="value">
 							<xsl:if test="$current != ''">
@@ -2868,16 +2944,18 @@
 
 <xsl:template match="*" mode="hasNoLabelProperties">
 	<xsl:param name="properties" select="*" />
+	<xsl:param name="sample" select="10" />
 	<xsl:variable name="first" select="$properties[1]" />
 	<xsl:variable name="firstIsLabelProperty">
 		<xsl:apply-templates select="$first" mode="isLabelParam" />
 	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="not($properties)">true</xsl:when>
+		<xsl:when test="not($properties) or $sample = 0">true</xsl:when>
 		<xsl:when test="$firstIsLabelProperty = 'true'">false</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="." mode="hasNoLabelProperties">
 				<xsl:with-param name="properties" select="$properties[position() > 1]" />
+				<xsl:with-param name="sample" select="$sample - 1" />
 			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -2885,16 +2963,18 @@
 
 <xsl:template match="*" mode="anyItemHasNonLabelProperties">
 	<xsl:param name="items" select="item" />
+	<xsl:param name="sample" select="10" />
 	<xsl:variable name="first" select="$items[1]" />
 	<xsl:variable name="firstHasNonLabelProperties">
 		<xsl:apply-templates select="$first" mode="hasNonLabelProperties" />
 	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="not($items)">false</xsl:when>
+		<xsl:when test="not($items) or $sample = 0">false</xsl:when>
 		<xsl:when test="$firstHasNonLabelProperties = 'true'">true</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="." mode="anyItemHasNonLabelProperties">
 				<xsl:with-param name="items" select="$items[position() > 1]" />
+				<xsl:with-param name="sample" select="$sample - 1" />
 			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
