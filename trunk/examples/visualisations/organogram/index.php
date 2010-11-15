@@ -9,7 +9,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
 <link type="text/css" href="css/styles.css" rel="stylesheet">
-<link type="text/css" href="css/prettyPhoto.css" rel="stylesheet"><!--link type="text/css" href="css/jquery.windows-engine.css" rel="stylesheet"-->
+<link type="text/css" href="css/prettyPhoto.css" rel="stylesheet">
 
 <title>Organogram</title>
 
@@ -19,7 +19,6 @@
 
 <h1 class="title"><span id="text">Organogram for :</span><span id="post">Post</span><span id="unit">Unit</span><span id="dept">Department</span></h1>
 
-
 <div id="infovis"></div>
 
 <div id="infobox">
@@ -28,7 +27,7 @@
 
 <div id="right">
 	
-	<p><a class="return" href="http://danpaulsmith.com/gov/overview">Return to the Government Overview</a></p>
+	<p><a class="return" href="../governmentOverview">Return to the Government Overview</a></p>
 	<ul>
 		<li id="orientation">
 			<p>Orientation</p>
@@ -59,7 +58,7 @@
 <script language="javascript" type="text/javascript"
 	src="js/jquery.prettyPhoto.js"></script>
 <script language="javascript" type="text/javascript"
-	src="js/spacetree.js"></script>
+	src="js/organogram.js"></script>
 <script language="javascript" type="text/javascript" src="js/treemap.js"></script>
 <script language="javascript" type="text/javascript"
 	src="js/jquery.color.js"></script>
@@ -71,8 +70,6 @@
 <!--[if lt IE 9]>
     <script src="js/json2.js"></script>
 <![endif]-->
-<!--script language="javascript" type="text/javascript" src="js/JSONPrettyPrint.js"></script-->
-<!--script language="javascript" type="text/javascript" src="js/jquery.windows-engine.js"></script-->
 
 <!--[if IE]><script language="javascript" type="text/javascript" src="js/Jit/Extras/excanvas.js"></script><![endif]-->
 

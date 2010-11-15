@@ -53,6 +53,11 @@
 	<span><input type="radio" name="deputies" value="No" checked><label>No</label></span>
 </li-->
 
+<li id="resizeToggle"><p>Resize by:</p>
+	<span><input type="radio" name="resizeBy" value="Unit" checked><label>Unit</label></span>
+	<span><input type="radio" name="resizeBy" value="Post"><label>Post</label></span>
+</li>
+
 </ul>
 
 	<div id="apiCalls">
@@ -73,7 +78,9 @@
 	src="js/overview.js"></script>
 <script language="javascript" type="text/javascript"
 	src="js/jquery.corner.js"></script>
-	
+<script language="javascript" type="text/javascript"
+	src="js/jquery.overlaps.js"></script>
+		
 <script language="javascript" type="text/javascript" src="js/main.js"></script>
 <!--script language="javascript" type="text/javascript" src="js/JSONPrettyPrint.js"></script-->
 <!--script language="javascript" type="text/javascript" src="js/jquery.windows-engine.js"></script-->

@@ -2,10 +2,8 @@
 Treemap visualisation from the JIT.
 http://thejit.org/
 
-Modified by Dan Smith for the Organogram 
+Modified by @danpaulsmith for the Government Overview 
 visualisation.
-
-treemapvis
 
 */
 
@@ -97,8 +95,16 @@ var global_TM="";
 var global_deptJSON="";
 var includeDeputyDirectors=false;
 var api_call_info = [];
+var sizeByUnits = true;
+var sizeByPosts = false;
+var postReportTos = [];
 
 function init(){
+	
+	api_call_info = [];
+	$('div#apiCalls').hide();
+	$("a.source").remove();
+	$('div.apiCall').remove();
 	
 	loadDepts();
 
@@ -111,7 +117,7 @@ function init(){
 	   animate: false,  
 	   //box offsets  
 	   offset: 0, 
-	   levelsToShow: 2, 
+	   levelsToShow: 1, 
 	   //Attach left and right click events   	   
 	   Events: {  
 	     enable: true,  
@@ -141,9 +147,11 @@ function init(){
 	       	window.location = "http://danpaulsmith.com/gov/orgvis_unitview?dept="+deptSlug+"&unit="+unitSlug;
 	       }
 	       */
+	       //restyle();
 	     },  
 	     onRightClick: function() {  
 	       tm.out();  
+	       //restyle();
 	     }  
 	   },  
 	   duration: 300,
@@ -153,20 +161,14 @@ function init(){
 	     enable: true,  
 	     //add positioning offsets  
 	     offsetX: 20,  
-	     offsetY: 20,  
+	     offsetY: 40,  
 	     //implement the onShow method to  
 	     //add content to the tooltip when a node  
 	     //is hovered  
 	     onShow: function(tip, node, isLeaf, domElement) {  
-	       var html = "<div class=\"tip-title\">" + node.name.valueOf()   
-	         + "</div><div class=\"tip-text\">";  
-	       var data = node.data;  
-	       if(data.playcount) {  
-	         html += "play count: " + data.playcount;  
-	       }  
-	       if(data.image) {  
-	         html += "<img src=\""+ data.image +"\" class=\"album\" />";  
-	       }  
+	       var html = "<div class=\"tip-title\">" +node.name.valueOf()+ "</div>";
+	       //<div class=\"tip-text\">";  
+	       //var data = node.data;  
 	       tip.innerHTML =  html;   
 	     }    
 	   },  
@@ -178,6 +180,7 @@ function init(){
 	       var style = domElement.style;  
 	       style.display = '';  
 	       style.color = node.data.text;
+	       
 	       //style.border = '1px solid transparent';  
        domElement.onmouseover = function() {  
          style.border = '1px solid #FFFFFF';  
@@ -202,16 +205,12 @@ function loadDepts() {
 
 	var postList = new Array();
 	
-	var api_url = "http://danpaulsmith.com/puelia2/doc/department";
-	
-	$("div#formats").fadeOut();
-	
 	// Description of API call
 	api_call_info.push({
 		title:"Retrieves a list of all departments",
 		description:"A specific API Viewer is needed to pull through each departments' units, the posts within those units and the posts that report to those posts.",
-		url:api_url,
-		parameters:"?_view=departmentWithPosts&_pageSize=100&_properties=unit.post.reportsTo"
+		url:"http://reference.data.gov.uk/doc/department",
+		parameters:"?_view=minimal&_properties=unit.label,unit.post.label,unit.post.reportsTo&_pageSize=100"
 	});	
 	
 	$.ajax({
@@ -227,11 +226,22 @@ function loadDepts() {
 			// -- unit
 			// -- unit
 			// -- unit
-			// ---- post
-			// ---- post
+			// ---- post (Deputy 1)
+			// ------ reportsTo (Director)
+			// -------- reportsTo (Director General)
+			// ---------- reportsTo (Permanent Secretary)
+			// ---- post (Deputy 2)
+			// ------ reportsTo (Director)
+			// -------- reportsTo (Director General)
+			// ---------- reportsTo (Permanent Secretary)
+			// ---- post (Deputy 3)
+			// ------ reportsTo (Director)
+			// -------- reportsTo (Director General)
+			// ---------- reportsTo (Permanent Secretary)
 			// -- unit
 			// dept
 			// dept
+
 			
 			// Connect the departments to the government node
 			
@@ -239,6 +249,7 @@ function loadDepts() {
 			
 			var depts = json.result.items;
 			var tempDeptNode = {};
+			var tempDeptNodeArea = 0;
 			var tempUnitNode = {};
 			
 			// Loop through department resources
@@ -259,13 +270,54 @@ function loadDepts() {
 								for(var k=0;k<depts[i].unit[j].post.length;k++){
 									// Skip any posts that are "Deputy Directors"
 									//if(typeof depts[i].unit[j].post[k].type != 'undefined' && depts[i].unit[j].post[k].type[0].toString().indexOf("Deputy") < 0) {
-										// Make a post node and connect to the unit									
-										tempUnitNode.children.push(makePostNode(depts[i].unit[j].post[k]));
-										tempUnitNode.data.$area = tempUnitNode.children.length;
-									//} else if(includeDeputyDirectors) {
-									//	tempUnitNode.children.push(makePostNode(depts[i].unit[j].post[k]));
-									//	tempUnitNode.data.$area = tempUnitNode.children.length;										
-									//}
+									var reportsToCounter = 0;
+									
+									if(postReportTos.length<1){
+										postReportTos.push({
+											p:depts[i].unit[j].post[k]._about,
+											r:reportsToCounter
+										});										
+									} else {									
+										for(var w=0;w<postReportTos.length;w++){
+											if(postReportTos[w].p == depts[i].unit[j].post[k]._about){
+												w=postReportTos.length;
+											} else if(w == postReportTos.length-1){
+												postReportTos.push({
+													p:depts[i].unit[j].post[k]._about,
+													r:reportsToCounter
+												});											
+											}
+										}
+									}
+									
+									reportsToCounter++;									
+									var postItem = depts[i].unit[j].post[k];
+									
+									while(typeof postItem.reportsTo != 'undefined') {
+										
+										for(var x=0;x<postReportTos.length;x++){
+											if(postReportTos[x].p == postItem._about){
+												postReportTos[x].r++;
+											} else if(x==postReportTos.length-1){
+												postReportTos.push({
+													p:postItem._about,
+													r:reportsToCounter
+												});													
+											}
+										}
+										postItem = postItem.reportsTo[0];
+										reportsToCounter++;
+									}
+									
+									
+									// Make a post node and connect to the unit									
+									tempUnitNode.children.push(makePostNode(depts[i].unit[j].post[k]));
+									tempUnitNode.data.$area = tempUnitNode.children.length;
+									tempDeptNodeArea += tempUnitNode.data.$area;
+								//} else if(includeDeputyDirectors) {
+								//	tempUnitNode.children.push(makePostNode(depts[i].unit[j].post[k]));
+								//	tempUnitNode.data.$area = tempUnitNode.children.length;										
+								//}
 								}
 							} else {
 								// Make a unit node
@@ -273,95 +325,26 @@ function loadDepts() {
 							}
 							// Connect the unit node to the department
 							tempDeptNode.children.push(tempUnitNode);
-							tempDeptNode.data.$area = tempDeptNode.children.length;
+							if(sizeByUnits){
+								tempDeptNode.data.$area = tempDeptNode.children.length;
+							} else if(sizeByPosts){
+								tempDeptNode.data.$area = tempDeptNodeArea;
+							}
 						}
 					} else {
 						// The department has no units
 					}
 				}
-				global_govJSON.children.push(tempDeptNode);			
-			}
-			
-			
-			p("Government:");
-			//console.log(global_govJSON);
-			
-
-			
-/*
-			$.ajax({
-				url: "http://danpaulsmith.com/puelia2/doc/department/"+deptSlug+"/tier2post.json",
-				type: "GET",
-				dataType: "json",
-				async:true,
-				success: function(json){
-
-				}
-			});
-			
-			// Connect the units to the department
-			var posts = json.result.items;
-			var deptNodeCreated = false;
-			for(var i=0; i<posts.length; i++) {
-				for(var j=0;j<posts[i].postIn.length;j++){
-					if(posts[i].postIn[j]._about.toString().indexOf("unit") < 0 && !deptNodeCreated) {
-						
-						p("Creating department node using: "+posts[i].postIn[j]._about.toString());
-						global_deptJSON = makeDeptNode(posts[i].postIn[j]);
-						
-						if(j==0){
-							p("Creating unit node using: "+posts[i].postIn[1]._about.toString());
-							global_deptJSON.children.push(makeUnitNode(posts[i].postIn[1]));						
-						} else {
-							p("Creating unit node using: "+posts[i].postIn[0]._about.toString());
-							global_deptJSON.children.push(makeUnitNode(posts[i].postIn[0]));						
-						}
-						deptNodeCreated = true;
-						
-					} else if(posts[i].postIn[j]._about.toString().indexOf("unit") > 0 && deptNodeCreated) {
-						p("Creating unit node using: "+posts[i].postIn[j]._about.toString());
-						global_deptJSON.children.push(makeUnitNode(posts[i].postIn[j]));				
-					}
-				}
-				
+				global_govJSON.children.push(tempDeptNode);
+				tempDeptNodeArea = 0;	
 			}
 
-			
-			cl(global_deptJSON.children.length);
-			
-			//Check for duplicate unit nodes using a destructive splice
-			for(i=0;i<global_deptJSON.children.length-1;i++){
-				for(j=i+1;j<global_deptJSON.children.length;j++){
-					if(global_deptJSON.children[i].data.uri == global_deptJSON.children[j].data.uri) {
-						global_deptJSON.children.splice(j,1);
-						j=j-1;
-					}
-				}
-			}
-			
-			cl(global_deptJSON.children.length);
-			
-			
-			
-			// Connect the posts to the units
-			for(i=0;i<posts.length;i++){
-				for(j=0;j<posts[i].postIn.length;j++){
-					for(k=0;k<global_deptJSON.children.length;k++){
-						if(posts[i].postIn[j]._about == global_deptJSON.children[k].data.uri){
-							global_deptJSON.children[k].children.push(makePostNode(posts[i]));
-						}
-					}
-				}
-			}
-			
-			cl(global_deptJSON);
-			
-			global_TM.loadJSON(global_deptJSON);  
-			global_TM.refresh(); 
-*/
-			
+			resizePosts(global_govJSON);
+
 			global_TM.loadJSON(global_govJSON);  
 			global_TM.refresh(); 
+			
+			restyle();
 			
 			displayDataSources();
 			
@@ -371,6 +354,46 @@ function loadDepts() {
 	});
 
 	return false;
+}
+
+function restyle(){
+
+	$("div.node").each(function(){
+		if($(this).hasClass("Department")){
+			if($("div.Unit").overlaps($(this))){
+				$(this).css("line-height","25px");
+			} else {
+				$(this).css("line-height",$(this).height()+"px");
+			}
+		}
+		if($(this).hasClass("Unit")){
+			if($("div.Post").overlaps($(this))){
+				$(this).css("line-height","25px");
+			} else {
+				$(this).css("line-height",$(this).height()+"px");
+			}			
+		}
+		if($(this).hasClass("Post")){
+			$(this).css("line-height",$(this).height()+"px");	
+		}
+		
+		//textFit($(this).get(0), 6, 100, $(this).width(), $(this).height());
+		
+	});
+
+
+	$("div.node").click(function(){
+		$("div.node").removeClass("root");
+		$(this).addClass("root");
+		if($(this).hasClass("Government")){
+			
+		} else if($(this).hasClass("Department")){
+			
+		} else if($(this).hasClass("Unit")){
+			
+		}
+	});	
+
 }
 
 function makePostNode(item){
@@ -476,4 +499,29 @@ function displayDataSources() {
 	$('div#apiCalls').fadeIn();
 		
 	return false;
+}
+
+
+function resizePosts(jsonObj) {
+
+	if( typeof jsonObj == "object" ) {
+	
+		$.each(jsonObj, function(k,v) {
+
+			if(typeof k == "number" && v.data != 'undefined' && v.data.type == "Post"){
+				for(var y=0;y<postReportTos.length;y++){
+					if(v.data.uri == postReportTos[y].p){
+						v.data.$area = postReportTos[y].r;
+					}
+				}					
+			}
+			
+			resizePosts(v);
+		});
+	}
+	else {
+		// jsonOb is a number or string
+	}
+
+	return jsonObj;
 }
