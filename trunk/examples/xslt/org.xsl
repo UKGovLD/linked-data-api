@@ -24,47 +24,232 @@
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="isPartOf" mode="moreinfo">
+	<xsl:variable name="base" select="substring-after(@href, 'http://reference.data.gov.uk')" />
+	<xsl:variable name="path" select="substring-before(concat($base, '?'), '?')" />
+	<xsl:call-template name="orgLinks">
+		<xsl:with-param name="base" select="$path" />
+	</xsl:call-template>
+</xsl:template>
+
 <xsl:template match="primaryTopic" mode="moreinfo">
-	<xsl:if test="starts-with(@href, 'http://reference.data.gov.uk/id/department/')">
-		<xsl:variable name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
-		<ul>
+	<xsl:call-template name="orgLinks">
+		<xsl:with-param name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+	</xsl:call-template>
+</xsl:template>
+
+<xsl:template name="orgLinks">
+	<xsl:param name="base" />
+	<xsl:choose>
+		<xsl:when test="starts-with($base, '/doc/department/')">
+			<xsl:variable name="department">
+				<xsl:call-template name="subPath">
+					<xsl:with-param name="uri" select="$base" />
+					<xsl:with-param name="component" select="'department'" />
+				</xsl:call-template>
+			</xsl:variable> 
 			<xsl:choose>
-				<xsl:when test="contains($base, '/statistics')">
-					<xsl:choose>
-						<xsl:when test="contains($base, '/unit/')">
-							<li><a href="{substring-before($base, '/statistics')}">Unit</a></li>
-							<li><a href="{substring-before($base, '/unit')}">Organisation</a></li>
-						</xsl:when>
-						<xsl:otherwise>
-							<li><a href="{substring-before($base, '/statistics')}">Post</a></li>
-							<li><a href="{substring-before($base, '/post')}">Organisation</a></li>
-						</xsl:otherwise>
-					</xsl:choose>
-				</xsl:when>
 				<xsl:when test="contains($base, '/unit/')">
-					<li><a href="{$base}/statistics">Statistics about Posts in <xsl:apply-templates select="." mode="name" /></a></li>
-					<li><a href="{$base}/post">Posts in <xsl:apply-templates select="." mode="name" /></a></li>
-					<li><a href="{substring-before($base, '/unit')}/unit">Other Units</a></li>
-					<li><a href="{substring-before($base, '/unit')}">Organisation</a></li>
+					<xsl:variable name="unit">
+						<xsl:call-template name="subPath">
+							<xsl:with-param name="uri" select="$base" />
+							<xsl:with-param name="component" select="'unit'" />
+						</xsl:call-template>
+					</xsl:variable> 
+					<ul>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($unit, '/statistics')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Unit post statistics</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($unit, '/post')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Unit posts</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="$unit" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Unit</xsl:with-param>
+						</xsl:call-template>
+					</ul>
 				</xsl:when>
 				<xsl:when test="contains($base, '/post/')">
-					<li><a href="{$base}/statistics">Statistics</a></li>
-					<li><a href="{$base}/immediate-reports">Immediate Reports</a></li>
-					<li><a href="{$base}/reports">All Reports</a></li>
-					<li><a href="{substring-before($base, '/post')}/post">Other Posts</a></li>
-					<li><a href="{substring-before($base, '/post')}">Organisation</a></li>
+					<xsl:variable name="post">
+						<xsl:call-template name="subPath">
+							<xsl:with-param name="uri" select="$base" />
+							<xsl:with-param name="component" select="'post'" />
+						</xsl:call-template>
+					</xsl:variable> 
+					<ul>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($post, '/statistics')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post statistics</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($post, '/immediate-reports')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post immediate reports</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($post, '/reports')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post reports</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="$post" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post</xsl:with-param>
+						</xsl:call-template>
+					</ul>
 				</xsl:when>
-				<xsl:otherwise>
-					<li><a href="{$base}/minister">Ministers in <xsl:apply-templates select="." mode="name" /></a></li>
-					<li><a href="{$base}/unit">Units in <xsl:apply-templates select="." mode="name" /></a></li>
-					<li><a href="{$base}/post"><abbr title="Senior Civil Service">SCS</abbr> Posts in <xsl:apply-templates select="." mode="name" /></a></li>
-					<li><a href="/doc/ministerial-department">Ministerial Departments</a></li>
-					<li><a href="/doc/non-ministerial-department">Non-Ministerial Departments</a></li>
-					<li><a href="/doc/department">Other Departments</a></li>
-				</xsl:otherwise>
 			</xsl:choose>
-		</ul>
-	</xsl:if>
+			<ul>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="concat($department, '/minister')" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Department ministers</xsl:with-param>
+				</xsl:call-template>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="concat($department, '/post')" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Department <abbr title="Senior Civil Service">SCS</abbr> posts</xsl:with-param>
+				</xsl:call-template>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="concat($department, '/unit')" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Department units</xsl:with-param>
+				</xsl:call-template>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="$department" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Department</xsl:with-param>
+				</xsl:call-template>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with($base, '/doc/public-body/')">
+			<xsl:variable name="publicBody">
+				<xsl:call-template name="subPath">
+					<xsl:with-param name="uri" select="$base" />
+					<xsl:with-param name="component" select="'public-body'" />
+				</xsl:call-template>
+			</xsl:variable> 
+			<xsl:choose>
+				<xsl:when test="contains($base, '/unit/')">
+					<xsl:variable name="unit">
+						<xsl:call-template name="subPath">
+							<xsl:with-param name="uri" select="$base" />
+							<xsl:with-param name="component" select="'unit'" />
+						</xsl:call-template>
+					</xsl:variable> 
+					<ul>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($unit, '/statistics')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Unit post statistics</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($unit, '/post')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Unit posts</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="$unit" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Unit</xsl:with-param>
+						</xsl:call-template>
+					</ul>
+				</xsl:when>
+				<xsl:when test="contains($base, '/post/')">
+					<xsl:variable name="post">
+						<xsl:call-template name="subPath">
+							<xsl:with-param name="uri" select="$base" />
+							<xsl:with-param name="component" select="'post'" />
+						</xsl:call-template>
+					</xsl:variable> 
+					<ul>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($post, '/statistics')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post statistics</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($post, '/immediate-reports')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post immediate reports</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($post, '/reports')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post reports</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="$post" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post</xsl:with-param>
+						</xsl:call-template>
+					</ul>
+				</xsl:when>
+			</xsl:choose>
+			<ul>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="concat($publicBody, '/post')" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Public body <abbr title="Senior Civil Service">SCS</abbr> posts</xsl:with-param>
+				</xsl:call-template>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="concat($publicBody, '/unit')" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Public body units</xsl:with-param>
+				</xsl:call-template>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="$publicBody" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Public body</xsl:with-param>
+				</xsl:call-template>
+			</ul>
+		</xsl:when>
+	</xsl:choose>
+	<ul>
+		<xsl:call-template name="moreinfoLink">
+			<xsl:with-param name="uri" select="'/doc/ministerial-department'" />
+			<xsl:with-param name="current" select="$base" />
+			<xsl:with-param name="label">Ministerial departments</xsl:with-param>
+		</xsl:call-template>
+		<xsl:call-template name="moreinfoLink">
+			<xsl:with-param name="uri" select="'/doc/non-ministerial-department'" />
+			<xsl:with-param name="current" select="$base" />
+			<xsl:with-param name="label">Non-ministerial departments</xsl:with-param>
+		</xsl:call-template>
+		<xsl:call-template name="moreinfoLink">
+			<xsl:with-param name="uri" select="'/doc/department'" />
+			<xsl:with-param name="current" select="$base" />
+			<xsl:with-param name="label">All departments</xsl:with-param>
+		</xsl:call-template>
+		<xsl:call-template name="moreinfoLink">
+			<xsl:with-param name="uri" select="'/doc/public-body'" />
+			<xsl:with-param name="current" select="$base" />
+			<xsl:with-param name="label">All public bodies</xsl:with-param>
+		</xsl:call-template>
+	</ul>
+	<ul>
+		<xsl:call-template name="moreinfoLink">
+			<xsl:with-param name="uri" select="'/doc/seat'" />
+			<xsl:with-param name="current" select="$base" />
+			<xsl:with-param name="label">All seats</xsl:with-param>
+		</xsl:call-template>
+		<xsl:call-template name="moreinfoLink">
+			<xsl:with-param name="uri" select="'/doc/mp'" />
+			<xsl:with-param name="current" select="$base" />
+			<xsl:with-param name="label">All MPs</xsl:with-param>
+		</xsl:call-template>
+		<xsl:call-template name="moreinfoLink">
+			<xsl:with-param name="uri" select="'/doc/peer'" />
+			<xsl:with-param name="current" select="$base" />
+			<xsl:with-param name="label">All peers</xsl:with-param>
+		</xsl:call-template>
+	</ul>
 </xsl:template>
 
 </xsl:stylesheet>
