@@ -147,7 +147,7 @@
 					var maxNorthing = Math.floor(bounds.top);
 					var midEasting = minEasting + ((maxEasting - minEasting) / 2);
 					var midNorthing = minNorthing + ((maxNorthing - minNorthing) / 2);
-					var orderBy = <xsl:if test="not(contains($uri, '_sort='))">(maxEasting - minEasting) &lt; 3000 ? '&amp;_orderBy=(((?easting - ' + midEasting + ')*(?easting - ' + midEasting + '))%2B((?northing - ' + midNorthing + ')*(?northing - ' + midNorthing + ')))' : </xsl:if>'';
+					var orderBy = <xsl:if test="not(contains($uri, '_sort='))">(maxEasting - minEasting) &lt; 2000 ? '&amp;_orderBy=(((?easting - ' + midEasting + ')*(?easting - ' + midEasting + '))%2B((?northing - ' + midNorthing + ')*(?northing - ' + midNorthing + ')))' : </xsl:if>'';
 					window.location = '<xsl:value-of select="concat($uri, $sep, $properties)"/>min-easting=' + minEasting + '&amp;max-easting=' + maxEasting + '&amp;min-northing=' + minNorthing + '&amp;max-northing=' + maxNorthing + orderBy;
 				});
 			</xsl:if>
@@ -308,12 +308,14 @@
 		<xsl:if test="not($isItem)">
 			<xsl:apply-templates select="." mode="filternav" />
 		</xsl:if>
+		<xsl:if test="$hasResults">
+			<xsl:apply-templates select="." mode="sortnav" />
+		</xsl:if>
 		<xsl:if test="$hasResults or $isItem">
 			<xsl:apply-templates select="." mode="viewnav" />
 		</xsl:if>
 		<xsl:if test="$hasResults">
 			<xsl:apply-templates select="." mode="sizenav" />
-			<xsl:apply-templates select="." mode="sortnav" />
 		</xsl:if>
 	</nav>
 </xsl:template>
@@ -740,6 +742,22 @@
 </xsl:template>
 
 <xsl:template match="primaryTopic | items" mode="moreinfo" />
+
+<xsl:template name="moreinfoLink">
+	<xsl:param name="uri" />
+	<xsl:param name="current" />
+	<xsl:param name="label" />
+	<li>
+		<xsl:choose>
+			<xsl:when test="$uri = $current">
+				<span class="current"><xsl:value-of select="$label" /></span>
+			</xsl:when>
+			<xsl:otherwise>
+				<a href="{$uri}"><xsl:value-of select="$label" /></a>
+			</xsl:otherwise>
+		</xsl:choose>
+	</li>
+</xsl:template>
 
 <xsl:template match="*" mode="name">
 	<xsl:variable name="bestLabelParam">
@@ -3090,6 +3108,14 @@
 			<xsl:value-of select="translate($value, '+', ' ')" />
 		</xsl:otherwise>
 	</xsl:choose>
+</xsl:template>
+
+<xsl:template name="subPath">
+	<xsl:param name="uri" />
+	<xsl:param name="component" />
+	<xsl:variable name="componentPart" select="concat('/', $component, '/')" />
+	<xsl:variable name="after" select="substring-after($uri, $componentPart)" />
+	<xsl:value-of select="concat(substring-before($uri, $componentPart), $componentPart, substring-before(concat($after, '/'), '/'))" />
 </xsl:template>
 
 </xsl:stylesheet>
