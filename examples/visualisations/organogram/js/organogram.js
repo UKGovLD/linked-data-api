@@ -166,7 +166,7 @@ function init(deptSlug,postSlug){
 		duration: 300,
 		orientation: 'top',
 		offsetX: 200,  
-		offsetY: 50, 
+		offsetY: 250, 
 		// set animation transition type
 		transition: $jit.Trans.Sine.easeOut, 
 		// set distance between node and its children

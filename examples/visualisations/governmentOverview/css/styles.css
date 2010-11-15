@@ -94,7 +94,6 @@ left:0;
 bottom:0;
 position:fixed;
 }
-
 .node {
 border:1px solid transparent;
 cursor:pointer;
@@ -247,19 +246,24 @@ div#right select {
 margin-top:5px;
 display:inline-block !important;
 }
-div.tooltip {
-background:none repeat scroll 0 0 #333333;
-color:#FFFFFF;
+.tooltip {
+-moz-border-radius:10px 10px 10px 10px;
+-moz-box-shadow:0 5px 24px #888888;
+background-color:#FFFFFF;
+border:10px solid #DDDDDD;
+color:#333333;
 display:none;
+font-size:12px;
+font-weight:bold;
 height:auto;
+opacity:1;
+overflow-x:hidden;
+overflow-y:auto;
+padding:15px 10px;
 position:fixed;
-right:90px;
-top:0;
-width:200px;
-z-index:99999;
-margin-top:30px;
-border:2px dotted #FFFFFF;
-padding:10px;
+text-align:center;
+width:150px;
+z-index:999999;
 }
 div#formats {
 margin-top:50px;

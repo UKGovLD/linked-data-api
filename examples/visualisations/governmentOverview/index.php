@@ -80,7 +80,8 @@
 	src="js/jquery.corner.js"></script>
 <script language="javascript" type="text/javascript"
 	src="js/jquery.overlaps.js"></script>
-		
+<script language="javascript" type="text/javascript"
+	src="js/jquery.qtip.js"></script>		
 <script language="javascript" type="text/javascript" src="js/main.js"></script>
 <!--script language="javascript" type="text/javascript" src="js/JSONPrettyPrint.js"></script-->
 <!--script language="javascript" type="text/javascript" src="js/jquery.windows-engine.js"></script-->

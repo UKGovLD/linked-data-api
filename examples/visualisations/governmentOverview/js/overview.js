@@ -107,91 +107,85 @@ function init(){
 	$('div.apiCall').remove();
 	
 	loadDepts();
+	
+	var tm = new $jit.TM.Squarified({  
+		//where to inject the visualization  
+		injectInto: 'infovis',  
+		//parent box title heights  
+		titleHeight: 30,  
+		//enable animations  
+		animate: false,  
+		//box offsets  
+		offset: 0, 
+		levelsToShow: 1, 
+		//Attach left and right click events   	   
+		Events: {  
+			enable: true,  
+			onClick: function(node) {  
 
- 	var tm = new $jit.TM.Squarified({  
-	   //where to inject the visualization  
-	   injectInto: 'infovis',  
-	   //parent box title heights  
-	   titleHeight: 30,  
-	   //enable animations  
-	   animate: false,  
-	   //box offsets  
-	   offset: 0, 
-	   levelsToShow: 1, 
-	   //Attach left and right click events   	   
-	   Events: {  
-	     enable: true,  
-	     onClick: function(node) {  
-	       //console.log("clicked on node");
-	       if(typeof node.data != 'undefined' && node.data.type == "Post") {
-	       	var postSlug = node.data.uri.split("/");
-	       	var deptSlug = "";
-	       	for(var i=0;i<postSlug.length;i++){
-	       		if(postSlug[i] == "department") {
-	       			deptSlug = postSlug[i+1];
-	       		}
-	       	}
-	       	postSlug = postSlug[postSlug.length-1];
-	       	//if(deptSlug == "bis" || deptSlug == "hmrc"){
-	       		window.location = "../organogram?dept="+deptSlug+"&post="+postSlug;
-	       	//} else {
-	       	//	showLog("Sorry, this organogram is under construction. The BIS and HMRC organogram data is live. ");
-	       	//	setTimeout(function() {hideLog();},3000);
-	       	//}
-	       } else if(node) {
-	       	tm.enter(node);
-	       }
-	       /* else if(node.data.type == "Unit") {
-	       	var unitSlug = node.data.uri.split("/");
-	       	unitSlug = unitSlug[unitSlug.length-1];
-	       	window.location = "http://danpaulsmith.com/gov/orgvis_unitview?dept="+deptSlug+"&unit="+unitSlug;
-	       }
-	       */
-	       //restyle();
-	     },  
-	     onRightClick: function() {  
-	       tm.out();  
-	       //restyle();
-	     }  
-	   },  
-	   duration: 300,
-	   cushion: useGradients,
-	   //Enable tips  
-	   Tips: {  
-	     enable: true,  
-	     //add positioning offsets  
-	     offsetX: 20,  
-	     offsetY: 40,  
-	     //implement the onShow method to  
-	     //add content to the tooltip when a node  
-	     //is hovered  
-	     onShow: function(tip, node, isLeaf, domElement) {  
-	       var html = "<div class=\"tip-title\">" +node.name.valueOf()+ "</div>";
-	       //<div class=\"tip-text\">";  
-	       //var data = node.data;  
-	       tip.innerHTML =  html;   
-	     }    
-	   },  
-	   //Add the name of the node in the correponding label  
-	   //This method is called once, on label creation.  
-	   onCreateLabel: function(domElement, node){  
-	   	   $(domElement).addClass(node.data.type);
-	       domElement.innerHTML = node.name.valueOf();
-	       var style = domElement.style;  
-	       style.display = '';  
-	       style.color = node.data.text;
-	       
-	       //style.border = '1px solid transparent';  
-       domElement.onmouseover = function() {  
-         style.border = '1px solid #FFFFFF';  
-       };  
-       domElement.onmouseout = function() {  
-         style.border = '1px solid transparent';  
-       };  
-	   }  
-	 });  
-	 
-	 global_TM = tm;
+				if(typeof node.data != 'undefined' && node.data.type == "Post") {
+					var postSlug = node.data.uri.split("/");
+					var deptSlug = "";
+					for(var i=0;i<postSlug.length;i++){
+						if(postSlug[i] == "department") {
+							deptSlug = postSlug[i+1];
+						}
+					}
+					postSlug = postSlug[postSlug.length-1];
+
+					window.location = "../organogram?dept="+deptSlug+"&post="+postSlug;
+
+				} else if(node) {
+					tm.enter(node);
+				}
+				restyle();
+			},  
+			onRightClick: function() {  
+				tm.out();  
+				restyle();
+			}  
+		},  
+		duration: 300,
+		cushion: useGradients,
+		//Enable tips  
+		Tips: {  
+			enable: false,  
+			//add positioning offsets  
+			offsetX: 20,  
+			offsetY: 40,  
+			//implement the onShow method to  
+			//add content to the tooltip when a node  
+			//is hovered  
+			onShow: function(tip, node, isLeaf, domElement) {  
+				
+				var html = "<div class=\"tip-title\">" +$(isLeaf).children().eq(0).html()+ "</div>";
+				//<div class=\"tip-text\">";  
+				//var data = node.data;  
+				tip.innerHTML =  html;   
+			}    
+		},  
+		//Add the name of the node in the correponding label  
+		//This method is called once, on label creation.  
+		onCreateLabel: function(domElement, node){  
+			$(domElement).addClass(node.data.type);
+			domElement.innerHTML = '<div class="cell">'+node.name.valueOf()+'</div><div class="tooltip">'+node.name.valueOf()+'</div>';
+			var style = domElement.style;  
+			style.display = '';  
+			style.color = node.data.text;
+			
+			$(domElement).hover(function(e){
+				$(domElement).get(0).style.border = '1px solid #FFFFFF';											  									  
+				$(this).children().filter(".tooltip").css("top",(e.pageY - 10) + "px").css("left",(e.pageX - 30) + "px").fadeIn("fast");		
+			},function(){
+				$(domElement).get(0).style.border = '1px solid transparent'; 
+				$(this).children().filter(".tooltip").hide();
+			});    
+		}             
+		
+		
+	});  
+	
+	global_TM = tm;
  
 } // end init
 
@@ -219,28 +213,6 @@ function loadDepts() {
 		dataType: "json",
 		async:true,
 		success: function(json){
-		
-			
-			// dept
-			// dept
-			// -- unit
-			// -- unit
-			// -- unit
-			// ---- post (Deputy 1)
-			// ------ reportsTo (Director)
-			// -------- reportsTo (Director General)
-			// ---------- reportsTo (Permanent Secretary)
-			// ---- post (Deputy 2)
-			// ------ reportsTo (Director)
-			// -------- reportsTo (Director General)
-			// ---------- reportsTo (Permanent Secretary)
-			// ---- post (Deputy 3)
-			// ------ reportsTo (Director)
-			// -------- reportsTo (Director General)
-			// ---------- reportsTo (Permanent Secretary)
-			// -- unit
-			// dept
-			// dept
 
 			
 			// Connect the departments to the government node
@@ -269,7 +241,6 @@ function loadDepts() {
 								// Loop through the unit's posts	
 								for(var k=0;k<depts[i].unit[j].post.length;k++){
 									// Skip any posts that are "Deputy Directors"
-									//if(typeof depts[i].unit[j].post[k].type != 'undefined' && depts[i].unit[j].post[k].type[0].toString().indexOf("Deputy") < 0) {
 									var reportsToCounter = 0;
 									
 									if(postReportTos.length<1){
@@ -314,10 +285,7 @@ function loadDepts() {
 									tempUnitNode.children.push(makePostNode(depts[i].unit[j].post[k]));
 									tempUnitNode.data.$area = tempUnitNode.children.length;
 									tempDeptNodeArea += tempUnitNode.data.$area;
-								//} else if(includeDeputyDirectors) {
-								//	tempUnitNode.children.push(makePostNode(depts[i].unit[j].post[k]));
-								//	tempUnitNode.data.$area = tempUnitNode.children.length;										
-								//}
+
 								}
 							} else {
 								// Make a unit node
@@ -361,38 +329,38 @@ function restyle(){
 	$("div.node").each(function(){
 		if($(this).hasClass("Department")){
 			if($("div.Unit").overlaps($(this))){
-				$(this).css("line-height","25px");
+				$(this).children().eq(0).css("top","0").css("margin-top","6px");
 			} else {
-				$(this).css("line-height",$(this).height()+"px");
+				$(this).children().eq(0).vAlign();
+				$(this).children().eq(0).hAlign();
 			}
 		}
 		if($(this).hasClass("Unit")){
 			if($("div.Post").overlaps($(this))){
-				$(this).css("line-height","25px");
+				$(this).children().eq(0).css("top","0").css("margin-top","6px");			
 			} else {
-				$(this).css("line-height",$(this).height()+"px");
+				$(this).children().eq(0).vAlign();
+				$(this).children().eq(0).hAlign();
 			}			
 		}
 		if($(this).hasClass("Post")){
-			$(this).css("line-height",$(this).height()+"px");	
+				$(this).children().eq(0).vAlign();
+				$(this).children().eq(0).hAlign();
 		}
 		
-		//textFit($(this).get(0), 6, 100, $(this).width(), $(this).height());
-		
+	$(this).mousemove(function(e){	
+		if(e.pageY < 130 && e.pageX < 200){
+			$(this).children().filter(".tooltip").css("top",(e.pageY+30) + "px").css("left",(e.pageX+30) + "px");				
+		} else if(e.pageY < 130 ) {
+			$(this).children().filter(".tooltip").css("top",(e.pageY+30) + "px").css("left",(e.pageX-200) + "px");						
+		} else if(e.pageX < 200) {
+			$(this).children().filter(".tooltip").css("top",(e.pageY-100) + "px").css("left",(e.pageX+30) + "px");								
+		} else {
+			$(this).children().filter(".tooltip").css("top",(e.pageY-100) + "px").css("left",(e.pageX-200) + "px");				
+		}
+	});    
+				
 	});
-
-
-	$("div.node").click(function(){
-		$("div.node").removeClass("root");
-		$(this).addClass("root");
-		if($(this).hasClass("Government")){
-			
-		} else if($(this).hasClass("Department")){
-			
-		} else if($(this).hasClass("Unit")){
-			
-		}
-	});	
 
 }
 
