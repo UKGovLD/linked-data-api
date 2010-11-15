@@ -96,11 +96,6 @@ position:fixed;
 }
 
 .node {
-/*
-background-image:url("../images/radial_white.png");
-background-position:center center;
-background-repeat:no-repeat;
-*/
 border:1px solid transparent;
 cursor:pointer;
 font-family:Arial;
@@ -109,7 +104,13 @@ overflow:hidden;
 text-align:center;
 color:#FFFFFF;
 }
-
+div.root {
+font-size:14px !important;
+line-height:25px !important;
+}
+div.Government {
+line-height:25px !important;
+}
 .tip {
 background-color:#333333;
 border:5px solid #555555;
@@ -295,7 +296,19 @@ li#deputyToggle label {
 display:inline-block;
 width:22px;
 }
-
+li#resizeToggle  {
+text-align: center;
+padding-bottom:5px;
+}
+li#resizeToggle span {
+display:block;
+}
+li#resizeToggle input {
+}
+li#resizeToggle label {
+display:inline-block;
+width:22px;
+}
 /* Data Sources Panel */
 div#apiCalls {
 display:none;
@@ -417,6 +430,7 @@ div#apiCalls div.apiCall ul.paramlist li {
 margin:0;
 background:none;
 width:auto;
+word-wrap:break-word;
 }
 div#apiCalls div.apiCall p.formats {
 
