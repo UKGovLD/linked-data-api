@@ -1,0 +1,343 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix api: <http://purl.org/linked-data/api/vocab#> .
+
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix spatialrelations: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
+@prefix scovo: <http://purl.org/NET/scovo#> .
+
+@prefix dgu: <http://reference.data.gov.uk/def/reference/> .
+@prefix admingeo: <http://statistics.data.gov.uk/def/administrative-geography/> .
+@prefix postcode: <http://data.ordnancesurvey.co.uk/ontology/postcode/> .
+
+@prefix labs: <http://labs.data.gov.uk/lod#> .
+
+labs:api
+	a api:API ;
+	rdfs:label "Labs API"@en ;
+	api:maxPageSize 100;
+	api:defaultPageSize 20 ;
+	api:sparqlEndpoint <http://api.talis.com/stores/ordnance-survey/services/sparql> ;
+	api:base "http://localhost/lod" ;
+#  api:lang "en,cy" ;
+	api:viewer 
+	  api:describeViewer ,
+	  api:labelledDescribeViewer ;
+  api:defaultFormatter labs:HtmlFormatter ;
+	api:endpoint
+	  labs:osPostcodeUnit , labs:osPostcodeUnits , labs:osPostcodeUnitInSector , labs:osPostcodeUnitInDistrict , labs:osPostcodeUnitInArea ,
+	  labs:osPostcodeSector , labs:osPostcodeSectors , labs:osPostcodeSectorInDistrict , labs:osPostcodeSectorInArea ,
+	  labs:osPostcodeDistrict , labs:osPostcodeDistricts , labs:osPostcodeDistrictInArea ,
+	  labs:osPostcodeArea , labs:osPostcodeAreas ;
+	.
+
+#FORMATTERS
+
+labs:HtmlFormatter
+  a api:XsltFormatter ;
+  api:name "html" ;
+  api:mimeType "text/html" , "application/xhtml+xml" ;
+  api:stylesheet "xslt/labs.xsl" .
+
+## PostCodeUnits ##
+
+labs:osPostcodeUnitSelector
+  a api:Selector ;
+  api:filter "type=PostcodeUnit" ;
+  .
+
+labs:osPostcodeUnits
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode" ;
+  api:selector labs:osPostcodeUnitSelector ;
+  api:defaultViewer labs:osPostcodeUnitListViewer ;
+  .
+
+labs:osPostcodeUnitListViewer
+  a api:Viewer ;
+  api:name "postcodes" ;
+  api:properties "label,easting,northing,lat,long,within.label" ;
+  .
+
+labs:osPostcodeUnit
+  a api:ItemEndpoint ;
+  api:uriTemplate "/os/postcode/{code}" ;
+  api:itemTemplate "http://data.ordnancesurvey.co.uk/id/postcodeunit/{code}" ;
+  api:defaultViewer labs:osPostcodeUnitItemViewer ;
+  .
+
+labs:osPostcodeUnitItemViewer
+  a api:Viewer ;
+  api:name "postcode" ;
+  api:properties "label,easting,northing,lat,long,within.label,country.label,district.label,ward.label,localHealthAuthority,regionalHealthAuthority,positionalQuality" ;
+  .
+
+labs:osPostcodeUnitInSector
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-sector/{code}/unit" ;
+  api:variable [
+    api:name "area" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodesector/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item spatialrelations:within ?area ; a postcode:PostcodeUnit . " ;
+  ] ;
+  api:defaultViewer labs:osPostcodeUnitListViewer ;
+  .
+
+labs:osPostcodeUnitInDistrict
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-district/{code}/unit" ;
+  api:variable [
+    api:name "area" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodedistrict/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item spatialrelations:within ?area ; a postcode:PostcodeUnit . " ;
+  ] ;
+  api:defaultViewer labs:osPostcodeUnitListViewer ;
+  .
+
+labs:osPostcodeUnitInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-area/{code}/unit" ;
+  api:variable [
+    api:name "area" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodearea/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item spatialrelations:within ?area ; a postcode:PostcodeUnit . " ;
+  ] ;
+  api:defaultViewer labs:osPostcodeUnitListViewer ;
+  .
+
+## PostCodeSectors ##
+
+labs:osPostcodeSectorSelector
+  a api:Selector ;
+  api:filter "type=PostcodeSector" ;
+  .
+
+labs:osPostcodeSectors
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-sector" ;
+  api:selector labs:osPostcodeSectorSelector ;
+  api:defaultViewer labs:osPostcodeSectorListViewer ;
+  .
+
+labs:osPostcodeSectorListViewer
+  a api:Viewer ;
+  api:name "postcode sectors" ;
+  api:properties "label,within.label" ;
+  .
+
+labs:osPostcodeSector
+  a api:ItemEndpoint ;
+  api:uriTemplate "/os/postcode-sector/{code}" ;
+  api:itemTemplate "http://data.ordnancesurvey.co.uk/id/postcodesector/{code}" ;
+  api:defaultViewer labs:osPostcodeSectorItemViewer ;
+  .
+
+labs:osPostcodeSectorItemViewer
+  a api:Viewer ;
+  api:name "postcode sector" ;
+  api:properties "label,within.label" ;
+  .
+
+labs:osPostcodeSectorInDistrict
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-district/{code}/sector" ;
+  api:variable [
+    api:name "area" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodedistrict/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item spatialrelations:within ?area ; a postcode:PostcodeSector . " ;
+  ] ;
+  api:defaultViewer labs:osPostcodeSectorListViewer ;
+  .
+
+labs:osPostcodeSectorInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-area/{code}/sector" ;
+  api:variable [
+    api:name "area" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodearea/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item spatialrelations:within ?area ; a postcode:PostcodeSector . " ;
+  ] ;
+  api:defaultViewer labs:osPostcodeSectorListViewer ;
+  .
+
+## PostCodeDistricts ##
+
+labs:osPostcodeDistrictSelector
+  a api:Selector ;
+  api:filter "type=PostcodeDistrict" ;
+  .
+
+labs:osPostcodeDistricts
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-district" ;
+  api:selector labs:osPostcodeDistrictSelector ;
+  api:defaultViewer labs:osPostcodeDistrictListViewer ;
+  .
+
+labs:osPostcodeDistrictListViewer
+  a api:Viewer ;
+  api:name "postcode districts" ;
+  api:properties "label,within.label" ;
+  .
+
+labs:osPostcodeDistrict
+  a api:ItemEndpoint ;
+  api:uriTemplate "/os/postcode-district/{code}" ;
+  api:itemTemplate "http://data.ordnancesurvey.co.uk/id/postcodedistrict/{code}" ;
+  api:defaultViewer labs:osPostcodeDistrictItemViewer ;
+  .
+
+labs:osPostcodeDistrictItemViewer
+  a api:Viewer ;
+  api:name "postcode district" ;
+  api:properties "label,within.label" ;
+  .
+
+labs:osPostcodeDistrictInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-area/{code}/district" ;
+  api:variable [
+    api:name "area" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodearea/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item spatialrelations:within ?area ; a postcode:PostcodeDistrict . " ;
+  ] ;
+  api:defaultViewer labs:osPostcodeDistrictListViewer ;
+  .
+
+## PostCodeAreas ##
+
+labs:osPostcodeAreaSelector
+  a api:Selector ;
+  api:filter "type=PostcodeArea" ;
+  .
+
+labs:osPostcodeAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-area" ;
+  api:selector labs:osPostcodeAreaSelector ;
+  api:defaultViewer labs:osPostcodeAreaListViewer ;
+  .
+
+labs:osPostcodeAreaListViewer
+  a api:Viewer ;
+  api:name "postcode areas" ;
+  api:properties "label,within.label" ;
+  .
+
+labs:osPostcodeArea
+  a api:ItemEndpoint ;
+  api:uriTemplate "/os/postcode-area/{code}" ;
+  api:itemTemplate "http://data.ordnancesurvey.co.uk/id/postcodearea/{code}" ;
+  api:defaultViewer labs:osPostcodeAreaItemViewer ;
+  .
+
+labs:osPostcodeAreaItemViewer
+  a api:Viewer ;
+  api:name "postcode area" ;
+  api:properties "label,within.label" ;
+  .
+
+## Labels ##
+
+# Common #
+
+rdf:Property api:label "Property" .
+
+rdf:type api:label "type" ;
+  api:multiValued true .
+rdf:value api:label "value" .
+
+rdfs:Class api:label "Class" .
+
+rdfs:label api:label "label" .
+rdfs:comment api:label "comment" .
+rdfs:range api:label "range" .
+rdfs:domain api:label "domain" .
+rdfs:isDefinedBy api:label "isDefinedBy" .
+rdfs:subClassOf api:label "subClassOf" .
+rdfs:subPropertyOf api:label "subPropertyOf" .
+
+owl:sameAs api:label "sameAs" .
+
+skos:Concept api:label "Concept" .
+skos:ConceptScheme api:label "ConceptScheme" .
+
+skos:prefLabel api:label "name" .
+skos:altLabel api:label "alias" .
+skos:note api:label "note" .
+skos:notation api:label "notation" .
+skos:scopeNote api:label "scopeNote" .
+skos:topConceptOf api:label "topConceptOf" .
+skos:hasTopConcept api:label "topConcept" .
+skos:broader api:label "broader" .
+skos:narrower api:label "narrower" ; 
+  api:multiValued true 
+  .
+
+time:hasBeginning api:label "beginning" .
+time:hasEnd api:label "end" .
+time:inXSDDateTime
+  a owl:DatatypeProperty ;
+  api:label "asDateTime" ;
+  rdfs:range xsd:dateTime ;
+  .
+
+dgu:uriSet api:label "uriSet" .
+
+geo:lat api:label "lat" ;
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:decimal ;
+  .
+geo:long api:label "long" ;
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:decimal ;
+  .
+
+spatialrelations:easting 
+  a owl:DatatypeProperty ;
+  api:label "easting" ;
+  rdfs:range xsd:integer .
+spatialrelations:northing 
+  a owl:DatatypeProperty ;
+  api:label "northing" ;
+  rdfs:range xsd:integer .
+
+spatialrelations:containedBy api:label "containedBy" ; api:multiValued true .
+spatialrelations:contains api:label "contains" ; api:multiValued true .
+spatialrelations:within api:label "within" ; api:multiValued true .
+spatialrelations:borders api:label "borders" ; api:multiValued true .
+
+postcode:PostcodeUnit api:label "PostcodeUnit" .
+postcode:PostcodeSector api:label "PostcodeSector" .
+postcode:PostcodeDistrict api:label "PostcodeDistrict" .
+postcode:PostcodeArea api:label "PostcodeArea" .
+
+postcode:country api:label "country" .
+postcode:district api:label "district" .
+postcode:ward api:label "ward" .
+
+postcode:LH api:label "localHealthAuthority" .
+postcode:RH api:label "regionalHealthAuthority" .
+postcode:PQ api:label "positionalQuality" .

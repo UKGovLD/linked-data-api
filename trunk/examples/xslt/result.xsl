@@ -432,7 +432,7 @@
 						<xsl:choose>
 							<xsl:when test="$multipleMarkers">
 					      var bounds = new OpenLayers.Bounds(<xsl:value-of select="$minEasting"/>, <xsl:value-of select="$minNorthing"/>, <xsl:value-of select="$maxEasting"/>, <xsl:value-of select="$maxNorthing"/>);
-								var zoom = Math.min(7, summaryMap.getZoomForExtent(bounds));
+								var zoom = Math.min(<xsl:choose><xsl:when test="/result/next">7</xsl:when><xsl:otherwise>10</xsl:otherwise></xsl:choose>, summaryMap.getZoomForExtent(bounds));
 								var center = new OpenSpace.MapPoint(<xsl:value-of select="$minEasting + floor(($maxEasting - $minEasting) div 2)" />, <xsl:value-of select="$minNorthing + floor(($maxNorthing - $minNorthing) div 2)" />);
 								summaryMap.setCenter(center, zoom);
 							</xsl:when>
