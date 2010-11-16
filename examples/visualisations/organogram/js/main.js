@@ -23,7 +23,9 @@ $(document).ready(function() {
 		}
 	});
 	
-	
+	$("h1.title span#text").click(function(){
+		tm.out();tm.out();
+	})
 	
 		
 }); // end docready

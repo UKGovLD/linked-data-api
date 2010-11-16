@@ -3,7 +3,7 @@
 $(document).ready(function() {
 
 	$("#infovis").width($(window).width()-100);
-	$("#infovis").height($(window).height()-36);
+	$("#infovis").height($(window).height()-31);
 	
 	//$("#log").corner();
 	
@@ -16,16 +16,18 @@ $(document).ready(function() {
 	//$("select#levels").val("2");
 	//$("input[name='deputies']").val("No");
 	
-	$("select#levels").val("2");
+	$("select#levels").val("1");
 	
 	$("select#levels").change(function() {
 		global_TM.canvas.opt.levelsToShow = parseInt($(this).val());
-		//lvlsToShow = parseInt($(this).val());
-		//global_TM.canvas.clear();
-		//$("#infovis").html("");
-		//global_TM.loadJSON(global_govJSON);  
 		global_TM.refresh();
 		global_TM.refresh();
+		restyle();
+		if(global_TM.canvas.opt.levelsToShow == 3 && rootNode.data.type == "Department") {
+			$("div.Post div.cell").hide();
+		} else {
+			$("div.Post div.cell").show();		
+		}
 	});
 
 	$("input[name='deputies']").val("No");

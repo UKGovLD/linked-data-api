@@ -98,8 +98,15 @@ var api_call_info = [];
 var sizeByUnits = true;
 var sizeByPosts = false;
 var postReportTos = [];
+var rootNode;
+var prevNode;
+var deptParam="";
+var unitParam="";
 
-function init(){
+function init(d,u){
+	
+	deptParam = d;
+	unitParam = u;
 	
 	api_call_info = [];
 	$('div#apiCalls').hide();
@@ -121,7 +128,48 @@ function init(){
 		//Attach left and right click events   	   
 		Events: {  
 			enable: true,  
-			onClick: function(node) {  
+			onClick: function(node) {
+						
+				$("h1.title span").css("visibility","visible");
+				prevNode = rootNode;
+				rootNode = node;  				
+				var tempSlug;
+				if(node.data.type == "Department"){
+					// Department node
+					$("h1.title span#dept").animate({opacity:'0'},500);
+					$("h1.title span#post").animate({opacity:'0'},500);
+					$("h1.title span#unit").animate({opacity:'0'},500);
+					tempSlug = node.data.uri.split("/");
+					tempSlug = tempSlug[tempSlug.length-1];
+					$("h1.title span#dept").html(node.name.valueOf()).attr('rel',tempSlug).animate({opacity:'1'},500);
+					$("h1.title span#text").click(function(){
+						$("h1.title span#dept").animate({opacity:'0'},500);
+						tm.out();
+						restyle();
+					});
+				} else if(node.data.type == "Unit"){
+					// Unit node
+					$("h1.title span#post").animate({opacity:'0'},500);
+					$("h1.title span#unit").animate({opacity:'0'},500);
+					tempSlug = node.data.uri.split("/");
+					tempSlug = tempSlug[tempSlug.length-1];
+					$("h1.title span#unit").html(node.name.valueOf()).attr('rel',tempSlug).animate({opacity:'1'},500);
+					$("h1.title span#text").click(function(){
+						$("h1.title span#dept").animate({opacity:'0'},500);
+						$("h1.title span#unit").animate({opacity:'0'},500);					
+						tm.out();
+						tm.out();
+						restyle();
+					});
+					$("h1.title span#dept").click(function(){
+						$("h1.title span#unit").animate({opacity:'0'},500);										
+						tm.out();
+						restyle();
+					});
+				} else {
+					// Gov node
+					$("h1.title span").animate({opacity:'0'},500);
+				}
 
 				if(typeof node.data != 'undefined' && node.data.type == "Post") {
 					var postSlug = node.data.uri.split("/");
@@ -136,13 +184,35 @@ function init(){
 					window.location = "../organogram?dept="+deptSlug+"&post="+postSlug;
 
 				} else if(node) {
-					tm.enter(node);
+					tm.enter(node);				
 				}
 				restyle();
 			},  
-			onRightClick: function() {  
+			onRightClick: function() {
+				if(rootNode.data.type == "Department"){
+					rootNode = global_govJSON;
+				} else {
+					rootNode = prevNode;				
+				}
 				tm.out();  
 				restyle();
+				var tempSlug;
+				if(rootNode.data.type == "Department"){
+					// Department node
+					$("h1.title span#post").animate({opacity:'0'},500);
+					$("h1.title span#unit").animate({opacity:'0'},500);
+					tempSlug = rootNode.data.uri.split("/");
+					tempSlug = tempSlug[tempSlug.length-1];
+					$("h1.title span#dept").html(rootNode.name.valueOf()).attr('rel',tempSlug).animate({opacity:'1'},500);
+					$("h1.title span#text").click(function(){
+						tm.out();
+						restyle();
+					});					
+				} else {
+					// Gov node
+					$("h1.title span#dept").animate({opacity:'0'},500);
+					$("h1.title span#unit").animate({opacity:'0'},500);
+				}					
 			}  
 		},  
 		duration: 300,
@@ -311,12 +381,22 @@ function loadDepts() {
 
 			global_TM.loadJSON(global_govJSON);  
 			global_TM.refresh(); 
-			
+						
+			rootNode = global_govJSON;
+						
 			restyle();
-			
+
+			//if(deptParam.length > 1){
+				//global_TM.enter(loadNode.findNode(global_govJSON,deptParam));
+			//} else if(unitParam.length > 1) {
+				//global_TM.enter(loadNode.findNode(global_govJSON,unitParam));
+			//}
+						
 			displayDataSources();
 			
 			hideLog();
+			
+
 
 		}
 	});
@@ -325,44 +405,68 @@ function loadDepts() {
 }
 
 function restyle(){
-
+	
 	$("div.node").each(function(){
+	
+	var $label = $(this).children().eq(0);
+	
 		if($(this).hasClass("Department")){
 			if($("div.Unit").overlaps($(this))){
-				$(this).children().eq(0).css("top","0").css("margin-top","6px");
+				$label.css("top","0").css("margin-top","6px");
 			} else {
-				$(this).children().eq(0).vAlign();
-				$(this).children().eq(0).hAlign();
+				$label.vAlign();
+				$label.hAlign();
 			}
-		}
-		if($(this).hasClass("Unit")){
+		} else if($(this).hasClass("Unit")){
 			if($("div.Post").overlaps($(this))){
-				$(this).children().eq(0).css("top","0").css("margin-top","6px");			
+				$label.css("top","0").css("margin-top","6px");			
 			} else {
-				$(this).children().eq(0).vAlign();
-				$(this).children().eq(0).hAlign();
+				$label.vAlign();
+				$label.hAlign();
 			}			
-		}
-		if($(this).hasClass("Post")){
-				$(this).children().eq(0).vAlign();
-				$(this).children().eq(0).hAlign();
+		} else if($(this).hasClass("Post")){
+				$label.vAlign();
+				$label.hAlign();
 		}
 		
-	$(this).mousemove(function(e){	
-		if(e.pageY < 130 && e.pageX < 200){
-			$(this).children().filter(".tooltip").css("top",(e.pageY+30) + "px").css("left",(e.pageX+30) + "px");				
-		} else if(e.pageY < 130 ) {
-			$(this).children().filter(".tooltip").css("top",(e.pageY+30) + "px").css("left",(e.pageX-200) + "px");						
-		} else if(e.pageX < 200) {
-			$(this).children().filter(".tooltip").css("top",(e.pageY-100) + "px").css("left",(e.pageX+30) + "px");								
-		} else {
-			$(this).children().filter(".tooltip").css("top",(e.pageY-100) + "px").css("left",(e.pageX-200) + "px");				
-		}
-	});    
-				
+		$(this).mousemove(function(e){	
+			if(e.pageY < 130 && e.pageX < 200){
+				$(this).children().filter(".tooltip").css("top",(e.pageY+30) + "px").css("left",(e.pageX+30) + "px");				
+			} else if(e.pageY < 130 ) {
+				$(this).children().filter(".tooltip").css("top",(e.pageY+30) + "px").css("left",(e.pageX-200) + "px");						
+			} else if(e.pageX < 200) {
+				$(this).children().filter(".tooltip").css("top",(e.pageY-100) + "px").css("left",(e.pageX+30) + "px");								
+			} else {
+				$(this).children().filter(".tooltip").css("top",(e.pageY-100) + "px").css("left",(e.pageX-200) + "px");				
+			}
+		});    
+		
+		$label.hAlign().hAlign().hAlign().hAlign().hAlign();
 	});
-
+	
 }
+
+	
+var loadNode = {
+	findNode:function(jsonObj,slug) {
+		if( typeof jsonObj == "object" ) {
+			$.each(jsonObj, function(k,v) {
+				if(typeof v == "object" && typeof v.data != 'undefined'){					
+					if(v.data.uri.indexOf(slug) == v.data.uri.length-slug.length){
+						loadNode.node = v;
+					}
+				}
+				loadNode.findNode(v,slug);
+			});
+		}
+		else {
+			// jsonOb is a number or string
+		}
+		return jsonObj;	
+	},
+	node:{}
+}	
+
 
 function makePostNode(item){
 	var node = {

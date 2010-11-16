@@ -1,3 +1,4 @@
+<?php ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
@@ -13,9 +14,9 @@
 
 </head>
 
-<body onload="init();">
+<body onload="init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>');">
 
-<h1 class="title">Government Overview</h1>
+<h1 class="title"><span id="text" rel="government">HM Government</span><span id="dept">Department</span><span id="unit">Unit</span><span id="post">Post</span></h1>
 
 
 
