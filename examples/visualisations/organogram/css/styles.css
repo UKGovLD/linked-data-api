@@ -242,6 +242,7 @@ z-index:9999;
 a.close {
 -moz-border-radius:5px 5px 5px 5px;
 border-radius:5px 5px 5px 5px;
+-webkit-border-radius:5px 5px 5px 5px;
 background-color:#CCCCCC;
 color:#333333;
 cursor:pointer;
@@ -334,6 +335,7 @@ color:#333333;
 div.node {
 -moz-border-radius:5px 5px 5px 5px;
 border-radius:5px 5px 5px 5px;
+-webkit-border-radius:5px 5px 5px 5px;
 -moz-box-shadow:0 8px 38px 0 #999999;
 box-shadow:0 8px 38px 0 #999999;
 -webkit-box-shadow:0 8px 38px 0 #999999;
@@ -366,6 +368,7 @@ right:-9px;
 div.node span.postIn {
 -moz-border-radius:0 0 3px 3px;
 border-radius:0 0 3px 3px;
+-webkit-border-radius:0 0 3px 3px;
 background-color:#819C9B;
 color:#FFFFFF;
 display:block;
@@ -389,8 +392,12 @@ bottom:0;
 position:fixed;
 }
 #infobox {
--moz-border-radius:10px 10px 10px 10px;
 -moz-box-shadow:0 5px 24px #888888;
+-webkit-box-shadow:0 5px 24px #888888;
+box-shadow:0 5px 24px #888888;
+-webkit-border-radius:10px 10px 10px 10px;
+-moz-border-radius:10px 10px 10px 10px;
+border-radius:10px 10px 10px 10px;
 background-color:#FFFFFF;
 border:1px solid #DDDDDD;
 color:#333333;
