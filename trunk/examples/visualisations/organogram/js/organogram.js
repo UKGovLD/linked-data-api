@@ -165,8 +165,8 @@ function init(deptSlug,postSlug){
 		// set duration for the animation
 		duration: 300,
 		orientation: 'top',
-		offsetX: 200,  
-		offsetY: 250, 
+		offsetX: 0,  
+		offsetY: 0, 
 		// set animation transition type
 		transition: $jit.Trans.Sine.easeOut, 
 		// set distance between node and its children
@@ -394,7 +394,7 @@ function loadPost(deptSlug,postSlug) {
 						// cl(global_ST.canvas.getPos(true));
 			
 						// global_ST.canvas.scale(1,1,false);
-						global_ST.canvas.translate(0-(global_ST.canvas.translateOffsetX),7-(global_ST.canvas.translateOffsetY),false)
+						global_ST.canvas.translate(-150-(global_ST.canvas.translateOffsetX),-120-(global_ST.canvas.translateOffsetY),false)
 			
 						// emulate a click on the root node.
 						// global_ST.onClick(global_ST.json.children[0].id);
@@ -776,13 +776,15 @@ function makeNode(item) {
 					foafPhone:"",
 					foafMbox:"",
 					holdsPostURI:"",
-					reportsToPostURI:[]
+					reportsToPostURI:[],
+					comment:""
 			};
 			
 			if(typeof item.heldBy[a].name != 'undefined'){person.foafName = item.heldBy[a].name;}
 			if(typeof item.heldBy[a].phone != 'undefined'){person.foafPhone = item.heldBy[a].phone.label[0];}
 			if(typeof item.heldBy[a].email != 'undefined'){person.foafMbox = item.heldBy[a].email.label[0];}
 			if(typeof item._about != 'undefined'){person.holdsPostURI = item._about;}
+			if(typeof item.comment != 'undefined'){person.comment = item.comment;}
 			
 			if(typeof item.reportsTo != 'undefined'){
 				for(var b=0;b<item.reportsTo.length;b++){
@@ -845,8 +847,6 @@ function makePersonNode(heldByItem) {
 function loadPersonInfo(node){
 
 	var html = '<h1>'+node.name+'</h1>';
-		
-	if(typeof node.data.comment!='undefined'){html+='<p class="comment">'+node.data.comment+'</p>';}
 	
 	html += '<div id="people">';
 	html += '<h3>Held By :</h3>';
@@ -865,33 +865,38 @@ function loadPersonInfo(node){
 
 		html += '<div class="personInfo">';
 		//html += '<img src="images/photo_placeholder.png" />';
+		
+		if(typeof node.data.heldBy[i].comment != 'undefined'){
+			html+='<p class="comment"><span>Comment</span>'+node.data.heldBy[i].comment+'</p>';
+		}
+
 
 		if(typeof node.data.heldBy[i].foafPhone != 'undefined' && node.data.heldBy[i].foafPhone != ''){
-			html += '<p class="tel"><span>Phone: </span>'+node.data.heldBy[i].foafPhone+'</p>';
+			html += '<p class="tel"><span>Phone</span>'+node.data.heldBy[i].foafPhone+'</p>';
 		}
 
 		if(typeof node.data.heldBy[i].foafMbox != 'undefined' && node.data.heldBy[i].foafMbox != ''){
-			html += '<p class="email"><span>Email: </span> '+node.data.heldBy[i].foafMbox+'</p>';
+			html += '<p class="email"><span>Email</span> '+node.data.heldBy[i].foafMbox+'</p>';
 		}
 
 		if(typeof node.data.grade != 'undefined'){
 			for(var a=0;a<node.data.grade.length;a++){
-				html += '<p class="grade"><span>Grade: </span> <span class="g '+node.data.grade[a]+'">'+node.data.grade[a]+'</span></p>';
+				html += '<p class="grade"><span>Grade</span> <span class="g '+node.data.grade[a]+'">'+node.data.grade[a]+'</span></p>';
 			}
 		}	
 
 		if(typeof node.data.type != 'undefined'){
 			for(var a=0;a<node.data.type.length;a++){
-				html += '<p class="type"><span>Type: </span>'+node.data.type[a]+'</p>';
+				html += '<p class="type"><span>Type</span>'+node.data.type[a]+'</p>';
 			}
 		}
 		
-		var tempID = node.data.uri.split("/");
+		var tempID = node.data.heldBy[i].holdsPostURI.split("/");
 		tempID = tempID[tempID.length-1];
 		
-		html+= '<p class="id"><span>Post ID: </span><a target="_blank" href="http://reference.data.gov.uk/doc/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a></p>';
+		html+= '<p class="id"><span>Post ID</span><a target="_blank" href="http://reference.data.gov.uk/doc/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a></p>';
 		
-		html+= '<p class="unit"><span>Unit(s): </span>';
+		html+= '<p class="unit"><span>Unit(s)</span>';
 		
 		for(var j=0;j<node.data.postIn.length;j++){
 			if(node.data.postIn[j]._about.indexOf("/unit/") >= 0){
@@ -914,8 +919,7 @@ function loadPersonInfo(node){
 
 	html+= '</div><!-- end people -->';
 	html+= '<a class="close">x</a>';
-	html+= '<a class="comment">i</a>';
-	
+		
 	return html;
 }
 
