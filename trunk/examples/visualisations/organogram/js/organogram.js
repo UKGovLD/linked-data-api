@@ -889,7 +889,7 @@ function loadPersonInfo(node){
 		var tempID = node.data.uri.split("/");
 		tempID = tempID[tempID.length-1];
 		
-		html+= '<p class="id"><span>Post ID: </span><a target="_blank" href="http://reference.data.gov.uk/doc/department/'+global_department+'/post/'+tempID+'.html">'+tempID+'</a></p>';
+		html+= '<p class="id"><span>Post ID: </span><a target="_blank" href="http://reference.data.gov.uk/doc/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a></p>';
 		
 		html+= '<p class="unit"><span>Unit(s): </span>';
 		
@@ -897,7 +897,7 @@ function loadPersonInfo(node){
 			if(node.data.postIn[j]._about.indexOf("/unit/") >= 0){
 				var tempUnitID = node.data.postIn[j]._about.split("/");
 				tempUnitID = tempUnitID[tempUnitID.length-1];
-				html+= '<a target="_blank" href="http://reference.data.gov.uk/doc/department/'+global_department+'/unit/'+tempUnitID+'.html">'+node.data.postIn[j].label[0]+'</a>';
+				html+= '<a target="_blank" href="http://reference.data.gov.uk/doc/department/'+global_department+'/unit/'+tempUnitID+'">'+node.data.postIn[j].label[0]+'</a>';
 			}
 		}
 		
