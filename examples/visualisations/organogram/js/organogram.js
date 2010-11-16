@@ -866,7 +866,7 @@ function loadPersonInfo(node){
 		html += '<div class="personInfo">';
 		//html += '<img src="images/photo_placeholder.png" />';
 		
-		if(typeof node.data.heldBy[i].comment != 'undefined'){
+		if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
 			html+='<p class="comment"><span>Comment</span>'+node.data.heldBy[i].comment+'</p>';
 		}
 
