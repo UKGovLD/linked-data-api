@@ -236,8 +236,12 @@ margin-top:5px;
 display:inline-block !important;
 }
 .tooltip {
--moz-border-radius:10px 10px 10px 10px;
 -moz-box-shadow:0 5px 24px #888888;
+-webkit-box-shadow:0 5px 24px #888888;
+box-shadow:0 5px 24px #888888;
+-webkit-border-radius:10px 10px 10px 10px;
+-moz-border-radius:10px 10px 10px 10px;
+border-radius:10px 10px 10px 10px;
 background-color:#FFFFFF;
 border:10px solid #DDDDDD;
 color:#333333;
@@ -255,8 +259,12 @@ width:150px;
 z-index:9999 !important;
 }
 div.tip {
--moz-border-radius:10px 10px 10px 10px;
 -moz-box-shadow:0 5px 24px #888888;
+-webkit-box-shadow:0 5px 24px #888888;
+box-shadow:0 5px 24px #888888;
+-webkit-border-radius:10px 10px 10px 10px;
+-moz-border-radius:10px 10px 10px 10px;
+border-radius:10px 10px 10px 10px;
 background-color:#FFFFFF;
 border:10px solid #DDDDDD;
 color:#333333;
@@ -356,9 +364,10 @@ background-color:#FFFFFF;
 color:#333333;
 }
 div#apiCalls div.apiCall {
-box-shadow:0 5px 24px #888888;
--webkit-box-shadow:0 5px 24px #888888;
 -moz-box-shadow:0 5px 24px #888888;
+-webkit-box-shadow:0 5px 24px #888888;
+box-shadow:0 5px 24px #888888;
+-webkit-border-radius:10px 10px 10px 10px;
 -moz-border-radius:10px 10px 10px 10px;
 border-radius:10px 10px 10px 10px;
 background-color:#FFFFFF;
