@@ -29,19 +29,20 @@
 
 <div id="right">
 <ul>
-<li><a href="#">Tips</a>
+<li><a href="#">About</a>
 
-<div class="tooltip">
+<div class="tip">
 <p>Navigate your way down into the government structure by exploring departments, their units and the posts within those units.</p>
-<p>As this is currently in development, when clicking on a post, most likely it will not follow through to the post-based organogram as only the top-tier of posts in units have been included in that visualisation. To experience the follow-through into a post-based organogram, delve into the BIS data and click on a Director General in any unit.</p>
+<p>The departments can be sized by either the number of units they have or by the total number of posts in each of their units and the posts are sized by the number of other posts that report to them.</p>
+<p>Clicking on a post will load it's organogram where more information can be found for that post and the posts that report to it.</p>
 </div>
 </li>
 <li><a href="#">Controls</a>
-<div class="tooltip"><p>Left-click: Zoom in to department/unit</p><p>Right-click: Zoom out to the parent department/unit</p></div>
+<div class="tip"><p>Left-click: Zoom in</p><p>Right-click: Zoom out</p><p>Alternatively, you can zoom out by clicking the breadcrumb links in the top-left of the visualisation.</p></div>
 </li>
 
 <li id="levelsToggle"><p>Levels to show:</p>
-	<select id="levels" value="2">
+	<select id="levels" value="1">
 
 	<option value="1">1</option>
 	<option value="2">2</option>

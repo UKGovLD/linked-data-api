@@ -254,6 +254,27 @@ text-align:center;
 width:150px;
 z-index:9999 !important;
 }
+div.tip {
+-moz-border-radius:10px 10px 10px 10px;
+-moz-box-shadow:0 5px 24px #888888;
+background-color:#FFFFFF;
+border:10px solid #DDDDDD;
+color:#333333;
+display:none;
+font-size:12px;
+font-weight:normal;
+height:auto;
+opacity:1;
+overflow-x:hidden;
+overflow-y:auto;
+padding:15px 10px;
+position:fixed;
+right:120px;
+text-align:left;
+top:50px;
+width:250px;
+z-index:9999 !important;
+}
 div#formats {
 margin-top:50px;
 }
