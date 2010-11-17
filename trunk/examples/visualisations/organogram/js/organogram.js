@@ -100,8 +100,6 @@ function init(deptSlug,postSlug){
 	global_department = deptSlug;
 	
 	loadPost(deptSlug,postSlug);
-
-	// A client-side tree generator
 	
 	var getTree = (function() {
 		var global_postJSON_string = JSON.stringify(global_postJSON);
@@ -119,8 +117,6 @@ function init(deptSlug,postSlug){
 		};
 	})();
 	
-
-
 	// Implement a node rendering function called 'nodeline' that plots a
 	// straight line
 	// when contracting or expanding a subtree.
@@ -147,14 +143,7 @@ function init(deptSlug,postSlug){
 
 	});
 
-
-	
 	// Create a new ST instance
-	/*
-	* Top: offsetX:0, node height:40,
-	* Left: offsetX:300, node height:70,
-	*
-	*/
 	var st = new $jit.ST({  
 		'injectInto': 'infovis', 
 		Navigation: {  
@@ -162,69 +151,38 @@ function init(deptSlug,postSlug){
 			panning: 'avoid nodes',  
 			zooming: 40
 		}, 
-		// set duration for the animation
 		duration: 300,
 		orientation: 'top',
 		offsetX: 0,  
 		offsetY: 0, 
-		// set animation transition type
 		transition: $jit.Trans.Sine.easeOut, 
-		// set distance between node and its children
 		levelDistance: 60,  
-		// set max levels to show. Useful when used with
-		// the request method for requesting trees of specific depth
 		levelsToShow: 2,  
-		// set node and edge styles
-		// set overridable=true for styling individual
-		// nodes or edges
 		Node: {
 			height: 70,
 			width: 190,
-			// autoHeight: true,
-			// autoWidth: false,
-			// use a custom
-			// node rendering function
 			type: 'nodeline',
 			color:'#333333',
 			lineWidth: 2,
 			align:"center",
 			overridable: true
 		}, 
-
 		Edge: {
 			type: 'bezier',
 			lineWidth: 2,
 			color:'#DDDDDD',
 			overridable: true
 		},  
-
-		// Add a request method for requesting on-demand json trees.
-		// This method gets called when a node
-		// is clicked and its subtree has a smaller depth
-		// than the one specified by the levelsToShow parameter.
-		// In that case a subtree is requested and is added to the dataset.
-		// This method is asynchronous, so you can make an Ajax request for that
-		// subtree and then handle it to the onComplete callback.
-		// Here we just use a client-side tree generator (the getTree function).
 		request: function(nodeId, level, onComplete) {  
 			var ans = getTree(nodeId, level);  
 			onComplete.onComplete(nodeId, ans);    
 		},  
-
 		onBeforeCompute: function(node){  
-			// Log.write("loading " + node.name);
-			// st.canvas.translate(0-(global_ST.canvas.translateOffsetX),7-(global_ST.canvas.translateOffsetY),false)
-
 		},  
-
 		onAfterCompute: function(){  
 			changeLog("Done",false);
 			hideLog(); 
 		},  
-
-		// This method is called on DOM label creation.
-		// Use this method to add event handlers and styles to
-		// your node.
 		onCreateLabel: function(label, node){ 
 			$(label).addClass(node.data.grade[0]); 
 			label.id = node.id;        
@@ -232,6 +190,7 @@ function init(deptSlug,postSlug){
 			for(var i=0;i<node.name.length;i++){
 				label.innerHTML += node.name[i]+", ";
 			}
+			
 			label.innerHTML = label.innerHTML.substring(0,label.innerHTML.length-2);
 			
 			label.innerHTML = label.innerHTML + '<span class="postIn">'+node.data.postIn[0].label[0]+'</span>';
@@ -259,44 +218,28 @@ function init(deptSlug,postSlug){
 				});
 
 			};  
-
-			// set label styles
+			
 			var style = label.style;
 			style.width = 180 + 'px';
 			style.height = 'auto';            
 			style.cursor = 'pointer';
 			style.color = '#000000';
-			// style.backgroundColor = '#1a1a1a';
 			style.fontSize = '0.8em';
 			style.textAlign= 'center';
 			style.textDecoration = 'none';
 			style.paddingTop = '3px'; 
 		},  
-
-		// This method is called right before plotting
-		// a node. It's useful for changing an individual node
-		// style properties before plotting it.
-		// The data properties prefixed with a dollar
-		// sign will override the global node style properties.
 		onBeforePlotNode: function(node){  
-			// add some color to the nodes in the path between the
-			// root node and the selected node.
 			if (node.selected) {  
 				node.data.$color = "ff7";  
 			}  
 			else {  
 				delete node.data.$color;  
 			}  
-		},  
-
-		// This method is called right before plotting
-		// an edge. It's useful for changing an individual edge
-		// style properties before plotting it.
-		// Edge data proprties prefixed with a dollar sign will
-		// override the Edge global style properties.
+		}, 
 		onBeforePlotLine: function(adj){
 			if (adj.nodeFrom.selected && adj.nodeTo.selected) {
-				adj.data.$color = "#DE5B06";
+				adj.data.$color = "#333333";
 				adj.data.$lineWidth = 4;
 			}
 			else {
@@ -338,7 +281,7 @@ function loadPost(deptSlug,postSlug) {
 	});
 	
 	$.ajax({
-		url: api_url+".json"+"&callback=?",
+		url: api_call_info[0].url+".json"+"?callback=?",
 		type: "GET",
 		dataType: "jsonp",
 		async:true,
@@ -347,9 +290,14 @@ function loadPost(deptSlug,postSlug) {
 				try{
 				
 				firstNode = makeNode(json.result.primaryTopic);
-				$("h1.title span#post").html(json.result.primaryTopic.label[0].toString().replace("@en",""));
-				$("h1.title span#unit").html(json.result.primaryTopic.postIn[0].label[0].toString().replace("@en",""));
-				$("h1.title span#dept").html(json.result.primaryTopic.postIn[1].label[0].toString().replace("@en",""));
+
+				$("h1.title span#post").html(json.result.primaryTopic.label[0]);
+				var uSlug = json.result.primaryTopic.postIn[0].split("/");
+				uSlug = uSlug[uSlug.length-1];				
+				$("h1.title span#unit").html(json.result.primaryTopic.postIn[0].label[0]).attr("href","../gov-structure?unit="+uSlug);
+				var dSlug = json.result.primaryTopic.postIn[0].split("/");
+				dSlug = dSlug[dSlug.length-1];		
+				$("h1.title span#dept").html(json.result.primaryTopic.postIn[1].label[0]).attr("href","../gov-structure?dept="+dSlug);
 				$("h1.title span").css("visibility","visible");
 				$("h1.title span#post").animate({opacity:'1'},1000,function(){
 					$("h1.title span#unit").animate({opacity:'1'},1000,function(){
@@ -368,7 +316,7 @@ function loadPost(deptSlug,postSlug) {
 				});				
 				
 				$.ajax({
-					url: api_url+".json"+api_call_info[1].parameters+"&callback=?",
+					url: api_call_info[1].url+".json"+api_call_info[1].parameters+"&callback=?",
 					type: "GET",
 					dataType: "jsonp",
 					async:true,
@@ -396,9 +344,6 @@ function loadPost(deptSlug,postSlug) {
 						// global_ST.canvas.scale(1,1,false);
 						global_ST.canvas.translate(-150-(global_ST.canvas.translateOffsetX),-120-(global_ST.canvas.translateOffsetY),false)
 			
-						// emulate a click on the root node.
-						// global_ST.onClick(global_ST.json.children[0].id);
-						//global_ST.onClick(global_ST.root);
 						$("div#"+global_ST.root).click();
 						// end
 						
@@ -411,10 +356,6 @@ function loadPost(deptSlug,postSlug) {
 			}
 		}
 	});
-	
-	
-	
-	
 
 	return false;
 }
@@ -548,14 +489,12 @@ var searchJSON = {
 		},
 		groupSamePosts:function(jsonObj,firstNodeFound) {
 		
-		
 			if( typeof jsonObj == "object" ) {
 				$.each(jsonObj, function(k,v) {
-					 //p("k");
-					 //cl(k);
-					 //p("v");
-					 //cl(v);
-
+					//p("k");
+					//cl(k);
+					//p("v");
+					//cl(v);
 					//p("-----------------");
 					
 					if(k == "children" && !firstNodeFound) {
@@ -617,30 +556,12 @@ var searchJSON = {
 		},
 		addGroupedChildren:function(jsonObj) {
 
-			/*
-			 * go through tree of grouped nodes
-			 * 
-			 * if (node is grouped) { 
-			 * pop() the node's children temporarily. create
-			 * node's children using it's heldBy people [including their postURIs].
-			 * 		for(i number of node's current children) {
-			 * 	 		for(j number of popped children) { 
-			 * 				for(k popped child's heldBy items) { 
-			 * 					if (popped child's [j] heldBy item [k] reportsTo = node's child's [i] postURI) { 
-			 * 						create new node using popped node [j] and push() to node child's [i]
-			 * 						children. add heldBy item [k] to the new node. 
-			 * 						// need to check if the post node already exists beneath a person node before 
-			 * 						// creating a new one. 
-			 * 						// the grouped badge also needs to be added to the post node using its heldBy info. 
-			 * } } } } }
-			 */
-
 			if( typeof jsonObj == "object" ) {
 				$.each(jsonObj, function(k,v) {
-//					p("k");
-//					cl(k);
-//					p("v");
-//					cl(v);
+					//	p("k");
+					//	cl(k);
+					//	p("v");
+					//  cl(v);
 					if(typeof k == "number" && v.data != undefined) {
 						if(v.data.heldBy.length > 1) {
 							//p("Found grouped node: "+v.name);
@@ -661,27 +582,9 @@ var searchJSON = {
 								for(var j=0;j<nodesOldChildren.length;j++){
 									for(var k=0;k<nodesOldChildren[j].data.heldBy.length;k++){
 
-										// p("Does the heldBy of the grouped post report
-										// to a child node?");
-										// p(nodesOldChildren[j].data.heldBy[k].reportsToPostURI
-										// +" == "+ v.children[i].data.holdsPostURI + "
-										// ?");
-
 										if(nodesOldChildren[j].data.heldBy[k].reportsToPostURI == v.children[i].data.holdsPostURI) {
 
-											// p("here");
-
-											// check to see if post node exists
-											// beneath person first
-
-											/* if(v.children[i].children.length > 0) { */
 											for(var l=0;l<v.children[i].children.length;l++) {
-
-												// p("Does post node exist
-												// beneath person node?");
-												// p(v.children[i].children[l].name+"
-												// ==
-												// "+nodesOldChildren[j].name);
 
 												if(v.children[i].children[l].name == nodesOldChildren[j].name) {
 
@@ -707,12 +610,7 @@ var searchJSON = {
 
 } // end searchJSON
 
-
-
-
-
 function makeNode(item) {
-
 
 	//p("Making node");
 	//p("------------------------");
@@ -854,9 +752,6 @@ function loadPersonInfo(node){
 	for(var i=0; i<node.data.heldBy.length; i++) {
 		html += '<div class="heldBy">';
 		
-		//p("foafName");
-		//cl(node.data.heldBy[i].foafName);
-		
 		if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
 			html += '<a class="name">'+node.data.heldBy[i].foafName+'<span>+</span></a>';
 		}else {
@@ -864,7 +759,6 @@ function loadPersonInfo(node){
 		}
 
 		html += '<div class="personInfo">';
-		//html += '<img src="images/photo_placeholder.png" />';
 		
 		if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
 			html+='<p class="comment"><span>Comment</span>'+node.data.heldBy[i].comment+'</p>';

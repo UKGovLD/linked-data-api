@@ -129,15 +129,14 @@ function init(d,u){
 		Events: {  
 			enable: true,  
 			onClick: function(node) {
-						
 				$("h1.title span").css("visibility","visible");
+				if(node){
+				$("div#nodeTip").hide();
 				prevNode = rootNode;
 				rootNode = node;  				
 				var tempSlug;
 				if(node.data.type == "Department"){
 					// Department node
-					$("h1.title span#dept").animate({opacity:'0'},500);
-					$("h1.title span#post").animate({opacity:'0'},500);
 					$("h1.title span#unit").animate({opacity:'0'},500);
 					tempSlug = node.data.uri.split("/");
 					tempSlug = tempSlug[tempSlug.length-1];
@@ -146,11 +145,10 @@ function init(d,u){
 						$("h1.title span#dept").animate({opacity:'0'},500);
 						tm.out();
 						restyle();
+						rootNode = global_govJSON;
 					});
 				} else if(node.data.type == "Unit"){
 					// Unit node
-					$("h1.title span#post").animate({opacity:'0'},500);
-					$("h1.title span#unit").animate({opacity:'0'},500);
 					tempSlug = node.data.uri.split("/");
 					tempSlug = tempSlug[tempSlug.length-1];
 					$("h1.title span#unit").html(node.name.valueOf()).attr('rel',tempSlug).animate({opacity:'1'},500);
@@ -160,15 +158,18 @@ function init(d,u){
 						tm.out();
 						tm.out();
 						restyle();
+						rootNode = global_govJSON;
 					});
 					$("h1.title span#dept").click(function(){
 						$("h1.title span#unit").animate({opacity:'0'},500);										
 						tm.out();
 						restyle();
+						rootNode = prevNode;
 					});
 				} else {
 					// Gov node
 					$("h1.title span").animate({opacity:'0'},500);
+					restyle();
 				}
 
 				if(typeof node.data != 'undefined' && node.data.type == "Post") {
@@ -186,9 +187,13 @@ function init(d,u){
 				} else if(node) {
 					tm.enter(node);				
 				}
+				} else {
+				// not a node
+				}
 				restyle();
 			},  
 			onRightClick: function() {
+				$("div#nodeTip").hide();
 				if(rootNode.data.type == "Department"){
 					rootNode = global_govJSON;
 				} else {
@@ -238,20 +243,23 @@ function init(d,u){
 		//This method is called once, on label creation.  
 		onCreateLabel: function(domElement, node){  
 			$(domElement).addClass(node.data.type);
-			domElement.innerHTML = '<div class="cell">'+node.name.valueOf()+'</div><div class="tooltip">'+node.name.valueOf()+'</div>';
+			//domElement.innerHTML = '<div class="cell">'+node.name.valueOf()+'</div><div class="tooltip">'+node.name.valueOf()+'</div>';
+			domElement.innerHTML = '<div class="outer"><div class="middle"><div class="inner">'+node.name.valueOf()+'</div></div></div><div class="tooltip">'+node.name.valueOf()+'</div>';
+			
 			var style = domElement.style;  
 			style.display = '';  
 			style.color = node.data.text;
 			
 			$(domElement).hover(function(e){
 				$(domElement).get(0).style.border = '1px solid #FFFFFF';											  									  
-				$(this).children().filter(".tooltip").css("top",(e.pageY - 10) + "px").css("left",(e.pageX - 30) + "px").show();		
+				//$(this).children().filter(".tooltip").css("top",(e.pageY - 10) + "px").css("left",(e.pageX - 30) + "px").show();		
+				$("div#nodeTip").html(node.name.valueOf()).css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
 			},function(){
 				$(domElement).get(0).style.border = '1px solid transparent'; 
-				$(this).children().filter(".tooltip").hide();
+				//$(this).children().filter(".tooltip").hide();
+				$("div#nodeTip").html(node.name.valueOf()).hide();
 			});    
 		}             
-		
 		
 	});  
 	
@@ -385,12 +393,25 @@ function loadDepts() {
 			rootNode = global_govJSON;
 						
 			restyle();
+			
+			$("div.node").live("mousemove",function(e){	
+				if(e.pageY < 130 && e.pageX < 200){
+					$("div#nodeTip").css("top",(e.pageY+30) + "px").css("left",(e.pageX+30) + "px");				
+				} else if(e.pageY < 130 ) {
+					$("div#nodeTip").css("top",(e.pageY+30) + "px").css("left",(e.pageX-200) + "px");						
+				} else if(e.pageX < 200) {
+					$("div#nodeTip").css("top",(e.pageY-100) + "px").css("left",(e.pageX+30) + "px");								
+				} else {
+					$("div#nodeTip").css("top",(e.pageY-100) + "px").css("left",(e.pageX-200) + "px");				
+				}
+			});
 
-			//if(deptParam.length > 1){
-				//global_TM.enter(loadNode.findNode(global_govJSON,deptParam));
-			//} else if(unitParam.length > 1) {
-				//global_TM.enter(loadNode.findNode(global_govJSON,unitParam));
-			//}
+
+			if(typeof deptParam != 'undefined' && deptParam.length > 1){
+				global_TM.enter(global_TM.graph.getNode(deptParam));
+			} else if(typeof unitParam != 'undefined' && unitParam.length > 1) {
+				global_TM.enter(global_TM.graph.getNode(unitParam));
+			}
 						
 			displayDataSources();
 			
@@ -404,8 +425,43 @@ function loadDepts() {
 	return false;
 }
 
-function restyle(){
-	
+
+function restyle() {
+
+	$("div.node").each(function(){
+		var $midEl = $(this).children().eq(0).children().eq(0);
+		if($(this).css("display") != "none"){ 
+			if($(this).hasClass("Department")){
+				if($("div.Unit").overlaps($(this))){
+					$midEl.addClass("vtop");
+				} else {
+					$midEl.removeClass("vtop");
+				}
+			} else if($(this).hasClass("Unit")){
+				if($("div.Post").overlaps($(this))){
+					$midEl.addClass("vtop");
+				} else {
+					$midEl.removeClass("vtop");
+				}				
+			}
+		}
+	});
+
+
+/*	
+
+$("div.Department").each(function(){
+	if($("div.Unit").overlaps($(this))){
+		$(this).children().eq(0).children().eq(0).css("vertical-align","top");
+	}
+});
+$("div.Unit").each(function(){
+	if($("div.Post").overlaps($(this))){
+		$(this).children().eq(0).children().eq(0).css("vertical-align","top");
+	}
+});
+		
+
 	$("div.node").each(function(){
 	
 	var $label = $(this).children().eq(0);
@@ -429,21 +485,11 @@ function restyle(){
 				$label.hAlign();
 		}
 		
-		$(this).mousemove(function(e){	
-			if(e.pageY < 130 && e.pageX < 200){
-				$(this).children().filter(".tooltip").css("top",(e.pageY+30) + "px").css("left",(e.pageX+30) + "px");				
-			} else if(e.pageY < 130 ) {
-				$(this).children().filter(".tooltip").css("top",(e.pageY+30) + "px").css("left",(e.pageX-200) + "px");						
-			} else if(e.pageX < 200) {
-				$(this).children().filter(".tooltip").css("top",(e.pageY-100) + "px").css("left",(e.pageX+30) + "px");								
-			} else {
-				$(this).children().filter(".tooltip").css("top",(e.pageY-100) + "px").css("left",(e.pageX-200) + "px");				
-			}
-		});    
+		    
 		
 		$label.hAlign().hAlign().hAlign().hAlign().hAlign();
 	});
-	
+	*/
 }
 
 	
@@ -469,8 +515,11 @@ var loadNode = {
 
 
 function makePostNode(item){
+	var slug = item._about.split("/");
+	slug = slug[slug.length-1];
+	
 	var node = {
-			id:$.generateId(),
+			id:slug,
 			name:item.label[0].toString().replace("@en",""),
 			data: {
 				type:"Post",
@@ -485,8 +534,11 @@ function makePostNode(item){
 	return node;
 }
 function makeUnitNode(item){
+	var slug = item._about.split("/");
+	slug = slug[slug.length-1];
+	
 	var node = {
-			id:$.generateId(),
+			id:slug,
 			name:item.label[0].replace("@en",""),
 			data: {
 				type:"Unit",
@@ -501,14 +553,17 @@ function makeUnitNode(item){
 	return node;
 }
 function makeDeptNode(item){
+	var slug = item._about.split("/");
+	slug = slug[slug.length-1];
+	
 	var node = {
-			id:$.generateId(),
+			id:slug,
 			name:item.prefLabel.toString().replace("@en",""),
 			data: {
 				type:"Department",
 				uri:item._about,
 				processed:false,
-             	$color: "#DE5B06",
+             	$color: "#758200",
              	text: "#FFFFFF", 
              	$area: 1	
 			},
@@ -517,8 +572,9 @@ function makeDeptNode(item){
 	return node;
 }
 function makeGovNode(){
+
 	var node = {
-			id:$.generateId(),
+			id:"Government",
 			name:"Her Majesty's Government",
 			data: {
 				$color: "#333333",

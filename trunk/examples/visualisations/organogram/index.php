@@ -7,10 +7,7 @@
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-
 <link type="text/css" href="css/styles.css" rel="stylesheet">
-<link type="text/css" href="css/prettyPhoto.css" rel="stylesheet">
-
 <title>Organogram</title>
 
 </head>
@@ -52,20 +49,9 @@
 <script language="javascript" type="text/javascript"
 	src="js/jquery-1.4.2.min.js"></script>
 <script language="javascript" type="text/javascript"
-	src="js/jquery.simpletip-1.3.1.min.js"></script>
-<script language="javascript" type="text/javascript"
 	src="js/Jit/jit-yc.js"></script>
 <script language="javascript" type="text/javascript"
-	src="js/jquery.prettyPhoto.js"></script>
-<script language="javascript" type="text/javascript"
 	src="js/organogram.js"></script>
-<script language="javascript" type="text/javascript" src="js/treemap.js"></script>
-<script language="javascript" type="text/javascript"
-	src="js/jquery.color.js"></script>
-<script language="javascript" type="text/javascript"
-	src="js/jquery.getUrlParam.js"></script>
-<script language="javascript" type="text/javascript"
-	src="js/jquery.corner.js"></script>
 <script language="javascript" type="text/javascript" src="js/main.js"></script>
 <!--[if lt IE 9]>
     <script src="js/json2.js"></script>

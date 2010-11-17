@@ -4,7 +4,7 @@ html, body {
     font-family: "Lucida Grande", Verdana;
     font-size: 0.9em;
     text-align: center;
-    background-color:#F4F4ED;
+    background:url('http://data.gov.uk/sites/all/themes/datagovuk/images/body_bg_big.png') repeat scroll 0 0 transparent;
 }
 canvas {
 cursor:move;
@@ -77,7 +77,7 @@ h4 {
 }
 
 a {
-color:#DE5B06;
+color:#758200;
 text-decoration: none;
 }
 a:focus { outline:none }
@@ -96,9 +96,9 @@ box-shadow:0 5px 24px #888888;
 border-radius: 5px 5px 5px 5px;
 background-color:#FFFFFF;
 border:1px solid #DDDDDD;
-color:#819C9B;
+color:#758200;
 display:none;
-font-size:1em;
+font-size:14px;
 font-weight:bold;
 margin:0 auto;
 opacity:1;
@@ -271,7 +271,7 @@ width:6px;
 }
 a.comment:hover {
 background-color:#333333;
-color:#DE5B06;
+color:#758200;
 }
 div#apiCalls div.apiCall p span {
 border-bottom:1px solid #EEEEEE;
@@ -289,7 +289,7 @@ margin-bottom:15px;
 word-wrap: break-word;
 }
 div#apiCalls div.apiCall p.url a {
-color:#819C9B;
+color:#758200;
 text-decoration: none;
 }
 div#apiCalls div.apiCall p.url a:hover {
@@ -354,7 +354,7 @@ div.SCS {
 background-color:#FFC1C1;
 }
 div.node span.heldBy {
-background-color:#DE5B06;
+background-color:#819C9B;
 border:1px solid #333333;
 color:#FFFFFF;
 display:block;
@@ -369,7 +369,7 @@ div.node span.postIn {
 -moz-border-radius:0 0 3px 3px;
 border-radius:0 0 3px 3px;
 -webkit-border-radius:0 0 3px 3px;
-background-color:#819C9B;
+background-color:#758200;
 color:#FFFFFF;
 display:block;
 font-size:10px;
@@ -422,7 +422,10 @@ padding:10px 30px;
 text-align:center;
 }
 #infobox p.comment {
-font-style: italic;
+font-style:italic;
+max-height:125px;
+height: expression( this.scrollHeight > 124 ? "125px" : "auto" );
+overflow:auto;
 }
 #infobox p.comment span {
 font-style: normal;
@@ -599,6 +602,9 @@ display:none;
 float:right;
 padding:0;
 width:268px;
+}
+div.heldBy div.personInfo a:hover {
+text-decoration: underline;
 }
 div.heldBy div.personInfo img {
 border:1px solid #DDDDDD;
@@ -861,7 +867,7 @@ word-wrap:break-word;
 }
 .boxBody li.type span {
 -moz-border-radius:5px 5px 5px 5px;
-background-color:#DE5B06;
+background-color:#758200;
 color:#FFFFFF;
 display:inline-block;
 font-size:12px;
