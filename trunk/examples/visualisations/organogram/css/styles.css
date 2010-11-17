@@ -40,11 +40,13 @@ padding:0 10px;
 opacity:0;
 overflow:hidden;
 visibility:hidden;
+cursor: pointer;
 }
 h1.title span#text{
 font-size:14px;
 opacity:1;
 visibility:visible;
+cursor: none;
 }
 h1.title span#post {
 background-color:#EEEEEE;
@@ -60,6 +62,12 @@ h1.title span#dept {
 background-color:#CCCCCC;
 color:#333333;
 }
+h1.title span:hover {
+text-decoration:underline;
+} 
+h1.title span#post:hover {
+text-decoration:none;
+} 
 input, select {
     font-size:0.9em;
 }
