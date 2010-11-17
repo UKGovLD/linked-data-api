@@ -22,7 +22,7 @@ labs:api
 	api:maxPageSize 100;
 	api:defaultPageSize 20 ;
 	api:sparqlEndpoint <http://api.talis.com/stores/ordnance-survey/services/sparql> ;
-	api:base "http://localhost/lod" ;
+	api:base "http://labs.data.gov.uk/lod" ;
 #  api:lang "en,cy" ;
 	api:viewer 
 	  api:describeViewer ,
