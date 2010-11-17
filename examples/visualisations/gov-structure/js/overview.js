@@ -575,8 +575,9 @@ function makePostNode(item){
 				type:"Post",
 				uri:item._about,
 				processed:false,
-             	$color: "#888888", 
-             	text: "#FFFFFF",
+             	//$color: "#888888", 
+             	$color: "#F2F6EC",
+             	text: "#333333",
              	$area: 1			
 			},
 			children:[]
@@ -594,7 +595,8 @@ function makeUnitNode(item){
 				type:"Unit",
 				uri:item._about,
 				processed:false,
-             	$color: "#819C9B",
+             	//$color: "#819C9B", //teal
+             	$color: "#758200",
              	text: "#FFFFFF", 
              	$area: 1							
 			},
@@ -613,7 +615,7 @@ function makeDeptNode(item){
 				type:"Department",
 				uri:item._about,
 				processed:false,
-             	$color: "#758200",
+             	$color: "#577D00",             	
              	text: "#FFFFFF", 
              	$area: 1	
 			},

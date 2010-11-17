@@ -9,6 +9,8 @@ $(document).ready(function() {
 	$("a.close").click(function(){
 		$(this).parent().fadeOut();
 	});		
+	
+	$("input[name='deputies']").val("top");
 		
 	$("input[name='orientation']").change(function(){
 		if($(this).val() == "top") {
