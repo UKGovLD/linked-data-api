@@ -144,7 +144,7 @@ div.osCopyright {
 	color: #555;
 	font-size: 1.231em;
 	font-weight: bold;
-	padding: 0 5px 5px;
+	padding: 0 5px 10px;
 	text-align: left;
 }
 
@@ -297,7 +297,9 @@ nav section.formats li.last {
 }
 
 section#search {
-	background: url("/images/green/lttomed.png") repeat-x scroll 0 bottom #F5F9EF;
+	background: url("/images/green/lttomed.png") repeat-x scroll 0 bottom #F2F6EC;
+	border: 1px solid #577D00;
+	border-top: none;
 	padding: 10px 20px;
 	margin: 0;
 }
@@ -312,7 +314,11 @@ section#search .nested table {
 	border: none;
 }
 
-section#search tr {
+section#search .nested tr.last {
+	border-bottom: none;
+}
+
+section#search tr, section#search tr.last {
 	border-bottom: 1px dotted #C4C4C4;
 }
 
@@ -341,6 +347,7 @@ section#search button, #openSearch {
 section#search button {
 	font-size: 1em;
 	border-style: none;
+	padding: 3px 8px;
 }
 
 button img {
@@ -380,6 +387,10 @@ tr {
 	border-bottom: 1px solid #D3D3D3;
 }
 
+tr.last {
+	border-bottom: none;
+}
+
 th, td {
 	text-align: left;
 	vertical-align: top;
@@ -405,7 +416,7 @@ td.nested td.nested {
 }
 
 .nested table {
-	border: thin solid #EBEBEB;
+	border: 1px solid #EBEBEB;
 	margin: 5px 0;
 }
 
@@ -431,7 +442,7 @@ tr tr {
 .info p {
 	display: none;
 	background-color: white;
-	border: thin solid #D3D3D3;
+	border: 1px solid #D3D3D3;
 	padding: 5px;
 	margin-top: 24px;
 	line-height: 1.5em;
