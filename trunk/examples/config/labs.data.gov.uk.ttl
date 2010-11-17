@@ -272,6 +272,7 @@ rdf:value api:label "value" .
 rdfs:Class api:label "Class" .
 
 rdfs:label api:label "label" .
+rdfs:seeAlso api:label "seeAlso" ; api:multiValued true .
 rdfs:comment api:label "comment" .
 rdfs:range api:label "range" .
 rdfs:domain api:label "domain" .
