@@ -1,0 +1,1719 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix api: <http://purl.org/linked-data/api/vocab#> .
+
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix spatialrelations: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
+@prefix scovo: <http://purl.org/NET/scovo#> .
+
+@prefix dgu: <http://reference.data.gov.uk/def/reference/> .
+@prefix admingeo: <http://statistics.data.gov.uk/def/administrative-geography/> .
+@prefix naptan: <http://transport.data.gov.uk/def/naptan/> .
+@prefix traffic: <http://transport.data.gov.uk/def/traffic/> .
+@prefix vehicle: <http://transport.data.gov.uk/def/vehicle/> .
+
+@prefix t: <http://transport.data.gov.uk/api#> .
+
+t:api
+	a api:API ;
+	rdfs:label "Transport API"@en ;
+	api:maxPageSize 100;
+	api:defaultPageSize 20 ;
+	api:sparqlEndpoint <http://services.data.gov.uk/transport/sparql> ;
+#  api:sparqlEndpoint <http://gov.tso.co.uk/transport/sparql> ;
+  api:lang "en,cy" ;
+	api:viewer 
+	  api:describeViewer ,
+	  api:labelledDescribeViewer ;
+  api:defaultFormatter t:HtmlFormatter ;
+	api:endpoint
+	  t:scheme ,
+	  t:definition ,
+	  t:subclasses , t:instances , t:properties ,
+	  # Traffic Flow #
+	  t:localAuthorities , t:localAuthority ,
+	  t:localAuthorityDistricts , t:localAuthorityDistrict ,
+	  t:trafficCountPointsInLA ,
+	  t:trafficCountPoints , t:trafficCountPoint ,
+	  t:trafficCountPointsInLAD ,
+	  t:roads, t:road ,
+	  t:trafficCountPointsOnRoad ,
+	  t:trafficCounts , t:trafficCount ,
+	  t:trafficCountsAtCountPoint ,
+	  t:observations , t:observation ,
+	  t:observationsDuringCount ,
+	  t:observationsAtCountPoint ,
+	  t:motorways ,
+#	  t:roadsByCategory ,
+	  t:aRoads , t:bRoads , t:cRoads , t:unclassifiedRoads ,
+	  t:ruralRoads , t:urbanRoads ,
+	  # NPTG #
+	  t:countries , t:country ,
+	  t:regions , t:region ,
+	  t:regionsInCountry ,
+	  t:administrativeAreas , t:administrativeArea ,
+	  t:administrativeAreasInCountry , t:administrativeAreasInRegion ,
+	  t:districts , t:district ,
+	  t:districtsInCountry , t:districtsInRegion , t:districtsInAdministrativeArea ,
+	  t:localities , t:locality ,
+	  t:localityChildren ,
+	  t:localitiesInCountry , t:localitiesInRegion , t:localitiesInAdministrativeArea , t:localitiesInDistrict , t:localitiesInLocality ,
+	  t:localitiesOfStopArea ,
+	  # NaPTAN #
+	  # Stop Points #
+	  t:stopPoints , t:stopPoint , t:stopPointsInArea , 
+	  t:stopPointsInAdministrativeArea , t:stopPointsInNptgLocality , t:stopPointsInStopArea , t:connections ,
+    t:busStopPoints , t:busStopPointsInArea , t:busStopPointsInNptgLocality ,
+    t:taxiStopPoints , t:taxiStopPointsInArea , t:taxiStopPointsInNptgLocality ,
+    t:airStopPoints , t:airStopPointsInArea , t:airStopPointsInNptgLocality ,
+    t:ferryStopPoints , t:ferryStopPointsInArea , t:ferryStopPointsInNptgLocality ,
+    t:railStopPoints , t:railStopPointsInArea , t:railStopPointsInNptgLocality ,
+    t:metroStopPoints , t:metroStopPointsInArea , t:metroStopPointsInNptgLocality ,
+    t:coachStationStopPoints , t:coachStationStopPointsInArea , t:coachStationStopPointsInNptgLocality ,
+    t:coachStopPoints , t:coachStopPointsInArea , t:coachStopPointsInNptgLocality ,
+    # Stop Areas #
+    t:stopAreas , t:stopArea , t:stopAreasInStopArea ,
+    t:stopAreasInAdministrativeArea , t:stopAreasInNptgLocality , t:stopAreaOfStopPoint ,
+    # Other Things #
+	  t:coachStops , t:coachStop , t:coachStopStopAreas , t:coachStopStopPoints , t:coachStopsInLocality ,
+	  t:stations , t:station , t:stationStopAreas , t:stationStopPoints , t:stationsInLocality ,
+	  t:airports, t:airport , t:airportStopAreas , t:airportStopPoints , t:airportsInLocality ,
+	  t:ferryTerminals , t:ferryTerminal , t:ferryTerminalStopAreas , t:ferryTerminalStopPoints , t:ferryTerminalsInLocality ;
+	  .
+
+#FORMATTERS
+
+t:HtmlFormatter
+  a api:XsltFormatter ;
+  api:name "html" ;
+  api:mimeType "text/html" , "application/xhtml+xml" ;
+  api:stylesheet "xslt/transport.xsl" .
+
+## Definitions ##
+
+t:scheme
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/{scheme}" ;
+  api:defaultViewer t:schemeViewer ;
+  .
+
+t:schemeViewer
+  a api:Viewer ;
+  api:name "scheme" ;
+  api:properties "name,alias,label,note,scopeNote,topConcept.name,comment" ;
+  .
+
+t:definition
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:definitionViewer
+  a api:Viewer ;
+  api:name "definition" ;
+  api:properties "name,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
+  .
+
+t:subclasses
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item rdfs:subClassOf ?superclass . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:instances
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item a ?class . " ;
+  ] ;
+  api:defaultViewer t:instanceViewer ;
+  .
+
+t:instanceViewer
+  a api:Viewer ;
+  api:name "instance" ;
+  api:properties "name,alias,label,easting,northing,lat,long" ;
+  .
+
+t:properties
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " [] a ?class ; ?item [] . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+## Traffic Flow ##
+
+# Local Authorities
+
+t:localAuthorities
+  a api:ListEndpoint ;
+  api:uriTemplate "/statistics/doc/local-authority" ;
+  api:selector [
+    api:filter "type=LocalAuthority" ;
+  ] ;
+  api:defaultViewer t:localAuthorityListViewer .
+
+t:localAuthorityListViewer
+  a api:Viewer ;
+  api:name "local-authority-list" ;
+  api:properties "label,snac,dftLACode" .
+
+t:localAuthority
+  a api:ItemEndpoint ;
+  api:uriTemplate "/statistics/doc/local-authority/{snac}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/local-authority/{snac}" ;
+	api:defaultViewer t:localAuthorityItemViewer .
+
+t:localAuthorityItemViewer
+  a api:Viewer ;
+  api:name "local-authority" ;
+  api:properties "label,snac,dftLACode,coverage.label" .
+
+t:trafficCountPointsInLA
+  a api:ListEndpoint ;
+  api:uriTemplate "/statistics/doc/local-authority/{code}/traffic-count-point" ;
+  api:selector [
+    api:parent t:trafficCountPointSelector ;
+    api:filter "localAuthority.snac={code}" ;
+  ] ;
+  api:defaultViewer t:trafficCountPointListViewer .
+
+# Local Authority Districts
+
+t:localAuthorityDistricts
+  a api:ListEndpoint ;
+  api:uriTemplate "/statistics/doc/local-authority-district" ;
+  api:selector [
+    api:filter "type=LocalAuthorityDistrict" ;
+  ] ;
+  api:defaultViewer t:localAuthorityDistrictListViewer .
+
+t:localAuthorityDistrictListViewer
+  a api:Viewer ;
+  api:name "local-authority-district-list" ;
+  api:properties "localAuthority.label,snac,dftLACode" .
+
+t:localAuthorityDistrict
+  a api:ItemEndpoint ;
+  api:uriTemplate "/statistics/doc/local-authority-district/{snac}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/local-authority-district/{snac}" ;
+	api:defaultViewer t:localAuthorityDistrictItemViewer .
+
+t:localAuthorityDistrictItemViewer
+  a api:Viewer ;
+  api:name "local-authority-district" ;
+  api:properties "localAuthority.label,snac,dftLACode,region.label,country.label" .
+
+t:trafficCountPointsInLAD
+  a api:ListEndpoint ;
+  api:uriTemplate "/statistics/doc/local-authority-district/{code}/traffic-count-point" ;
+  api:selector [
+    api:parent t:trafficCountPointSelector ;
+    api:filter "district.snac={code}" ;
+  ] ;
+  api:defaultViewer t:trafficCountPointListViewer .
+
+# Roads
+
+t:roadSelector
+  a api:Selector ;
+  api:filter "type=Road" .
+
+t:roads
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/road" ;
+  api:selector t:roadSelector ;
+  api:defaultViewer t:roadListViewer .
+
+t:roadListViewer
+  a api:Viewer ;
+  api:name "road list" ;
+  api:properties "roadNumber,roadRegion.label,category.name" .
+
+t:road
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/road/{number}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/road/{number}" ;
+	api:defaultViewer t:roadItemViewer .
+
+t:roadItemViewer
+  a api:Viewer ;
+  api:name "road" ;
+  api:properties "roadNumber,roadCountry.label,roadRegion.label,roadDistrict.label,roadDistrict.snac,category.name" .
+
+t:trafficCountPointsOnRoad
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/road/{number}/traffic-count-point" ;
+  api:selector [
+    api:parent t:trafficCountPointSelector ;
+    api:filter "road.roadNumber={number}" ;
+    api:sort "easting,-northing" ;
+  ] ;
+  api:defaultViewer t:countPointOnRoadViewer .
+
+t:countPointOnRoadViewer
+  a api:Viewer ;
+  api:name "count points" ;
+  api:properties "lat,long,easting,northing,roadCategory.name,roadName,localAuthority.label,district.snac,road.roadNumber" ;
+  .
+
+t:roadsByCategory
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/{category}-road" ;
+  api:variable [
+    a api:Variable ;
+    api:name "categoryResource" ;
+    api:value "http://transport.data.gov.uk/def/road-category/{category}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "[] traffic:road ?item ; traffic:roadCategory ?categoryResource ." ;
+  ] ;
+  api:defaultViewer t:roadListViewer .
+
+t:motorways
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/motorway" ;
+  api:selector [
+    api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/motorway> ." ;
+  ] ;
+  api:defaultViewer t:roadListViewer .
+
+t:aRoads
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/a-road" ;
+  api:selector [
+    api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/a> ." ;
+  ] ;
+  api:defaultViewer t:roadListViewer .
+
+t:bRoads
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/b-road" ;
+  api:selector [
+    api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/b> ." ;
+  ] ;
+  api:defaultViewer t:roadListViewer .
+
+t:cRoads
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/c-road" ;
+  api:selector [
+    api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/c> ." ;
+  ] ;
+  api:defaultViewer t:roadListViewer .
+
+t:unclassifiedRoads
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/unclassified-road" ;
+  api:selector [
+    api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/unclassified> ." ;
+  ] ;
+  api:defaultViewer t:roadListViewer .
+
+t:ruralRoads
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/rural-road" ;
+  api:selector [
+    api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/rural> ." ;
+  ] ;
+  api:defaultViewer t:roadListViewer .
+
+t:urbanRoads
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/urban-road" ;
+  api:selector [
+    api:where "[] traffic:road ?item ; traffic:roadCategory <http://transport.data.gov.uk/def/road-category/urban> ." ;
+  ] ;
+  api:defaultViewer t:roadListViewer .
+
+# Traffic Count Points
+
+t:trafficCountPointSelector
+  a api:Selector ;
+  api:filter "type=CountPoint" .
+
+t:trafficCountPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point" ;
+  api:selector t:trafficCountPointSelector ;
+  api:defaultViewer t:trafficCountPointListViewer .
+
+t:trafficCountPointListViewer
+  a api:Viewer ;
+  api:name "count point list" ;
+  api:properties "lat,long,easting,northing,road.roadNumber,roadName" .
+
+t:trafficCountPoint
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{number}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/traffic-count-point/{number}" ;
+	api:defaultViewer t:trafficCountPointItemViewer .
+
+t:trafficCountPointItemViewer
+  a api:Viewer ;
+  api:name "count-point" ;
+  api:properties "countPointNumber,lat,long,easting,northing,comment,road.roadNumber,roadName,roadCategory.name,localAuthority.label,district.label,district.snac" .
+
+# Traffic Counts
+
+t:trafficCounts
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/traffic-count" ;
+  api:selector t:trafficCountSelector ;
+  api:defaultViewer t:trafficCountsViewer ;
+  .
+
+t:trafficCountSelector
+  a api:Selector ;
+  api:filter "type=Count" ;
+  .
+
+t:trafficCountsViewer
+  a api:Viewer ;
+  api:properties "countPoint.lat,countPoint.long,countPoint.easting,countPoint.northing,countPoint.road.roadNumber,countPoint.roadName,direction.label,hour.label,observation.vehicleType.name" ;
+  .
+
+t:trafficCount
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}" ;
+  api:defaultViewer t:trafficCountViewer ;
+  .
+
+t:trafficCountViewer
+  a api:Viewer ;
+  api:name "traffic count" ;
+  api:properties "countPoint.lat,countPoint.long,countPoint.easting,countPoint.northing,countPoint.road.roadNumber,countPoint.roadName,direction.label,hour.label,hour.beginning.asDateTime,observation.vehicleType.name,observation.value" ;
+  .
+
+t:trafficCountsAtCountPoint
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/count" ;
+  api:variable [
+    api:name "countPointResource" ;
+    api:value "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item traffic:countPoint ?countPointResource . "
+  ] ;
+  api:defaultViewer t:trafficCountsAtCountPointViewer ;
+  .
+
+t:trafficCountsAtCountPointViewer
+  a api:Viewer ;
+  api:properties "direction.label,hour.label" ;
+  .
+
+# Observations
+
+t:observations
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/observation" ;
+  api:selector t:observationSelector ;
+  api:defaultViewer t:observationsViewer ;
+  .
+
+t:observationSelector
+  a api:Selector ;
+  api:filter "type=Observation" ;
+  .
+
+t:observationsViewer
+  a api:Viewer ;
+  api:name "observation" ;
+  api:properties "value,count,vehicleType.name,observationCountPoint.lat,observationCountPoint.long,observationCountPoint.easting,observationCountPoint.northing,observationCountPoint.roadName,observationDirection.label,observationHour.label,observationHour.beginning.asDateTime,observationRoad.roadNumber" ;
+  .
+
+t:observation
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}/type/{type}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}/type/{type}" ;
+  api:defaultViewer t:observationViewer ;
+  .
+
+t:observationViewer
+  a api:Viewer ;
+  api:name "observation" ;
+  api:properties "value,count,vehicleType.name,observationCountPoint.lat,observationCountPoint.long,observationCountPoint.easting,observationCountPoint.northing,observationCountPoint.roadName,observationDirection.label,observationHour.label,observationHour.beginning.asDateTime,observationRoad.roadNumber" ;
+  .
+
+t:observationsAtCountPoint
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/observation" ;
+  api:variable [
+    api:name "countPointResource" ;
+    api:value "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item traffic:observationCountPoint ?countPointResource . "
+  ] ;
+  api:defaultViewer t:observationsAtCountPointViewer ;
+  .
+
+t:observationsAtCountPointViewer
+  a api:Viewer ;
+  api:properties "value,count,vehicleType.name,observationDirection.label,observationHour.label,observationHour.beginning.asDateTime" ;
+  .
+
+t:observationsDuringCount
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}/observation" ;
+  api:variable [
+    api:name "countResource" ;
+    api:value "http://transport.data.gov.uk/id/traffic-count-point/{countPoint}/direction/{dir}/hour/{dateTime}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item traffic:count ?countResource . "
+  ] ;
+  api:defaultViewer t:observationsAtCountPointViewer ;
+  .
+
+## NPTG ##
+
+t:countries
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/country" ;
+	api:selector [ 
+		api:filter "type=Country" ;
+	] ;
+	api:defaultViewer t:countryListViewer .
+
+t:countryListViewer
+  a api:Viewer ;
+  api:name "country-list" ;
+  api:properties "countryCode,sameAs" .
+
+t:country
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/country/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/country/{code}" ;
+	api:defaultViewer t:countryItemViewer .
+
+t:countryItemViewer
+  a api:Viewer ;
+  api:name "country" ;
+  api:properties "countryCode,sameAs" .
+
+t:regionSelector
+  a api:Selector ;
+  api:filter "type=Region" .
+
+t:regions
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/region" ;
+	api:selector t:regionSelector ;
+	api:defaultViewer t:regionListViewer .
+
+t:regionListViewer
+  a api:Viewer ;
+  api:name "region-list" ;
+  api:properties "name,regionCode,country.countryCode" .
+
+t:region
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/region/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/region/{code}" ;
+	api:defaultViewer t:regionItemViewer .
+
+t:regionItemViewer
+  a api:Viewer ;
+  api:name "region" ;
+  api:properties "name,regionCode,country.countryCode,administrativeArea.name" .
+
+t:regionsInCountry
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/country/{code}/region" ;
+  api:selector [
+    api:parent t:regionSelector ;
+    api:filter "country.countryCode={code}" ;
+  ] ;
+  api:defaultViewer t:regionListViewer .
+
+t:administrativeAreaSelector
+  a api:Selector ;
+  api:filter "type=AdministrativeArea" .
+
+t:administrativeAreas
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/administrative-area" ;
+	api:selector t:administrativeAreaSelector ;
+	api:defaultViewer t:administrativeAreaListViewer .
+
+t:administrativeAreaListViewer
+  a api:Viewer ;
+  api:name "administrative-area-list" ;
+  api:properties "name,alias,administrativeAreaCode,atcoAreaCode,country.name,transportRegion.name" .
+
+t:administrativeArea
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/administrative-area/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/administrative-area/{code}" ;
+	api:defaultViewer t:administrativeAreaItemViewer .
+
+t:administrativeAreaItemViewer
+  a api:Viewer ;
+  api:name "administrative-area" ;
+  api:properties "name,alias,administrativeAreaCode,atcoAreaCode,transportRegion.name,nptgDistrict.name" .
+
+t:administrativeAreasInCountry
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/country/{code}/administrative-area" ;
+  api:selector [
+    api:parent t:administrativeAreaSelector ;
+    api:filter "country.countryCode={code}" ;
+  ] ;
+  api:defaultViewer t:administrativeAreaListViewer .
+
+t:administrativeAreasInRegion
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/region/{code}/administrative-area" ;
+  api:selector [
+    api:parent t:administrativeAreaSelector ;
+    api:filter "region.regionCode={code}" ;
+  ] ;
+  api:defaultViewer t:administrativeAreaListViewer .
+
+t:districtSelector
+  a api:Selector ;
+  api:filter "type=NptgDistrict" .
+
+t:districts
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/nptg-district" ;
+	api:selector t:districtSelector ;
+	api:defaultViewer t:districtListViewer .
+
+t:districtListViewer
+  a api:Viewer ;
+  api:name "district-list" ;
+  api:properties "name,alias,nptgDistrictCode,country.name,transportRegion.name,administrativeArea.name" .
+
+t:district
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/nptg-district/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/nptg-district/{code}" ;
+	api:defaultViewer t:districtItemViewer .
+
+t:districtItemViewer
+  a api:Viewer ;
+  api:name "district" ;
+  api:properties "name,alias,nptgDistrictCode,country.name,transportRegion.name,administrativeArea.name,nptgLocality.name" .
+
+t:districtsInCountry
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/country/{code}/nptg-district" ;
+  api:selector [
+    api:parent t:districtSelector ;
+    api:filter "country.countryCode={code}" ;
+  ] ;
+  api:defaultViewer t:districtListViewer .
+
+t:districtsInRegion
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/region/{code}/nptg-district" ;
+  api:selector [
+    api:parent t:districtSelector ;
+    api:filter "transportRegion.regionCode={code}" ;
+  ] ;
+  api:defaultViewer t:districtListViewer .
+
+t:districtsInAdministrativeArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/administrative-area/{code}/nptg-district" ;
+  api:selector [
+    api:parent t:districtSelector ;
+    api:filter "administrativeArea.administrativeAreaCode={code}" ;
+  ] ;
+  api:defaultViewer t:districtListViewer .
+
+t:localitySelector
+  a api:Selector ;
+  api:filter "type=NptgLocality" .
+
+t:localities
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/nptg-locality" ;
+	api:selector t:localitySelector ;
+	api:defaultViewer t:localityListViewer .
+
+t:localityListViewer
+  a api:Viewer ;
+  api:name "locality-list" ;
+  api:properties "name,alias,nptgLocalityCode,country.name,region.name,administrativeArea.name,nptgDistrict.name,easting,northing" .
+
+t:locality
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
+	api:defaultViewer t:localityItemViewer .
+
+t:localityItemViewer
+  a api:Viewer ;
+  api:name "locality" ;
+  api:properties "name,alias,nptgLocalityCode,country.name,transportRegion.name,administrativeArea.name,nptgDistrict.name,easting,northing,parentNptgLocality.name,childNptgLocality.name" .
+
+t:localitiesInCountry
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/country/{code}/nptg-locality" ;
+  api:selector [
+    api:parent t:localitySelector ;
+    api:filter "country.countryCode={code}" ;
+  ] ;
+  api:defaultViewer t:localityListViewer .
+
+t:localitiesInRegion
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/region/{code}/nptg-locality" ;
+  api:selector [
+    api:parent t:localitySelector ;
+    api:filter "transportRegion.regionCode={code}" ;
+  ] ;
+  api:defaultViewer t:localityListViewer .
+
+t:localitiesInAdministrativeArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/administrative-area/{code}/nptg-locality" ;
+  api:selector [
+    api:parent t:localitySelector ;
+    api:filter "administrativeArea.administrativeAreaCode={code}" ;
+  ] ;
+  api:defaultViewer t:localityListViewer .
+
+t:localitiesInDistrict
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-district/{code}/nptg-locality" ;
+  api:selector [
+    api:parent t:localitySelector ;
+    api:filter "nptgDistrict.nptgDistrictCode={code}&exists-parentNptgLocality=false" ;
+  ] ;
+  api:defaultViewer t:localityListViewer .
+
+t:localitiesInLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/children" ;
+  api:selector [
+    api:parent t:localitySelector ;
+    api:filter "parentNptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:localityListViewer .
+
+t:localitiesOfStopArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-area/{code}/nptg-locality" ;
+  api:variable [
+    api:name "stopArea" ;
+    api:value "http://transport.data.gov.uk/id/stop-area/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:parent t:localitySelector ;
+    api:where "?stopArea naptan:stopPoint [ naptan:nptgLocality ?item ] ." ;
+  ] ;
+  api:defaultViewer t:localityListViewer ;
+  .
+
+## NaPTAN ##
+
+t:stopPointSelector
+  a api:Selector ;
+  api:filter "type=StopPoint" .
+
+t:stopPoints
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/stop-point" ;
+	api:selector t:stopPointSelector ;
+	api:defaultViewer t:stopPointListViewer .
+
+t:stopPointListViewer
+  a api:Viewer ;
+  api:name "stop-point-list" ;
+  api:properties "name,alias,indicator,atcoCode,naptanCode,plateCode,easting,northing,lat,long,nptgLocality.name" .
+
+t:stopPoint
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/stop-point/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/stop-point/{code}" ;
+	api:defaultViewer t:stopPointItemViewer .
+
+t:stopPointItemViewer
+  a api:Viewer ;
+  api:name "stop-point" ;
+  api:properties "name,alias,atcoCode,naptanCode,plateCode,type.label,note,indicator,landmark,street,town,suburb,lat,long,easting,northing,compassPointBearing,administrativeArea.name,nptgLocality.name,plusbusZone.name,localityCentre,defaultWaitTime,coachStop.label,coachStop.alias,coachStop.coachRef,station.label,station.alias,station.crs,station.tiploc,airport.name,airport.alias,airport.iata,ferryTerminal.name,ferryTerminal.alias,ferryTerminal.ferryRef" .
+
+t:stopPointsInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:stopPointsInAdministrativeArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/administrative-area/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "administrativeArea.administrativeAreaCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:stopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:stopPointsInStopArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-area/{code}/stop-point" ;
+  api:variable [
+    api:name "stopArea" ;
+    api:value "http://transport.data.gov.uk/id/stop-area/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:where " ?stopArea naptan:stopPoint ?item . " ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:connections
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-point/{code}/connection" ;
+  api:variable [
+    api:name "stopPoint" ;
+    api:value "http://transport.data.gov.uk/id/stop-point/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:mainNptgLocality ?item . OPTIONAL { ?item naptan:parentNptgLocality ?parent . } FILTER (!bound(?parent)) " ;
+    api:sort "name" ;
+  ] ;
+  api:defaultViewer t:localityListViewer ;
+  .
+
+t:busStopPointSelector
+  a api:Selector ;
+  api:filter "type=BusStopPoint" .
+
+t:busStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/bus-stop-point" ;
+  api:selector t:busStopPointSelector ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:busStopPointsInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/bus-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:selector [
+    api:parent t:busStopPointSelector ;
+    api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:busStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/bus-stop-point" ;
+  api:selector [
+    api:parent t:busStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:taxiStopPointSelector
+  a api:Selector ;
+  api:filter "type=TaxiStopPoint" .
+
+t:taxiStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/taxi-stop-point" ;
+  api:selector t:taxiStopPointSelector ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:taxiStopPointsInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/taxi-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:selector [
+    api:parent t:taxiStopPointSelector ;
+    api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:busStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/taxi-stop-point" ;
+  api:selector [
+    api:parent t:taxiStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:airStopPointSelector
+  a api:Selector ;
+  api:filter "type=AirStopPoint" .
+
+t:airStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/air-stop-point" ;
+  api:selector t:airStopPointSelector ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:airStopPointsInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/air-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:selector [
+    api:parent t:airStopPointSelector ;
+    api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:airStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/air-stop-point" ;
+  api:selector [
+    api:parent t:airStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:ferryStopPointSelector
+  a api:Selector ;
+  api:filter "type=FerryStopPoint" .
+
+t:ferryStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/ferry-stop-point" ;
+  api:selector t:ferryStopPointSelector ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:ferryStopPointsInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/ferry-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:selector [
+    api:parent t:ferryStopPointSelector ;
+    api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:ferryStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/ferry-stop-point" ;
+  api:selector [
+    api:parent t:ferryStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:railStopPointSelector
+  a api:Selector ;
+  api:filter "type=RailStopPoint" .
+
+t:railStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/rail-stop-point" ;
+  api:selector t:railStopPointSelector ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:railStopPointsInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/rail-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:selector [
+    api:parent t:railStopPointSelector ;
+    api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:railStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/rail-stop-point" ;
+  api:selector [
+    api:parent t:railStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:metroStopPointSelector
+  a api:Selector ;
+  api:filter "type=MetroStopPoint" .
+
+t:metroStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/metro-stop-point" ;
+  api:selector t:metroStopPointSelector ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:metroStopPointsInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/metro-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:selector [
+    api:parent t:metroStopPointSelector ;
+    api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:metroStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/metro-stop-point" ;
+  api:selector [
+    api:parent t:metroStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:coachStationStopPointSelector
+  a api:Selector ;
+  api:filter "type=CoachStationPoint" .
+
+t:coachStationStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/coach-station-stop-point" ;
+  api:selector t:coachStationStopPointSelector ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:coachStationStopPointsInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/coach-station-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:selector [
+    api:parent t:coachStationStopPointSelector ;
+    api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:coachStationStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/coach-station-stop-point" ;
+  api:selector [
+    api:parent t:coachStationStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:coachStopPointSelector
+  a api:Selector ;
+  api:filter "type=CoachStopPoint" .
+
+t:coachStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/coach-stop-point" ;
+  api:selector t:coachStopPointSelector ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:coachStopPointsInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/coach-stop-point/area/{minLat},{minLong};{maxLat},{maxLong}" ;
+  api:selector [
+    api:parent t:coachStopPointSelector ;
+    api:filter "min-lat={minLat}&min-long={minLong}&max-lat={maxLat}&max-long={maxLong}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer .
+
+t:coachStopPointsInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/coach-stop-point" ;
+  api:selector [
+    api:parent t:coachStopPointSelector ;
+    api:filter "nptgLocality.nptgLocalityCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+# Stop Areas #
+
+t:stopAreaSelector
+  a api:Selector ;
+  api:filter "type=StopArea" .
+
+t:stopAreas
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/stop-area" ;
+	api:selector t:stopAreaSelector ;
+	api:defaultViewer t:stopAreaListViewer .
+
+t:stopAreaListViewer
+  a api:Viewer ;
+  api:name "stop-area-list" ;
+  api:properties "name,alias,easting,northing,lat,long,stopAreaCode,administrativeArea.name" .
+
+t:stopArea
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/stop-area/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/stop-area/{code}" ;
+	api:defaultViewer t:stopAreaItemViewer .
+
+t:stopAreaItemViewer
+  a api:Viewer ;
+  api:name "stop-area" ;
+  api:properties "name,alias,type.label,easting,northing,lat,long,stopAreaCode,administrativeArea.name,stopPoint.name,childStopArea.name,childStopArea.type.label,parentStopArea.name" .
+
+t:stopAreasInAdministrativeArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/administrative-area/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "administrativeArea.administrativeAreaCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:stopAreasInNptgLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.nptgLocality.nptgLocalityCode={code}&exists-parentStopArea=false" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:stopAreaOfStopPoint
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-point/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.atcoCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:stopAreasInStopArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/stop-area/{code}/children" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "parentStopArea.stopAreaCode={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+# Other Things #
+
+t:coachStopSelector
+  a api:Selector ;
+  api:filter "type=CoachStop" .
+
+t:coachStops
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/coach-stop" ;
+	api:selector t:coachStopSelector ;
+	api:defaultViewer t:coachStopListViewer .
+
+t:coachStopListViewer
+  a api:Viewer ;
+  api:name "coach-stop-list" ;
+  api:properties "name,alias,coachRef" .
+
+t:coachStop
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/coach-stop/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/coach-stop/{code}" ;
+	api:defaultViewer t:coachStopItemViewer .
+
+t:coachStopItemViewer
+  a api:Viewer ;
+  api:name "coach-stop" ;
+  api:properties "name,alias,northing,easting" .
+
+t:coachStopStopAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/coach-stop/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.coachStop.coachRef={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:coachStopStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/coach-stop/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "coachStop.coachRef={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:coachStopsInLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/coach-stop" ;
+  api:variable [
+    api:name "locality" ;
+    api:value "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:nptgLocality ?locality ; naptan:coachStop ?item . " ;
+  ] ;
+  api:defaultViewer t:coachStopItemViewer ;
+  .
+
+t:stationSelector
+  a api:Selector ;
+  api:filter "type=Station" .
+
+t:stations
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/station" ;
+	api:selector t:stationSelector ;
+	api:defaultViewer t:stationListViewer .
+
+t:stationListViewer
+  a api:Viewer ;
+  api:name "station-list" ;
+  api:properties "name,alias,crs,tiploc" .
+
+t:station
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/station/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/station/{code}" ;
+	api:defaultViewer t:stationItemViewer .
+
+t:stationItemViewer
+  a api:Viewer ;
+  api:name "station" ;
+  api:properties "name,alias,crs,tiploc,easting,northing" .
+
+t:stationStopAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/station/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.station.crs={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:stationStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/station/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "station.crs={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:stationsInLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/station" ;
+  api:variable [
+    api:name "locality" ;
+    api:value "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:nptgLocality ?locality ; naptan:station ?item . " ;
+  ] ;
+  api:defaultViewer t:stationItemViewer ;
+  .
+
+t:airportSelector
+  a api:Selector ;
+  api:filter "type=Airport" .
+
+t:airports
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/airport" ;
+	api:selector t:airportSelector ;
+	api:defaultViewer t:airportListViewer .
+
+t:airportListViewer
+  a api:Viewer ;
+  api:name "airport-list" ;
+  api:properties "name,alias,iata" .
+
+t:airport
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/airport/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/airport/{code}" ;
+	api:defaultViewer t:airportItemViewer .
+
+t:airportItemViewer
+  a api:Viewer ;
+  api:name "airport" ;
+  api:properties "name,alias,iata" .
+
+t:airportStopAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/airport/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.airport.iata={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:airportStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/airport/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "airport.iata={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:airportsInLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/airport" ;
+  api:variable [
+    api:name "locality" ;
+    api:value "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:nptgLocality ?locality ; naptan:airport ?item . " ;
+  ] ;
+  api:defaultViewer t:airportItemViewer ;
+  .
+
+t:ferryTerminalSelector
+  a api:Selector ;
+  api:filter "type=FerryTerminal" .
+
+t:ferryTerminals
+	a api:ListEndpoint ;
+	api:uriTemplate "/doc/ferry-terminal" ;
+	api:selector t:ferryTerminalSelector ;
+	api:defaultViewer t:ferryTerminalListViewer .
+
+t:ferryTerminalListViewer
+  a api:Viewer ;
+  api:name "ferry-list" ;
+  api:properties "name,alias,ferryRef" .
+
+t:ferryTerminal
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/ferry-terminal/{code}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/ferry-terminal/{code}" ;
+	api:defaultViewer t:ferryTerminalItemViewer .
+
+t:ferryTerminalItemViewer
+  a api:Viewer ;
+  api:name "ferry" ;
+  api:properties "name,alias,ferryRef,northing,easting" .
+
+t:ferryTerminalStopAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/ferry-terminal/{code}/stop-area" ;
+  api:selector [
+    api:parent t:stopAreaSelector ;
+    api:filter "stopPoint.ferryTerminal.ferryRef={code}" ;
+  ] ;
+  api:defaultViewer t:stopAreaListViewer ;
+  .
+
+t:ferryTerminalStopPoints
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/ferry-terminal/{code}/stop-point" ;
+  api:selector [
+    api:parent t:stopPointSelector ;
+    api:filter "ferryTerminal.ferryRef={code}" ;
+  ] ;
+  api:defaultViewer t:stopPointListViewer ;
+  .
+
+t:ferryTerminalsInLocality
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/nptg-locality/{code}/ferry-terminal" ;
+  api:variable [
+    api:name "locality" ;
+    api:value "http://transport.data.gov.uk/id/nptg-locality/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?stopPoint naptan:nptgLocality ?locality ; naptan:ferryTerminal ?item . " ;
+  ] ;
+  api:defaultViewer t:ferryTerminalItemViewer ;
+  .
+
+
+## Labels ##
+
+# Common #
+
+rdf:Property api:label "Property" .
+
+rdf:type api:label "type" ;
+  api:multiValued true .
+rdf:value api:label "value" .
+
+rdfs:Class api:label "Class" .
+
+rdfs:label api:label "label" ; api:multiValued true .
+rdfs:seeAlso api:label "seeAlso" ; api:multiValued true .
+rdfs:comment api:label "comment" .
+rdfs:range api:label "range" .
+rdfs:domain api:label "domain" .
+rdfs:isDefinedBy api:label "isDefinedBy" .
+rdfs:subClassOf api:label "subClassOf" .
+rdfs:subPropertyOf api:label "subPropertyOf" .
+
+owl:sameAs api:label "sameAs" .
+
+skos:Concept api:label "Concept" .
+skos:ConceptScheme api:label "ConceptScheme" .
+
+skos:prefLabel api:label "name" .
+skos:altLabel api:label "alias" ; api:multiValued true .
+skos:note api:label "note" .
+skos:notation api:label "notation" .
+skos:scopeNote api:label "scopeNote" .
+skos:topConceptOf api:label "topConceptOf" .
+skos:hasTopConcept api:label "topConcept" ; api:multiValued true .
+skos:broader api:label "broader" .
+skos:narrower api:label "narrower" ; api:multiValued true .
+
+scovo:Item api:label "Observation" .
+scovo:Dataset api:label "Dataset" .
+
+scovo:dataset api:label "dataset" .
+
+time:hasBeginning api:label "beginning" .
+time:hasEnd api:label "end" .
+time:inXSDDateTime
+  a owl:DatatypeProperty ;
+  api:label "asDateTime" ;
+  rdfs:range xsd:dateTime ;
+  .
+
+dgu:uriSet api:label "uriSet" .
+
+geo:lat api:label "lat" .
+geo:long api:label "long" .
+
+spatialrelations:easting 
+  a owl:DatatypeProperty ;
+  api:label "easting" ;
+  rdfs:range xsd:integer .
+spatialrelations:northing 
+  a owl:DatatypeProperty ;
+  api:label "northing" ;
+  rdfs:range xsd:integer .
+
+spatialrelations:containedBy api:label "containedBy" .
+spatialrelations:contains api:label "contains" .
+spatialrelations:borders api:label "borders" .
+
+admingeo:country api:label "country" .
+admingeo:region api:label "region" .
+admingeo:localAuthority api:label "localAuthority" .
+admingeo:district api:label "district" .
+admingeo:coverage api:label "coverage" .
+admingeo:standardCode
+  a owl:DatatypeProperty ;
+  api:label "snac" ;
+  rdfs:range admingeo:StandardCode .
+
+admingeo:LocalAuthority api:label "LocalAuthority" .
+admingeo:LocalAuthorityDistrict api:label "LocalAuthorityDistrict" .
+
+admingeo:StandardCode a rdfs:Datatype .
+
+<http://dbpedia.org/resource/North> api:label "north" .
+<http://dbpedia.org/resource/South> api:label "south" .
+<http://dbpedia.org/resource/East> api:label "east" .
+<http://dbpedia.org/resource/West> api:label "west" .
+
+# Traffic Flow #
+
+traffic:lacode
+  a owl:DatatypeProperty ;
+  api:label "dftLACode" ;
+  rdfs:range traffic:LAcode .
+
+traffic:Road api:label "Road" .
+traffic:CountPoint api:label "CountPoint" .
+traffic:Count api:label "Count" .
+
+traffic:count api:label "count" .
+traffic:countPoint api:label "countPoint" .
+traffic:direction api:label "direction" .
+traffic:countHour api:label "hour" .
+traffic:observation api:label "observation" .
+traffic:observationRoad api:label "observationRoad" .
+traffic:observationCountHour api:label "observationHour" .
+traffic:observationDirection api:label "observationDirection" .
+traffic:observationCountPoint api:label "observationCountPoint" .
+
+traffic:countPointNumber 
+  a owl:DatatypeProperty ;
+  api:label "countPointNumber" ;
+  rdfs:range traffic:CountPointNumber .
+
+traffic:countPointRoadCategory 
+  api:label "category" ; 
+  api:multiValued true ;
+  .
+traffic:countPointRegion 
+  api:label "roadRegion" ;
+  api:multiValued true ;
+  .
+traffic:countPointCountry 
+  api:label "roadCountry" ;
+  api:multiValued true ;
+  .
+traffic:countPointDistrict 
+  api:label "roadDistrict" ;
+  api:multiValued true ;
+  .
+
+traffic:road api:label "road" .
+traffic:roadName api:label "roadName" .
+traffic:roadNumber 
+  a owl:DatatypeProperty ;
+  api:label "roadNumber" ;
+  rdfs:range traffic:RoadNumber ;
+  .
+
+traffic:roadCategory 
+  api:label "roadCategory" ;
+  api:multiValued true .
+
+traffic:LAcode a rdfs:Datatype .
+traffic:CountPointNumber a rdfs:Datatype .
+traffic:RoadNumber a rdfs:Datatype .
+
+vehicle:vehicleType api:label "vehicleType" .
+
+# NPTG #
+
+naptan:Country api:label "Country" .
+naptan:Region api:label "Region" .
+naptan:AdministrativeArea api:label "AdministrativeArea" .
+naptan:NptgDistrict api:label "NptgDistrict" .
+naptan:NptgLocality api:label "NptgLocality" .
+
+naptan:country api:label "country" .
+naptan:region api:label "transportRegion" .
+naptan:administrativeArea api:label "administrativeArea" .
+naptan:nptgDistrict api:label "nptgDistrict" .
+naptan:nptgLocality api:label "nptgLocality" .
+naptan:parentNptgLocality api:label "parentNptgLocality" .
+naptan:childNptgLocality api:label "childNptgLocality" .
+naptan:plusbusZone api:label "plusbusZone" .
+naptan:parentStopArea api:label "parentStopArea" .
+naptan:childStopArea api:label "childStopArea" .
+naptan:stopPoint api:label "stopPoint" .
+
+naptan:countryCode 
+  a owl:DatatypeProperty ;
+  api:label "countryCode" ; 
+  rdfs:range naptan:CountryCode .
+naptan:regionCode 
+  a owl:DatatypeProperty ;
+  api:label "regionCode" ;
+  rdfs:range naptan:RegionCode .
+naptan:administrativeAreaCode 
+  a owl:DatatypeProperty ;
+  api:label "administrativeAreaCode" ;
+  rdfs:range naptan:AdministrativeAreaCode .
+naptan:atcoAreaCode 
+  a owl:DatatypeProperty ;
+  api:label "atcoAreaCode" ;
+  rdfs:range naptan:AtcoAreaCode .
+naptan:nptgDistrictCode 
+  a owl:DatatypeProperty ;
+  api:label "nptgDistrictCode" ;
+  rdfs:range naptan:NptgDistrictCode .
+naptan:nptgLocalityCode 
+  a owl:DatatypeProperty ;
+  api:label "nptgLocalityCode" ;
+  rdfs:range naptan:NptgLocalityCode .
+
+naptan:CountryCode a rdfs:Datatype .
+naptan:RegionCode a rdfs:Datatype .
+naptan:AdministrativeAreaCode a rdfs:Datatype .
+naptan:AtcoAreaCode a rdfs:Datatype .
+naptan:NptgDistrictCode a rdfs:Datatype .
+naptan:NptgLocalityCode a rdfs:Datatype .
+
+<http://transport.data.gov.uk/id/region> api:label "Regions" .
+<http://transport.data.gov.uk/id/administrative-area> api:label "AdministrativeAreas" .
+<http://transport.data.gov.uk/id/nptg-district> api:label "NptgDistricts" .
+<http://transport.data.gov.uk/id/nptg-locality> api:label "NptgLocalities" .
+
+# NaPTAN #
+
+naptan:StopPoint api:label "StopPoint" .
+naptan:StopArea api:label "StopArea" .
+
+naptan:OnStreetStopPoint api:label "OnStreetStopPoint" .
+naptan:OffStreetStopPoint api:label "OffStreetStopPoint" .
+
+naptan:BusStopPoint api:label "BusStopPoint" .
+naptan:BusCoachTramOnStreetPoint api:label "BusCoachTramOnStreetPoint" .
+naptan:MarkedBusStop api:label "MarkedBusStop" .
+naptan:HailAndRideBusStop api:label "HailAndRideBusStop" .
+naptan:CustomBusStop api:label "CustomBusStop" .
+naptan:FlexibleBusStop api:label "FlexibleBusStop" .
+
+naptan:TaxiStopPoint api:label "TaxiStopPoint" .
+naptan:TaxiRank api:label "TaxiRank" .
+naptan:SharedTaxiRank api:label "SharedTaxiRank" .
+
+naptan:AirStopPoint api:label "AirStopPoint" .
+naptan:AirportEntrance api:label "AirportEntrance" .
+naptan:AirAccessArea api:label "AirAccessArea" .
+
+naptan:FerryStopPoint api:label "FerryStopPoint" .
+naptan:FerryTerminalDockEntrance api:label "FerryTerminalDockEntrance" .
+naptan:FerryDockAccessArea api:label "FerryDockAccessArea" .
+naptan:FerryBerth api:label "FerryBerth" .
+
+naptan:RailStopPoint api:label "RailStopPoint" .
+naptan:RailStationEntrance api:label "RailStationEntrance" .
+naptan:RailAccessArea api:label "RailAccessArea" .
+naptan:RailPlatform api:label "RailPlatform" .
+
+naptan:MetroStopPoint api:label "MetroStopPoint" .
+naptan:TramMetroUndergroundStationEntrance api:label "TramMetroUndergroundStationEntrance" .
+naptan:TramMetroUndergroundAccessArea api:label "TramMetroUndergroundAccessArea" .
+naptan:TramMetroUndergroundPlatform api:label "TramMetroUndergroundPlatform" .
+
+naptan:CoachStationPoint api:label "CoachStationPoint" .
+naptan:BusCoachTramStationEntrance api:label "BusCoachTramStationEntrance" .
+naptan:BusCoachStationAccessArea api:label "BusCoachStationAccessArea" .
+naptan:BusCoachTramStationBay api:label "BusCoachTramStationBay" .
+naptan:BusCoachTramStationVariableBay api:label "BusCoachTramStationVariableBay" .
+
+naptan:BusCoachStopPoint api:label "BusCoachStopPoint" .
+naptan:CoachStopPoint api:label "CoachStopPoint" .
+
+naptan:PrinciplePoint api:label "PrinciplePoint" .
+naptan:TimeInfoPoint api:label "TimeInfoPoint" .
+naptan:PrincipleTimingPoint api:label "PrincipleTimingPoint" .
+naptan:OtherPoint api:label "OtherPoint" .
+
+naptan:CoachStop api:label "CoachStop" .
+naptan:Station api:label "Station" .
+naptan:Airport api:label "Airport" .
+naptan:FerryTerminal api:label "FerryTerminal" .
+
+naptan:coachStop api:label "coachStop" .
+naptan:station api:label "station" .
+naptan:airport api:label "airport" .
+naptan:ferryTerminal api:label "ferryTerminal" .
+
+naptan:indicator api:label "indicator" .
+naptan:landmark api:label "landmark" .
+naptan:street api:label "street" .
+naptan:town api:label "town" .
+naptan:suburb api:label "suburb" .
+naptan:compassPointBearing api:label "compassPointBearing" .
+
+naptan:stopValidity 
+  api:label "stopValidity" ;
+  api:multiValued true .
+naptan:mainNptgLocality 
+  api:label "connection" ;
+  api:multiValued true .
+
+naptan:defaultWaitTime
+  a owl:DatatypeProperty ;
+  api:label "defaultWaitTime" ;
+  rdfs:range xsd:dayTimeDuration .
+naptan:localityCentre
+  a owl:DatatypeProperty ;
+  api:label "localityCentre" ;
+  rdfs:range xsd:boolean .
+
+naptan:atcoCode
+  a owl:DatatypeProperty ;
+  api:label "atcoCode" ;
+  rdfs:range naptan:AtcoCode .
+naptan:naptanCode
+  a owl:DatatypeProperty ;
+  api:label "naptanCode" ;
+  rdfs:range naptan:NaptanCode .
+naptan:plateCode
+  a owl:DatatypeProperty ;
+  api:label "plateCode" ;
+  rdfs:range naptan:PlateCode .
+
+naptan:stopAreaCode
+  a owl:DatatypeProperty ;
+  api:label "stopAreaCode" ;
+  rdfs:range naptan:StopAreaCode .
+
+naptan:coachRef
+  a owl:DatatypeProperty ;
+  api:label "coachRef" ;
+  rdfs:range naptan:CoachStopCode .
+naptan:crsRef
+  a owl:DatatypeProperty ;
+  api:label "crs" ;
+  rdfs:range naptan:CrsCode .
+naptan:tiplocRef
+  a owl:DatatypeProperty ;
+  api:label "tiploc" ;
+  rdfs:range naptan:TiplocCode .
+naptan:iataRef
+  a owl:DatatypeProperty ;
+  api:label "iata" ;
+  rdfs:range naptan:IataCode .
+naptan:ferryRef
+  a owl:DatatypeProperty ;
+  api:label "ferryRef" ;
+  rdfs:range naptan:NationalFerryPortCode .
+
+naptan:AtcoCode a rdfs:Datatype .
+naptan:NaptanCode a rdfs:Datatype .
+naptan:PlateCode a rdfs:Datatype .
+naptan:StopAreaCode a rdfs:Datatype .
+naptan:CoachStopCode a rdfs:Datatype .
+naptan:CrsCode a rdfs:Datatype .
+naptan:TiplocCode a rdfs:Datatype .
+naptan:IataCode a rdfs:Datatype .
+naptan:NationalFerryPortCode a rdfs:Datatype .
+
+<http://reference.data.gov.uk/def/compass/N> api:label "N" .
+<http://reference.data.gov.uk/def/compass/E> api:label "E" .
+<http://reference.data.gov.uk/def/compass/S> api:label "S" .
+<http://reference.data.gov.uk/def/compass/W> api:label "W" .
