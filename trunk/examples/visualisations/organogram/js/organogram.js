@@ -334,13 +334,13 @@ function loadPost(deptSlug,postSlug) {
 		title:"Retrieval of root post information",
 		description:"This call retrieves information about the root post in the organogram, such as their unit, grade and contact details.",
 		url:api_url,
-		parameters:""
+		parameters:"?callback=?"
 	});
 	
 	$.ajax({
 		url: api_url+".json",
 		type: "GET",
-		dataType: "json",
+		dataType: "jsonp",
 		async:true,
 		success: function(json){
 				
@@ -364,13 +364,13 @@ function loadPost(deptSlug,postSlug) {
 					title:"Retrieval of posts that report to the root post",
 					description:"This call retrieves information about the posts that report to the root post, such as their unit, grade and contact details.",
 					url:api_url,
-					parameters:"?_pageSize=300"
+					parameters:"?_pageSize=300&callback=?"
 				});				
 				
 				$.ajax({
 					url: api_url+".json"+api_call_info[1].parameters,
 					type: "GET",
-					dataType: "json",
+					dataType: "jsonp",
 					async:true,
 					success: function(json){
 			

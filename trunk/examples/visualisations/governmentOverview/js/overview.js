@@ -274,13 +274,13 @@ function loadDepts() {
 		title:"Retrieves a list of all departments",
 		description:"A specific API Viewer is needed to pull through each departments' units, the posts within those units and the posts that report to those posts.",
 		url:"http://reference.data.gov.uk/doc/department",
-		parameters:"?_view=minimal&_properties=unit.label,unit.post.label,unit.post.reportsTo&_pageSize=100"
+		parameters:"?_view=minimal&_properties=unit.label,unit.post.label,unit.post.reportsTo&_pageSize=100&callback=?"
 	});	
 	
 	$.ajax({
 		url: api_call_info[0].url+".json"+api_call_info[0].parameters,
 		type: "GET",
-		dataType: "json",
+		dataType: "jsonp",
 		async:true,
 		success: function(json){
 
