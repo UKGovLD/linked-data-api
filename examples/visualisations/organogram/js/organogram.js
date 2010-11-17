@@ -292,14 +292,12 @@ function loadPost(deptSlug,postSlug) {
 				firstNode = makeNode(json.result.primaryTopic);
 
 				$("h1.title span#post").html(json.result.primaryTopic.label[0]);
-				var dSlug = json.result.primaryTopic.postIn[1]._about.toString().split("/");
-				dSlug = dSlug[dSlug.length-1];		
-				$("h1.title span#dept").html(json.result.primaryTopic.postIn[1].label[0]).attr("rel","../gov-structure?dept="+dSlug);
-				
-				var uSlug = json.result.primaryTopic.postIn[0]._about.toString().split("/");
+				var uSlug = json.result.primaryTopic.postIn[0].split("/");
 				uSlug = uSlug[uSlug.length-1];				
-				$("h1.title span#unit").html(json.result.primaryTopic.postIn[0].label[0]).attr("rel","../gov-structure?dept="+dSlug+"&unit="+uSlug);
-
+				$("h1.title span#unit").html(json.result.primaryTopic.postIn[0].label[0]).attr("href","../gov-structure?unit="+uSlug);
+				var dSlug = json.result.primaryTopic.postIn[0].split("/");
+				dSlug = dSlug[dSlug.length-1];		
+				$("h1.title span#dept").html(json.result.primaryTopic.postIn[1].label[0]).attr("href","../gov-structure?dept="+dSlug);
 				$("h1.title span").css("visibility","visible");
 				$("h1.title span#post").animate({opacity:'1'},1000,function(){
 					$("h1.title span#unit").animate({opacity:'1'},1000,function(){
@@ -350,19 +348,11 @@ function loadPost(deptSlug,postSlug) {
 						// end
 						
 						displayDataSources();
-						
-						$("h1.title span#unit").click(function(){
-							window.location = $(this).attr("rel");
-						});				
-						$("h1.title span#dept").click(function(){
-							window.location = $(this).attr("rel");
-						});	
 					}
 				});
 				
 			}catch(e){
 				// No success when retrieving information about the root post
-				cl(e);
 			}
 		}
 	});
@@ -591,10 +581,15 @@ var searchJSON = {
 							for(var i=0;i<v.children.length;i++){
 								for(var j=0;j<nodesOldChildren.length;j++){
 									for(var k=0;k<nodesOldChildren[j].data.heldBy.length;k++){
+
 										if(nodesOldChildren[j].data.heldBy[k].reportsToPostURI == v.children[i].data.holdsPostURI) {
+
 											for(var l=0;l<v.children[i].children.length;l++) {
+
 												if(v.children[i].children[l].name == nodesOldChildren[j].name) {
+
 													v.children[i].children.push(copyNode(nodesOldChildren[j]));
+
 												}
 											}
 										}

@@ -45,7 +45,6 @@ h1.title span#text{
 font-size:14px;
 opacity:1;
 visibility:visible;
-cursor: none;
 }
 h1.title span#post {
 background-color:#EEEEEE;
@@ -56,19 +55,11 @@ h1.title span#unit {
 background-color:#DDDDDD;
 border-right:2px ridge #EEEEEE;
 color:#333333;
-cursor:pointer;
 }
 h1.title span#dept {
 background-color:#CCCCCC;
 color:#333333;
-cursor: pointer;
 }
-h1.title span:hover {
-text-decoration:underline;
-} 
-h1.title span#post:hover {
-text-decoration:none;
-} 
 input, select {
     font-size:0.9em;
 }
