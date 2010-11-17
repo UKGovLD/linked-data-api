@@ -73,7 +73,7 @@ color:#333333;
 }
 
 #log {
--moz-box-shadow:0 5px 24px #888888;
+-moz-box-shadow:0 5px 24px #888888; 
 -webkit-box-shadow:0 5px 24px #888888;
 box-shadow:0 5px 24px #888888;
 -webkit-border-radius: 5px 5px 5px 5px;
