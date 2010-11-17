@@ -57,10 +57,12 @@ h1.title span#unit {
 background-color:#DDDDDD;
 border-right:2px ridge #EEEEEE;
 color:#333333;
+cursor:pointer;
 }
 h1.title span#dept {
 background-color:#CCCCCC;
 color:#333333;
+cursor: pointer;
 }
 h1.title span:hover {
 text-decoration:underline;
