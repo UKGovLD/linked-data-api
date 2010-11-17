@@ -1,0 +1,77 @@
+.window-container
+{
+	width:150px;
+	position:absolute;
+
+	left:350;
+	top:200;
+	font-size:13px;
+	font-family:verdana;
+}
+
+.window-titleBar
+{
+	width:100%;
+	height:15px;
+	padding: 1px;
+	text-indent: 3px;
+	font: bold 13px Arial;
+	background-color: #000000;
+	color: #FFFFFF;
+	cursor: move;
+	overflow: hidden;
+}
+
+.window-content
+{
+	width:100%;
+	height:100%;
+	background-color: #FFFFFF;
+	font-size:13px;
+	font-family:verdana;
+    border:1px solid #000000;
+	overflow:auto;
+	color:#000000;
+}
+
+.window-statusBar
+{
+	width:100%;
+	height:15px;
+	text-indent: 3px;
+	font: bold 13px Arial;
+	background-color: #777777;
+	border:1px solid #000000;
+	color: #FFFFFF;
+	overflow: hidden;
+}
+
+.window-minimizeButton
+{
+	position: absolute;
+	right: 40px;
+	top: 2px;
+	cursor: pointer;
+}
+
+.window-maximizeButton
+{
+	position: absolute;
+	right: 20px;
+	top: 2px;
+	cursor: pointer;
+}
+
+ .window-closeButton
+{
+	position: absolute;
+	right: 5px;
+	top: 2px;
+	cursor: pointer;
+}
+
+.window-resizeIcon
+{
+	float: right;
+	cursor: nw-resize;
+}
