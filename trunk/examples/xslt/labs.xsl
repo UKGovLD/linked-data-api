@@ -29,7 +29,7 @@
 </xsl:template>
 	
 <xsl:template match="isPartOf" mode="moreinfo">
-	<xsl:variable name="base" select="substring-after(@href, 'http://reference.data.gov.uk')" />
+	<xsl:variable name="base" select="substring-after(@href, 'http://labs.data.gov.uk/lod')" />
 	<xsl:variable name="path" select="substring-before(concat($base, '?'), '?')" />
 	<xsl:call-template name="labsLinks">
 		<xsl:with-param name="base" select="$path" />
@@ -40,7 +40,7 @@
 	<xsl:call-template name="labsLinks">
 		<xsl:with-param name="base">
 			<xsl:choose>
-				<xsl:when test="starts-with(@href, '/id/')">
+				<xsl:when test="starts-with(@href, 'http://data.ordnancesurvey.co.uk/id/')">
 					<xsl:value-of select="concat('/doc/', substring-after(@href, '/id/'))"/>
 				</xsl:when>
 				<xsl:otherwise>

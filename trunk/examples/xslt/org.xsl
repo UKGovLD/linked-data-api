@@ -29,14 +29,16 @@
 
 <xsl:template match="primaryTopic" mode="moreinfo">
 	<xsl:call-template name="orgLinks">
-		<xsl:choose>
-			<xsl:when test="starts-with(@href, '/id/')">
-				<xsl:value-of select="concat('/doc/', substring-after(@href, '/id/'))"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:value-of select="substring-after(@href, 'http://reference.data.gov.uk')"/>
-			</xsl:otherwise>
-		</xsl:choose>
+		<xsl:with-param name="base">
+			<xsl:choose>
+				<xsl:when test="starts-with(@href, 'http://reference.data.gov.uk/id/')">
+					<xsl:value-of select="concat('/doc/', substring-after(@href, '/id/'))"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="substring-after(@href, 'http://reference.data.gov.uk')"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:with-param>
 	</xsl:call-template>
 </xsl:template>
 
