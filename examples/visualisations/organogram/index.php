@@ -24,7 +24,7 @@
 
 <div id="right">
 	
-	<p><a class="return" href="../governmentOverview">Return to the Government Overview</a></p>
+	<p><a class="return" href="../gov-structure">Return to the Government Overview</a></p>
 	<ul>
 		<li id="orientation">
 			<p>Orientation</p>
