@@ -33,7 +33,7 @@ t:api
 	api:endpoint
 	  t:scheme ,
 	  t:definition ,
-	  t:subclasses , t:instances ,
+	  t:subclasses , t:instances , t:properties ,
 	  # Traffic Flow #
 	  t:localAuthorities , t:localAuthority ,
 	  t:localAuthorityDistricts , t:localAuthorityDistrict ,
@@ -104,6 +104,7 @@ t:scheme
 
 t:schemeViewer
   a api:Viewer ;
+  api:name "scheme" ;
   api:properties "name,alias,label,note,scopeNote,topConcept.name,comment" ;
   .
 
@@ -116,6 +117,7 @@ t:definition
 
 t:definitionViewer
   a api:Viewer ;
+  api:name "definition" ;
   api:properties "name,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
   .
 
@@ -149,7 +151,22 @@ t:instances
 
 t:instanceViewer
   a api:Viewer ;
+  api:name "instance" ;
   api:properties "name,alias,label,easting,northing,lat,long" ;
+  .
+
+t:properties
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " [] a ?class ; ?item [] . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
   .
 
 ## Traffic Flow ##
@@ -1369,7 +1386,7 @@ rdf:value api:label "value" .
 
 rdfs:Class api:label "Class" .
 
-rdfs:label api:label "label" .
+rdfs:label api:label "label" ; api:multiValued true .
 rdfs:comment api:label "comment" .
 rdfs:range api:label "range" .
 rdfs:domain api:label "domain" .
@@ -1383,12 +1400,12 @@ skos:Concept api:label "Concept" .
 skos:ConceptScheme api:label "ConceptScheme" .
 
 skos:prefLabel api:label "name" .
-skos:altLabel api:label "alias" .
+skos:altLabel api:label "alias" ; api:multiValued true .
 skos:note api:label "note" .
 skos:notation api:label "notation" .
 skos:scopeNote api:label "scopeNote" .
 skos:topConceptOf api:label "topConceptOf" .
-skos:hasTopConcept api:label "topConcept" .
+skos:hasTopConcept api:label "topConcept" ; api:multiValued true .
 skos:broader api:label "broader" .
 skos:narrower api:label "narrower" ; api:multiValued true .
 

@@ -16,7 +16,16 @@
 
 <xsl:template match="primaryTopic" mode="moreinfo">
 	<xsl:call-template name="educationLinks">
-		<xsl:with-param name="base" select="concat('/doc/', substring-after(@href, '/id/'))" />
+		<xsl:with-param name="base">
+			<xsl:choose>
+				<xsl:when test="starts-with(@href, '/id/')">
+					<xsl:value-of select="concat('/doc/', substring-after(@href, '/id/'))"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="substring-after(@href, 'http://education.data.gov.uk')"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:with-param> 
 	</xsl:call-template>
 </xsl:template>
 
@@ -66,23 +75,34 @@
 			</ul>
 		</xsl:when>
 	</xsl:choose>
-	<ul>
-		<xsl:call-template name="moreinfoLink">
-			<xsl:with-param name="uri" select="'/doc/school/phase/secondary'" />
-			<xsl:with-param name="current" select="$base" />
-			<xsl:with-param name="label">Secondary schools</xsl:with-param>
-		</xsl:call-template>
-		<xsl:call-template name="moreinfoLink">
-			<xsl:with-param name="uri" select="'/doc/school/phase/primary'" />
-			<xsl:with-param name="current" select="$base" />
-			<xsl:with-param name="label">Primary schools</xsl:with-param>
-		</xsl:call-template>
-		<xsl:call-template name="moreinfoLink">
-			<xsl:with-param name="uri" select="'/doc/school'" />
-			<xsl:with-param name="current" select="$base" />
-			<xsl:with-param name="label">All schools</xsl:with-param>
-		</xsl:call-template>
-	</ul>
+	<xsl:choose>
+		<xsl:when test="starts-with($base, '/doc/')">
+			<ul>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="'/doc/school/phase/secondary'" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Secondary schools</xsl:with-param>
+				</xsl:call-template>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="'/doc/school/phase/primary'" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Primary schools</xsl:with-param>
+				</xsl:call-template>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="'/doc/school'" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">All schools</xsl:with-param>
+				</xsl:call-template>
+			</ul>
+		</xsl:when>
+		<xsl:when test="starts-with($base, '/def/') and (type/item/@href = 'http://www.w3.org/2000/01/rdf-schema#Class' or type/item/@href = 'http://www.w3.org/2002/07/owl#Class')">
+			<ul>
+				<li><a href="{$base}/property">Properties</a></li>
+				<li><a href="{$base}/instance">Instances</a></li>
+				<li><a href="{$base}/subclass">Subclasses</a></li>
+			</ul>
+		</xsl:when>
+	</xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>

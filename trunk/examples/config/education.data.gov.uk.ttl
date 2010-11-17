@@ -1,7 +1,5 @@
 @prefix spec: <http://services.data.gov.uk/education/api#> .
-
 @prefix api:     <http://purl.org/linked-data/api/vocab#> .
-
 @prefix census-geo:  <http://statistics.gov.data.uk/def/census-geography/> .
 @prefix dc:      <http://purl.org/dc/elements/1.1/> .
 @prefix education-geo:  <http://statistics.gov.data.uk/def/education-geography/> .
@@ -90,7 +88,9 @@ spec:api
     api:describeViewer ,
 	  api:labelledDescribeViewer ;
 	api:endpoint 
-	  spec:scheme , spec:definition ,
+    spec:scheme ,
+    spec:definition ,
+    spec:subclasses , spec:instances , spec:properties ,
 	  spec:school ,
 	  spec:schools , 
 	  spec:schoolsPrimary , 
@@ -121,19 +121,63 @@ spec:scheme
 
 spec:schemeViewer
   a api:Viewer ;
+  api:name "scheme" ;
   api:properties "prefLabel,altLabel,label,note,scopeNote,topConcept.prefLabel,comment" ;
   .
 
 spec:definition
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}/{item}" ;
-  api:itemTemplate "http://education.data.gov.uk/def/{scheme}/{item}" ;
+  api:uriTemplate "/def/{scheme}/{term}" ;
+  api:itemTemplate "http://education.data.gov.uk/def/{scheme}/{term}" ;
   api:defaultViewer spec:definitionViewer ;
   .
 
 spec:definitionViewer
   a api:Viewer ;
-  api:properties "type.label,prefLabel,altLabel,label,note,scopeNote,topConceptOf,broader.prefLabel,narrower.prefLabel,comment,range.label,domain.label" ;
+  api:name "definition" ;
+  api:properties "prefLabel,altLabel,label,note,scopeNote,topConceptOf,broader.prefLabel,narrower.prefLabel,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
+  .
+
+spec:subclasses
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://education.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item rdfs:subClassOf ?superclass . " ;
+  ] ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:instances
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://education.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item a ?class . " ;
+  ] ;
+  api:defaultViewer spec:viewerShort ;
+  .
+
+spec:properties
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://education.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " [] a ?class ; ?item [] . " ;
+  ] ;
+  api:defaultViewer spec:definitionViewer ;
   .
 
 #Describe a school
@@ -378,15 +422,18 @@ spec:schoolCensuses
   
 rdf:Property api:label "Property" .
 
-rdf:type api:label "type" .
+rdf:type api:label "type" ; api:multiValued true .
 rdf:value api:label "value" .
 
 rdfs:Class api:label "Class" .
 
-rdfs:label api:label "label" .
+rdfs:label api:label "label" ; api:multiValued true .
 rdfs:comment api:label "comment" .
 rdfs:range api:label "range" .
 rdfs:domain api:label "domain" .
+rdfs:isDefinedBy api:label "isDefinedBy" .
+rdfs:subClassOf api:label "subClassOf" .
+rdfs:subPropertyOf api:label "subPropertyOf" .
 
 owl:sameAs api:label "sameAs" .
 
@@ -394,12 +441,12 @@ skos:Concept api:label "Concept" .
 skos:ConceptScheme api:label "ConceptScheme" .
 
 skos:prefLabel api:label "prefLabel" .
-skos:altLabel api:label "altLabel" .
+skos:altLabel api:label "altLabel" ; api:multiValued true .
 skos:note api:label "note" .
 skos:notation api:label "notation" .
 skos:scopeNote api:label "scopeNote" .
 skos:topConceptOf api:label "topConceptOf" .
-skos:hasTopConcept api:label "topConcept" .
+skos:hasTopConcept api:label "topConcept" ; api:multiValued true .
 skos:broader api:label "broader" .
 skos:narrower api:label "narrower" ; api:multiValued true .
 
