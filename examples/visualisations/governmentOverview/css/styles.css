@@ -43,8 +43,8 @@ line-height:30px;
 opacity: 0;
 overflow:hidden;
 padding:0 10px;
-visibility: hidden;
 cursor:pointer;
+visibility: hidden;
 }
 h1.title span:hover {
 text-decoration:underline;
@@ -61,19 +61,22 @@ h1.title span#dept {
 background-color:#EEEEEE;
 border-right:2px ridge #FFFFFF;
 color:#333333;
+opacity:0;
 }
 h1.title span#unit {
 background-color:#DDDDDD;
 border-right:2px ridge #EEEEEE;
 color:#333333;
+opacity:0;
 }
 h1.title span#post {
 background-color:#CCCCCC;
 color:#333333;
+opacity:0;
 }
 
 #log {
--moz-box-shadow:0 5px 24px #888888; 
+-moz-box-shadow:0 5px 24px #888888;
 -webkit-box-shadow:0 5px 24px #888888;
 box-shadow:0 5px 24px #888888;
 -webkit-border-radius: 5px 5px 5px 5px;
@@ -81,9 +84,9 @@ box-shadow:0 5px 24px #888888;
 border-radius: 5px 5px 5px 5px;
 background-color:#FFFFFF;
 border:1px solid #DDDDDD;
-color:#819C9B;
+color:#758200;
 display:none;
-font-size:1em;
+font-size:14px;
 font-weight:bold;
 margin:0 auto;
 opacity:1;
@@ -435,7 +438,7 @@ margin-bottom:15px;
 word-wrap: break-word;
 }
 div#apiCalls div.apiCall p.url a {
-color:#819C9B;
+color:#758200;
 text-decoration: none;
 }
 div#apiCalls div.apiCall p.url a:hover {
@@ -476,3 +479,34 @@ div#apiCalls div.apiCall p.formats a:hover {
 background-color:#EEEEEE;
 color:#333333;
 }
+div.outer {
+height:100%;
+width:100%;
+display: table;
+position: static;
+}
+div.middle {
+display: table-cell;
+vertical-align: middle;
+text-align: center;
+height:100%;
+width: 100%;
+}
+div.inner {
+margin-left:auto;
+margin-right:auto;
+text-align: center;
+}
+div.Government div.middle {
+vertical-align: top !important;
+}
+div.vtop {
+padding-top:7px;
+vertical-align:top !important;
+}
+
+/* for explorer only
+div.outer {position: relative;}
+div.middle {position: absolute; top: 50%;}
+div.inner {position: relative; top: -50%;}
+*/
