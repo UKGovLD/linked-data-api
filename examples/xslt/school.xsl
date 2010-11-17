@@ -18,7 +18,7 @@
 	<xsl:call-template name="educationLinks">
 		<xsl:with-param name="base">
 			<xsl:choose>
-				<xsl:when test="starts-with(@href, '/id/')">
+				<xsl:when test="starts-with(@href, 'http://education.data.gov.uk/id/')">
 					<xsl:value-of select="concat('/doc/', substring-after(@href, '/id/'))"/>
 				</xsl:when>
 				<xsl:otherwise>
