@@ -1709,6 +1709,7 @@
 				<xsl:with-param name="showMap" select="$showMap" />
 				<xsl:with-param name="properties" select="$properties" />
 				<xsl:with-param name="bestLabelParam" select="$bestLabelParam" />
+				<xsl:with-param name="last" select="position() = last()" />
 			</xsl:apply-templates>
 		</xsl:for-each>
 	</table>
@@ -1723,7 +1724,11 @@
 </xsl:template>
 
 <xsl:template match="item" mode="row">
+	<xsl:param name="last" />
 	<tr>
+		<xsl:if test="$last">
+			<xsl:attribute name="class">last</xsl:attribute>
+		</xsl:if>
 		<td class="value">
 			<xsl:apply-templates select="." mode="display" />
 		</td>
@@ -1739,6 +1744,7 @@
 	<xsl:param name="showMap" />
 	<xsl:param name="properties" />
 	<xsl:param name="bestLabelParam" />
+	<xsl:param name="last" />
 	<xsl:variable name="paramName">
 		<xsl:apply-templates select="." mode="paramName" />
 	</xsl:variable>
@@ -1750,6 +1756,9 @@
 			<xsl:apply-templates select="." mode="hasNoLabelProperties" />
 		</xsl:variable>
 		<tr class="{name(.)}">
+			<xsl:if test="$last">
+				<xsl:attribute name="class"><xsl:value-of select="name(.)"/> last</xsl:attribute>
+			</xsl:if>
 			<xsl:if test="$properties != ''">
 				<td class="select">
 					<xsl:apply-templates select="." mode="select">
@@ -2514,6 +2523,7 @@
 
 <xsl:template match="*" mode="formrow">
 	<xsl:param name="parentName" select="''" />
+	<xsl:param name="last" select="false()" />
 	<xsl:variable name="propertyName">
 		<xsl:if test="$parentName != ''">
 			<xsl:value-of select="$parentName" />
@@ -2529,6 +2539,9 @@
 			<!-- there's a child of this kind of property that isn't an empty item element -->
 			<xsl:if test="key('properties', $propertyName)/*[name() != 'item' or node()]">
 				<tr>
+					<xsl:if test="$last">
+						<xsl:attribute name="class">last</xsl:attribute>
+					</xsl:if>
 					<th class="label">
 						<xsl:apply-templates select="." mode="label" />
 					</th>
@@ -2557,6 +2570,7 @@
 								<xsl:sort select="local-name()" />
 								<xsl:apply-templates select="." mode="formrow">
 									<xsl:with-param name="parentName" select="$propertyName" />
+									<xsl:with-param name="last" select="position() = last()" />
 								</xsl:apply-templates>
 							</xsl:for-each>
 						</table>
@@ -2569,6 +2583,9 @@
 				<xsl:apply-templates select="." mode="paramName" />
 			</xsl:variable>
 			<tr>
+				<xsl:if test="$last">
+					<xsl:attribute name="class">last</xsl:attribute>
+				</xsl:if>
 				<th class="label">
 					<label for="{$paramName}">
 						<xsl:apply-templates select="." mode="label" />

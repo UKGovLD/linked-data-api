@@ -241,6 +241,11 @@
 			</ul>
 			<ul>
 				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="'/doc/minister'" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">All ministers</xsl:with-param>
+				</xsl:call-template>
+				<xsl:call-template name="moreinfoLink">
 					<xsl:with-param name="uri" select="'/doc/seat'" />
 					<xsl:with-param name="current" select="$base" />
 					<xsl:with-param name="label">All seats</xsl:with-param>
