@@ -245,7 +245,7 @@ function init(d,u){
 			
 			$(domElement).hover(function(e){
 				$(domElement).get(0).style.border = '1px solid #FFFFFF';											  									  
-				$(this).children().filter(".tooltip").css("top",(e.pageY - 10) + "px").css("left",(e.pageX - 30) + "px").fadeIn("fast");		
+				$(this).children().filter(".tooltip").css("top",(e.pageY - 10) + "px").css("left",(e.pageX - 30) + "px").show();		
 			},function(){
 				$(domElement).get(0).style.border = '1px solid transparent'; 
 				$(this).children().filter(".tooltip").hide();
@@ -274,11 +274,11 @@ function loadDepts() {
 		title:"Retrieves a list of all departments",
 		description:"A specific API Viewer is needed to pull through each departments' units, the posts within those units and the posts that report to those posts.",
 		url:"http://reference.data.gov.uk/doc/department",
-		parameters:"?_view=minimal&_properties=unit.label,unit.post.label,unit.post.reportsTo&_pageSize=100&callback=?"
+		parameters:"?_view=minimal&_properties=unit.label,unit.post.label,unit.post.reportsTo&_pageSize=100"
 	});	
 	
 	$.ajax({
-		url: api_call_info[0].url+".json"+api_call_info[0].parameters,
+		url: api_call_info[0].url+".json"+api_call_info[0].parameters+"&callback=?",
 		type: "GET",
 		dataType: "jsonp",
 		async:true,
