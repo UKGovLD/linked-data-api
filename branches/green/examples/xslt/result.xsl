@@ -1,8 +1,8 @@
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<xsl:param name="activeImageBase" select="'/images/green/16x16/'" />
-<xsl:param name="inactiveImageBase" select="'/images/grey/16x16/'" />
+<xsl:param name="activeImageBase" select="'/images/green/16x16'" />
+<xsl:param name="inactiveImageBase" select="'/images/grey/16x16'" />
 <xsl:param name="graphColour" select="'#577D00'" />
 
 <xsl:variable name="openSpaceAPIkey" select="'91BDD27E0581EC9FE0405F0ACA603BCF'" />
@@ -51,7 +51,7 @@
 </xsl:template>
 
 <xsl:template match="result" mode="meta">
-	<link rel="shortcut icon" href="http://data.gov.uk/sites/default/files/datagovuk_favicon.png" type="image/x-icon" /> 
+	<link rel="shortcut icon" href="/images/datagovuk_favicon.png" type="image/x-icon" /> 
 	<xsl:apply-templates select="first | prev | next | last" mode="metalink" />
 	<xsl:apply-templates select="format/item" mode="metalink" />
 </xsl:template>
@@ -66,7 +66,7 @@
 
 <xsl:template match="result" mode="style">
 	<link rel="stylesheet" href="/css/html5reset-1.6.1.css" type="text/css" />
-	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" />
+	<link rel="stylesheet" href="/css/jquery-ui.css" type="text/css" />
 	<link rel="stylesheet" href="/css/black-tie/jquery-ui-1.8.5.custom.css" type="text/css" />
 	<link rel="stylesheet" href="/css/result.css" type="text/css" />
 	<xsl:comment>
@@ -89,8 +89,8 @@
 		<script type="text/javascript"
      src="http://openspace.ordnancesurvey.co.uk/osmapapi/openspace.js?key={$openSpaceAPIkey}"></script>
 	</xsl:if>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="/scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="/scripts/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="/scripts/jquery.sparkline.js"></script>
 	<script type="text/javascript">
 		$(function() {
