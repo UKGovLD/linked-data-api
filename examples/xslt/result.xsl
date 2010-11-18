@@ -67,7 +67,7 @@
 <xsl:template match="result" mode="style">
 	<link rel="stylesheet" href="/css/html5reset-1.6.1.css" type="text/css" />
 	<link rel="stylesheet" href="/css/jquery-ui.css" type="text/css" />
-	<link rel="stylesheet" href="/css/black-tie/jquery-ui-1.8.5.custom.css" type="text/css" />
+	<link rel="stylesheet" href="/css/smoothness/jquery-ui.css" type="text/css" />
 	<link rel="stylesheet" href="/css/result.css" type="text/css" />
 	<xsl:comment>
 		<xsl:text>[if lt IE 9]&gt;</xsl:text>
