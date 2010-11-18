@@ -45,6 +45,7 @@ h1.title span#text{
 font-size:14px;
 opacity:1;
 visibility:visible;
+cursor: none;
 }
 h1.title span#post {
 background-color:#EEEEEE;
@@ -55,11 +56,19 @@ h1.title span#unit {
 background-color:#DDDDDD;
 border-right:2px ridge #EEEEEE;
 color:#333333;
+cursor:pointer;
 }
 h1.title span#dept {
 background-color:#CCCCCC;
 color:#333333;
+cursor: pointer;
 }
+h1.title span:hover {
+text-decoration:underline;
+} 
+h1.title span#post:hover {
+text-decoration:none;
+} 
 input, select {
     font-size:0.9em;
 }
@@ -77,7 +86,7 @@ h4 {
 }
 
 a {
-color:#758200;
+color:#577D00;
 text-decoration: none;
 }
 a:focus { outline:none }
@@ -96,7 +105,7 @@ box-shadow:0 5px 24px #888888;
 border-radius: 5px 5px 5px 5px;
 background-color:#FFFFFF;
 border:1px solid #DDDDDD;
-color:#758200;
+color:#577D00;
 display:none;
 font-size:14px;
 font-weight:bold;
@@ -369,7 +378,7 @@ div.node span.postIn {
 -moz-border-radius:0 0 3px 3px;
 border-radius:0 0 3px 3px;
 -webkit-border-radius:0 0 3px 3px;
-background-color:#758200;
+background-color:#577D00;
 color:#FFFFFF;
 display:block;
 font-size:10px;
@@ -602,6 +611,9 @@ display:none;
 float:right;
 padding:0;
 width:268px;
+}
+div.heldBy div.personInfo a {
+color:#577D00;
 }
 div.heldBy div.personInfo a:hover {
 text-decoration: underline;
