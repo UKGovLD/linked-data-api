@@ -100,7 +100,7 @@ spec:htmlFormatter
 spec:scheme
   a api:ItemEndpoint ;
   api:uriTemplate "/def/{scheme}" ;
-  api:itemTemplate "http://education.data.gov.uk/def/{scheme}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/{scheme}" ;
   api:defaultViewer spec:schemeViewer ;
   .
 
@@ -113,7 +113,7 @@ spec:schemeViewer
 spec:definition
   a api:ItemEndpoint ;
   api:uriTemplate "/def/{scheme}/{term}" ;
-  api:itemTemplate "http://education.data.gov.uk/def/{scheme}/{term}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/{scheme}/{term}" ;
   api:defaultViewer spec:definitionViewer ;
   .
 
@@ -128,7 +128,7 @@ spec:subclasses
   api:uriTemplate "/def/{scheme}/{term}/subclass" ;
   api:variable [
     api:name "superclass" ;
-    api:value "http://education.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://reference.data.gov.uk/def/{scheme}/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -142,7 +142,7 @@ spec:instances
   api:uriTemplate "/def/{scheme}/{term}/instance" ;
   api:variable [
     api:name "class" ;
-    api:value "http://education.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://reference.data.gov.uk/def/{scheme}/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -156,7 +156,7 @@ spec:properties
   api:uriTemplate "/def/{scheme}/{term}/property" ;
   api:variable [
     api:name "class" ;
-    api:value "http://education.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://reference.data.gov.uk/def/{scheme}/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
