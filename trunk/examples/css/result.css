@@ -1,5 +1,5 @@
 body {
-	background-image: url(http://data.gov.uk/sites/all/themes/datagovuk/images/body_bg_big.png);
+	background-image: url(/images/body_bg_big.png);
 	color:#555555;
 	font-family: Arial,sans-serif;
 	font-size: 0.813em;
@@ -15,7 +15,7 @@ body {
 }
 
 nav.site {
-	background: url(http://data.gov.uk/sites/all/themes/datagovuk/images/hmg-banner.png) no-repeat 0% 0%;
+	background: url(/images/hmg-banner.png) no-repeat 0% 0%;
 	padding-top: 54px;
 }
 
@@ -61,6 +61,14 @@ nav.topnav {
 	padding: 10px;
 }
 
+.panel, .panel header, nav.topnav section, nav.topnav section h1 {
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-topright: 5px;
+
+}
+
 .panel header h1 {
 	background: none;
 	font-size: 25px;
@@ -93,6 +101,8 @@ nav.topnav section table {
 	border: 1px solid #D3D3D3;
 	margin: 10px 10px 0;
 	padding: 10px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 
 nav.topnav section.map div.mapWrapper {
@@ -115,9 +125,9 @@ div.itemMap {
 }
 
 div.olLayerDiv img {
-	-moz-box-shadow: 1px 1px 3px 2px white;
-	-webkit-box-shadow: 1px 1px 3px 2px white;
-	box-shadow: 1px 1px 3px 2px white;
+	-moz-box-shadow: 1px 1px 3px 2px #555555;
+	-webkit-box-shadow: 1px 1px 3px 2px #555555;
+	box-shadow: 1px 1px 3px 2px #555555;
 }
 
 div.mapInfo {
@@ -125,7 +135,7 @@ div.mapInfo {
 	padding: 2px 5px 2px 22px;
 	height: 1.2em;
 	overflow: hidden;
-	background: url("http://data.gov.uk/sites/all/themes/datagovuk/images/icon_li_arrow.png") no-repeat scroll 10px 4px white;
+	background: url("/images/icon_li_arrow.png") no-repeat scroll 10px 4px white;
 	border: 1px solid #D3D3D3;
 }
 
@@ -144,7 +154,7 @@ div.osCopyright {
 	color: #555;
 	font-size: 1.231em;
 	font-weight: bold;
-	padding: 0 5px 5px;
+	padding: 0 5px 10px;
 	text-align: left;
 }
 
@@ -157,7 +167,7 @@ nav.topnav section h1 {
 }
 
 nav.topnav section li {
-	background: url("http://data.gov.uk/sites/all/themes/datagovuk/images/icon_li_arrow.png") no-repeat scroll 3px 4px transparent;
+	background: url("/images/icon_li_arrow.png") no-repeat scroll 3px 4px transparent;
 	display: inline;
 	padding-left: 15px;
 	padding-right: 5px;
@@ -296,21 +306,12 @@ nav section.formats li.last {
 	border-right: none;
 }
 
-#openSearch {
-	background-color: #DE5B06;
-	color: white;
-	padding: 5px;
-	float: right;
-	text-align: right;
-	z-index: 5000;
-	cursor: pointer;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-}
-
 section#search {
-	background-color: #3B393F;
-	color: #FFFFFF;
+	background: url("/images/green/lttomed.png") repeat-x scroll 0 bottom #F2F6EC;
+	border: 1px solid #577D00;
+	border-top: none;
+	border-radius: 0;
+	-moz-border-radius: 0;
 	padding: 10px 20px;
 	margin: 0;
 }
@@ -320,31 +321,44 @@ section#search p {
 	text-align: right;
 }
 
-section#search table {
-	color: #FFFFFF;
-}
-
 section#search .nested table {
 	width: 100%;
-	border: thin solid #626165;
+	border: none;
 }
 
-section#search tr {
-	border-color: #626165;
+section#search .nested tr.last {
+	border-bottom: none;
+}
+
+section#search tr, section#search tr.last {
+	border-bottom: 1px dotted #C4C4C4;
 }
 
 section#search td {
 	text-align: right;
 }
 
-section#search button {
-	background-color: #DE5B06;
-	border-color: #DE5806;
+#openSearch {
+	padding: 5px;
+	float: right;
+	text-align: right;
+	z-index: 5000;
+}
+
+section#search button, #openSearch {
+	background-image: url(/images/gradient_nav_item.png);
+	background-color: #577D00;
+	border-color: #577D00;
 	color: white;
-	font-size: 1em;
-	border-style: groove;
+	cursor: pointer;
+	border-radius: 5px;
 	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
+}
+
+section#search button {
+	font-size: 1em;
+	border-style: none;
+	padding: 3px 8px;
 }
 
 button img {
@@ -384,6 +398,10 @@ tr {
 	border-bottom: 1px solid #D3D3D3;
 }
 
+tr.last {
+	border-bottom: none;
+}
+
 th, td {
 	text-align: left;
 	vertical-align: top;
@@ -403,13 +421,13 @@ td.nested td.nested {
 }
 
 .nested ul li {
-	background: url("http://data.gov.uk/sites/all/themes/datagovuk/images/icon_li_arrow.png") no-repeat scroll 5px 7px white;
+	background: url("/images/icon_li_arrow.png") no-repeat scroll 5px 7px white;
 	display: block;
 	padding: 3px 17px;
 }
 
 .nested table {
-	border: thin solid #EBEBEB;
+	border: 1px solid #EBEBEB;
 	margin: 5px 0;
 }
 
@@ -435,7 +453,7 @@ tr tr {
 .info p {
 	display: none;
 	background-color: white;
-	border: thin solid #D3D3D3;
+	border: 1px solid #D3D3D3;
 	padding: 5px;
 	margin-top: 24px;
 	line-height: 1.5em;
@@ -477,6 +495,10 @@ a:hover.outlink, .panel section .nested caption a:hover.outlink {
 a:link , a:visited , a:active , a:hover {
 	color: #1F328C;
 	text-decoration: none;
+}
+
+header h1 a:link , header h1 a:visited , header h1 a:active , header h1 a:hover {
+	color: #555555;
 }
 
 .panel header p.id {

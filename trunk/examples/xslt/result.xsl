@@ -1,6 +1,10 @@
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+<xsl:param name="activeImageBase" select="'/images/green/16x16'" />
+<xsl:param name="inactiveImageBase" select="'/images/grey/16x16'" />
+<xsl:param name="graphColour" select="'#577D00'" />
+
 <xsl:variable name="openSpaceAPIkey" select="'91BDD27E0581EC9FE0405F0ACA603BCF'" />
 
 <xsl:key name="properties" match="/result/items/item/* | /result[not(items)]/primaryTopic/*" use="name(.)" />
@@ -47,7 +51,7 @@
 </xsl:template>
 
 <xsl:template match="result" mode="meta">
-	<link rel="shortcut icon" href="http://data.gov.uk/sites/default/files/datagovuk_favicon.png" type="image/x-icon" /> 
+	<link rel="shortcut icon" href="/images/datagovuk_favicon.png" type="image/x-icon" /> 
 	<xsl:apply-templates select="first | prev | next | last" mode="metalink" />
 	<xsl:apply-templates select="format/item" mode="metalink" />
 </xsl:template>
@@ -62,7 +66,7 @@
 
 <xsl:template match="result" mode="style">
 	<link rel="stylesheet" href="/css/html5reset-1.6.1.css" type="text/css" />
-	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" />
+	<link rel="stylesheet" href="/css/jquery-ui.css" type="text/css" />
 	<link rel="stylesheet" href="/css/black-tie/jquery-ui-1.8.5.custom.css" type="text/css" />
 	<link rel="stylesheet" href="/css/result.css" type="text/css" />
 	<xsl:comment>
@@ -85,8 +89,8 @@
 		<script type="text/javascript"
      src="http://openspace.ordnancesurvey.co.uk/osmapapi/openspace.js?key={$openSpaceAPIkey}"></script>
 	</xsl:if>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="/scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="/scripts/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="/scripts/jquery.sparkline.js"></script>
 	<script type="text/javascript">
 		$(function() {
@@ -94,11 +98,11 @@
 			$('.info img')
 				.toggle(function () {
 					$(this)
-						.attr('src', '/images/orange/16x16/Cancel.png')
+						.attr('src', '<xsl:value-of select="$activeImageBase"/>/Cancel.png')
 						.next().show();
 				}, function () {
 					$(this)
-						.attr('src', '/images/orange/16x16/Question.png')
+						.attr('src', '<xsl:value-of select="$activeImageBase"/>/Question.png')
 						.next().fadeOut('slow');
 				});
 			
@@ -230,7 +234,7 @@
 		<xsl:apply-templates select="." mode="formats" />
 	</nav>
 	<header>
-		<h1>Linked Data API</h1>
+		<h1><a href="/">Linked Data API</a></h1>
 	</header>
 </xsl:template>
 
@@ -407,13 +411,13 @@
 						<xsl:text>This map shows the items that are listed on this page. </xsl:text>
 						<xsl:text>There might be other items that match your query that aren't shown on this map. </xsl:text>
 						<xsl:text>If you want to search in a different area, move to that area and click the </xsl:text>
-						<img src="/images/orange/16x16/Search.png" alt="search" />
+						<img src="{$activeImageBase}/Search.png" alt="search" />
 						<xsl:text> icon.</xsl:text>
 					</xsl:with-param>
 				</xsl:call-template>
 				<xsl:if test="items/item[easting and northing] or primaryTopic[not(../items) and easting and northing]">
 					<p class="search">
-						<img src="/images/orange/16x16/Search.png" alt="search" />
+						<img src="{$activeImageBase}/Search.png" alt="search" />
 					</p>
 				</xsl:if>
 				<div class="mapWrapper">
@@ -451,7 +455,7 @@
 			      summaryMap.addLayer(markers);
 			      var size = new OpenLayers.Size(16,16);
 						var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-						var icon = new OpenLayers.Icon('/images/orange/16x16/Target.png', size, offset);
+						var icon = new OpenLayers.Icon('<xsl:value-of select="$activeImageBase"/>/Target.png', size, offset);
 			      var pos;
 			      var marker;
 			      <xsl:for-each select="$markers">
@@ -483,7 +487,7 @@
 					    osMap.addLayer(markers);
 					    var size = new OpenLayers.Size(16,16);
 							var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-							var icon = new OpenLayers.Icon('/images/orange/16x16/Target.png', size, offset);
+							var icon = new OpenLayers.Icon('<xsl:value-of select="$activeImageBase"/>/Target.png', size, offset);
 					    pos = new OpenSpace.MapPoint(<xsl:value-of select="easting" />, <xsl:value-of select="northing"/>);
 					    marker = new OpenLayers.Marker(pos, icon);
 					    markers.addMarker(marker);
@@ -599,7 +603,7 @@
 					</th>
 					<td class="barchart" id="barchart{generate-id(.)}">
 						<script type="text/javascript">
-						$('#barchart<xsl:value-of select="generate-id(.)"/>').sparkline([<xsl:value-of select="$grouped" />], { type: 'bar', barColor: '#DE5B06' });
+						$('#barchart<xsl:value-of select="generate-id(.)"/>').sparkline([<xsl:value-of select="$grouped" />], { type: 'bar', barColor: '<xsl:value-of select="$graphColour"/>' });
 					</script>
 					</td>
 				</tr>
@@ -631,7 +635,7 @@
 					</th>
 					<td class="linegraph" id="linegraph{generate-id(.)}">
 						<script type="text/javascript">
-						$('#linegraph<xsl:value-of select="generate-id(.)"/>').sparkline(<xsl:value-of select="$valueArray" />, { lineColor: '#DE5B06', fillColor: false, width: '100%' });
+						$('#linegraph<xsl:value-of select="generate-id(.)"/>').sparkline(<xsl:value-of select="$valueArray" />, { lineColor: '<xsl:value-of select="$graphColour"/>', fillColor: false, width: '100%' });
 					</script>
 					</td>
 				</tr>
@@ -803,7 +807,7 @@
 		<section class="filter">
 			<h1>Filter</h1>
 			<xsl:call-template name="createInfo">
-				<xsl:with-param name="text">These are the filters currently being used to limit the search results. Click on the <img src="/images/orange/16x16/Back.png" alt="remove filter" /> icon to remove the filter.</xsl:with-param>
+				<xsl:with-param name="text">These are the filters currently being used to limit the search results. Click on the <img src="{$activeImageBase}/Back.png" alt="remove filter" /> icon to remove the filter.</xsl:with-param>
 			</xsl:call-template>
 			<table>
 				<xsl:copy-of select="$filters" />
@@ -844,7 +848,7 @@
 									</xsl:with-param>
 								</xsl:call-template>
 							</xsl:attribute>
-							<img src="/images/orange/16x16/Back.png" alt="remove filter" />
+							<img src="{$activeImageBase}/Back.png" alt="remove filter" />
 						</a>
 					</td>
 				</xsl:when>
@@ -878,7 +882,7 @@
 									<xsl:with-param name="value" select="''" />
 								</xsl:call-template>
 							</xsl:attribute>
-							<img src="/images/orange/16x16/Back.png" alt="remove filter" />
+							<img src="{$activeImageBase}/Back.png" alt="remove filter" />
 						</a>
 					</td>
 				</xsl:otherwise>
@@ -912,9 +916,9 @@
 				<xsl:text>Choose what information you want to view about each item. </xsl:text>
 				<xsl:text>There are some pre-defined views, but starred properties are always present no matter what the view. </xsl:text> 
 				<xsl:text>You can star properties by clicking on the </xsl:text>
-				<img src="/images/grey/16x16/Star.png" alt="star this property" />
+				<img src="{$inactiveImageBase}/Star.png" alt="star this property" />
 				<xsl:text> icon. The currently starred icons have a </xsl:text>
-				<img src="/images/orange/16x16/Star.png" alt="unstar this property" />
+				<img src="{$activeImageBase}/Star.png" alt="unstar this property" />
 				<xsl:text> icon; clicking on it will unstar the property.</xsl:text>
 			</xsl:with-param>
 		</xsl:call-template>
@@ -928,7 +932,7 @@
 							<xsl:with-param name="value" select="''" />
 						</xsl:call-template>
 					</xsl:attribute>
-					<img src="/images/orange/16x16/Back.png" alt="reset" />
+					<img src="{$activeImageBase}/Back.png" alt="reset" />
 				</a>
 			</p>
 		</xsl:if>
@@ -1004,7 +1008,7 @@
 					</xsl:with-param> 
 				</xsl:call-template>
 			</xsl:attribute>
-			<img src="/images/orange/16x16/Star.png" alt="unstar this property" />
+			<img src="{$activeImageBase}/Star.png" alt="unstar this property" />
 		</a>
 		<xsl:text> </xsl:text>
 		<xsl:choose>
@@ -1089,7 +1093,7 @@
 						</xsl:with-param> 
 					</xsl:call-template>
 				</xsl:attribute>
-				<img src="/images/grey/16x16/Star.png" alt="star this property" />
+				<img src="{$inactiveImageBase}/Star.png" alt="star this property" />
 				<xsl:text> </xsl:text>
 				<xsl:apply-templates select="." mode="contextLabel" />
 			</a>
@@ -1177,18 +1181,18 @@
 		<xsl:call-template name="createInfo">
 			<xsl:with-param name="text">
 				<xsl:text>This list shows the properties that you can sort by. Click on </xsl:text>
-				<img src="/images/grey/16x16/Arrow3 Up.png" alt="sort in ascending order" />
+				<img src="{$inactiveImageBase}/Arrow3 Up.png" alt="sort in ascending order" />
 				<xsl:text> to sort in ascending order and </xsl:text>
-				<img src="/images/grey/16x16/Arrow3 Down.png" alt="sort in descending order" />
+				<img src="{$inactiveImageBase}/Arrow3 Down.png" alt="sort in descending order" />
 				<xsl:text> to sort in descending order. The properties that you're currently sorting by are shown at the top of the list. Click on </xsl:text>
-				<img src="/images/orange/16x16/Cancel.png" alt="remove this sort" />
+				<img src="{$activeImageBase}/Cancel.png" alt="remove this sort" />
 				<xsl:text> to remove a sort and </xsl:text>
-				<img src="/images/orange/16x16/Arrow3 Up.png" alt="sort in descending order" />
+				<img src="{$activeImageBase}/Arrow3 Up.png" alt="sort in descending order" />
 				<xsl:text> or </xsl:text>
-				<img src="/images/orange/16x16/Arrow3 Down.png" alt="sort in ascending order" />
+				<img src="{$activeImageBase}/Arrow3 Down.png" alt="sort in ascending order" />
 				<xsl:text> to reverse the current sort order. </xsl:text>
 				<xsl:text>Click on the </xsl:text>
-				<img src="/images/orange/16x16/Back.png" alt="remove all sorting" />
+				<img src="{$activeImageBase}/Back.png" alt="remove all sorting" />
 				<xsl:text> icon to remove all the sorting. </xsl:text>
 				<xsl:text>Note that sorting can significantly slow down the loading of the page.</xsl:text>
 			</xsl:with-param>
@@ -1203,7 +1207,7 @@
 							<xsl:with-param name="value" select="''" />
 						</xsl:call-template>
 					</xsl:attribute>
-					<img src="/images/orange/16x16/Back.png" alt="reset" />
+					<img src="{$activeImageBase}/Back.png" alt="reset" />
 				</a>
 			</p>
 		</xsl:if>
@@ -1218,7 +1222,7 @@
 					</xsl:variable>
 					<li class="selected">
 						<a title="remove this sort" href="{$baseURI}">
-							<img src="/images/orange/16x16/Cancel.png" alt="remove this sort" />
+							<img src="{$activeImageBase}/Cancel.png" alt="remove this sort" />
 						</a>
 						<xsl:choose>
 							<!-- this is the _orderBy that's used to sort by proximity to center of the map -->
@@ -1231,7 +1235,7 @@
 											<xsl:with-param name="value" select="substring-after($orderBy, 'desc')" />
 										</xsl:call-template>
 									</xsl:attribute>
-									<img src="/images/orange/16x16/Arrow3 Down.png" alt="sort in ascending order" />
+									<img src="{$activeImageBase}/Arrow3 Down.png" alt="sort in ascending order" />
 								</a>
 								<xsl:value-of select="$description" />
 							</xsl:when>
@@ -1244,7 +1248,7 @@
 											<xsl:with-param name="value" select="concat('desc', substring-after($orderBy, 'asc'))" />
 										</xsl:call-template>
 									</xsl:attribute>
-									<img src="/images/orange/16x16/Arrow3 Up.png" alt="sort in descending order" />
+									<img src="{$activeImageBase}/Arrow3 Up.png" alt="sort in descending order" />
 								</a>
 								<xsl:value-of select="$description" />
 							</xsl:when>
@@ -1257,7 +1261,7 @@
 											<xsl:with-param name="value" select="concat('desc', $orderBy)" />
 										</xsl:call-template>
 									</xsl:attribute>
-									<img src="/images/orange/16x16/Arrow3 Up.png" alt="sort in descending order" />
+									<img src="{$activeImageBase}/Arrow3 Up.png" alt="sort in descending order" />
 								</a>
 								<xsl:value-of select="$description" />
 							</xsl:otherwise>
@@ -1330,7 +1334,7 @@
 					</xsl:with-param> 
 				</xsl:call-template>
 			</xsl:attribute>
-			<img src="/images/orange/16x16/Cancel.png" alt="remove this sort" />
+			<img src="{$activeImageBase}/Cancel.png" alt="remove this sort" />
 		</a>
 		<a>
 			<xsl:attribute name="href">
@@ -1361,10 +1365,10 @@
 			</xsl:attribute>
 			<xsl:choose>
 				<xsl:when test="starts-with($sort, '-')">
-					<img src="/images/orange/16x16/Arrow3 Down.png" alt="sort in ascending order" />
+					<img src="{$activeImageBase}/Arrow3 Down.png" alt="sort in ascending order" />
 				</xsl:when>
 				<xsl:otherwise>
-					<img src="/images/orange/16x16/Arrow3 Up.png" alt="sort in descending order" />
+					<img src="{$activeImageBase}/Arrow3 Up.png" alt="sort in descending order" />
 				</xsl:otherwise>
 			</xsl:choose>
 		</a>
@@ -1453,7 +1457,7 @@
 		</xsl:variable>
 		<li>
 			<a href="{$ascending}" title="sort in ascending order">
-				<img src="/images/grey/16x16/Arrow3 Up.png" alt="sort in ascending order" />
+				<img src="{$inactiveImageBase}/Arrow3 Up.png" alt="sort in ascending order" />
 			</a>
 			<a title="sort in descending order">
 				<xsl:attribute name="href">
@@ -1470,7 +1474,7 @@
 						</xsl:with-param>
 					</xsl:call-template>
 				</xsl:attribute>
-				<img src="/images/grey/16x16/Arrow3 Down.png" alt="sort in descending order" />
+				<img src="{$inactiveImageBase}/Arrow3 Down.png" alt="sort in descending order" />
 			</a>
 			<xsl:text> </xsl:text>
 			<a href="{$ascending}" title="sort in ascending order">
@@ -1705,6 +1709,7 @@
 				<xsl:with-param name="showMap" select="$showMap" />
 				<xsl:with-param name="properties" select="$properties" />
 				<xsl:with-param name="bestLabelParam" select="$bestLabelParam" />
+				<xsl:with-param name="last" select="position() = last()" />
 			</xsl:apply-templates>
 		</xsl:for-each>
 	</table>
@@ -1719,7 +1724,11 @@
 </xsl:template>
 
 <xsl:template match="item" mode="row">
+	<xsl:param name="last" />
 	<tr>
+		<xsl:if test="$last">
+			<xsl:attribute name="class">last</xsl:attribute>
+		</xsl:if>
 		<td class="value">
 			<xsl:apply-templates select="." mode="display" />
 		</td>
@@ -1735,6 +1744,7 @@
 	<xsl:param name="showMap" />
 	<xsl:param name="properties" />
 	<xsl:param name="bestLabelParam" />
+	<xsl:param name="last" />
 	<xsl:variable name="paramName">
 		<xsl:apply-templates select="." mode="paramName" />
 	</xsl:variable>
@@ -1746,6 +1756,9 @@
 			<xsl:apply-templates select="." mode="hasNoLabelProperties" />
 		</xsl:variable>
 		<tr class="{name(.)}">
+			<xsl:if test="$last">
+				<xsl:attribute name="class"><xsl:value-of select="name(.)"/> last</xsl:attribute>
+			</xsl:if>
 			<xsl:if test="$properties != ''">
 				<td class="select">
 					<xsl:apply-templates select="." mode="select">
@@ -1819,7 +1832,7 @@
 <xsl:template name="createInfo">
 	<xsl:param name="text" />
 	<div class="info">
-		<img class="open" src="/images/orange/16x16/Question.png" alt="help" />
+		<img class="open" src="{$activeImageBase}/Question.png" alt="help" />
 		<p><xsl:copy-of select="$text" /></p>
 	</div>
 </xsl:template>
@@ -1997,10 +2010,10 @@
 <xsl:template match="*[@datatype = 'boolean']" mode="display">
 	<xsl:choose>
 		<xsl:when test=". = 'true'">
-			<img src="/images/grey/16x16/Ok.png" alt="true" />
+			<img src="{$inactiveImageBase}/Ok.png" alt="true" />
 		</xsl:when>
 		<xsl:when test=". = 'false'">
-			<img src="/images/grey/16x16/Cancel.png" alt="false" />
+			<img src="{$inactiveImageBase}/Cancel.png" alt="false" />
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="." mode="content" />
@@ -2061,7 +2074,7 @@
 						outlierFillColor: '#EBEBEB',
 						medianColor: '#555555',
 						target: <xsl:value-of select="." />,
-						targetColor: '#DE5B06'
+						targetColor: '<xsl:value-of select="$graphColour"/>'
 					}
 				)
 			</script>
@@ -2206,7 +2219,7 @@
 				</xsl:call-template>
 			</xsl:variable>
 			<a title="remove this property" href="{$href}">
-				<img src="/images/orange/16x16/Star.png" alt="unstar this property" />
+				<img src="{$activeImageBase}/Star.png" alt="unstar this property" />
 			</a>
 		</xsl:when>
 		<xsl:otherwise>
@@ -2224,7 +2237,7 @@
 						</xsl:with-param>
 					</xsl:call-template>
 				</xsl:attribute>
-				<img src="/images/grey/16x16/Star.png" alt="star this property" />
+				<img src="{$inactiveImageBase}/Star.png" alt="star this property" />
 			</a>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -2267,7 +2280,7 @@
 						<xsl:with-param name="value" select="''" />
 					</xsl:call-template>
 				</xsl:attribute>
-				<img src="/images/orange/16x16/Back.png" alt="remove filter" />
+				<img src="{$activeImageBase}/Back.png" alt="remove filter" />
 			</a>
 		</xsl:when>
 		<xsl:when test="$datatype = 'integer' or $datatype = 'decimal' or $datatype = 'float' or $datatype = 'int' or $datatype = 'date' or $datatype = 'dateTime' or $datatype = 'time'">
@@ -2299,7 +2312,7 @@
 								<xsl:with-param name="value" select="''" />
 							</xsl:call-template>
 						</xsl:attribute>
-						<img src="/images/orange/16x16/Back.png" alt="remove maximum value filter" />
+						<img src="{$activeImageBase}/Back.png" alt="remove maximum value filter" />
 					</a>
 				</xsl:when>
 				<xsl:otherwise>
@@ -2315,10 +2328,10 @@
 						</xsl:attribute>
 						<xsl:choose>
 							<xsl:when test="$max != ''">
-								<img src="/images/orange/16x16/Arrow3 Left.png" alt="less than {$value}" />
+								<img src="{$activeImageBase}/Arrow3 Left.png" alt="less than {$value}" />
 							</xsl:when>
 							<xsl:otherwise>
-								<img src="/images/grey/16x16/Arrow3 Left.png" alt="less than {$value}" />
+								<img src="{$inactiveImageBase}/Arrow3 Left.png" alt="less than {$value}" />
 							</xsl:otherwise>
 						</xsl:choose>
 					</a>
@@ -2334,7 +2347,7 @@
 						<xsl:with-param name="value" select="$value" />
 					</xsl:call-template>
 				</xsl:attribute>
-				<img src="/images/grey/16x16/Search.png" alt="more like this" />
+				<img src="{$inactiveImageBase}/Search.png" alt="more like this" />
 			</a>
 			<xsl:choose>
 				<xsl:when test="$min = $value">
@@ -2348,7 +2361,7 @@
 								<xsl:with-param name="value" select="''" />
 							</xsl:call-template>
 						</xsl:attribute>
-						<img src="/images/orange/16x16/Back.png" alt="remove minimum value filter" />
+						<img src="{$activeImageBase}/Back.png" alt="remove minimum value filter" />
 					</a>
 				</xsl:when>
 				<xsl:otherwise>
@@ -2364,10 +2377,10 @@
 						</xsl:attribute>
 						<xsl:choose>
 							<xsl:when test="$min != ''">
-								<img src="/images/orange/16x16/Arrow3 Right.png" alt="more than {$value}" />
+								<img src="{$activeImageBase}/Arrow3 Right.png" alt="more than {$value}" />
 							</xsl:when>
 							<xsl:otherwise>
-								<img src="/images/grey/16x16/Arrow3 Right.png" alt="more than {$value}" />
+								<img src="{$inactiveImageBase}/Arrow3 Right.png" alt="more than {$value}" />
 							</xsl:otherwise>
 						</xsl:choose>
 					</a>
@@ -2385,7 +2398,7 @@
 						<xsl:with-param name="value" select="$label" />
 					</xsl:call-template>
 				</xsl:attribute>
-				<img src="/images/grey/16x16/Search.png" alt="more like this" />
+				<img src="{$inactiveImageBase}/Search.png" alt="more like this" />
 			</a>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -2510,6 +2523,7 @@
 
 <xsl:template match="*" mode="formrow">
 	<xsl:param name="parentName" select="''" />
+	<xsl:param name="last" select="false()" />
 	<xsl:variable name="propertyName">
 		<xsl:if test="$parentName != ''">
 			<xsl:value-of select="$parentName" />
@@ -2525,6 +2539,9 @@
 			<!-- there's a child of this kind of property that isn't an empty item element -->
 			<xsl:if test="key('properties', $propertyName)/*[name() != 'item' or node()]">
 				<tr>
+					<xsl:if test="$last">
+						<xsl:attribute name="class">last</xsl:attribute>
+					</xsl:if>
 					<th class="label">
 						<xsl:apply-templates select="." mode="label" />
 					</th>
@@ -2553,6 +2570,7 @@
 								<xsl:sort select="local-name()" />
 								<xsl:apply-templates select="." mode="formrow">
 									<xsl:with-param name="parentName" select="$propertyName" />
+									<xsl:with-param name="last" select="position() = last()" />
 								</xsl:apply-templates>
 							</xsl:for-each>
 						</table>
@@ -2565,6 +2583,9 @@
 				<xsl:apply-templates select="." mode="paramName" />
 			</xsl:variable>
 			<tr>
+				<xsl:if test="$last">
+					<xsl:attribute name="class">last</xsl:attribute>
+				</xsl:if>
 				<th class="label">
 					<label for="{$paramName}">
 						<xsl:apply-templates select="." mode="label" />
