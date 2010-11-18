@@ -7,7 +7,7 @@ visualisation.
 
 */
 
-var debug = false;
+var debug = true;
 
 function a(string) {
 	if(debug){
@@ -97,7 +97,6 @@ var includeDeputyDirectors=false;
 var api_call_info = [];
 var sizeByUnits = true;
 var sizeByPosts = false;
-var postReportTos = [];
 var rootNode;
 var prevNode;
 var deptParam="";
@@ -277,6 +276,8 @@ function init(d,u){
 } // end init
 
 
+var posts_and_no_of_reports = [];
+
 /*
  *
  */
@@ -320,27 +321,42 @@ function loadDepts() {
 					// If the department has units
 					if(typeof depts[i].unit != 'undefined') {
 						// Loop through the department's units
-						for(var j=0;j<depts[i].unit.length;j++) {4
+						for(var j=0;j<depts[i].unit.length;j++) {
 							// If the department's unit has posts
 							if(typeof depts[i].unit[j].post != 'undefined') {
 								// Make a unit node
 								tempUnitNode = makeUnitNode(depts[i].unit[j]);
 								// Loop through the unit's posts	
 								for(var k=0;k<depts[i].unit[j].post.length;k++){
-									// Skip any posts that are "Deputy Directors"
-									var reportsToCounter = 0;
+									// This is a counter for the number of posts that 
+									// report to a post.
+									// The visualisation requires a minimum of 1 to 
+									// display a node
+									var reportsToCounter = 1;
 									
-									if(postReportTos.length<1){
-										postReportTos.push({
+									
+									// This if/else is to add posts to the array
+									// 
+									// If it's the first post to be tested, 
+									// add to the array 
+									if(posts_and_no_of_reports.length<1){
+										posts_and_no_of_reports.push({
 											p:depts[i].unit[j].post[k]._about,
 											r:reportsToCounter
 										});										
-									} else {									
-										for(var w=0;w<postReportTos.length;w++){
-											if(postReportTos[w].p == depts[i].unit[j].post[k]._about){
-												w=postReportTos.length;
-											} else if(w == postReportTos.length-1){
-												postReportTos.push({
+									} 
+									/*
+									else {
+										// Loop through the post_and_reports array									
+										for(var w=0;w<posts_and_no_of_reports.length;w++){
+											// If the post already exists in the array
+											// skip to the end
+											if(posts_and_no_of_reports[w].p == depts[i].unit[j].post[k]._about){
+												w=posts_and_no_of_reports.length;
+											} else if(w == posts_and_no_of_reports.length-1){
+											// If the end of the array is reached without a match,
+											// add the post to the array
+												posts_and_no_of_reports.push({
 													p:depts[i].unit[j].post[k]._about,
 													r:reportsToCounter
 												});											
@@ -348,28 +364,59 @@ function loadDepts() {
 										}
 									}
 									
-									reportsToCounter++;									
-									var postItem = depts[i].unit[j].post[k];
+									*/
 									
+									// This while loop increments the number of 
+									// reportsTo's for a post within the post_and_reportsTo array
+									//
+									// The next post to be tested will be a reportsTo
+									// child of the post above, so the reportsTo level 
+									// counter needs to be incremented
+									// reportsToCounter++;									
+									var postItem = depts[i].unit[j].post[k];
+									//cl("Checking reportsTos for: "+postItem.label[0]);
+									// Keep looping through the posts.reportsTo items
+									// until it has no more
+									//
+									// Case: bis/post/GOSCI-1-0001-JB reportsTo no posts
+									// Case: Permanent Secretary of BIS has no reportsTos
+									//
 									while(typeof postItem.reportsTo != 'undefined') {
-										
-										for(var x=0;x<postReportTos.length;x++){
-											if(postReportTos[x].p == postItem._about){
-												postReportTos[x].r++;
-											} else if(x==postReportTos.length-1){
-												postReportTos.push({
-													p:postItem._about,
-													r:reportsToCounter
-												});													
-											}
-										}
-										postItem = postItem.reportsTo[0];
+										// Loop through posts_and_reports array
+											postItem = postItem.reportsTo[0];
+											//p("Post is an object");
+											//cl(postItem);
+											//cl(postItem._about);
+											//cl("Reports to: "+postItem.label[0]);
+											for(var x=0;x<posts_and_no_of_reports.length;x++){
+												// If there's a match with a reporting post,
+												// increment it's number of reportsTo's
+												// - It will match itself which can be left as a 
+												// minimum of "1" is needed to appear in the visualisation
+												if(posts_and_no_of_reports[x].p == postItem._about){
+													posts_and_no_of_reports[x].r++;
+												} else if(x==posts_and_no_of_reports.length-1){
+												// If the end of the array is reached without a match,
+												// add the reporting post to the array
+													posts_and_no_of_reports.push({
+														p:postItem._about,
+														r:reportsToCounter
+													});	
+																									
+												}
+											}											
+
+										// Set the testing variable to the post's reporting
+										// post
+										//postItem = postItem.reportsTo[0];
+										// Increment reporting level as it's 
 										reportsToCounter++;
 									}
-									
+									//cl("------------------------------------------");
 									
 									// Make a post node and connect to the unit									
 									tempUnitNode.children.push(makePostNode(depts[i].unit[j].post[k]));
+									//cl("Put "+depts[i].unit[j].post[k].label[0]+" in "+tempUnitNode.name);
 									tempUnitNode.data.$area = tempUnitNode.children.length;
 									tempDeptNodeArea += tempUnitNode.data.$area;
 
@@ -415,7 +462,7 @@ function loadDepts() {
 
 			if(typeof deptParam != 'undefined' && deptParam.length > 1 && (typeof unitParam == 'undefined' || unitParam.length < 1)){
 				try{
-					var node = global_TM.graph.getNode(deptParam);
+					var node = global_TM.graph.getNode("dept_"+deptParam);
 					$("h1.title span#dept").html(node.name.valueOf()).animate({opacity:'1'},500);
 					$("h1.title span").css("visibility","visible");			
 					global_TM.enter(node);
@@ -432,8 +479,8 @@ function loadDepts() {
 				}
 			} else if(typeof unitParam != 'undefined' && unitParam.length > 1){
 				try{
-					var uNode = global_TM.graph.getNode(unitParam);
-					var dNode = global_TM.graph.getNode(deptParam);
+					var uNode = global_TM.graph.getNode("unit_"+unitParam);
+					var dNode = global_TM.graph.getNode("dept_"+deptParam);
 					$("h1.title span#unit").html(uNode.name.valueOf()).animate({opacity:'1'},500);			
 					$("h1.title span#dept").html(dNode.name.valueOf()).animate({opacity:'1'},500);
 					$("h1.title span#dept").click(function(){
@@ -569,14 +616,15 @@ function makePostNode(item){
 	slug = slug[slug.length-1];
 	
 	var node = {
-			id:slug,
+			id:"post_"+slug,
 			name:item.label[0].toString().replace("@en",""),
 			data: {
 				type:"Post",
 				uri:item._about,
 				processed:false,
-             	$color: "#888888", 
-             	text: "#FFFFFF",
+             	//$color: "#888888", 
+             	$color: "#F2F6EC",
+             	text: "#333333",
              	$area: 1			
 			},
 			children:[]
@@ -588,13 +636,14 @@ function makeUnitNode(item){
 	slug = slug[slug.length-1];
 	
 	var node = {
-			id:slug,
+			id:"unit_"+slug,
 			name:item.label[0].replace("@en",""),
 			data: {
 				type:"Unit",
 				uri:item._about,
 				processed:false,
-             	$color: "#819C9B",
+             	//$color: "#819C9B", //teal
+             	$color: "#758200",
              	text: "#FFFFFF", 
              	$area: 1							
 			},
@@ -607,13 +656,13 @@ function makeDeptNode(item){
 	slug = slug[slug.length-1];
 	
 	var node = {
-			id:slug,
+			id:"dept_"+slug,
 			name:item.prefLabel.toString().replace("@en",""),
 			data: {
 				type:"Department",
 				uri:item._about,
 				processed:false,
-             	$color: "#758200",
+             	$color: "#577D00",             	
              	text: "#FFFFFF", 
              	$area: 1	
 			},
@@ -687,9 +736,10 @@ function resizePosts(jsonObj) {
 		$.each(jsonObj, function(k,v) {
 
 			if(typeof k == "number" && v.data != 'undefined' && v.data.type == "Post"){
-				for(var y=0;y<postReportTos.length;y++){
-					if(v.data.uri == postReportTos[y].p){
-						v.data.$area = postReportTos[y].r;
+				for(var y=0;y<posts_and_no_of_reports.length;y++){
+					if(v.data.uri == posts_and_no_of_reports[y].p){
+						v.data.$area = posts_and_no_of_reports[y].r;
+						//cl(v.data.$area+": "+v.name);
 					}
 				}					
 			}
