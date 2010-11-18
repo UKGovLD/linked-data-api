@@ -208,15 +208,17 @@
 
 <xsl:template match="result" mode="showMapForItems">
 	<xsl:param name="items" />
+	<xsl:param name="sample" select="10" />
 	<xsl:variable name="showMap">
 		<xsl:apply-templates select="$items[1]" mode="showMap" />
 	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="$showMap = 'true'">true</xsl:when>
-		<xsl:when test="not($items)">false</xsl:when>
+		<xsl:when test="not($items) or $sample = 0">false</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="." mode="showMapForItems">
 				<xsl:with-param name="items" select="$items[position() > 1]" />
+				<xsl:with-param name="sample" select="$sample - 1" />
 			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -772,7 +774,7 @@
 			<xsl:variable name="label" select="*[name() = $bestLabelParam]" />
 			<xsl:choose>
 				<xsl:when test="$label/item">
-					<xsl:for-each select="$label/item">
+					<xsl:for-each select="$label/item[not(. = preceding-sibling::item)]">
 						<xsl:apply-templates select="." mode="content" />
 						<xsl:if test="position() != last()"> / </xsl:if>
 					</xsl:for-each>

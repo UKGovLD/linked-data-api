@@ -564,7 +564,6 @@
 		</xsl:when>
 		<xsl:when test="starts-with(@href, 'http://transport.data.gov.uk/def/') and type/item/@href = 'http://www.w3.org/2000/01/rdf-schema#Class'">
 			<ul>
-				<li><a href="{@href}/property">Properties</a></li>
 				<li><a href="{@href}/instance">Instances</a></li>
 				<li><a href="{@href}/subclass">Subclasses</a></li>
 			</ul>
