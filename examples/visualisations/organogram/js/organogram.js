@@ -831,24 +831,10 @@ function loadPersonInfo(node){
 	
 	// Make an API call to retrieve information about the root post
 	var api_url = "http://reference.data.gov.uk/doc/department/"+global_department+"/post/"+postID+"/statistics";
-	// Description of API call
-	
-	for(var x=0;x<api_call_info.length;x++){
-		if(api_call_info[x].title == "Retrieval of post's statistics data"){
-			api_call_info.splice(x,1);
-		}
-	}
-	
-	api_call_info.push({
-		title:"Retrieval of post's statistics data",
-		description:"Retrieves stasitics such as the total salary figure for posts, specifically reporting to the \""+node.name+"\"",
-		url:api_url,
-		parameters:""
-	});
 
 	// Call API for post statistics	
 	$.ajax({
-		url: api_call_info[api_call_info.length-1].url+".json"+"?callback=?",
+		url: api_url+".json"+"?callback=?",
 		type: "GET",
 		dataType: "jsonp",
 		async:true,
@@ -861,9 +847,32 @@ function loadPersonInfo(node){
 				
 				$('div.statistics').show();
 				$('div.statistics div.content').slideDown();
+				
+				// Description of API call
+				for(var x=0;x<api_call_info.length;x++){
+					if(api_call_info[x].title == "Retrieval of post's statistics data"){
+						api_call_info.splice(x,1);
+					}
+				}
+				
+				api_call_info.push({
+					title:"Retrieval of post's statistics data",
+					description:"Retrieves stasitics such as the total salary figure for posts, specifically reporting to the \""+node.name+"\"",
+					url:api_url,
+					parameters:""
+				});			
+						
 				displayDataSources();
 				
+			} else {
+				for(var y=0;y<api_call_info.length;y++){
+					if(api_call_info[y].title == "Retrieval of post's statistics data"){
+						api_call_info.splice(y,1);
+					}
+				}		
+						
 			}
+			
 		}
 	});
 	
