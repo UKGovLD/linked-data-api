@@ -27,6 +27,7 @@ position:fixed;
 text-align:left;
 width:100%;
 overflow:hidden;
+z-index:9999;
 }
 h1.title span {
 /*font-size:12px;
@@ -153,6 +154,7 @@ position:fixed;
 right:0;
 top:30px;
 width:100px;
+z-index:99999;
 }
 div#right ul {
 margin:0;
@@ -412,11 +414,12 @@ border:1px solid #DDDDDD;
 color:#333333;
 display:none;
 height:auto;
+margin-bottom:20px;
 opacity:1;
 overflow-x:hidden;
 overflow-y:auto;
 padding:0 0 5px;
-position:fixed;
+position:absolute;
 right:125px;
 top:55px;
 width:290px;
@@ -556,23 +559,23 @@ color:#002D63;
 
 
 /* New Infobox */
-div#people {
+div.panel {
 background-color:#FFFFFF;
 color:#333333;
 padding:10px;
 }
-div#people h3 {
+div.panel h3 {
 color:#333333;
 font-size:12px;
 margin:0;
 padding:0;
 text-align:left;
 }
-div.heldBy {
+div.expander {
 clear:both;
 font-size:12px;
 }
-div.heldBy a.name {
+div.expander a.name {
 background-color:#555555;
 color:#FFFFFF;
 cursor:pointer;
@@ -585,25 +588,14 @@ padding-top:2px;
 text-align:right;
 text-decoration:none;
 }
-div.heldBy a.name span {
+div.expander a.name span {
 margin:0;
 padding:0;
 display:inline-block;
 width:15px;
 cursor:pointer;
 }
-div.heldBy div.personInfo {
-/* 
-new_infobox
-
-border-bottom:1px solid #CCCCCC;
-border-left:1px solid #CCCCCC;
-border-right:1px solid #CCCCCC;
-display:none;
-float:right;
-padding:10px;
-width:248px;
-*/
+div.expander div.content {
 border-bottom:1px solid #CCCCCC;
 border-left:1px solid #CCCCCC;
 border-right:1px solid #CCCCCC;
@@ -612,13 +604,13 @@ float:right;
 padding:0;
 width:268px;
 }
-div.heldBy div.personInfo a {
+div.panel div.content a {
 color:#577D00;
 }
-div.heldBy div.personInfo a:hover {
+div.panel div.content a:hover {
 text-decoration: underline;
 }
-div.heldBy div.personInfo img {
+div.panel div.content img {
 border:1px solid #DDDDDD;
 display:none;
 float:left;
@@ -626,20 +618,7 @@ margin-top:0;
 padding:5px;
 width:60px;
 }
-div.heldBy div.personInfo p {
-/*
-new_infobox
-
-display:inline-block;
-float:right;
-font-family:Georgia;
-font-weight:normal;
-margin:0;
-padding:0 0 10px;
-text-align:left;
-width:248px;
-word-wrap:break-word;
-*/
+div.panel div.content p {
 display:inline-block;
 float:right;
 font-family:Georgia;
@@ -650,13 +629,7 @@ text-align:left;
 width:263px;
 word-wrap:break-word;
 }
-div.heldBy div.personInfo p span {
-/*
-new_infobox
-
-display:block;
-font-weight:bold;
-*/
+div.panel div.content p span {
 background:none repeat scroll 0 0 #EEEEEE;
 border-bottom:1px solid #CCCCCC;
 border-top:1px solid #CCCCCC;
@@ -688,7 +661,24 @@ background-color:#C1D5FF;
 p.grade span.SCS {
 background-color:#FFC1C1;
 }
-
+div.statistics {
+display:none;
+}
+div.statistics div.content p a {
+font-family:serif;
+letter-spacing:1px;
+}
+div.statistics div.content p span.date {
+background:none;
+border:none;
+display:inline;
+color:#CCCCCC;
+margin:0;
+padding:0;
+}
+div.heldBy {
+display:none;
+}
 
 /* div#layout */
 div#layout {

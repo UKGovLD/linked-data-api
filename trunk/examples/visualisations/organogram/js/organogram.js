@@ -214,7 +214,8 @@ function init(deptSlug,postSlug){
 					$("#infobox").html(loadPersonInfo(node));
 					setInfoBoxLinks();
 					$("#infobox").fadeIn();
-					$("div.heldBy a").eq(0).click(); 
+					$("div.heldBy").show();
+					$("div.heldBy div.expander a").eq(0).click(); 
 				});
 
 			};  
@@ -281,7 +282,7 @@ function loadPost(deptSlug,postSlug) {
 	});
 	
 	$.ajax({
-		url: api_call_info[0].url+".json"+"?callback=?",
+		url: api_call_info[api_call_info.length-1].url+".json"+"?callback=?",
 		type: "GET",
 		dataType: "jsonp",
 		async:true,
@@ -318,7 +319,7 @@ function loadPost(deptSlug,postSlug) {
 				});				
 				
 				$.ajax({
-					url: api_call_info[1].url+".json"+api_call_info[1].parameters+"&callback=?",
+					url: api_call_info[api_call_info.length-1].url+".json"+api_call_info[api_call_info.length-1].parameters+"&callback=?",
 					type: "GET",
 					dataType: "jsonp",
 					async:true,
@@ -751,11 +752,20 @@ function loadPersonInfo(node){
 
 	var html = '<h1>'+node.name+'</h1>';
 	
-	html += '<div id="people">';
+	// people = panel
+	// heldBy = expander
+	// personInfo = content
+	
+	// Statistics panel
+	html += '<div class="panel statistics">';
+	html += '<div class="expander"><a class="name">Statistics</a><div class="content"><p><!-- statisitics go here--></p></div><div class="clear"><!-- --></div></div></div>';
+	
+	// Held By panel
+	html += '<div class="panel heldBy">';
 	html += '<h3>Held By :</h3>';
 
 	for(var i=0; i<node.data.heldBy.length; i++) {
-		html += '<div class="heldBy">';
+		html += '<div class="expander">';
 		
 		if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
 			html += '<a class="name">'+node.data.heldBy[i].foafName+'<span>+</span></a>';
@@ -763,7 +773,7 @@ function loadPersonInfo(node){
 			html += '<a class="name">?<span>+</span></a>';		
 		}
 
-		html += '<div class="personInfo">';
+		html += '<div class="content">';
 		
 		if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
 			html+='<p class="comment"><span>Comment</span>'+node.data.heldBy[i].comment+'</p>';
@@ -816,6 +826,40 @@ function loadPersonInfo(node){
 
 	}
 
+	var postID = node.data.uri.split("/");
+	postID=postID[postID.length-1];
+	
+	// Make an API call to retrieve information about the root post
+	var api_url = "http://reference.data.gov.uk/doc/department/"+global_department+"/post/"+postID+"/statistics";
+	// Description of API call
+	api_call_info.push({
+		title:"Retrieval of post's statistics data",
+		description:"Retrieves stasitics such as the total salary figure for posts, specifically reporting to "+node.name,
+		url:api_url,
+		parameters:""
+	});
+
+	// Call API for post statistics	
+	$.ajax({
+		url: api_call_info[api_call_info.length-1].url+".json"+"?callback=?",
+		type: "GET",
+		dataType: "jsonp",
+		async:true,
+		success: function(json){
+			if(typeof json.result.items[0].date != 'undefined' && typeof json.result.items[0].salaryCostOfReports != 'undefined'){
+				var date = json.result.items[0].date.split("/");
+				date = '['+date[date.length-1]+']';
+				
+				$("div.statistics div.expander div.content p").html('<span>Combined salary of reporting posts</span><a href="'+api_url+'" target="_blank">£'+json.result.items[0].salaryCostOfReports+'</a> <span class="date">'+date+'</span>');
+				
+				$('div.statistics').show();
+				$('div.statistics div.content').slideDown();
+				
+				resetSourceLinks();
+			}
+		}
+	});
+	
 	html+= '</div><!-- end people -->';
 	html+= '<a class="close">x</a>';
 		

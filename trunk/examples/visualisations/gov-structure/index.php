@@ -38,22 +38,22 @@
 <div class="tip"><p>Left-click: Zoom in</p><p>Right-click: Zoom out</p><p>Alternatively, you can zoom out by clicking the breadcrumb links in the top-left of the visualisation.</p></div>
 </li>
 
-<li id="levelsToggle"><p>Levels to show:</p>
+<!-- li id="levelsToggle"><p>Levels to show:</p>
 	<select id="levels" value="1">
 	<option value="1">1</option>
 	<option value="2">2</option>
 	</select>
-</li>
+</li -->
 
 <!--li id="deputyToggle"><p>Include Deputy Directors?</p>
 	<span><input type="radio" name="deputies" value="Yes"><label>Yes</label></span>
 	<span><input type="radio" name="deputies" value="No" checked><label>No</label></span>
 </li-->
 
-<li id="resizeToggle"><p>Resize by:</p>
+<!-- li id="resizeToggle"><p>Resize by:</p>
 	<span><input type="radio" name="resizeBy" value="Unit" checked><label>Unit</label></span>
 	<span><input type="radio" name="resizeBy" value="Post"><label>Post</label></span>
-</li>
+</li -->
 
 </ul>
 
