@@ -288,14 +288,14 @@ function init(d,u){
  */
 function loadDepts() {
 
-	showLog("Loading departments ...");
+	showLog("Loading data ...");
 
 	var postList = new Array();
 	
 	// Description of API call
 	api_call_info.push({
 		title:"Retrieves a list of all departments",
-		description:"Asks for a list of all departments and each of their units",
+		description:"Asks for a list of all departments, each of their units, each of the unit's posts and also the posts that report to those posts - used to size them.",
 		url:"http://reference.data.gov.uk/doc/department",
 		parameters:"?_view=minimal&_properties=unit.label,unit.post.label,unit.post.reportsTo&_pageSize=100"
 	});	
@@ -389,6 +389,7 @@ function loadDepts() {
 					var dNode = global_TM.graph.getNode("dept_"+deptParam);
 					$("h1.title span#unit").html(uNode.name.valueOf()).animate({opacity:'1'},500);			
 					$("h1.title span#dept").html(dNode.name.valueOf()).animate({opacity:'1'},500);
+					sizeUnitPosts(uNode);
 					$("h1.title span#dept").click(function(){
 						global_TM.out();
 						global_TM.refresh();
