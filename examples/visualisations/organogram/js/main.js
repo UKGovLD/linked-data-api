@@ -41,14 +41,14 @@ function resetSourceLinks() {
 
 function setInfoBoxLinks() {
 	
-	$("div.heldBy a.name").click(function() {
+	$("div.heldBy div.expander a.name").click(function() {
 
 		if($(this).next().css("display") == "block") {
 			$(this).next().slideUp();
 			$(this).children().filter("span").html("+");
 		} else {
-			$('div.heldBy div.personInfo').slideUp();
-			$("div.heldBy a.name").each(function(){
+			$('div.heldBy div.content').slideUp();
+			$("div.heldBy div.expander a.name").each(function(){
 				$(this).children().filter("span").html("+");
 			});
 			$(this).next().slideDown();

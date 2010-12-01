@@ -148,7 +148,7 @@ function init(d,u){
 						rootNode = global_govJSON;
 					});
 				} else if(node.data.type == "Unit"){
-					showLog("Loading "+node.name.valueOf()+" ... ");
+					//showLog("Loading "+node.name.valueOf()+" ... ");
 					sizeUnitPosts(node);
 					// Unit node
 					tempSlug = node.data.uri.split("/");
@@ -170,7 +170,7 @@ function init(d,u){
 						restyle();
 						rootNode = prevNode;
 					});
-					hideLog();
+					//hideLog();
 				} else {
 					// Gov node
 					$("h1.title span").animate({opacity:'0'},500);
@@ -263,15 +263,15 @@ function init(d,u){
 			
 			$(domElement).hover(function(e){
 				$(domElement).get(0).style.border = '1px solid #FFFFFF';											  									  
-				//$(this).children().filter(".tooltip").css("top",(e.pageY - 10) + "px").css("left",(e.pageX - 30) + "px").show();		
-				if(node.data.type == "Department" || node.data.type == "Unit") {
-				$("div#nodeTip").html(node.name.valueOf()+'<p>Number of posts: '+(parseInt(node.data.$area)-1)+'</p>').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
+				if(node.data.type == "Department"){
+					$("div#nodeTip").html(node.name.valueOf()+'<!-- p>Number of posts: '+(parseInt(node.data.$area)-1)+'</p -->').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
+				} else if (node.data.type == "Unit") {
+					$("div#nodeTip").html(node.name.valueOf()+'<!-- p>Number of posts: '+(parseInt(node.data.$area))+'</p -->').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();				
 				} else if(node.data.type == "Post") {
-				$("div#nodeTip").html(node.name.valueOf()+'<p>Posts that report to this post: '+(parseInt(node.data.$area)-1)+'</p>').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
+					$("div#nodeTip").html(node.name.valueOf()+'<!-- p>Posts that report to this post: '+(parseInt(node.data.$area)-1)+'</p -->').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
 				}
 			},function(){
 				$(domElement).get(0).style.border = '1px solid transparent'; 
-				//$(this).children().filter(".tooltip").hide();
 				$("div#nodeTip").hide();
 			});    
 		}             
