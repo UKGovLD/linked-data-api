@@ -269,7 +269,7 @@ function loadPost(deptSlug,postSlug) {
 
 	var firstNode;	
 	//$("div#formats").fadeOut();
-	$('div#apiCalls').fadeOut();
+	//$('div#apiCalls').fadeOut();
 	
 	// Make an API call to retrieve information about the root post
 	var api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug;
@@ -304,7 +304,7 @@ function loadPost(deptSlug,postSlug) {
 				$("h1.title span").css("visibility","visible");
 				$("h1.title span#post").animate({opacity:'1'},1000,function(){
 					$("h1.title span#unit").animate({opacity:'1'},1000,function(){
-						$("h1.title span#dept").animate({opacity:'1'},1000)
+						$("h1.title span#dept").animate({opacity:'1'},1000);
 					})
 				});			
 				//cl(firstNode);
@@ -832,9 +832,16 @@ function loadPersonInfo(node){
 	// Make an API call to retrieve information about the root post
 	var api_url = "http://reference.data.gov.uk/doc/department/"+global_department+"/post/"+postID+"/statistics";
 	// Description of API call
+	
+	for(var x=0;x<api_call_info.length;x++){
+		if(api_call_info[x].title == "Retrieval of post's statistics data"){
+			api_call_info.splice(x,1);
+		}
+	}
+	
 	api_call_info.push({
 		title:"Retrieval of post's statistics data",
-		description:"Retrieves stasitics such as the total salary figure for posts, specifically reporting to "+node.name,
+		description:"Retrieves stasitics such as the total salary figure for posts, specifically reporting to the \""+node.name+"\"",
 		url:api_url,
 		parameters:""
 	});
@@ -854,8 +861,8 @@ function loadPersonInfo(node){
 				
 				$('div.statistics').show();
 				$('div.statistics div.content').slideDown();
+				displayDataSources();
 				
-				resetSourceLinks();
 			}
 		}
 	});
@@ -870,7 +877,9 @@ function loadPersonInfo(node){
 
 function displayDataSources() {
 	
-	var html='';
+	$('div#apiCalls').fadeOut();
+	
+	var html='<p class="label">Data sources</p>';
 	
 	for(var i=0;i<api_call_info.length;i++){
 		
@@ -908,7 +917,7 @@ function displayDataSources() {
 	
 	
 	
-	$('div#apiCalls').html($('div#apiCalls').html()+html);
+	$('div#apiCalls').html(html);
 	
 	resetSourceLinks();
 	
