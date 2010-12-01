@@ -148,6 +148,8 @@ function init(d,u){
 						rootNode = global_govJSON;
 					});
 				} else if(node.data.type == "Unit"){
+					showLog("Loading "+node.name.valueOf()+" ... ");
+					sizeUnitPosts(node);
 					// Unit node
 					tempSlug = node.data.uri.split("/");
 					tempSlug = tempSlug[tempSlug.length-1];
@@ -168,6 +170,7 @@ function init(d,u){
 						restyle();
 						rootNode = prevNode;
 					});
+					hideLog();
 				} else {
 					// Gov node
 					$("h1.title span").animate({opacity:'0'},500);
@@ -187,16 +190,16 @@ function init(d,u){
 
 					window.location = "../organogram?dept="+deptSlug+"&post="+postSlug;
 
-				} else if(node) {
-					tm.enter(node);				
-				}
-				} else {
-				// not a node
-				}
-				global_TM.refresh();		
-				restyle();
-				
-			},  
+                } else if(node) {
+                        tm.enter(node);                         
+                }
+                } else {
+                // not a node
+                }
+                global_TM.refresh();            
+                restyle();
+
+			},
 			onRightClick: function() {
 				global_TM.canvas.opt.levelsToShow = 1;
 				$("div#nodeTip").hide();
@@ -261,11 +264,15 @@ function init(d,u){
 			$(domElement).hover(function(e){
 				$(domElement).get(0).style.border = '1px solid #FFFFFF';											  									  
 				//$(this).children().filter(".tooltip").css("top",(e.pageY - 10) + "px").css("left",(e.pageX - 30) + "px").show();		
-				$("div#nodeTip").html(node.name.valueOf()).css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
+				if(node.data.type == "Department" || node.data.type == "Unit") {
+				$("div#nodeTip").html(node.name.valueOf()+'<p>Number of posts: '+(parseInt(node.data.$area)-1)+'</p>').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
+				} else if(node.data.type == "Post") {
+				$("div#nodeTip").html(node.name.valueOf()+'<p>Posts that report to this post: '+(parseInt(node.data.$area)-1)+'</p>').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
+				}
 			},function(){
 				$(domElement).get(0).style.border = '1px solid transparent'; 
 				//$(this).children().filter(".tooltip").hide();
-				$("div#nodeTip").html(node.name.valueOf()).hide();
+				$("div#nodeTip").hide();
 			});    
 		}             
 		
@@ -275,8 +282,6 @@ function init(d,u){
  
 } // end init
 
-
-var posts_and_no_of_reports = [];
 
 /*
  *
@@ -290,7 +295,7 @@ function loadDepts() {
 	// Description of API call
 	api_call_info.push({
 		title:"Retrieves a list of all departments",
-		description:"A specific API Viewer is needed to pull through each departments' units, the posts within those units and the posts that report to those posts.",
+		description:"Asks for a list of all departments and each of their units",
 		url:"http://reference.data.gov.uk/doc/department",
 		parameters:"?_view=minimal&_properties=unit.label,unit.post.label,unit.post.reportsTo&_pageSize=100"
 	});	
@@ -309,139 +314,40 @@ function loadDepts() {
 			
 			var depts = json.result.items;
 			var tempDeptNode = {};
-			var tempDeptNodeArea = 0;
 			var tempUnitNode = {};
 			
-			// Loop through department resources
+			// Build department tree first
+			// Attach units
+		
+			// Attach departments to government node using 
+			// their number of posts as their size
+			var deptSize=1;
 			for(var i=0; i<depts.length; i++) {
-				// If a department resource has enough information
 				if(typeof depts[i]._about != 'undefined' && typeof depts[i].prefLabel != 'undefined') {
-					// Make a department node
 					tempDeptNode = makeDeptNode(depts[i]);
-					// If the department has units
 					if(typeof depts[i].unit != 'undefined') {
-						// Loop through the department's units
 						for(var j=0;j<depts[i].unit.length;j++) {
-							// If the department's unit has posts
-							if(typeof depts[i].unit[j].post != 'undefined') {
-								// Make a unit node
-								tempUnitNode = makeUnitNode(depts[i].unit[j]);
-								// Loop through the unit's posts	
-								for(var k=0;k<depts[i].unit[j].post.length;k++){
-									// This is a counter for the number of posts that 
-									// report to a post.
-									// The visualisation requires a minimum of 1 to 
-									// display a node
-									var reportsToCounter = 1;
-									
-									
-									// This if/else is to add posts to the array
-									// 
-									// If it's the first post to be tested, 
-									// add to the array 
-									if(posts_and_no_of_reports.length<1){
-										posts_and_no_of_reports.push({
-											p:depts[i].unit[j].post[k]._about,
-											r:reportsToCounter
-										});										
-									} 
-									/*
-									else {
-										// Loop through the post_and_reports array									
-										for(var w=0;w<posts_and_no_of_reports.length;w++){
-											// If the post already exists in the array
-											// skip to the end
-											if(posts_and_no_of_reports[w].p == depts[i].unit[j].post[k]._about){
-												w=posts_and_no_of_reports.length;
-											} else if(w == posts_and_no_of_reports.length-1){
-											// If the end of the array is reached without a match,
-											// add the post to the array
-												posts_and_no_of_reports.push({
-													p:depts[i].unit[j].post[k]._about,
-													r:reportsToCounter
-												});											
-											}
-										}
+							tempUnitNode = makeUnitNode(depts[i].unit[j]);
+							if(typeof depts[i].unit[j].post != 'undefined'){
+									tempUnitNode.data.$area = depts[i].unit[j].post.length;
+									deptSize += depts[i].unit[j].post.length;
+									for(var k=0;k<depts[i].unit[j].post.length;k++){
+										tempUnitNode.children.push(makePostNode(depts[i].unit[j].post[k]))
 									}
-									
-									*/
-									
-									// This while loop increments the number of 
-									// reportsTo's for a post within the post_and_reportsTo array
-									//
-									// The next post to be tested will be a reportsTo
-									// child of the post above, so the reportsTo level 
-									// counter needs to be incremented
-									// reportsToCounter++;									
-									var postItem = depts[i].unit[j].post[k];
-									//cl("Checking reportsTos for: "+postItem.label[0]);
-									// Keep looping through the posts.reportsTo items
-									// until it has no more
-									//
-									// Case: bis/post/GOSCI-1-0001-JB reportsTo no posts
-									// Case: Permanent Secretary of BIS has no reportsTos
-									//
-									while(typeof postItem.reportsTo != 'undefined') {
-										// Loop through posts_and_reports array
-											postItem = postItem.reportsTo[0];
-											//p("Post is an object");
-											//cl(postItem);
-											//cl(postItem._about);
-											//cl("Reports to: "+postItem.label[0]);
-											for(var x=0;x<posts_and_no_of_reports.length;x++){
-												// If there's a match with a reporting post,
-												// increment it's number of reportsTo's
-												// - It will match itself which can be left as a 
-												// minimum of "1" is needed to appear in the visualisation
-												if(posts_and_no_of_reports[x].p == postItem._about){
-													posts_and_no_of_reports[x].r++;
-												} else if(x==posts_and_no_of_reports.length-1){
-												// If the end of the array is reached without a match,
-												// add the reporting post to the array
-													posts_and_no_of_reports.push({
-														p:postItem._about,
-														r:reportsToCounter
-													});	
-																									
-												}
-											}											
-
-										// Set the testing variable to the post's reporting
-										// post
-										//postItem = postItem.reportsTo[0];
-										// Increment reporting level as it's 
-										reportsToCounter++;
-									}
-									//cl("------------------------------------------");
-									
-									// Make a post node and connect to the unit									
-									tempUnitNode.children.push(makePostNode(depts[i].unit[j].post[k]));
-									//cl("Put "+depts[i].unit[j].post[k].label[0]+" in "+tempUnitNode.name);
-									tempUnitNode.data.$area = tempUnitNode.children.length;
-									tempDeptNodeArea += tempUnitNode.data.$area;
-
-								}
-							} else {
-								// Make a unit node
-								tempUnitNode = makeUnitNode(depts[i].unit[j]);						
 							}
-							// Connect the unit node to the department
 							tempDeptNode.children.push(tempUnitNode);
-							if(sizeByUnits){
-								tempDeptNode.data.$area = tempDeptNode.children.length;
-							} else if(sizeByPosts){
-								tempDeptNode.data.$area = tempDeptNodeArea;
-							}
 						}
-					} else {
-						// The department has no units
 					}
-				}
-				global_govJSON.children.push(tempDeptNode);
-				tempDeptNodeArea = 0;	
+					if(deptSize > 1){
+						tempDeptNode.data.$area = deptSize;
+					}
+					global_govJSON.children.push(tempDeptNode);
+					deptSize = 1;					
+				}		
 			}
-
-			resizePosts(global_govJSON);
+			
+			//resizePosts(global_govJSON);
+			
 
 			global_TM.loadJSON(global_govJSON);  
 			global_TM.refresh(); 
@@ -544,49 +450,6 @@ function restyle() {
 		}
 	});
 
-
-/*	
-
-$("div.Department").each(function(){
-	if($("div.Unit").overlaps($(this))){
-		$(this).children().eq(0).children().eq(0).css("vertical-align","top");
-	}
-});
-$("div.Unit").each(function(){
-	if($("div.Post").overlaps($(this))){
-		$(this).children().eq(0).children().eq(0).css("vertical-align","top");
-	}
-});
-		
-
-	$("div.node").each(function(){
-	
-	var $label = $(this).children().eq(0);
-	
-		if($(this).hasClass("Department")){
-			if($("div.Unit").overlaps($(this))){
-				$label.css("top","0").css("margin-top","6px");
-			} else {
-				$label.vAlign();
-				$label.hAlign();
-			}
-		} else if($(this).hasClass("Unit")){
-			if($("div.Post").overlaps($(this))){
-				$label.css("top","0").css("margin-top","6px");			
-			} else {
-				$label.vAlign();
-				$label.hAlign();
-			}			
-		} else if($(this).hasClass("Post")){
-				$label.vAlign();
-				$label.hAlign();
-		}
-		
-		    
-		
-		$label.hAlign().hAlign().hAlign().hAlign().hAlign();
-	});
-	*/
 }
 
 	
@@ -625,10 +488,12 @@ function makePostNode(item){
              	//$color: "#888888", 
              	$color: "#F2F6EC",
              	text: "#333333",
-             	$area: 1			
+             	$area: 1,
+             	reportsTo: item.reportsTo		
 			},
 			children:[]
 	};
+		
 	return node;
 }
 function makeUnitNode(item){
@@ -736,10 +601,11 @@ function resizePosts(jsonObj) {
 		$.each(jsonObj, function(k,v) {
 
 			if(typeof k == "number" && v.data != 'undefined' && v.data.type == "Post"){
-				for(var y=0;y<posts_and_no_of_reports.length;y++){
-					if(v.data.uri == posts_and_no_of_reports[y].p){
-						v.data.$area = posts_and_no_of_reports[y].r;
-						//cl(v.data.$area+": "+v.name);
+				
+				for(var y=0;y<reportsToArray.length;y++){
+					if(v.data.uri == reportsToArray[y].p){
+						v.data.$area = reportsToArray[y].r;
+						reportsToArray.splice(y,1);
 					}
 				}					
 			}
@@ -753,3 +619,143 @@ function resizePosts(jsonObj) {
 
 	return jsonObj;
 }
+
+function sizeUnitPosts(unitNode) {
+	
+	var unitNodes = unitNode.getSubnodes();
+	var unitNodes2 = unitNode.getSubnodes();
+	var reportsToArray = [];
+	var counter_R = 0;
+	var counter_Q = 0;	
+	var loop = true;
+	var pSlug;
+	
+	for(var k=0;k<unitNodes.length;k++) {
+	
+	if(unitNodes[k].data.type == "Post"){
+
+	var postNode = unitNodes[k];
+	counter_R = 0;
+	counter_Q = 0;
+	//cl(postNode);
+	// Loop through the post items in a unit
+	if(typeof postNode.data.reportsTo != 'undefined'){
+
+			//cl("------------");
+            while(loop) {
+            
+				//cl(postNode.name);
+				//cl(postNode.label)
+				//cl(postNode);
+				
+				
+				if(typeof postNode.data != 'undefined' && typeof postNode.data.reportsTo != 'undefined') {
+					// A vis node
+					/*
+					$.each(unitNodes2, function(k,v) {
+						
+						if(typeof v.data != 'undefined' && v.data.type == "Post"){	
+							// Found vis node
+							if(postNode.data.uri == v.data.uri) {
+								// Match
+								postNode.data.$area+=counter_R;
+								counter_R++;
+							}
+						} else if(typeof v.reportsTo != 'undefined'){
+							// Found api node
+							if(postNode.data.uri == v.reportsTo._about) {
+								// Match
+								postNode.data.$area+=counter_R;
+								counter_R++;
+							}						
+							
+						} 
+					});	
+					*/			
+					postNode=postNode.data.reportsTo[0];
+				} else if (typeof postNode.reportsTo != 'undefined') {
+					// An API node
+					// Find node in vis JSON, increase area by one
+					pSlug = postNode._about.split("/");
+					pSlug = "post_"+pSlug[pSlug.length-1];
+					var node = global_TM.graph.getNode(pSlug);
+					node.data.$area++;
+					/*
+					$.each(unitNodes2, function(k,v) {
+						
+						if(typeof v.data != 'undefined' && v.data.type == "Post"){	
+							// Found vis node
+							if(node.data.uri == v.data.uri) {
+								// Match
+								node.data.$area+=counter_R;
+								counter_R++;
+							}
+						} else if(typeof v.reportsTo != 'undefined'){
+							// Found api node
+							if(node.data.uri == v.reportsTo._about) {
+								// Match
+								node.data.$area+=counter_R;
+								counter_R++;
+							}						
+							
+						}
+						
+					});
+					*/
+					postNode=postNode.reportsTo[0];
+					
+				} else {
+					loop=false;
+					break;				
+				}
+				
+				
+			}
+			
+			loop=true;
+			counter_R = 0;
+			/*
+				$.each(unitNodes2, function(k,v) {
+					if(typeof v.data != 'undefined' && v.data.type == "Post"){
+						// Found vis node
+						
+						
+						if(v.data.uri == postNode.data.uri){
+						reportsToArray.push({
+							p:post._about,
+							r:counter_Q
+						});	
+						counter_R++;
+					// Post has been evaluated	
+						} else {
+						reportsToArray.push({
+							p:post._about,
+							r:counter_R
+						});	
+						counter_R++;
+						counter_Q++;
+						}
+						
+					} else if(typeof v.reportsTo != 'undefined'){
+						// Found api node
+						
+						v.reportsTo._about
+					}
+				});
+			*/	
+					
+		}
+																									
+		
+	} else {
+		// Not a post node
+	}		
+
+}
+	//resizePosts(global_govJSON);
+	
+	
+}
+
+
+
