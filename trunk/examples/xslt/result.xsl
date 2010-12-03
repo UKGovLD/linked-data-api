@@ -23,6 +23,7 @@
 	use="concat(name(../../../../../../../../..), '.', name(../../../../../../../..), '.', name(../../../../../../..), '.', name(../../../../../..), '.', name(../../../../..), '.', name(../../../..), '.', name(../../..), '.', name(../..), '.', name(..), '.', name(.))" />
 
 <xsl:key name="items" match="*[not(parent::result or self::item/parent::*[not(self::items)]/parent::result) and @href]" use="@href" />
+<xsl:key name="terms" match="termBinding/item" use="label" />
 
 <xsl:template match="/">
 	<xsl:apply-templates select="result" />
@@ -1398,7 +1399,7 @@
 <xsl:template match="*" mode="sortentry">
 	<xsl:param name="uri" />
 	<xsl:param name="current" />
-	<xsl:variable name="parentName" select="''" />
+	<xsl:param name="parentName" select="''" />
 	<xsl:variable name="propertyName">
 		<xsl:if test="$parentName != ''">
 			<xsl:value-of select="$parentName" />
@@ -1545,7 +1546,10 @@
 </xsl:template>
 
 <xsl:template match="format/item" mode="nav">
-	<a href="{@href}" type="{format/label}" rel="alternate" title="view in {name} format">
+	<xsl:variable name="name">
+		<xsl:apply-templates select="." mode="name" />
+	</xsl:variable>
+	<a href="{@href}" type="{format/label}" rel="alternate" title="view in {$name} format">
 		<xsl:value-of select="label" />
 	</a>
 </xsl:template>
@@ -1720,7 +1724,19 @@
 <xsl:template match="*" mode="caption">
 	<caption>
 		<xsl:apply-templates select=".." mode="link">
-			<xsl:with-param name="content"><xsl:value-of select="." /></xsl:with-param>
+			<xsl:with-param name="content">
+				<xsl:choose>
+					<xsl:when test="item">
+						<xsl:for-each select="item[not(. = preceding-sibling::item)]">
+							<xsl:value-of select="." />
+							<xsl:if test="position() != last()"> / </xsl:if>
+						</xsl:for-each>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:with-param>
 		</xsl:apply-templates>
 	</caption>
 </xsl:template>
@@ -1800,7 +1816,9 @@
 								<xsl:otherwise>2</xsl:otherwise>
 							</xsl:choose>
 						</xsl:attribute>
-						<xsl:apply-templates select="." mode="display" />
+						<xsl:apply-templates select="." mode="display">
+							<xsl:with-param name="nested" select="true()" />
+						</xsl:apply-templates>
 					</td>
 				</xsl:when>
 				<xsl:otherwise>
@@ -2106,10 +2124,14 @@
 </xsl:template>
 
 <xsl:template match="*" mode="display">
-	<xsl:apply-templates select="." mode="content" />
+	<xsl:param name="nested" select="false()" />
+	<xsl:apply-templates select="." mode="content">
+		<xsl:with-param name="nested" select="$nested" />
+	</xsl:apply-templates>
 </xsl:template>
 
 <xsl:template match="*[item]" mode="content" priority="4">
+	<xsl:param name="nested" select="false()" />
 	<xsl:variable name="isLabelParam">
 		<xsl:apply-templates select="." mode="isLabelParam" />
 	</xsl:variable>
@@ -2133,7 +2155,9 @@
 				<xsl:sort select="boolean(self::lat)" order="descending" />
 				<xsl:sort select="boolean(self::long)" order="descending" />
 				<xsl:sort select="@href" />
-				<xsl:apply-templates select="." mode="content" />
+				<xsl:apply-templates select="." mode="content">
+					<xsl:with-param name="nested" select="$nested" />
+				</xsl:apply-templates>
 			</xsl:for-each>
 		</xsl:when>
 		<xsl:otherwise>
@@ -2158,6 +2182,7 @@
 </xsl:template>
 
 <xsl:template match="*[*]" mode="content" priority="3">
+	<xsl:param name="nested" select="false()" />
 	<xsl:variable name="hasNonLabelProperties">
 		<xsl:apply-templates select="." mode="hasNonLabelProperties" />
 	</xsl:variable>
@@ -2165,7 +2190,7 @@
 		<xsl:apply-templates select="." mode="isHighestDescription" />
 	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="$hasNonLabelProperties = 'true' and $isHighestDescription = 'true'">
+		<xsl:when test="$nested or ($hasNonLabelProperties = 'true' and $isHighestDescription = 'true')">
 			<xsl:apply-templates select="." mode="table" />
 		</xsl:when>
 		<xsl:otherwise>
@@ -2179,16 +2204,17 @@
 </xsl:template>
 
 <xsl:template match="*[@href]" mode="content">
-	<xsl:apply-templates select="." mode="link">
-		<xsl:with-param name="content">
-			<xsl:value-of select="@href" />
-			<!--
-			<xsl:call-template name="lastURIpart">
-				<xsl:with-param name="uri" select="@href" />
-			</xsl:call-template>
-			-->
-		</xsl:with-param>
-	</xsl:apply-templates>
+	<xsl:param name="nested" select="false()" />
+	<xsl:choose>
+		<xsl:when test="$nested">
+			<xsl:apply-templates select="." mode="table" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="." mode="link">
+				<xsl:with-param name="content" select="@href" />
+			</xsl:apply-templates>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="*" mode="content">
