@@ -2851,9 +2851,16 @@
 			<xsl:value-of select="substring-after($uri, '#')" />
 		</xsl:when>
 		<xsl:when test="contains($uri, '/')">
-			<xsl:call-template name="lastURIpart">
-				<xsl:with-param name="uri" select="substring-after($uri, '/')" />
-			</xsl:call-template>
+			<xsl:choose>
+				<xsl:when test="substring-after($uri, '/') = ''">
+					<xsl:value-of select="substring-before($uri, '/')" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="lastURIpart">
+						<xsl:with-param name="uri" select="substring-after($uri, '/')" />
+					</xsl:call-template>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:value-of select="$uri" />
