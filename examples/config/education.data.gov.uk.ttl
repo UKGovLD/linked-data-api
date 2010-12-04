@@ -1,4 +1,4 @@
-@prefix spec: <http://services.data.gov.uk/education/api#> .
+@prefix spec: <http://education.data.gov.uk/api-config#> .
 @prefix api:     <http://purl.org/linked-data/api/vocab#> .
 @prefix census-geo:  <http://statistics.gov.data.uk/def/census-geography/> .
 @prefix dc:      <http://purl.org/dc/elements/1.1/> .
@@ -52,12 +52,12 @@ spec:viewerLocation
   api:name "location" ;
   api:properties "label,uniqueReferenceNumber,establishmentNumber,typeOfEstablishment.label,phaseOfEducation.label,gender.label,religiousCharacter.label,address.address1,address.address2,address.address3,address.town,address.region,address.postcode,lat,long,easting,northing,censusAreaStatisticWard.label,districtAdministrative.label,localAuthority.label,LSOA.label,MSOA.label,LLSC.label,parliamentaryConstituency.label,administrativeWard.label,urbanRural.label,hasGOR.label" .
 
-api:viewerPerformance
+spec:viewerPerformance
   a api:Viewer ;
   api:name "performance" ;
   api:properties "label,uniqueReferenceNumber,establishmentNumber,typeOfEstablishment.label,phaseOfEducation.label,gender.label,religiousCharacter.label,address.address1,address.address2,address.address3,address.town,address.region,address.postcode,inspectorate.label,dateofLastOfstedVisit,dateofLastISIVisit,dateofLastFPVisit,nextHMIorISIvisit,actionFP,actionGEN,ofstedSpecialMeasures" .
   
-api:viewerAdmin
+spec:viewerAdmin
   a api:Viewer ;
   api:name "admin" ;
   api:properties "label,uniqueReferenceNumber,establishmentNumber,typeOfEstablishment.label,phaseOfEducation.label,gender.label,religiousCharacter.label,address.address1,address.address2,address.address3,address.town,address.region,address.postcode,superannuationCategory.label,investorInPeople.label,association.label,burnhamGroup,accomChange,reasonEstablishmentOpened.label" .
@@ -82,6 +82,7 @@ spec:api
 	api:maxPageSize "50";
 	api:defaultPageSize "10" ;
 	api:sparqlEndpoint <http://services.data.gov.uk/education/sparql> ;
+#	api:sparqlEndpoint <http://gov.tso.co.uk/education/sparql> ;
 	api:defaultViewer api:labelledDescribeViewer ;
   api:defaultFormatter spec:HtmlFormatter ;
 	api:viewer 
