@@ -182,6 +182,7 @@ nav.topnav section.summary li {
 	display: block;
 	white-space: normal;
 	overflow: hidden;
+	text-overflow: ellipsis;
 	height: 1.188em;
 }
 
@@ -345,7 +346,7 @@ section#search td {
 	z-index: 5000;
 }
 
-section#search button, #openSearch {
+button, #openSearch {
 	background-image: url(/images/gradient_nav_item.png);
 	background-color: #577D00;
 	border-color: #577D00;
@@ -355,7 +356,7 @@ section#search button, #openSearch {
 	-moz-border-radius: 5px;
 }
 
-section#search button {
+button {
 	font-size: 1em;
 	border-style: none;
 	padding: 3px 8px;
@@ -373,16 +374,66 @@ footer, nav.bottomnav {
 
 footer {
 	font-size: 0.923em;
-	padding: 0 30px;
 }
 
-footer nav {
-	margin: 1.5em 0 0.5em;
+footer .provenance {
+ 	background: url("/images/gradient_footer.png") repeat-x scroll 0 bottom #EAEAEA;
+  color: #666666;
+  margin-top: 30px;
+	padding: 30px 30px 20px;
+	position: relative;
+}
+
+footer .provenance .query {
+	padding: 0 10px;
+	width: 45%;
+}
+
+footer .provenance .col2 {
+	position: absolute;
+	right: 30px;
+	top: 30px;
+}
+
+footer h2 {
+ 	border-color: #626165;
+  border-style: solid;
+  border-width: 3px 0 1px;
+  color: #333333;
+  margin-bottom: 15px;
+  padding: 8px 0;
+}
+
+footer .provenance p {
+	padding: 0 0 8px;
+	text-align: left;
+	border-bottom: 1px solid #626165;
+	margin-bottom: 15px;
+}
+
+footer .provenance textarea {
+	height: 300px;
+	width: 100%;
+	background-color: white;
+	padding: 5px 0 0 5px;
+	border: 1px solid #D3D3D3;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	font-family: Monaco, Consolas, "Lucida Console", monospace;
+	font-size: 0.8em;
+}
+
+footer .provenance form p {
+	border-bottom: none;
+	text-align: right;
+	margin-top: 15px;
+	margin-bottom: 0;
+	padding-bottom: 0;
 }
 
 footer p {
 	margin: 0.5em 0;
-	padding-bottom: 1em;
+	padding: 30px 30px 1em;
 	text-align: right;
 }
 

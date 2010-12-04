@@ -93,9 +93,9 @@
 	<script type="text/javascript" src="/scripts/jquery.min.js"></script>
 	<script type="text/javascript" src="/scripts/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="/scripts/jquery.sparkline.js"></script>
+	<script type="text/javascript" src="/scripts/codemirror/codemirror.js"></script>
 	<script type="text/javascript">
 		$(function() {
-		
 			$('.info img')
 				.toggle(function () {
 					$(this)
@@ -123,6 +123,21 @@
 				}, function () {
 					$(this).text('Show Search Form');
 					$('#search').slideUp('slow');
+				});
+			
+			$('.provenance textarea')
+				.each(function () {
+					var skipLines = parseFloat($(this).attr('data-skip-lines'), 10);
+					var lineHeight = parseFloat($(this).css('line-height'), 10);
+					$(this).scrollTop(skipLines * lineHeight);
+					var cm = CodeMirror.fromTextArea(this, {
+						basefiles: ["/scripts/codemirror/codemirror_base_sparql.js"],
+						stylesheet: "/css/sparql.css",
+						textWrapping: false
+					});
+					$(cm.frame).load(function () {
+						cm.jumpToLine(skipLines + 1);
+					});
 				});
 			
 			<xsl:if test="$showMap = 'true'">
@@ -243,11 +258,126 @@
 
 <xsl:template match="result" mode="footer">
 	<footer>
+		<xsl:apply-templates select="wasResultOf" mode="footer" />
 		<p>
-			<xsl:text>Powered by a </xsl:text><a href="http://code.google.com/p/linked-data-api">Linked Data API</a><br />
+			<xsl:text>Powered by </xsl:text>
+			<xsl:apply-templates select="wasResultOf/processor" mode="footer" />
+			<xsl:text>an implementation of the </xsl:text>
+			<a href="http://code.google.com/p/linked-data-api">Linked Data API</a><br />
 			<a href="http://www.axialis.com/free/icons">Icons</a> by <a href="http://www.axialis.com">Axialis Team</a>
 		</p>
 	</footer>
+</xsl:template>
+
+<xsl:template match="wasResultOf" mode="footer">
+	<div class="provenance">
+		<xsl:apply-templates select="selectionResult" mode="footer" />
+		<xsl:apply-templates select="viewingResult" mode="footer" />
+	</div>
+</xsl:template>
+
+<xsl:template match="viewingResult | selectionResult" mode="footer">
+	<div class="query col{position()}">
+		<xsl:attribute name="class">
+			<xsl:text> query col</xsl:text>
+			<xsl:choose>
+				<xsl:when test="self::viewingResult[../selectionResult]">2</xsl:when>
+				<xsl:otherwise>1</xsl:otherwise>
+			</xsl:choose>
+		</xsl:attribute>
+		<h2>
+			<xsl:choose>
+				<xsl:when test="self::viewingResult">Viewer</xsl:when>
+				<xsl:otherwise>Selection</xsl:otherwise>
+			</xsl:choose>
+		</h2>
+		<p>
+			<xsl:text>This is the SPARQL query that was generated to </xsl:text>
+			<xsl:choose>
+				<xsl:when test="self::viewingResult">
+					<xsl:text>pull together the data that is provided about</xsl:text>
+					<xsl:choose>
+						<xsl:when test="/result/items"> each item.</xsl:when>
+						<xsl:otherwise> the selected item.</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
+				<xsl:otherwise>identify the items to be shown in the page.</xsl:otherwise>
+			</xsl:choose>
+		</p>
+		<form action="{endpoint/url/@href}" method="post">
+			<xsl:apply-templates select="query" mode="footer" />
+			<p>
+				<button type="submit">Run Query</button>
+			</p>
+		</form>
+	</div>
+</xsl:template>
+
+<xsl:template match="query" mode="footer">
+	<textarea name="query" wrap="off">
+		<xsl:attribute name="data-skip-lines">
+			<xsl:apply-templates select="." mode="skipLines" />
+		</xsl:attribute>
+		<xsl:value-of select="value" />
+	</textarea>
+</xsl:template>
+
+<xsl:template match="query" mode="skipLines">
+	<xsl:param name="query" select="translate(value, $uppercase, $lowercase)" />
+	<xsl:param name="count" select="0" />
+	<xsl:variable name="firstLine" select="substring-before($query, '&#xA;')" />
+	<xsl:choose>
+		<xsl:when test="starts-with($firstLine, 'prefix ') or normalize-space($firstLine) = ''">
+			<xsl:apply-templates select="." mode="skipLines">
+				<xsl:with-param name="query" select="substring-after($query, '&#xA;')" />
+				<xsl:with-param name="count" select="$count + 1" />
+			</xsl:apply-templates>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="$count" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="processor" mode="footer">
+	<xsl:variable name="project" select="software/releaseOf" />
+	<xsl:variable name="softwareLink">
+		<xsl:choose>
+			<xsl:when test="$project/@href">
+				<xsl:value-of select="$project/@href" />
+			</xsl:when>
+			<xsl:when test="$project/homepage/@href">
+				<xsl:value-of select="$project/homepage/@href" />
+			</xsl:when>
+		</xsl:choose>
+	</xsl:variable>
+	<xsl:variable name="softwareLabel">
+		<xsl:choose>
+			<xsl:when test="software/label">
+				<xsl:value-of select="software/label" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$project/label" />
+				<xsl:apply-templates select="software/revision" mode="footer" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="normalize-space($softwareLink) = ''">
+			<xsl:copy-of select="$softwareLabel" />
+		</xsl:when>
+		<xsl:otherwise>
+			<a href="{$softwareLink}">
+				<xsl:value-of select="$softwareLabel" />
+			</a>
+		</xsl:otherwise>
+	</xsl:choose>
+	<xsl:text>, </xsl:text>
+</xsl:template>
+
+<xsl:template match="software/revision" mode="footer">
+	<xsl:text> v</xsl:text>
+	<xsl:value-of select="." />
 </xsl:template>
 
 <xsl:template match="result" mode="formats">
@@ -1035,6 +1165,7 @@
 </xsl:template>
 
 <xsl:template match="primaryTopicOf" mode="propertiesentry" />
+<xsl:template match="wasResultOf" mode="propertiesentry" />
 
 <xsl:template match="*" mode="propertiesentry">
 	<xsl:param name="properties" />
@@ -1757,6 +1888,7 @@
 </xsl:template>
 
 <xsl:template match="primaryTopicOf[@href = /result/@href or (count(item) = 1 and item/@href = /result/@href)]" mode="row" />
+<xsl:template match="wasResultOf" mode="row" />
 
 <xsl:template match="*" mode="row">
 	<xsl:param name="showMap" />
@@ -1785,7 +1917,11 @@
 					</xsl:apply-templates>
 				</td>
 			</xsl:if>
-			<th class="label"><xsl:apply-templates select="." mode="label" /></th>
+			<th class="label">
+				<xsl:apply-templates select="." mode="label">
+					<xsl:with-param name="addLink" select="true()" />
+				</xsl:apply-templates>
+			</th>
 			<xsl:choose>
 				<xsl:when test="self::easting and $showMap = 'true'">
 					<td class="value">
@@ -1867,14 +2003,29 @@
 
 <xsl:template match="*" mode="label">
 	<xsl:param name="label" select="local-name(.)" />
+	<xsl:param name="addLink" select="false()" />
+	<xsl:variable name="text">
+		<xsl:choose>
+			<xsl:when test="translate($label, $uppercase, '') = ''">
+				<xsl:value-of select="$label" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="splitOnCapital">
+					<xsl:with-param name="string" select="$label" />
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<xsl:variable name="binding" select="key('terms', $label)" />
 	<xsl:choose>
-		<xsl:when test="translate($label, $uppercase, '') = ''">
-			<xsl:value-of select="$label" />
+		<xsl:when test="$addLink and $binding">
+			<xsl:variable name="propertyUri" select="$binding/property/@href" />
+			<a href="{$propertyUri}">
+				<xsl:copy-of select="$text" />
+			</a>
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:call-template name="splitOnCapital">
-				<xsl:with-param name="string" select="$label" />
-			</xsl:call-template>
+			<xsl:copy-of select="$text" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
