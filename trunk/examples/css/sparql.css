@@ -1,12 +1,10 @@
 html {
   cursor: text;
+  padding-top: 5px;
 }
 
 .editbox {
 	background-color: white;
-	border: 1px solid #D3D3D3;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
 	font-family: Monaco, Consolas, "Lucida Console", monospace;
 	font-size: 0.7em;
 	margin-bottom: 15px;

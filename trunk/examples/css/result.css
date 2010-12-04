@@ -352,6 +352,7 @@ button, #openSearch {
 	border-color: #577D00;
 	color: white;
 	cursor: pointer;
+	font-family: Lucida Grande, sans-serif;
 	border-radius: 5px;
 	-moz-border-radius: 5px;
 }
@@ -380,13 +381,13 @@ footer .provenance {
  	background: url("/images/gradient_footer.png") repeat-x scroll 0 bottom #EAEAEA;
   color: #666666;
   margin-top: 30px;
-	padding: 30px 30px 20px;
+	padding: 30px;
 	position: relative;
 }
 
 footer .provenance .query {
 	padding: 0 10px;
-	width: 45%;
+	width: 410px;
 }
 
 footer .provenance .col2 {
@@ -421,6 +422,12 @@ footer .provenance textarea {
 	-moz-border-radius: 5px;
 	font-family: Monaco, Consolas, "Lucida Console", monospace;
 	font-size: 0.8em;
+}
+
+.CodeMirror-wrapper {
+	border: 1px solid #D3D3D3;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 
 footer .provenance form p {

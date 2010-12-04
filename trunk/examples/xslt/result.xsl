@@ -137,6 +137,10 @@
 					});
 					$(cm.frame).load(function () {
 						cm.jumpToLine(skipLines + 1);
+						$(cm.frame)
+							.css('border', 	'1px solid #D3D3D3')
+							.css('border-radius', '5px')
+							.css('-moz-border-radius', '5px');
 					});
 				});
 			
@@ -303,6 +307,9 @@
 				</xsl:when>
 				<xsl:otherwise>identify the items to be shown in the page.</xsl:otherwise>
 			</xsl:choose>
+			<xsl:text> You can modify it here and re-run the query but you may find more options at the </xsl:text>
+			<a href="endpoint/url/@href">endpoint's page</a>
+			<xsl:text>.</xsl:text>
 		</p>
 		<form action="{endpoint/url/@href}" method="post">
 			<xsl:apply-templates select="query" mode="footer" />
