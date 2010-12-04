@@ -93,7 +93,7 @@
 	<script type="text/javascript" src="/scripts/jquery.min.js"></script>
 	<script type="text/javascript" src="/scripts/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="/scripts/jquery.sparkline.js"></script>
-	<script type="text/javascript" src="/scripts/codemirror/codemirror.js"></script>
+	<script type="text/javascript" src="/scripts/codemirror/codemirror_min.js"></script>
 	<script type="text/javascript">
 		$(function() {
 			$('.info img')
