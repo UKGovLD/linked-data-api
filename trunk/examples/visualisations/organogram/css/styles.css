@@ -22,7 +22,6 @@ left:0;
 margin:0;
 min-height:30px;
 padding-left:10px;
-/*padding-top:5px;*/
 position:fixed;
 text-align:left;
 width:100%;
@@ -30,9 +29,6 @@ overflow:hidden;
 z-index:9999;
 }
 h1.title span {
-/*font-size:12px;
-padding:11px;
-display:none;*/
 display:inline-block;
 font-size:12px;
 height:30px;
@@ -142,33 +138,57 @@ div#right {
 -moz-box-shadow:0px 25px 25px #888888;
 -webkit-box-shadow:0px 25px 25px #888888;
 box-shadow:0px 25px 25px #888888;
-background:none repeat scroll 0 0 #333333;
+-moz-box-shadow:0 25px 25px #888888;
+background-color:#333333;
 border-left:1px solid #EEEEEE;
-bottom:0;
-color:white;
-display:block;
+color:#FFFFFF;
+font-size:10px;
 height:100%;
-margin:0;
-padding:0;
 position:fixed;
 right:0;
 top:30px;
 width:100px;
-z-index:99999;
+z-index: 99999;
 }
 div#right ul {
 margin:0;
 padding:0;
-list-style-type:none;
+list-style-type: none;
 }
 div#right ul li {
-background-color:#555555;
-margin-bottom:1px;
+background:none repeat scroll 0 0 #555555;
+margin:auto auto 1px;
+width:70px;
+}
+div#right ul li#orientation span {
+display:block;
 padding-bottom:5px;
 }
+div#right ul li a {
+background:none repeat scroll 0 0 #555555;
+cursor:pointer;
+text-decoration: none;
+color:#FFFFFF;
+display:block;
+width:100%;
+height:100%;
+padding-bottom:5px;
+padding-top:5px;
+}
+div#right ul li a:hover {
+background:none repeat scroll 0 0 #FFFFFF;
+color:#333333 !important;
+}
 div#right ul li p {
+text-decoration:none;
 margin:0;
-padding:5px 0;
+padding-bottom:5px;
+padding-top:5px;
+font-size:10px;
+}
+div#right select {
+margin-top:5px;
+display:inline-block !important;
 }
 div#formats {
 display:none;
@@ -245,9 +265,9 @@ overflow-x:hidden;
 overflow-y:auto;
 padding:25px 20px;
 position:fixed;
-right:125px;
+right:115px;
 text-align:left;
-width:250px;
+width:300px;
 z-index:9999;
 }
 a.close {
@@ -458,7 +478,7 @@ padding-top:10px;
 #infobox p.type {
 text-transform: capitalize;
 }
-#infobox p.salary {
+#infobox p.salaryReports {
 
 }
 #infobox p.reportsTo {
@@ -642,33 +662,31 @@ margin-bottom:5px;
 margin-left:-5px;
 padding:1px 1px 1px 5px;
 }
-p.grade span {
+div.panel div.content p.grade span {
 display:inline-block !important;
 }
-p.grade span.g {
+div.panel div.content p.grade span.g {
 border:1px solid #999999;
 font-family:Arial;
 font-weight:normal !important;
 padding:2px 3px;
 text-align:center;
 }
-p.grade span.G3 {
+div.panel div.content p.grade span.G3 {
 background-color:#C2FFC1;
 }
-p.grade span.G5 {
+div.panel div.content p.grade span.G5 {
 background-color:#C1D5FF;
 }
-p.grade span.SCS {
+div.panel div.content p.grade span.SCS {
 background-color:#FFC1C1;
 }
-div.statistics {
-display:none;
-}
-div.statistics div.content p a {
+
+div.panel div.content p.salaryReports a {
 font-family:serif;
 letter-spacing:1px;
 }
-div.statistics div.content p span.date {
+div.panel div.content p span.date {
 background:none;
 border:none;
 display:inline;
@@ -1078,4 +1096,38 @@ margin:0 0 19px !important;
 float:right !important;
 margin:-42px 15px 0 0 !important;
 width:auto !important;
+}
+div.tip {
+-moz-box-shadow:0 5px 24px #888888;
+-webkit-box-shadow:0 5px 24px #888888;
+box-shadow:0 5px 24px #888888;
+-webkit-border-radius:10px 10px 10px 10px;
+-moz-border-radius:10px 10px 10px 10px;
+border-radius:10px 10px 10px 10px;
+background-color:#FFFFFF;
+border:10px solid #DDDDDD;
+color:#333333;
+display:none;
+font-size:12px;
+font-weight:normal;
+height:auto;
+opacity:1;
+overflow-x:hidden;
+overflow-y:auto;
+padding:15px 10px;
+position:fixed;
+right:120px;
+text-align:justify;
+top:50px;
+width:400px;
+z-index:9999 !important;
+}
+div.panel div.content img.salaryReports {
+    border: medium none;
+    display: inline;
+    float: right;
+    margin-right: 5px;
+    margin-top: 1px;
+    padding: 0;
+    width: auto;
 }
