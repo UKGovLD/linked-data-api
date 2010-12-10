@@ -64,6 +64,7 @@ spec:api
 	  spec:postInDepartmentImmediateReports ,
 	  spec:postInDepartmentReports ,
 	  spec:postInDepartmentReportsReverse ,
+	  spec:postInDepartmentReportsFull ,	  
 	  spec:postInDepartmentStatistics ,
 	  spec:postsInDepartmentUnit ,
 	  spec:ministers ,
@@ -526,6 +527,23 @@ spec:postInDepartmentReportsReverse
   api:defaultViewer spec:postListViewer ;
   .
 
+spec:postInDepartmentReportsFull
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Department Reports" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/reportsFull" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item org:reportsTo ?postResource . } UNION { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  { ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION { ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] } UNION { ?postResource org:reportsTo ?item . } UNION  { ?postResource org:reportsTo [org:reportsTo ?item ] } UNION { ?postResource org:reportsTo [ org:reportsTo [org:reportsTo ?item ] ] } UNION { ?postResource org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?item ] ] ] } UNION { ?postResource org:reportsTo ?superior . ?item org:reportsTo ?superior . }" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+  
 spec:postsInDepartmentUnit
   a api:ListEndpoint ;
   api:uriTemplate "/doc/department/{dept}/unit/{unit}/post" ;
