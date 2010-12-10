@@ -9,9 +9,15 @@ $(document).ready(function() {
 	$("a.close").click(function(){
 		$(this).parent().fadeOut();
 	});		
-	
-	$("input[name='deputies']").val("top");
+
+	$("div#right ul li").hover(function() {
+		$(this).children().filter("div").show();
+	},function() {
+		$(this).children().filter("div").hide();		
+	});
 		
+	$("input[name='orientation']").filter("[value='top']").attr("checked","checked");
+
 	$("input[name='orientation']").change(function(){
 		if($(this).val() == "top") {
 			global_ST.canvas.opt.orientation = "top";

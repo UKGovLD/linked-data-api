@@ -211,11 +211,7 @@ function init(deptSlug,postSlug){
 				$("div#"+node.id).css("border","2px solid #333333");		
 
 				$("#infobox").fadeOut('fast', function() {
-					$("#infobox").html(loadPersonInfo(node));
-					setInfoBoxLinks();
-					$("#infobox").fadeIn();
-					$("div.heldBy").show();
-					$("div.heldBy div.expander a").eq(0).click(); 
+					loadPersonInfo(node);
 				});
 
 			};  
@@ -308,6 +304,7 @@ function loadPost(deptSlug,postSlug) {
 					})
 				});			
 				//cl(firstNode);
+				
 				
 				// Make a second API call to retrieve information about the posts that report to the root post
 				api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reports";
@@ -681,7 +678,9 @@ function makeNode(item) {
 					foafMbox:"",
 					holdsPostURI:"",
 					reportsToPostURI:[],
-					comment:""
+					comment:"",
+					salaryCostOfReports:-1,
+					salaryCostOfReportsDate:""
 			};
 			
 			if(typeof item.heldBy[a].name != 'undefined'){person.foafName = item.heldBy[a].name;}
@@ -749,139 +748,181 @@ function makePersonNode(heldByItem) {
 
 
 function loadPersonInfo(node){
-
-	var html = '<h1>'+node.name+'</h1>';
-	
-	// people = panel
-	// heldBy = expander
-	// personInfo = content
-	
-	// Statistics panel
-	html += '<div class="panel statistics">';
-	html += '<div class="expander"><a class="name">Statistics</a><div class="content"><p><!-- statisitics go here--></p></div><div class="clear"><!-- --></div></div></div>';
-	
-	// Held By panel
-	html += '<div class="panel heldBy">';
-	html += '<h3>Held By :</h3>';
-
-	for(var i=0; i<node.data.heldBy.length; i++) {
-		html += '<div class="expander">';
-		
-		if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
-			html += '<a class="name">'+node.data.heldBy[i].foafName+'<span>+</span></a>';
-		}else {
-			html += '<a class="name">?<span>+</span></a>';		
-		}
-
-		html += '<div class="content">';
-		
-		if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
-			html+='<p class="comment"><span>Comment</span>'+node.data.heldBy[i].comment+'</p>';
-		}
-
-
-		if(typeof node.data.heldBy[i].foafPhone != 'undefined' && node.data.heldBy[i].foafPhone != ''){
-			html += '<p class="tel"><span>Phone</span>'+node.data.heldBy[i].foafPhone+'</p>';
-		}
-
-		if(typeof node.data.heldBy[i].foafMbox != 'undefined' && node.data.heldBy[i].foafMbox != ''){
-			html += '<p class="email"><span>Email</span> '+node.data.heldBy[i].foafMbox+'</p>';
-		}
-
-		if(typeof node.data.grade != 'undefined'){
-			for(var a=0;a<node.data.grade.length;a++){
-				html += '<p class="grade"><span>Grade</span> <span class="g '+node.data.grade[a]+'">'+node.data.grade[a]+'</span></p>';
-			}
-		}	
-
-		if(typeof node.data.type != 'undefined'){
-			for(var a=0;a<node.data.type.length;a++){
-				html += '<p class="type"><span>Type</span>'+node.data.type[a]+'</p>';
-			}
-		}
-		
-		var tempID = node.data.heldBy[i].holdsPostURI.split("/");
-		tempID = tempID[tempID.length-1];
-		
-		html+= '<p class="id"><span>Post ID</span><a target="_blank" href="http://reference.data.gov.uk/doc/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a></p>';
-		
-		html+= '<p class="unit"><span>Unit(s)</span>';
-		
-		for(var j=0;j<node.data.postIn.length;j++){
-			if(node.data.postIn[j]._about.indexOf("/unit/") >= 0){
-				var tempUnitID = node.data.postIn[j]._about.split("/");
-				tempUnitID = tempUnitID[tempUnitID.length-1];
-				html+= '<a target="_blank" href="http://reference.data.gov.uk/doc/department/'+global_department+'/unit/'+tempUnitID+'">'+node.data.postIn[j].label[0]+'</a>';
-			}
-		}
-		
-		html+= '</p>';
-		
-		html+= '<span class="external_posts_title">External reporting posts:</span>';
-		html+= '<ul class="external_posts"></ul>';
-
-		html += '</div>';
-		html += '<div class="clear"><!-- --></div>';
-		html += '</div>';
-
-	}
-
+			
 	var postID = node.data.uri.split("/");
 	postID=postID[postID.length-1];
+	var postUnit;
+	var tempUnitID;
+	var tempUnitLabel;
 	
-	// Make an API call to retrieve information about the root post
-	var api_url = "http://reference.data.gov.uk/doc/department/"+global_department+"/post/"+postID+"/statistics";
+	for(var j=0;j<node.data.postIn.length;j++){
+		if(node.data.postIn[j]._about.indexOf("/unit/") >= 0){
+			tempUnitID = node.data.postIn[j]._about.split("/");
+			tempUnitID = tempUnitID[tempUnitID.length-1];
+			tempUnitLabel = node.data.postIn[j].label[0];
+			postUnit = node.data.postIn[j]._about;
+		}
+	}
 
-	// Call API for post statistics	
-	$.ajax({
-		url: api_url+".json"+"?callback=?",
-		type: "GET",
-		dataType: "jsonp",
-		async:true,
-		success: function(json){
-			if(typeof json.result.items[0].date != 'undefined' && typeof json.result.items[0].salaryCostOfReports != 'undefined'){
-				var date = json.result.items[0].date.split("/");
-				date = '['+date[date.length-1]+']';
+			
+			// Construct the HTML for the infobox
+			var html = '<h1>'+node.name+'</h1>';			
+			html += '<div class="panel heldBy">';
+			html += '<h3>Held By :</h3>';
+		
+			for(var i=0; i<node.data.heldBy.length; i++) {
+				html += '<div class="expander">';
 				
-				$("div.statistics div.expander div.content p").html('<span>Combined salary of reporting posts</span><a href="'+api_url+'" target="_blank">£'+json.result.items[0].salaryCostOfReports+'</a> <span class="date">'+date+'</span>');
+				if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
+					html += '<a class="name">'+node.data.heldBy[i].foafName+'<span>+</span></a>';
+				}else {
+					html += '<a class="name">?<span>+</span></a>';		
+				}
+		
+				html += '<div class="content">';
 				
-				$('div.statistics').show();
-				$('div.statistics div.content').slideDown();
-				
-				// Description of API call
-				for(var x=0;x<api_call_info.length;x++){
-					if(api_call_info[x].title == "Retrieval of post's statistics data"){
-						api_call_info.splice(x,1);
+				if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
+					html+='<p class="comment"><span>Comment</span>'+node.data.heldBy[i].comment+'</p>';
+				}
+		
+		
+				if(typeof node.data.heldBy[i].foafPhone != 'undefined' && node.data.heldBy[i].foafPhone != ''){
+					html += '<p class="tel"><span>Phone</span>'+node.data.heldBy[i].foafPhone+'</p>';
+				}
+		
+				if(typeof node.data.heldBy[i].foafMbox != 'undefined' && node.data.heldBy[i].foafMbox != ''){
+					html += '<p class="email"><span>Email</span> '+node.data.heldBy[i].foafMbox+'</p>';
+				}
+					
+				if(typeof node.data.grade != 'undefined'){
+					for(var a=0;a<node.data.grade.length;a++){
+						html += '<p class="grade"><span>Grade</span> <span class="g '+node.data.grade[a]+'">'+node.data.grade[a]+'</span></p>';
+					}
+				}	
+								
+				html += '<p class="salaryReports"><span>Combined salary of reporting posts </span>Checking...<img class="salaryReports" width="14" height="14" src="images/loading.gif"></p>';
+					
+				if(typeof node.data.type != 'undefined'){
+					for(var a=0;a<node.data.type.length;a++){
+						html += '<p class="type"><span>Type</span>'+node.data.type[a]+'</p>';
 					}
 				}
 				
-				api_call_info.push({
-					title:"Retrieval of post's statistics data",
-					description:"Retrieves stasitics such as the total salary figure for posts, specifically reporting to the \""+node.name+"\"",
-					url:api_url,
-					parameters:""
-				});			
-						
-				displayDataSources();
+				var tempID = node.data.heldBy[i].holdsPostURI.split("/");
+				tempID = tempID[tempID.length-1];
 				
-			} else {
-				for(var y=0;y<api_call_info.length;y++){
-					if(api_call_info[y].title == "Retrieval of post's statistics data"){
-						api_call_info.splice(y,1);
-					}
-				}		
-						
-			}
-			
-		}
-	});
-	
-	html+= '</div><!-- end people -->';
-	html+= '<a class="close">x</a>';
+				html+= '<p class="id"><span>Post ID</span><a target="_blank" href="http://reference.data.gov.uk/id/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a></p>';
+				
+				html+= '<p class="unit"><span>Unit(s)</span>';
+				
+				html+= '<a target="_blank" href="http://reference.data.gov.uk/id/department/'+global_department+'/unit/'+tempUnitID+'">'+tempUnitLabel+'</a>';
+				
+				html+= '</p>';
+				
+				html+= '<span class="external_posts_title">External reporting posts:</span>';
+				html+= '<ul class="external_posts"></ul>';
 		
-	return html;
-}
+				html += '</div>';
+				html += '<div class="clear"><!-- --></div>';
+				html += '</div>';
+				
+				} // end for loop
+				
+				html+= '</div><!-- end people -->';
+				html+= '<a class="close">x</a>';
+				
+				$("#infobox").html(html);
+				setInfoBoxLinks();
+				$("#infobox").fadeIn();
+				$("div.heldBy").show();
+				$("div.heldBy div.expander a").eq(0).click(); 
+				
+				displaySalaryReports(node,postUnit);
+	
+} // end loadPersonInfo
 
+var test;
+
+function displaySalaryReports(node,postUnit) {
+
+	postUnit = postUnit.split("/");
+	postUnit = postUnit[postUnit.length-1];
+	var postLabel = node.name.toString().replace(/ /g,"+");
+
+	// Make an API call to retrieve information about the root post
+	//var api_url = "http://reference.data.gov.uk/doc/department/"+global_department+"/post/"+postID+"/statistics";
+	var api_url = "http://reference.data.gov.uk/doc/department/"+global_department+"/unit/"+postUnit+"/statistics";
+
+	// Call API for post statistics	
+	$.ajax({
+		url: api_url+".json?aboutPost.label="+postLabel+"&callback=?",
+		type: "GET",
+		dataType: "jsonp",
+		async:false,
+		success: function(json){
+		
+			// Check to see if posts have statistics
+			if(json.result.items.length > 0) {
+					var stats = json.result.items;
+					for(var w=0;w<stats.length;w++){
+						for(var v=0;v<node.data.heldBy.length; v++) {
+							if(stats[w].aboutPost._about == node.data.heldBy[v].holdsPostURI){
+								node.data.heldBy[v].salaryCostOfReports = stats[w].salaryCostOfReports;
+								var date = stats[w].date.split("/");
+	                            date = '['+date[date.length-1]+']';
+								node.data.heldBy[v].salaryCostOfReportsDate = date;
+								if(node.data.heldBy[v].salaryCostOfReports > -1){							
+									$("div.expander div.content").each(function(){
+										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI.toString()) {
+											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">£'+node.data.heldBy[v].salaryCostOfReports+'</a> <span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
+										}
+									});					
+								} else {
+									$("div.expander div.content").each(function(){
+										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI) {
+											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span>N/A');
+										}
+									});								
+								}									
+							}
+						}
+					}
+					
+					// Description of API call
+					for(var x=0;x<api_call_info.length;x++){
+						if(api_call_info[x].title == "Retrieval of post's statistics data"){
+							api_call_info.splice(x,1);
+						}
+					}
+					
+					api_call_info.push({
+						title:"Retrieval of post's statistics data",
+						description:"Retrieves stasitics such as the total salary figure for posts, specifically reporting to: \""+node.name+"\"",
+						url:api_url,
+						parameters:'?aboutPost.label='+postLabel
+					});			
+							
+					displayDataSources();
+							
+			} else {
+					for(var y=0;y<api_call_info.length;y++){
+						if(api_call_info[y].title == "Retrieval of post's statistics data"){
+							api_call_info.splice(y,1);
+						}
+					}			
+					for(var v=0;v<node.data.heldBy.length; v++) {					
+						$("div.expander div.content").each(function(){
+							if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI) {
+								$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span>N/A');
+							}
+						});	
+					}
+			}			
+		} // end success
+	}); // end ajax call
+
+	return false;
+}
 
 
 function displayDataSources() {

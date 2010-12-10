@@ -29,13 +29,28 @@
 <li><a href="#">About</a>
 
 <div class="tip">
-<p>Navigate your way down into the government structure by exploring departments, their units and the posts within those units.</p>
-<p>The departments can be sized by either the number of units they have or by the total number of posts in each of their units and the posts are sized by the number of other posts that report to them.</p>
-<p>Clicking on a post will load it's organogram where more information can be found for that post and the posts that report to it.</p>
+	<p><strong>About: </strong></p>
+	
+	<p>This is a "treemap" visualisation of the UK Government's departmental structure - using data provided by data.gov.uk. (Note: as more data is uploaded and made available, this visualisation will change automatically as it accesses data in real-time).</p>
+	
+	<p>The visualisation lets you drill down from the top-level of the government structure (departments), into their units and finally through to the lowest-level (posts).</p>
+	
+	<p>When clicking on a post, an &quot;organogram&quot; visualisation will load, where you can see more information about who reports to who, their responsibilities and statistics such as salary totals.</p>
+	
+	<p>At any point, the raw data can be accessed by clicking on the "Data Sources" links in the bottom-right corner. Each data source link contains information about what data has been accessed, how it has been accessed and where you can get it yourself - it's open data after all!</p>
+	
+	<p>Updates to follow such as  features to come (including more types of data to link to as it uses Linked Data).</p>
+	
+	<p>Created by Dan Paul Smith.</p>
 </div>
 </li>
 <li><a href="#">Controls</a>
-<div class="tip"><p>Left-click: Zoom in</p><p>Right-click: Zoom out</p><p>Alternatively, you can zoom out by clicking the breadcrumb links in the top-left of the visualisation.</p></div>
+<div class="tip">
+	<p><strong>Controls: </strong></p>
+	<p>Left-click: Zoom in</p>
+	<p>Right-click: Zoom out</p>
+	<p>Alternatively, you can zoom out by clicking the breadcrumb links in the top-left of the visualisation.</p>
+</div>
 </li>
 
 <!-- li id="levelsToggle"><p>Levels to show:</p>
