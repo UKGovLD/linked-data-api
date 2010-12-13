@@ -93,6 +93,12 @@ t:HtmlFormatter
   api:mimeType "text/html" , "application/xhtml+xml" ;
   api:stylesheet "xslt/transport.xsl" .
 
+spec:csvFormatter
+  a api:XsltFormatter ;
+  api:name "csv" ;
+  api:mimeType "text/csv" ;
+  api:stylesheet "xslt/transport-csv.xsl" .
+
 ## Definitions ##
 
 t:scheme

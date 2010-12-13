@@ -36,6 +36,7 @@ spec:api
 	  api:labelledDescribeViewer ,
 	  spec:minimalViewer ;
   api:defaultFormatter spec:htmlFormatter ;
+  api:formatter spec:csvFormatter ;
 	api:endpoint 
     spec:scheme ,
     spec:definition ,
@@ -94,7 +95,13 @@ spec:htmlFormatter
   api:mimeType "text/html" , "application/xhtml+xml" ;
   api:stylesheet "xslt/org.xsl" ;
   .
- 
+
+spec:csvFormatter
+  a api:XsltFormatter ;
+  api:name "csv" ;
+  api:mimeType "text/csv" ;
+  api:stylesheet "xslt/org-csv.xsl" .
+
 #ENDPOINTS
 
 ## Definitions ##
@@ -335,6 +342,7 @@ spec:departments
 	api:selector spec:departmentSelector ;
 	api:defaultViewer spec:departmentViewer ;
 	api:viewer spec:departmentViewerWithPosts ;
+	api:formatter spec:csvFormatter ;
 	.
 
 spec:departmentSelector
