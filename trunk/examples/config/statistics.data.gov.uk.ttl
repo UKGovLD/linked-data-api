@@ -1,0 +1,658 @@
+@prefix spec: <http://statistics.data.gov.uk/api#> .
+@prefix api: <http://purl.org/linked-data/api/vocab#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix dgu: <http://reference.data.gov.uk/def/reference/> .
+@prefix admingeo: <http://data.ordnancesurvey.co.uk/ontology/admingeo/> .
+@prefix spatial: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
+@prefix geo: <http://statistics.data.gov.uk/def/geography/> .
+@prefix ageo: <http://statistics.data.gov.uk/def/administrative-geography/> .
+@prefix elec: <http://statistics.data.gov.uk/def/electoral-geography/> .
+
+
+
+############################################################################################
+#
+# API DESCRIPTION
+#
+############################################################################################
+
+spec:api
+	a api:API ;
+	rdfs:label "Statistics API"@en;
+	api:maxPageSize "50";
+	api:defaultPageSize "10" ;
+	api:sparqlEndpoint <http://services.data.gov.uk/statistics/sparql> ;
+#	api:lang "en,cy" ;
+	api:defaultViewer api:labelledDescribeViewer ;
+	api:viewer 
+	  api:describeViewer ,
+	  api:labelledDescribeViewer ,
+	  spec:minimalViewer ;
+  api:defaultFormatter spec:htmlFormatter ;
+	api:endpoint 
+    spec:scheme , spec:schemeSlash ,
+    spec:definition ,
+    spec:subclasses , spec:instances , spec:properties ,
+    spec:eers , spec:eer ,
+    spec:gors , spec:gor ,
+    spec:counties , spec:county ,
+    spec:districts , spec:district , spec:districtsInGor , spec:districtsInCounty , spec:districtsInLocalEducationAuthorityArea ,
+    spec:authorities , spec:authority ,
+    spec:constituencies , spec:constituency ,
+    spec:wards , spec:ward , spec:wardsInGor , spec:wardsInDistrict , spec:wardsInCounty , spec:wardsInConstituency ,
+    spec:leaAreas , spec:leaArea ,
+    spec:leas , spec:lea ,
+    spec:elwaRegions , spec:elwaRegion
+	.
+
+spec:minimalViewer
+  a api:Viewer ;
+  api:name "minimal" ;
+  api:properties "prefLabel,altLabel,name,label"
+  .
+
+spec:htmlFormatter
+  a api:XsltFormatter ;
+  api:name "html" ;
+  api:mimeType "text/html" , "application/xhtml+xml" ;
+  api:stylesheet "xslt/statistics.xsl" ;
+  .
+ 
+#ENDPOINTS
+
+## Definitions ##
+
+spec:schemeSlash
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}/" ;
+  api:itemTemplate "http://statistics.data.gov.uk/def/{scheme}/" ;
+  api:defaultViewer spec:schemeViewer ;
+  .
+
+spec:scheme
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/def/{scheme}" ;
+  api:defaultViewer spec:schemeViewer ;
+  .
+
+spec:schemeViewer
+  a api:Viewer ;
+  api:name "scheme" ;
+  api:properties "prefLabel,altLabel,label,note,scopeNote,topConcept.prefLabel,comment" ;
+  .
+
+spec:definition
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/def/{scheme}/{term}" ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:definitionViewer
+  a api:Viewer ;
+  api:name "definition" ;
+  api:properties "prefLabel,altLabel,label,note,scopeNote,topConceptOf,broader.prefLabel,narrower.prefLabel,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
+  .
+
+spec:subclasses
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://statistics.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item rdfs:subClassOf ?superclass . " ;
+  ] ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:instances
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://statistics.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item a ?class . " ;
+  ] ;
+  api:defaultViewer spec:viewerShort ;
+  .
+
+spec:properties
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://statistics.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " [] a ?class ; ?item [] . " ;
+  ] ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+# EERs #
+
+spec:eers
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/eer" ;
+  api:selector [
+    api:filter "type=EuropeanRegion" ;
+  ] ;
+  api:defaultViewer spec:eersViewer ;
+  .
+
+spec:eersViewer
+  a api:Viewer ;
+  api:properties "prefLabel,altLabel,notation,sameAs,type.label" ;
+  .
+
+spec:eer
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/eer/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/eer/{code}" ;
+  api:defaultViewer spec:eerViewer ;
+  .
+
+spec:eerViewer
+  a api:Viewer ;
+  api:properties "prefLabel,altLabel,notation,sameAs,type.label,parliamentaryConstituency.prefLabel" ;
+  .
+
+# GORs #
+
+spec:gors
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/government-office-region" ;
+  api:selector [
+    api:filter "type=GovernmentOfficeRegion" ;
+  ] ;
+  api:defaultViewer spec:gorsViewer ;
+  .
+
+spec:gorsViewer
+  a api:Viewer ;
+  api:properties "prefLabel,altLabel,notation,sameAs,type.label,country.prefLabel" ;
+  .
+
+spec:gor
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/government-office-region/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/government-office-region/{code}" ;
+  api:defaultViewer spec:gorViewer ;
+  .
+
+spec:gorViewer
+  a api:Viewer ;
+  api:properties "prefLabel,altLabel,notation,sameAs,type.label,country.prefLabel" ;
+  .
+
+# Counties
+
+spec:counties
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/county" ;
+  api:selector [
+    api:filter "type=County" ;
+  ] ;
+  api:defaultViewer spec:countiesViewer ;
+  .
+
+spec:countiesViewer
+  a api:Viewer ;
+#  api:properties "prefLabel,label,altLabel,notation,sameAs,type.label" ;
+  api:properties "prefLabel,altLabel,type.label,sameAs" ;
+  .
+
+spec:county
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/county/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/county/{code}" ;
+  api:defaultViewer spec:countyViewer ;
+  .
+
+spec:countyViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,sameAs,type.label,region.prefLabel,country.prefLabel,district.label" ;
+  .
+
+# Districts
+
+spec:districts
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/local-authority-district" ;
+  api:selector [
+    api:filter "type=LocalAuthorityDistrict" ;
+  ] ;
+  api:defaultViewer spec:districtsViewer ;
+  .
+
+spec:districtsViewer
+  a api:Viewer ;
+  api:properties "prefLabel,sameAs,country.prefLabel,region.prefLabel,county.prefLabel" ;
+  .
+
+spec:district
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/local-authority-district/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/local-authority-district/{code}" ;
+  api:defaultViewer spec:districtViewer ;
+  .
+
+spec:districtViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,notation,sameAs,type.label,country.prefLabel,region.prefLabel,county.prefLabel,localEducationAuthorityArea.prefLabel,localEducationBody.prefLabel,localLearningAndSkillsCouncilArea.label,educationAndLibraryBoardArea.label,localAuthority.label" ;
+  .
+
+spec:districtsInGor
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/government-office-region/{code}/district" ;
+  api:variable [
+    api:name "gor" ;
+    api:value "http://statistics.data.gov.uk/id/government-office-region/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?gor ageo:district ?item . " ;
+  ] ;
+  api:defaultViewer spec:districtsViewer ;
+  .
+
+spec:districtsInCounty
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/county/{code}/district" ;
+  api:variable [
+    api:name "county" ;
+    api:value "http://statistics.data.gov.uk/id/county/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?county ageo:district ?item . " ;
+  ] ;
+  api:defaultViewer spec:districtsViewer ;
+  .
+
+spec:districtsInLocalEducationAuthorityArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/local-education-authority-area/{code}/district" ;
+  api:variable [
+    api:name "leaArea" ;
+    api:value "http://statistics.data.gov.uk/id/local-education-authority-area/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?leaArea ageo:localAuthorityDistrict ?item . " ;
+  ] ;
+  api:defaultViewer spec:districtsLabelViewer ;
+  .
+
+spec:districtsLabelViewer
+  a api:Viewer ;
+  api:properties "label,sameAs,country.prefLabel,region.prefLabel,county.label" ;
+  .
+
+# Authorities
+
+spec:authorities
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/local-authority" ;
+  api:selector [
+    api:filter "type=LocalAuthority" ;
+  ] ;
+  api:defaultViewer spec:authoritiesViewer ;
+  .
+
+spec:authoritiesViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,sameAs,type.label,coverage.prefLabel" ;
+  .
+
+spec:authority
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/local-authority/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/local-authority/{code}" ;
+  api:defaultViewer spec:authorityViewer ;
+  .
+
+spec:authorityViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,sameAs,type.label,coverage.prefLabel" ;
+  .
+
+# Parliamentary Constituencies
+
+spec:constituencies
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/parliamentary-constituency" ;
+  api:selector [
+    api:filter "type=WestminsterConstituency" ;
+  ] ;
+  api:defaultViewer spec:constituenciesViewer ;
+  .
+
+spec:constituenciesViewer
+  a api:Viewer ;
+  api:properties "prefLabel,altLabel,sameAs,electoralRegion.prefLabel" ;
+  .
+
+spec:constituency
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/parliamentary-constituency/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/parliamentary-constituency/{code}" ;
+  api:defaultViewer spec:constituencyViewer ;
+  .
+
+spec:constituencyViewer
+  a api:Viewer ;
+  api:properties "prefLabel,altLabel,sameAs,type.label,electoralRegion.prefLabel,ward.label" ;
+  .
+
+# Wards
+
+spec:wards
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/electoral-ward" ;
+  api:selector [
+    api:filter "type=Ward" ;
+  ] ;
+  api:defaultViewer spec:wardsViewer ;
+  .
+
+spec:wardsViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,notation,sameAs,type.label,country.prefLabel,region.prefLabel,county.prefLabel,district.prefLabel,parliamentaryConstituency.prefLabel" ;
+  .
+
+spec:ward
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/electoral-ward/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/electoral-ward/{code}" ;
+  api:defaultViewer spec:wardViewer ;
+  .
+
+spec:wardViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,notation,sameAs,type.label,country.prefLabel,region.prefLabel,county.prefLabel,district.prefLabel,parliamentaryConstituency.prefLabel,localLearningAndSkillsCouncilArea.prefLabel" ;
+  .
+
+spec:wardsInGor
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/government-office-region/{code}/ward" ;
+  api:variable [
+    api:name "gor" ;
+    api:value "http://statistics.data.gov.uk/id/government-office-region/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?gor elec:ward ?item . " ;
+  ] ;
+  api:defaultViewer spec:wardsViewer ;
+  .
+
+spec:wardsInDistrict
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/local-authority-district/{code}/ward" ;
+  api:variable [
+    api:name "district" ;
+    api:value "http://statistics.data.gov.uk/id/local-authority-district/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?district elec:ward ?item . " ;
+  ] ;
+  api:defaultViewer spec:wardsViewer ;
+  .
+
+spec:wardsInCounty
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/county/{code}/ward" ;
+  api:variable [
+    api:name "county" ;
+    api:value "http://statistics.data.gov.uk/id/county/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?county elec:ward ?item . " ;
+  ] ;
+  api:defaultViewer spec:wardsViewer ;
+  .
+
+spec:wardsInConstituency
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/parliamentary-constituency/{code}/ward" ;
+  api:variable [
+    api:name "constituency" ;
+    api:value "http://statistics.data.gov.uk/id/parliamentary-constituency/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?constituency elec:ward ?item . " ;
+  ] ;
+  api:defaultViewer spec:wardsViewer ;
+  .
+
+# Local Education Authority Areas
+
+spec:leaAreas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/local-education-authority-area" ;
+  api:selector [
+    api:filter "type=LocalEducationAuthorityArea" ;
+  ] ;
+  api:defaultViewer spec:leaAreasViewer ;
+  .
+
+spec:leaAreasViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,sameAs,localEducationBody.prefLabel,localAuthorityDistrict.label" ;
+  .
+
+spec:leaArea
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/local-education-authority-area/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/local-education-authority-area/{code}" ;
+  api:defaultViewer spec:leaAreaViewer ;
+  .
+
+spec:leaAreaViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,sameAs,type.label,localEducationBody.prefLabel,localAuthorityDistrict.label" ;
+  .
+
+# Local Education Authorities
+
+spec:leas
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/local-education-authority" ;
+  api:selector [
+    api:filter "type=LocalEducationAuthority" ;
+  ] ;
+  api:defaultViewer spec:leasViewer ;
+  .
+
+spec:leasViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,sameAs,area.prefLabel" ;
+  .
+
+spec:lea
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/local-education-authority/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/local-education-authority/{code}" ;
+  api:defaultViewer spec:leaViewer ;
+  .
+
+spec:leaViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,sameAs,type.label,area.prefLabel" ;
+  .
+
+# ELWA Regions
+
+spec:elwaRegions
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/elwa-region" ;
+  api:selector [
+    api:filter "type=EducationAndLearningWalesRegion" ;
+  ] ;
+  api:defaultViewer spec:elwaRegionsViewer ;
+  .
+
+spec:elwaRegionsViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,sameAs,educationAndLearningWalesRegionalOffice.prefLabel" ;
+  .
+
+spec:elwaRegion
+  a api:ItemEndpoint ;
+  api:uriTemplate "/doc/elwa-region/{code}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/id/elwa-region/{code}" ;
+  api:defaultViewer spec:elwaRegionViewer ;
+  .
+
+spec:elwaRegionViewer
+  a api:Viewer ;
+  api:properties "prefLabel,label,altLabel,sameAs,type.label,educationAndLearningWalesRegionalOffice.prefLabel,ward.label" ;
+  .
+
+### VIEWERS ###
+
+############################################################################################
+#
+# VOCABULARY
+#
+############################################################################################
+
+rdf:Property api:label "Property" .
+
+rdf:type api:label "type" ; api:multiValued true .
+rdf:value api:label "value" .
+
+rdfs:Class api:label "Class" .
+
+rdfs:label api:label "label" ; api:multiValued true .
+rdfs:seeAlso api:label "seeAlso" ; api:multiValued true .
+rdfs:comment api:label "comment" .
+rdfs:range api:label "range" .
+rdfs:domain api:label "domain" .
+rdfs:isDefinedBy api:label "isDefinedBy" .
+rdfs:subClassOf api:label "subClassOf" .
+rdfs:subPropertyOf api:label "subPropertyOf" .
+
+owl:sameAs api:label "sameAs" .
+
+skos:Concept api:label "Concept" .
+skos:ConceptScheme api:label "ConceptScheme" .
+
+skos:prefLabel api:label "prefLabel" .
+skos:altLabel api:label "altLabel" ; api:multiValued true .
+skos:note api:label "note" .
+skos:notation api:label "notation" ;
+  a owl:DatatypeProperty ;
+  rdfs:range ageo:StandardCode ;
+  .
+skos:scopeNote api:label "scopeNote" .
+skos:topConceptOf api:label "topConceptOf" .
+skos:hasTopConcept api:label "topConcept" ; api:multiValued true .
+skos:broader api:label "broader" .
+skos:narrower api:label "narrower" ; api:multiValued true .
+
+foaf:name api:label "name" .
+foaf:firstName api:label "firstName" .
+foaf:lastName api:label "lastName" .
+foaf:mbox api:label "email" .
+foaf:phone api:label "phone" .
+foaf:page api:label "page" ;
+  api:multiValued true ;
+  .
+foaf:isPrimaryTopicOf api:label "primaryTopicOf" ;
+  api:multiValued true ;
+  .
+
+dct:description api:label "description" .
+
+dgu:uriSet api:label "uriSet" .
+
+wgs84_pos:lat
+  a owl:DatatypeProperty ;
+  api:label "lat" ;
+  rdfs:range xsd:decimal .
+wgs84_pos:long
+  a owl:DatatypeProperty ;
+  api:label "long" ;
+  rdfs:range xsd:decimal .
+
+admingeo:EuropeanRegion api:label "EuropeanRegion" .
+admingeo:GovernmentOfficeRegion api:label "GovernmentOfficeRegion" .
+admingeo:County api:label "County" .
+admingeo:Borough api:label "Borough" .
+admingeo:District api:label "District" .
+admingeo:DistrictWard api:label "DistrictWard" .
+admingeo:MetropolitanDistrict api:label "MetropolitanDistrict" .
+admingeo:MetropolitanDistrictWard api:label "MetropolitanDistrictWard" .
+admingeo:LondonBorough api:label "LondonBorough" .
+admingeo:LondonBoroughWard api:label "LondonBoroughWard" .
+admingeo:UnitaryAuthority api:label "UnitaryAuthority" .
+admingeo:UnitaryAuthorityElectoralDivision api:label "UnitaryAuthorityElectoralDivision" .
+admingeo:UnitaryAuthorityWard api:label "UnitaryAuthorityWard" .
+admingeo:Ward api:label "Ward" .
+admingeo:WestminsterConstituency api:label "WestminsterConstituency" .
+
+ageo:Country api:label "Country" .
+ageo:County api:label "County" .
+ageo:LocalAuthority api:label "LocalAuthority" .
+ageo:LocalAuthorityDistrict api:label "LocalAuthorityDistrict" .
+ageo:MetropolitanCounty api:label "MetropolitanCounty" .
+ageo:NonMetropolitanCounty api:label "NonMetropolitanCounty" .
+
+ageo:country api:label "country" .
+ageo:region api:label "region" .
+ageo:county api:label "county" .
+ageo:district api:label "district" .
+ageo:localAuthority api:label "localAuthority" .
+ageo:localAuthorityDistrict api:label "localAuthorityDistrict" .
+ageo:coverage api:label "coverage" .
+
+ageo:StandardCode api:label "StandardCode" ;
+  a rdfs:Datatype ;
+  .
+
+geo:EducationAndLearningWalesRegion api:label "EducationAndLearningWalesRegion" .
+geo:EducationAndLearningWalesRegionalOffice api:label "EducationAndLearningWalesRegionalOffice" .
+geo:EducationAndLibraryBoard api:label "EducationAndLibraryBoard" .
+geo:EducationAndLibraryBoardArea api:label "EducationAndLibraryBoardArea" .
+geo:LocalEducationAuthority api:label "LocalEducationAuthority" .
+geo:LocalEducationAuthorityArea api:label "LocalEducationAuthorityArea" .
+geo:LocalLearningAndSkillsCouncil api:label "LocalLearningAndSkillsCouncil" .
+geo:LocalLearningAndSkillsCouncilArea api:label "LocalLearningAndSkillsCouncilArea" .
+geo:LocalEducationAuthority api:label "LocalEducationAuthority" .
+
+geo:localEducationAuthorityArea api:label "localEducationAuthorityArea" .
+geo:localEducationBody api:label "localEducationBody" .
+geo:localEducationAuthority api:label "localEducationAuthority" .
+geo:localLearningAndSkillsCouncilArea api:label "localLearningAndSkillsCouncilArea" .
+geo:educationAndLibraryBoardArea api:label "educationAndLibraryBoardArea" .
+geo:coverage api:label "area" .
+geo:educationAndLearningWalesRegionalOffice api:label "educationAndLearningWalesRegionalOffice" .
+
+elec:parliamentaryConstituency api:label "parliamentaryConstituency" ; api:multiValued true .
+elec:constituency api:label "constituency" ; api:multiValued true .
+elec:ward api:label "ward" .
+elec:region api:label "electoralRegion" .
+
+spatial:contains api:label "contains" ; api:multiValued true .
+spatial:containedBy api:label "containedBy" ; api:multiValued true .
