@@ -190,10 +190,16 @@ function init(deptSlug,postSlug){
 					$(label).addClass(node.data.grade[0]);
 				}
 				
-				for(var i=0;i<node.data.heldBy.length;i++){
-					var heldBySlug = node.data.heldBy[i].holdsPostURI.split("/");
-					heldBySlug = heldBySlug[heldBySlug.length-1];
-					$(label).addClass("post_"+heldBySlug);
+				if(node.data.heldBy.length > 1){
+					for(var i=0;i<node.data.heldBy.length;i++){
+						var heldBySlug = node.data.heldBy[i].holdsPostURI.split("/");
+						heldBySlug = heldBySlug[heldBySlug.length-1];
+						$(label).addClass("post_"+heldBySlug);
+					}
+				} else {
+					var postSlug = node.data.uri.split("/");
+					postSlug = postSlug[postSlug.length-1];
+					$(label).addClass("post_"+postSlug);
 				}
 				
 				label.id = node.id;        
@@ -402,29 +408,32 @@ function loadPost(deptSlug,postSlug) {
 						}	
 						*/
 						
-
-						for(var j=0;j<postInQuestion.reportsTo.length;j++){
-							
-							//console.log("postInQuestion:");
-							//console.log(postInQuestion);
-							//console.log("if "+postInQuestion.reportsTo[j]._about +" == "+ json2.result.items[i]._about);
-							//console.log("does it report to anyone? "+postInQuestion.reportsTo[j].reportsTo);
-							
-							// If the post reports to a post that reports to someone that has a label
-							// traverse onwards into that reporting post as the next post to be checked
-							if(typeof postInQuestion.reportsTo[j].reportsTo != 'undefined' && postInQuestion.reportsTo[j].label != 'undefined' && typeof postInQuestion.reportsTo[j]._about != 'undefined'){
-							
-								//console.log(postInQuestion.reportsTo[j].label[0]+" reports to "+postInQuestion.reportsTo[j].reportsTo[0].label[0]);
-								postInQuestion = postInQuestion.reportsTo[j];
-							
-								j=j-1;
-							// If the post reports to a post that doesn't report to anybody with a label
-							} else {
-								// nowt
-								//console.log("making firstNode using:");
-								//console.log(postInQuestion.reportsTo[j]);
-								firstNode = makeNode(postInQuestion);
+						if(typeof postInQuestion.reportsTo != 'undefined') {
+							for(var j=0;j<postInQuestion.reportsTo.length;j++){
+								
+								//console.log("postInQuestion:");
+								//console.log(postInQuestion);
+								//console.log("if "+postInQuestion.reportsTo[j]._about +" == "+ json2.result.items[i]._about);
+								//console.log("does it report to anyone? "+postInQuestion.reportsTo[j].reportsTo);
+								
+								// If the post reports to a post that reports to someone that has a label
+								// traverse onwards into that reporting post as the next post to be checked
+								if(typeof postInQuestion.reportsTo[j].reportsTo != 'undefined' && postInQuestion.reportsTo[j].label != 'undefined' && typeof postInQuestion.reportsTo[j]._about != 'undefined'){
+								
+									//console.log(postInQuestion.reportsTo[j].label[0]+" reports to "+postInQuestion.reportsTo[j].reportsTo[0].label[0]);
+									postInQuestion = postInQuestion.reportsTo[j];
+								
+									j=j-1;
+								// If the post reports to a post that doesn't report to anybody with a label
+								} else {
+									// nowt
+									//console.log("making firstNode using:");
+									//console.log(postInQuestion.reportsTo[j]);
+									firstNode = makeNode(postInQuestion.reportsTo[j]);
+								}
 							}
+						} else {
+							firstNode = makeNode(postInQuestion);						
 						}
 						
 						//console.log("firstNode: "+firstNode.data.uri);			
@@ -944,13 +953,19 @@ function loadPersonInfo(node){
 		html+= '<span class="external_posts_title">External reporting posts:</span>';
 		html+= '<ul class="external_posts"></ul>';
 
-		html += '</div>';
+		html += '</div><!-- end content -->';
 		html += '<div class="clear"><!-- --></div>';
-		html += '</div>';
+		html += '</div><!-- end expander -->';
 		
 		} // end for loop
 		
-		html+= '</div><!-- end people -->';
+		if(node.data.heldBy.length < 1){
+			html = '<h1>'+node.name+'</h1>';			
+			html += '<div class="panel heldBy">';
+			html += '<p>This post is either currently not held or there is no data present for the person who holds this post.</p>';
+		}
+				
+		html+= '</div><!-- end panel -->';
 		html+= '<a class="close">x</a>';
 		
 		$("#infobox").html(html);
