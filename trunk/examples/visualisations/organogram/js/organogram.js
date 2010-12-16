@@ -335,8 +335,8 @@ function loadPost(deptSlug,postSlug) {
 				
 				
 				// Make a second API call to retrieve information about the posts that report to the root post
-				//api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reports";
-				api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
+				api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
+				//api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
 
 				api_call_info.push({
 					title:"Retrieval of posts that report to the root post",
@@ -460,6 +460,7 @@ function loadPost(deptSlug,postSlug) {
 						
 						setTimeout(function(){
 							$("div.post_"+global_post).click();
+							
 						},1000);
 						
 						// end
