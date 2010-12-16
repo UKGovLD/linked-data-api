@@ -157,7 +157,7 @@ function init(deptSlug,postSlug){
 		offsetY: 0, 
 		transition: $jit.Trans.Sine.easeOut, 
 		levelDistance: 60,  
-		levelsToShow: 2,  
+		levelsToShow: 5,  
 		Node: {
 			height: 70,
 			width: 190,
@@ -183,21 +183,43 @@ function init(deptSlug,postSlug){
 			changeLog("Done",false);
 			hideLog(); 
 		},  
-		onCreateLabel: function(label, node){ 
-			$(label).addClass(node.data.grade[0]); 
-			label.id = node.id;        
-			
-			for(var i=0;i<node.name.length;i++){
-				label.innerHTML += node.name[i]+", ";
+		onCreateLabel: function(label, node){
+		
+			if(typeof node.data != 'undefined') {
+				for(var i=0;i<node.data.grade.length;i++){
+					$(label).addClass(node.data.grade[0]);
+				}
+				
+				for(var i=0;i<node.data.heldBy.length;i++){
+					var heldBySlug = node.data.heldBy[i].holdsPostURI.split("/");
+					heldBySlug = heldBySlug[heldBySlug.length-1];
+					$(label).addClass("post_"+heldBySlug);
+				}
+				
+				label.id = node.id;        
+				
+				if(typeof node.name != 'undefined'){
+					for(var i=0;i<node.name.length;i++){
+						label.innerHTML += node.name[i]+", ";
+					}
+					label.innerHTML = label.innerHTML.substring(0,label.innerHTML.length-2);			
+				} else {
+					label.innerHTML = "?";
+				}
+				
+				//console.log(node);
+				
+				if(typeof node.data.postIn != 'undefined'){
+					label.innerHTML = label.innerHTML + '<span class="postIn">'+node.data.postIn[0].label[0]+'</span>';
+				} else {
+					label.innerHTML = label.innerHTML + '<span class="postIn">?</span>';
+				}
+				
+				if(node.data.heldBy.length>1){
+					label.innerHTML = label.innerHTML + '<span class="heldBy">'+node.data.heldBy.length+'</span>';
+				}
 			}
 			
-			label.innerHTML = label.innerHTML.substring(0,label.innerHTML.length-2);
-			
-			label.innerHTML = label.innerHTML + '<span class="postIn">'+node.data.postIn[0].label[0]+'</span>';
-			
-			if(node.data.heldBy.length>1){
-				label.innerHTML = label.innerHTML + '<span class="heldBy">'+node.data.heldBy.length+'</span>';
-			}
 
 			label.onclick = function(){ 
 
@@ -262,13 +284,15 @@ function loadPost(deptSlug,postSlug) {
 
 	$("#infovis-label").html("");
 	$("#infobox").fadeOut();
-
+	
+	var postInQuestion;
 	var firstNode;	
 	//$("div#formats").fadeOut();
 	//$('div#apiCalls').fadeOut();
 	
 	// Make an API call to retrieve information about the root post
 	var api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug;
+	
 	// Description of API call
 	api_call_info.push({
 		title:"Retrieval of root post information",
@@ -284,9 +308,13 @@ function loadPost(deptSlug,postSlug) {
 		async:true,
 		success: function(json){
 				
+				
 				try{
 				
-				firstNode = makeNode(json.result.primaryTopic);
+				postInQuestion = json.result.primaryTopic;
+				//console.log("Post In Question:");
+				//console.log(postInQuestion);
+				//firstNode = makeNode(json.result.primaryTopic);
 
 				$("h1.title span#post").html(json.result.primaryTopic.label[0]);
 				var dSlug = json.result.primaryTopic.postIn[1]._about.toString().split("/");
@@ -307,7 +335,9 @@ function loadPost(deptSlug,postSlug) {
 				
 				
 				// Make a second API call to retrieve information about the posts that report to the root post
-				api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reports";
+				//api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reports";
+				api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
+
 				api_call_info.push({
 					title:"Retrieval of posts that report to the root post",
 					description:"This call retrieves information about the posts that report to the root post, such as their unit, grade and contact details.",
@@ -320,14 +350,90 @@ function loadPost(deptSlug,postSlug) {
 					type: "GET",
 					dataType: "jsonp",
 					async:true,
-					success: function(json){
+					success: function(json2){
 			
-						searchJSON.nodes = [];			
-						searchJSON.reportsTo(json.result.items,firstNode.data.uri);
+						searchJSON.nodes = [];
+						
+						//console.log("Finding post in question in organogram data");
+						
+						for(var i=0;i<json2.result.items.length;i++){
+						
+							if(postInQuestion._about == json2.result.items[i]._about){
+								//console.log(postInQuestion);
+								//console.log(json2.result.items[i]);
+								postInQuestion = json2.result.items[i];
+							}
+						}
+						
+						/*
+						// If the post reports to someone, establish the organogram's root node
+						if(typeof postInQuestion.reportsTo != 'undefined'){
+							// loop through organogram posts
+							for(var i=0;i<json2.result.items.length;i++){
+								
+								// if one of the posts doesn't report to anyone (a Perm Sec)
+								if(typeof json2.result.items[i].reportsTo == 'undefined' && typeof json2.result.items[i].label != 'undefined'){
+									
+									// check it is one of the posts that the post in question reports to
+									for(var j=0;j<postInQuestion.reportsTo.length;j++){
+										
+										console.log("if "+postInQuestion.reportsTo[j]._about +" == "+ json2.result.items[i]._about);
+										//console.log("does it report to anyone? "+postInQuestion.reportsTo[j].reportsTo);
+										
+										if(postInQuestion.reportsTo[j]._about == json2.result.items[i]._about) {
+										
+											firstNode = makeNode(json2.result.items[i]);
+										
+										} else if(typeof postInQuestion.reportsTo[j].reportsTo != 'undefined'){
+										
+											//console.log(postInQuestion.reportsTo[j].label[0]+" reports to "+postInQuestion.reportsTo[j].reportsTo[0].label[0]);
+											postInQuestion = postInQuestion.reportsTo[j];
+										
+											j=j-1;
+										
+										} else {
+											// nowt
+										}
+									}								
+								}
+							}		
+						} else {
+							firstNode = makeNode(postInQuestion);
+						}	
+						*/
+						
+
+						for(var j=0;j<postInQuestion.reportsTo.length;j++){
+							
+							//console.log("postInQuestion:");
+							//console.log(postInQuestion);
+							//console.log("if "+postInQuestion.reportsTo[j]._about +" == "+ json2.result.items[i]._about);
+							//console.log("does it report to anyone? "+postInQuestion.reportsTo[j].reportsTo);
+							
+							// If the post reports to a post that reports to someone that has a label
+							// traverse onwards into that reporting post as the next post to be checked
+							if(typeof postInQuestion.reportsTo[j].reportsTo != 'undefined' && postInQuestion.reportsTo[j].label != 'undefined' && typeof postInQuestion.reportsTo[j]._about != 'undefined'){
+							
+								//console.log(postInQuestion.reportsTo[j].label[0]+" reports to "+postInQuestion.reportsTo[j].reportsTo[0].label[0]);
+								postInQuestion = postInQuestion.reportsTo[j];
+							
+								j=j-1;
+							// If the post reports to a post that doesn't report to anybody with a label
+							} else {
+								// nowt
+								//console.log("making firstNode using:");
+								//console.log(postInQuestion.reportsTo[j]);
+								firstNode = makeNode(postInQuestion);
+							}
+						}
+						
+						//console.log("firstNode: "+firstNode.data.uri);			
+																	
+						searchJSON.reportsTo(json2.result.items,firstNode.data.uri);
 						firstNode.children = searchJSON.nodes;
 			
 						// Build the tree using the "topmost" post found previously.
-						postTree = buildTree(json,firstNode);
+						postTree = buildTree(json2,firstNode);
 						searchJSON.groupSamePosts(postTree,false);
 			
 						//cl(postTree);
@@ -342,9 +448,20 @@ function loadPost(deptSlug,postSlug) {
 						// cl(global_ST.canvas.getPos(true));
 			
 						// global_ST.canvas.scale(1,1,false);
-						global_ST.canvas.translate(-150-(global_ST.canvas.translateOffsetX),-120-(global_ST.canvas.translateOffsetY),false)
+						global_ST.canvas.translate(-150-(global_ST.canvas.translateOffsetX),-200-(global_ST.canvas.translateOffsetY),false)
 			
-						$("div#"+global_ST.root).click();
+			//var slug = firstNode.id.split("/");
+			//slug = slug[slug.length-1];
+						//var node = global_ST.graph.getNode("post_"+global_post);
+						
+						//$("div#"+global_ST.root).click();
+						//global_ST.setRoot("post_"+global_post);
+						global_ST.onClick(global_ST.root);
+						
+						setTimeout(function(){
+							$("div.post_"+global_post).click();
+						},1000);
+						
 						// end
 						
 						displayDataSources();
@@ -619,8 +736,12 @@ function makeNode(item) {
 	//p("------------------------");
 	//cl(item);
 	
+	var slug = item._about.split("/");
+	slug = slug[slug.length-1];
+		
 		var node = {
 				id:$.generateId(),
+				//id:"post_"+slug,
 				name:[],
 				data:{
 					uri:item._about,
@@ -764,80 +885,80 @@ function loadPersonInfo(node){
 		}
 	}
 
+	
+	// Construct the HTML for the infobox
+	var html = '<h1>'+node.name+'</h1>';			
+	html += '<div class="panel heldBy">';
+	html += '<h3>Held By :</h3>';
+
+	for(var i=0; i<node.data.heldBy.length; i++) {
+		html += '<div class="expander">';
+		
+		if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
+			html += '<a class="name">'+node.data.heldBy[i].foafName+'<span>+</span></a>';
+		}else {
+			html += '<a class="name">?<span>+</span></a>';		
+		}
+
+		html += '<div class="content">';
+		
+		if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
+			html+='<p class="comment"><span>Comment</span>'+node.data.heldBy[i].comment+'</p>';
+		}
+
+
+		if(typeof node.data.heldBy[i].foafPhone != 'undefined' && node.data.heldBy[i].foafPhone != ''){
+			html += '<p class="tel"><span>Phone</span>'+node.data.heldBy[i].foafPhone+'</p>';
+		}
+
+		if(typeof node.data.heldBy[i].foafMbox != 'undefined' && node.data.heldBy[i].foafMbox != ''){
+			html += '<p class="email"><span>Email</span> '+node.data.heldBy[i].foafMbox+'</p>';
+		}
 			
-			// Construct the HTML for the infobox
-			var html = '<h1>'+node.name+'</h1>';			
-			html += '<div class="panel heldBy">';
-			html += '<h3>Held By :</h3>';
+		if(typeof node.data.grade != 'undefined'){
+			for(var a=0;a<node.data.grade.length;a++){
+				html += '<p class="grade"><span>Grade</span> <span class="g '+node.data.grade[a]+'">'+node.data.grade[a]+'</span></p>';
+			}
+		}	
+						
+		html += '<p class="salaryReports"><span>Combined salary of reporting posts </span>Checking...<img class="salaryReports" width="14" height="14" src="images/loading.gif"></p>';
+			
+		if(typeof node.data.type != 'undefined'){
+			for(var a=0;a<node.data.type.length;a++){
+				html += '<p class="type"><span>Type</span>'+node.data.type[a]+'</p>';
+			}
+		}
 		
-			for(var i=0; i<node.data.heldBy.length; i++) {
-				html += '<div class="expander">';
-				
-				if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
-					html += '<a class="name">'+node.data.heldBy[i].foafName+'<span>+</span></a>';
-				}else {
-					html += '<a class="name">?<span>+</span></a>';		
-				}
+		var tempID = node.data.heldBy[i].holdsPostURI.split("/");
+		tempID = tempID[tempID.length-1];
 		
-				html += '<div class="content">';
-				
-				if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
-					html+='<p class="comment"><span>Comment</span>'+node.data.heldBy[i].comment+'</p>';
-				}
+		html+= '<p class="id"><span>Post ID</span><a target="_blank" href="http://reference.data.gov.uk/id/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a> <a class="view_org" href="?dept='+global_department+'&post='+tempID+'">[View organogram]</a></p>';
 		
+		html+= '<p class="unit"><span>Unit(s)</span>';
 		
-				if(typeof node.data.heldBy[i].foafPhone != 'undefined' && node.data.heldBy[i].foafPhone != ''){
-					html += '<p class="tel"><span>Phone</span>'+node.data.heldBy[i].foafPhone+'</p>';
-				}
+		html+= '<a target="_blank" href="http://reference.data.gov.uk/id/department/'+global_department+'/unit/'+tempUnitID+'">'+tempUnitLabel+'</a>';
 		
-				if(typeof node.data.heldBy[i].foafMbox != 'undefined' && node.data.heldBy[i].foafMbox != ''){
-					html += '<p class="email"><span>Email</span> '+node.data.heldBy[i].foafMbox+'</p>';
-				}
-					
-				if(typeof node.data.grade != 'undefined'){
-					for(var a=0;a<node.data.grade.length;a++){
-						html += '<p class="grade"><span>Grade</span> <span class="g '+node.data.grade[a]+'">'+node.data.grade[a]+'</span></p>';
-					}
-				}	
-								
-				html += '<p class="salaryReports"><span>Combined salary of reporting posts </span>Checking...<img class="salaryReports" width="14" height="14" src="images/loading.gif"></p>';
-					
-				if(typeof node.data.type != 'undefined'){
-					for(var a=0;a<node.data.type.length;a++){
-						html += '<p class="type"><span>Type</span>'+node.data.type[a]+'</p>';
-					}
-				}
-				
-				var tempID = node.data.heldBy[i].holdsPostURI.split("/");
-				tempID = tempID[tempID.length-1];
-				
-				html+= '<p class="id"><span>Post ID</span><a target="_blank" href="http://reference.data.gov.uk/id/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a></p>';
-				
-				html+= '<p class="unit"><span>Unit(s)</span>';
-				
-				html+= '<a target="_blank" href="http://reference.data.gov.uk/id/department/'+global_department+'/unit/'+tempUnitID+'">'+tempUnitLabel+'</a>';
-				
-				html+= '</p>';
-				
-				html+= '<span class="external_posts_title">External reporting posts:</span>';
-				html+= '<ul class="external_posts"></ul>';
+		html+= '</p>';
 		
-				html += '</div>';
-				html += '<div class="clear"><!-- --></div>';
-				html += '</div>';
-				
-				} // end for loop
-				
-				html+= '</div><!-- end people -->';
-				html+= '<a class="close">x</a>';
-				
-				$("#infobox").html(html);
-				setInfoBoxLinks();
-				$("#infobox").fadeIn();
-				$("div.heldBy").show();
-				$("div.heldBy div.expander a").eq(0).click(); 
-				
-				displaySalaryReports(node,postUnit);
+		html+= '<span class="external_posts_title">External reporting posts:</span>';
+		html+= '<ul class="external_posts"></ul>';
+
+		html += '</div>';
+		html += '<div class="clear"><!-- --></div>';
+		html += '</div>';
+		
+		} // end for loop
+		
+		html+= '</div><!-- end people -->';
+		html+= '<a class="close">x</a>';
+		
+		$("#infobox").html(html);
+		setInfoBoxLinks();
+		$("#infobox").fadeIn();
+		$("div.heldBy").show();
+		$("div.heldBy div.expander a").eq(0).click(); 
+		
+		displaySalaryReports(node,postUnit);
 	
 } // end loadPersonInfo
 
@@ -880,7 +1001,7 @@ function displaySalaryReports(node,postUnit) {
 								} else {
 									$("div.expander div.content").each(function(){
 										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI) {
-											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span>N/A');
+											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">N/A</a>');
 										}
 									});								
 								}									
@@ -913,7 +1034,7 @@ function displaySalaryReports(node,postUnit) {
 					for(var v=0;v<node.data.heldBy.length; v++) {					
 						$("div.expander div.content").each(function(){
 							if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI) {
-								$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span>N/A');
+								$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">N/A</a>');
 							}
 						});	
 					}
