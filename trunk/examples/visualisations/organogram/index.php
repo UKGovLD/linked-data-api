@@ -31,25 +31,13 @@
 		<div class="tip">
 			<p><strong>About: </strong></p>
 			
-			<p>This is a "treemap" visualisation of the UK Government's departmental structure - using data provided by data.gov.uk (Note: as more data is uploaded and made available, this visualisation will change automatically as it pulls data in real-time).</p>
-			
-			<p>The main use of this visualisation is so you are able to drill down from the top-level of departments, into their units and finally through to the lowest-level - their posts.</p>
-			
-			<p>When clicking on a post, an organogram visualisation will load, where you can see more information about who reports to who, their responsibilities and statistics such as salary totals.</p>
-			
-			<p>At any point, the raw data can be accessed by clicking on the "Data Sources" links in the bottom-right corner. Each data source link contains information about what data has been accessed, how it has been accessed and where you can get it yourself - it's open data after all!</p>
-			
-			<p>More updates and features to come (including more types of data to link to as it uses Linked Data).</p>
-			
 			<p>Created by Dan Paul Smith. @danpaulsmith</p>
 		</div>
 		</li>
 		<li><a href="#">Controls</a>
 		<div class="tip">
 			<p><strong>Controls: </strong></p>
-			<p>Left-click: Zoom in</p>
-			<p>Right-click: Zoom out</p>
-			<p>Alternatively, you can zoom out by clicking the breadcrumb links in the top-left of the visualisation.</p>
+
 		</div>
 		</li>	
 		<li id="orientation">

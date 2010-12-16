@@ -597,6 +597,7 @@ font-size:12px;
 }
 div.expander a.name {
 background-color:#555555;
+/*background-image: url("../images/salaryGradient.png");*/
 color:#FFFFFF;
 cursor:pointer;
 display:block;
@@ -1130,4 +1131,22 @@ div.panel div.content img.salaryReports {
     margin-top: 1px;
     padding: 0;
     width: auto;
+}
+
+div.panel div.content p.id a.view_org {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+    color: #CCCCCC;
+    display: inline;
+	margin:1px 5px 0 0;
+	float: right;
+   	font-family: "Lucida Grande",Verdana;
+    font-size: 11px;
+    font-weight: bold;    
+    padding: 0;
+    text-decoration: none;
+}
+div.panel div.content p.id a.view_org:hover {
+    text-decoration: none;
+	color:#333333;
 }
