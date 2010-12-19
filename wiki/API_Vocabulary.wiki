@@ -215,7 +215,7 @@ api:defaultFormatter a rdf:Property ;
 Selectors are used to select items that belong to a list. They have the following properties:
 
   * `api:parent` points to another selector that this one specialises
-  * `api:select` holds a WHERE clause followed by an ORDER BY clause and is used to select items using SPARQL
+  * `api:select` holds a SELECT query
   * `api:where` holds a [http://www.w3.org/TR/rdf-sparql-query/#rGroupGraphPattern GroupGraphPattern] which is used to construct a WHERE clause
   * `api:orderBy` holds a space separated list of [http://www.w3.org/TR/rdf-sparql-query/#rOrderCondition OrderConditions] which are used to construct an ORDER BY clause
   * `api:filter` specifies a set of parameter bindings using the same syntax as is found in a URI query, using property paths
@@ -258,7 +258,7 @@ api:parent a rdf:Property ;
 
 api:select a rdf:Property ;
   rdfs:label "Select"@en ;
-  rdfs:comment "A SPARQL WHERE and ORDER BY clause that can be used to select an ordered list of resources. It should include the binding of an ?item variable for the selected items."@en ;
+  rdfs:comment "A SPARQL SELECT query that can be used to select an ordered list of resources. It should include the binding of an ?item variable for the selected items."@en ;
   rdfs:domain api:Selector ;
   rdfs:range rdf:PlainLiteral .
 
