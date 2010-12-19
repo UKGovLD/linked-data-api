@@ -142,7 +142,7 @@ All endpoints can have the following properties:
 [] a api:ListEndpoint ;
   api:uriTemplate "school" ;
   api:selector [
-    api:pattern "type=school" ;
+    api:filter "type=school" ;
   ] ;
   api:defaultViewer [
     api:name "basic" ;
