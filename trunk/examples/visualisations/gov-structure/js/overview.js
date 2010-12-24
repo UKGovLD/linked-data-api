@@ -323,7 +323,8 @@ function loadDepts() {
 			// their number of posts as their size
 			var deptSize=1;
 			for(var i=0; i<depts.length; i++) {
-				if(typeof depts[i]._about != 'undefined' && typeof depts[i].prefLabel != 'undefined') {
+								
+				if(typeof depts[i]._about != 'undefined') {
 					tempDeptNode = makeDeptNode(depts[i]);
 					if(typeof depts[i].unit != 'undefined') {
 						for(var j=0;j<depts[i].unit.length;j++) {
@@ -481,7 +482,7 @@ function makePostNode(item){
 	
 	var node = {
 			id:"post_"+slug,
-			name:item.label[0].toString().replace("@en",""),
+			name:item.label[0].toString(),
 			data: {
 				type:"Post",
 				uri:item._about,
@@ -503,7 +504,7 @@ function makeUnitNode(item){
 	
 	var node = {
 			id:"unit_"+slug,
-			name:item.label[0].replace("@en",""),
+			name:item.label[0],
 			data: {
 				type:"Unit",
 				uri:item._about,
@@ -523,7 +524,7 @@ function makeDeptNode(item){
 	
 	var node = {
 			id:"dept_"+slug,
-			name:item.prefLabel.toString().replace("@en",""),
+			name:"dept"+slug,
 			data: {
 				type:"Department",
 				uri:item._about,
@@ -534,6 +535,16 @@ function makeDeptNode(item){
 			},
 			children:[]
 	};
+	
+	// Find a name for the Department
+	if(typeof item.prefLabel != 'undefined'){
+		node.name = item.prefLabel.toString();
+	}else if(typeof item.label != 'undefined'){
+		node.name = item.label[0].toString();
+	}else if(typeof item.altLabel != 'undefined'){
+		node.name = item.altLabel[0].toString();
+	}
+	
 	return node;
 }
 function makeGovNode(){
