@@ -215,7 +215,7 @@ function init(deptSlug,postSlug){
 				
 				//console.log(node);
 				
-				if(typeof node.data.postIn != 'undefined'){
+				if(typeof node.data.postIn != 'undefined' && node.data.postIn.length > 0){
 					label.innerHTML = label.innerHTML + '<span class="postIn">'+node.data.postIn[0].label[0]+'</span>';
 				} else {
 					label.innerHTML = label.innerHTML + '<span class="postIn">?</span>';
@@ -341,8 +341,8 @@ function loadPost(deptSlug,postSlug) {
 				
 				
 				// Make a second API call to retrieve information about the posts that report to the root post
-				api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
-				//api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
+				//api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
+				api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
 
 				api_call_info.push({
 					title:"Retrieval of posts that report to the root post",
@@ -413,6 +413,8 @@ function loadPost(deptSlug,postSlug) {
 								
 								//console.log("postInQuestion:");
 								//console.log(postInQuestion);
+								//console.log("json2.result.items[i]:");
+								//console.log(json2.result.items[i]);
 								//console.log("if "+postInQuestion.reportsTo[j]._about +" == "+ json2.result.items[i]._about);
 								//console.log("does it report to anyone? "+postInQuestion.reportsTo[j].reportsTo);
 								
@@ -425,11 +427,17 @@ function loadPost(deptSlug,postSlug) {
 								
 									j=j-1;
 								// If the post reports to a post that doesn't report to anybody with a label
-								} else {
-									// nowt
+								// and has a valid URI (needed when building the tree)
+								} else if(typeof postInQuestion.reportsTo[j]._about != 'undefined') {
 									//console.log("making firstNode using:");
 									//console.log(postInQuestion.reportsTo[j]);
 									firstNode = makeNode(postInQuestion.reportsTo[j]);
+								} else {
+									// If the node above in the 'else if' has no URI,
+									// use it's child - this  node
+									//console.log("making firstNode using:");
+									//console.log(postInQuestion);
+									firstNode = makeNode(postInQuestion);								
 								}
 							}
 						} else {
@@ -746,15 +754,19 @@ function makeNode(item) {
 	//p("------------------------");
 	//cl(item);
 	
-	var slug = item._about.split("/");
-	slug = slug[slug.length-1];
-		
+	/*
+	if(typeof item._about != 'undefined') {
+		var slug = item._about.split("/");
+		slug = slug[slug.length-1];
+	} else {
+	}
+	*/
 		var node = {
 				id:$.generateId(),
 				//id:"post_"+slug,
 				name:[],
 				data:{
-					uri:item._about,
+					uri:"",
 					comment:item.comment,
 					grade:[],
 					type:[],
@@ -765,6 +777,12 @@ function makeNode(item) {
 				},
 				children:[]
 		};
+		
+		if(typeof item._about != 'undefined') {
+			node.data.uri = item._about;
+		} else {
+			node.data.uri = "/No URI";
+		}
 		
 		// Handle posts with more than one label
 		if(typeof item.label != 'undefined'){
