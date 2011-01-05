@@ -259,7 +259,7 @@
 
 <xsl:template match="wasResultOf" mode="footer">
 	<div class="provenance">
-		<xsl:apply-templates select="selectionResult" mode="footer" />
+		<xsl:apply-templates select="selectionResult[query/value != '']" mode="footer" />
 		<xsl:apply-templates select="viewingResult" mode="footer" />
 	</div>
 </xsl:template>
@@ -318,7 +318,7 @@
 	<xsl:param name="count" select="0" />
 	<xsl:variable name="firstLine" select="substring-before($query, '&#xA;')" />
 	<xsl:choose>
-		<xsl:when test="starts-with($firstLine, 'prefix ') or normalize-space($firstLine) = ''">
+		<xsl:when test="starts-with($firstLine, 'prefix ') or (normalize-space($query) != '' and normalize-space($firstLine) = '')">
 			<xsl:apply-templates select="." mode="skipLines">
 				<xsl:with-param name="query" select="substring-after($query, '&#xA;')" />
 				<xsl:with-param name="count" select="$count + 1" />
