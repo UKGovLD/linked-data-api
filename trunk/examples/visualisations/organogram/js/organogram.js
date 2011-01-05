@@ -341,8 +341,8 @@ function loadPost(deptSlug,postSlug) {
 				
 				
 				// Make a second API call to retrieve information about the posts that report to the root post
-				//api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
-				api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
+				api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
+				//api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
 
 				api_call_info.push({
 					title:"Retrieval of posts that report to the root post",
@@ -1019,6 +1019,16 @@ function displaySalaryReports(node,postUnit) {
 			// Check to see if posts have statistics
 			if(json.result.items.length > 0) {
 					var stats = json.result.items;
+					
+					//find highest salaryReports stat
+					var highest=0;
+					for(var t=0;t<stats.length;t++){
+						if(stats[t].salaryCostOfReports > highest){
+							highest = stats[t].salaryCostOfReports;
+						}
+					}
+					var mapValue = (parseInt(highest)/260);
+					
 					for(var w=0;w<stats.length;w++){
 						for(var v=0;v<node.data.heldBy.length; v++) {
 							if(stats[w].aboutPost._about == node.data.heldBy[v].holdsPostURI){
@@ -1028,13 +1038,22 @@ function displaySalaryReports(node,postUnit) {
 								node.data.heldBy[v].salaryCostOfReportsDate = date;
 								if(node.data.heldBy[v].salaryCostOfReports > -1){							
 									$("div.expander div.content").each(function(){
+									//find highest number - divide number by 260 = factor
+									//divide every other number by factor, multiply by -1
+									//background-image: url("../images/salaryGradient.png");
+   									//highest = background-position: 0 center;
+   									//zero = background-position: -260px center
+									
 										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI.toString()) {
+										$(this).parent().children("a.name").css("background-position",-260+(parseInt(node.data.heldBy[v].salaryCostOfReports)/mapValue)+"px center");	
 											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">£'+node.data.heldBy[v].salaryCostOfReports+'</a> <span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
 										}
 									});					
 								} else {
 									$("div.expander div.content").each(function(){
+										
 										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI) {
+										$(this).parent().children("a.name").css("background-position","-260px center");
 											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">N/A</a>');
 										}
 									});								
