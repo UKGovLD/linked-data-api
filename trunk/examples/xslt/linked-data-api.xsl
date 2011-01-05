@@ -30,27 +30,19 @@
 
 <xsl:variable name="northing-uri" select="concat($spatial, 'northing')" />
 <xsl:variable name="easting-uri" select="concat($spatial, 'easting')" />
-<xsl:param name="northing" select="key('propertyTerms', $northing-uri)/label" />
-<xsl:param name="easting" select="key('propertyTerms', $easting-uri)/label" />
 
 <xsl:variable name="lat-uri" select="concat($wgs84_pos, 'lat')" />
 <xsl:variable name="long-uri" select="concat($wgs84_pos, 'long')" />
-<xsl:param name="lat" select="key('propertyTerms', $lat-uri)/label" />
-<xsl:param name="long" select="key('propertyTerms', $long-uri)/label" />
 
 <xsl:variable name="label-uri" select="concat($rdfs, 'label')" />
-<xsl:param name="label" select="key('propertyTerms', $label-uri)/label" />
 
 <xsl:variable name="prefLabel-uri" select="concat($skos, 'prefLabel')" />
 <xsl:variable name="altLabel-uri" select="concat($skos, 'altLabel')" />
-<xsl:param name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
-<xsl:param name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
 
 <xsl:variable name="name-uri" select="concat($foaf, 'name')" />
-<xsl:param name="name" select="key('propertyTerms', $name-uri)/label" />
 
 <xsl:variable name="title-uri" select="concat($dc, 'title')" />
-<xsl:param name="title" select="key('propertyTerms', $title-uri)/label" />
+
 
 <!-- 
 	ordering for efficiency based on occurrence as first letter of word:
@@ -380,6 +372,11 @@
 </xsl:template>
 
 <xsl:template match="*" mode="bestLabelParam">
+	<xsl:variable name="label" select="key('propertyTerms', $label-uri)/label" />
+	<xsl:variable name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
+	<xsl:variable name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
+	<xsl:variable name="name" select="key('propertyTerms', $name-uri)/label" />
+	<xsl:variable name="title" select="key('propertyTerms', $title-uri)/label" />
 	<xsl:choose>
 		<xsl:when test="*[name(.) = $prefLabel]"><xsl:value-of select="$prefLabel" /></xsl:when>
 		<xsl:when test="*[name(.) = $title]"><xsl:value-of select="$title" /></xsl:when>
@@ -391,6 +388,11 @@
 
 <xsl:template match="*" name="isLabelParam" mode="isLabelParam">
 	<xsl:param name="paramName" select="name(.)" />
+	<xsl:variable name="label" select="key('propertyTerms', $label-uri)/label" />
+	<xsl:variable name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
+	<xsl:variable name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
+	<xsl:variable name="name" select="key('propertyTerms', $name-uri)/label" />
+	<xsl:variable name="title" select="key('propertyTerms', $title-uri)/label" />
 	<xsl:choose>
 		<xsl:when test="$paramName = $label or $paramName = $prefLabel or $paramName = $altLabel or $paramName = $name or $paramName = $title">true</xsl:when>
 		<xsl:otherwise>false</xsl:otherwise>
