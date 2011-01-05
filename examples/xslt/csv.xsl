@@ -11,6 +11,15 @@
 </xsl:template>
 
 <xsl:template match="result">
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
+	<xsl:variable name="label" select="key('propertyTerms', $label-uri)/label" />
+	<xsl:variable name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
+	<xsl:variable name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
+	<xsl:variable name="name" select="key('propertyTerms', $name-uri)/label" />
+	<xsl:variable name="title" select="key('propertyTerms', $title-uri)/label" />
 	<xsl:variable name="properties">
 		<xsl:text>@href,</xsl:text>
 		<xsl:for-each select="(items/item/* | primaryTopic[not(../items)]/*)[generate-id(key('properties', name(.))[1]) = generate-id(.)]">
@@ -44,6 +53,10 @@
 
 <xsl:template match="*" mode="properties">
 	<xsl:param name="parentName" select="''" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
 	<xsl:variable name="propertyName">
 		<xsl:if test="$parentName != ''">
 			<xsl:value-of select="$parentName" />

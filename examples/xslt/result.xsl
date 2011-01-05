@@ -1,3 +1,9 @@
+<!--
+Note: in at least some versions of libxslt (used by PHP), you can't set global
+variables based on values retrieved by a key. Therefore this code contains
+lots of redeclarations of the $northing, $easting, $lat, $long, $label,
+$prefLabel, $altLabel, $title and $name variables.
+-->
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
@@ -62,6 +68,8 @@
 </xsl:template>
 
 <xsl:template match="result" mode="script">
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
 	<xsl:variable name="showMap">
 		<xsl:apply-templates select="." mode="showMap" />
 	</xsl:variable>
@@ -165,6 +173,8 @@
 
 <xsl:template name="clearPosition">
 	<xsl:param name="uri" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
 	<xsl:call-template name="substituteParam">
 		<xsl:with-param name="uri">
 			<xsl:call-template name="substituteParam">
@@ -192,6 +202,7 @@
 
 <xsl:template match="result" mode="showMap">
 	<xsl:param name="items" select="items//*[*] | primaryTopic[not(../items)]/descendant-or-self::*[*]" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
 	<xsl:choose>
 		<xsl:when test="not($items)">
 			<xsl:variable name="minEasting">
@@ -229,6 +240,8 @@
 </xsl:template>
 
 <xsl:template match="*" mode="showMap">
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
 	<xsl:choose>
 		<xsl:when test="*[name(.) = $easting] and *[name(.) = $northing]">true</xsl:when>
 		<xsl:otherwise>false</xsl:otherwise>
@@ -449,6 +462,8 @@
 </xsl:template>
 	
 <xsl:template match="result" mode="map">
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
 	<xsl:variable name="showMap">
 		<xsl:apply-templates select="." mode="showMap" />
 	</xsl:variable>
@@ -775,6 +790,10 @@
 			<xsl:with-param name="values" select="$values" />
 		</xsl:call-template>
 	</xsl:param>
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
 	<xsl:choose>
 		<xsl:when test="name(.) = $easting or name(.) = $northing or name(.) = $lat or name(.) = $long" />
 		<xsl:otherwise>
@@ -787,6 +806,10 @@
 	<xsl:param name="values" />
 	<xsl:param name="distinctValues" />
 	<xsl:param name="sort" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
 	<xsl:choose>
 		<xsl:when test="name(.) = $easting or name(.) = $northing or name(.) = $lat or name(.) = $long" />
 		<xsl:otherwise>
@@ -949,6 +972,8 @@
 
 <xsl:template name="extractFilters">
 	<xsl:param name="params" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
 	<xsl:variable name="param">
 		<xsl:choose>
 			<xsl:when test="contains($params, '&amp;')">
@@ -1028,6 +1053,15 @@
 </xsl:template>
 
 <xsl:template match="result" mode="viewnav">
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
+	<xsl:variable name="label" select="key('propertyTerms', $label-uri)/label" />
+	<xsl:variable name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
+	<xsl:variable name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
+	<xsl:variable name="name" select="key('propertyTerms', $name-uri)/label" />
+	<xsl:variable name="title" select="key('propertyTerms', $title-uri)/label" />
 	<xsl:variable name="view">
 		<xsl:call-template name="paramValue">
 			<xsl:with-param name="uri" select="@href" />
@@ -1167,6 +1201,10 @@
 <xsl:template match="*" mode="propertiesentry">
 	<xsl:param name="properties" />
 	<xsl:param name="parentName" select="''" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
 	<xsl:variable name="propertyName">
 		<xsl:if test="$parentName != ''">
 			<xsl:value-of select="$parentName" />
@@ -1285,6 +1323,15 @@
 </xsl:template>
 
 <xsl:template match="result" mode="sortnav">
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
+	<xsl:variable name="label" select="key('propertyTerms', $label-uri)/label" />
+	<xsl:variable name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
+	<xsl:variable name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
+	<xsl:variable name="name" select="key('propertyTerms', $name-uri)/label" />
+	<xsl:variable name="title" select="key('propertyTerms', $title-uri)/label" />
 	<xsl:variable name="searchURI">
 		<xsl:apply-templates select="/result" mode="searchURI" />
 	</xsl:variable>
@@ -1527,6 +1574,10 @@
 	<xsl:param name="uri" />
 	<xsl:param name="current" />
 	<xsl:param name="parentName" select="''" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
 	<xsl:variable name="propertyName">
 		<xsl:if test="$parentName != ''">
 			<xsl:value-of select="$parentName" />
@@ -1773,6 +1824,15 @@
 </xsl:template>
 
 <xsl:template match="*" mode="table">
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
+	<xsl:variable name="label" select="key('propertyTerms', $label-uri)/label" />
+	<xsl:variable name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
+	<xsl:variable name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
+	<xsl:variable name="name" select="key('propertyTerms', $name-uri)/label" />
+	<xsl:variable name="title" select="key('propertyTerms', $title-uri)/label" />
 	<xsl:variable name="showMap">
 		<xsl:apply-templates select="." mode="showMap" />
 	</xsl:variable>
@@ -1890,6 +1950,10 @@
 	<xsl:param name="properties" />
 	<xsl:param name="bestLabelParam" />
 	<xsl:param name="last" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
 	<xsl:variable name="paramName">
 		<xsl:apply-templates select="." mode="paramName" />
 	</xsl:variable>
@@ -2131,6 +2195,10 @@
 
 <xsl:template match="*" mode="showBoxplot">
 	<xsl:param name="values" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
 	<xsl:choose>
 		<xsl:when test="name(.) = $easting or name(.) = $northing or name(.) = $lat or name(.) = $long" />
 		<xsl:otherwise>
@@ -2162,6 +2230,15 @@
 
 <xsl:template match="*[item]" mode="content" priority="4">
 	<xsl:param name="nested" select="false()" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
+	<xsl:variable name="label" select="key('propertyTerms', $label-uri)/label" />
+	<xsl:variable name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
+	<xsl:variable name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
+	<xsl:variable name="name" select="key('propertyTerms', $name-uri)/label" />
+	<xsl:variable name="title" select="key('propertyTerms', $title-uri)/label" />
 	<xsl:variable name="isLabelParam">
 		<xsl:apply-templates select="." mode="isLabelParam" />
 	</xsl:variable>
@@ -2513,6 +2590,15 @@
 </xsl:template>
 
 <xsl:template match="result" mode="search">
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
+	<xsl:variable name="label" select="key('propertyTerms', $label-uri)/label" />
+	<xsl:variable name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
+	<xsl:variable name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
+	<xsl:variable name="name" select="key('propertyTerms', $name-uri)/label" />
+	<xsl:variable name="title" select="key('propertyTerms', $title-uri)/label" />
 	<xsl:variable name="searchURI">
 		<xsl:apply-templates select="/result" mode="searchURI" />
 	</xsl:variable>
@@ -2579,6 +2665,10 @@
 <xsl:template match="*" mode="formrow">
 	<xsl:param name="parentName" select="''" />
 	<xsl:param name="last" select="false()" />
+	<xsl:variable name="northing" select="key('propertyTerms', $northing-uri)/label" />
+	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
+	<xsl:variable name="lat" select="key('propertyTerms', $lat-uri)/label" />
+	<xsl:variable name="long" select="key('propertyTerms', $long-uri)/label" />
 	<xsl:variable name="propertyName">
 		<xsl:if test="$parentName != ''">
 			<xsl:value-of select="$parentName" />
