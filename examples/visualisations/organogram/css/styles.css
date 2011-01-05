@@ -597,7 +597,8 @@ font-size:12px;
 }
 div.expander a.name {
 background-color:#555555;
-/*background-image: url("../images/salaryGradient.png");*/
+background-image: url("../images/salaryGradient.png");
+background-position: -285px center;
 color:#FFFFFF;
 cursor:pointer;
 display:block;
