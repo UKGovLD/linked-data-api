@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#"
-	xmlns:spatial="http://data.ordnancesurvey.co.uk/ontology/spatialrelations/"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-	xmlns:foaf="http://xmlns.com/foaf/0.1/"
-	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	version="1.0">
 	
 <xsl:key name="properties" match="/result/items/item/* | /result[not(items)]/primaryTopic/*" use="name(.)" />
@@ -27,13 +21,12 @@
 <xsl:key name="terms" match="termBinding/item" use="label" />
 <xsl:key name="propertyTerms" match="termBinding/item" use="property/@href" />
 
-<xsl:variable name="namespaces" select="document('')/xsl:stylesheet/namespace::*" />
-<xsl:variable name="wgs84_pos" select="$namespaces[name() = 'wgs84_pos']" />
-<xsl:variable name="spatial" select="$namespaces[name() = 'spatial']" />
-<xsl:variable name="rdfs" select="$namespaces[name() = 'rdfs']" />
-<xsl:variable name="skos" select="$namespaces[name() = 'skos']" />
-<xsl:variable name="foaf" select="$namespaces[name() = 'foaf']" />
-<xsl:variable name="dc" select="$namespaces[name() = 'dc']" />
+<xsl:variable name="wgs84_pos" select="'http://www.w3.org/2003/01/geo/wgs84_pos#'" />
+<xsl:variable name="spatial" select="'http://data.ordnancesurvey.co.uk/ontology/spatialrelations/'" />
+<xsl:variable name="rdfs" select="'http://www.w3.org/2000/01/rdf-schema#'" />
+<xsl:variable name="skos" select="'http://www.w3.org/2004/02/skos/core#'" />
+<xsl:variable name="foaf" select="'http://xmlns.com/foaf/0.1/'" />
+<xsl:variable name="dc" select="'http://purl.org/dc/elements/1.1/'" />
 
 <xsl:param name="northing" select="key('propertyTerms', concat($spatial, 'northing'))/label" />
 <xsl:param name="easting" select="key('propertyTerms', concat($spatial, 'easting'))/label" />
