@@ -265,11 +265,11 @@
 </xsl:template>
 
 <xsl:template match="viewingResult | selectionResult" mode="footer">
-	<div class="query col{position()}">
+	<div>
 		<xsl:attribute name="class">
 			<xsl:text> query col</xsl:text>
 			<xsl:choose>
-				<xsl:when test="self::viewingResult[../selectionResult]">2</xsl:when>
+				<xsl:when test="self::viewingResult[../selectionResult/query/value != '']">2</xsl:when>
 				<xsl:otherwise>1</xsl:otherwise>
 			</xsl:choose>
 		</xsl:attribute>
