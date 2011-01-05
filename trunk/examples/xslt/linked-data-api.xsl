@@ -28,20 +28,29 @@
 <xsl:variable name="foaf" select="'http://xmlns.com/foaf/0.1/'" />
 <xsl:variable name="dc" select="'http://purl.org/dc/elements/1.1/'" />
 
-<xsl:param name="northing" select="key('propertyTerms', concat($spatial, 'northing'))/label" />
-<xsl:param name="easting" select="key('propertyTerms', concat($spatial, 'easting'))/label" />
+<xsl:variable name="northing-uri" select="concat($spatial, 'northing')" />
+<xsl:variable name="easting-uri" select="concat($spatial, 'easting')" />
+<xsl:param name="northing" select="key('propertyTerms', $northing-uri)/label" />
+<xsl:param name="easting" select="key('propertyTerms', $easting-uri)/label" />
 
-<xsl:param name="lat" select="key('propertyTerms', concat($wgs84_pos, 'lat'))/label" />
-<xsl:param name="long" select="key('propertyTerms', concat($wgs84_pos, 'long'))/label" />
+<xsl:variable name="lat-uri" select="concat($wgs84_pos, 'lat')" />
+<xsl:variable name="long-uri" select="concat($wgs84_pos, 'long')" />
+<xsl:param name="lat" select="key('propertyTerms', $lat-uri)/label" />
+<xsl:param name="long" select="key('propertyTerms', $long-uri)/label" />
 
-<xsl:param name="label" select="key('propertyTerms', concat($rdfs, 'label'))/label" />
+<xsl:variable name="label-uri" select="concat($rdfs, 'label')" />
+<xsl:param name="label" select="key('propertyTerms', $label-uri)/label" />
 
-<xsl:param name="prefLabel" select="key('propertyTerms', concat($skos, 'prefLabel'))/label" />
-<xsl:param name="altLabel" select="key('propertyTerms', concat($skos, 'altLabel'))/label" />
+<xsl:variable name="prefLabel-uri" select="concat($skos, 'prefLabel')" />
+<xsl:variable name="altLabel-uri" select="concat($skos, 'altLabel')" />
+<xsl:param name="prefLabel" select="key('propertyTerms', $prefLabel-uri)/label" />
+<xsl:param name="altLabel" select="key('propertyTerms', $altLabel-uri)/label" />
 
-<xsl:param name="name" select="key('propertyTerms', concat($foaf, 'name'))/label" />
+<xsl:variable name="name-uri" select="concat($foaf, 'name')" />
+<xsl:param name="name" select="key('propertyTerms', $name-uri)/label" />
 
-<xsl:param name="title" select="key('propertyTerms', concat($dc, 'title'))/label" />
+<xsl:variable name="title-uri" select="concat($dc, 'title')" />
+<xsl:param name="title" select="key('propertyTerms', $title-uri)/label" />
 
 <!-- 
 	ordering for efficiency based on occurrence as first letter of word:
