@@ -30,16 +30,25 @@
 		
 		<div class="tip">
 			<p><strong>About: </strong></p>
+			<p>This is an organisational chart (organogram) visualisation for the structure of 'posts' within the UK government. Government departments are comprised of units which contain posts - these posts can be held by one or more persons.</p>
 			
-			<p>Created by Dan Paul Smith. @danpaulsmith</p>
+			<p>This visualisation shows the paths of responsibility in terms of who reports to who for the post in question by including it's 'parent' posts and it's 'children' posts. Clicking on a post in the visualisation should load it's children posts if there are any present.</p>
+			
+			<p>Each post has an information panel that includes information such as the name of the person(s) that holds the post, their contact details, the name of the departmental unit the post exists in, a description of the post's role and there are also links available that take you to the information itself - provided by the Linked Data API.</p>
+			
+			<p>To view the sources of data the visualisation uses at any time while using it, there's information provided about all of the the API calls made in the bottom right under "Data sources". Here you can grab the data in several different formats and see which parameters have been used to tailor the data for the visualisation.</p>
+			
+			<p>Please note: this web application is still under development.</p>
+			
+			<p>Created by Dan Paul Smith.</p>
 		</div>
 		</li>
-		<li><a href="#">Controls</a>
+		<!--li><a href="#">Controls</a>
 		<div class="tip">
 			<p><strong>Controls: </strong></p>
 
 		</div>
-		</li>	
+		</li-->	
 		<li id="orientation">
 			<p>Orientation</p>
 			<span><input type="radio" name="orientation" value="top"><label>Top</label></span>
@@ -65,8 +74,11 @@
 <script language="javascript" type="text/javascript"
 	src="js/Jit/jit-yc.js"></script>
 <script language="javascript" type="text/javascript"
+	src="js/jquery.tinysort.min.js"></script>	
+<script language="javascript" type="text/javascript"
 	src="js/organogram.js"></script>
 <script language="javascript" type="text/javascript" src="js/main.js"></script>
+
 <!--[if lt IE 9]>
     <script src="js/json2.js"></script>
 <![endif]-->

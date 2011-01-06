@@ -205,6 +205,19 @@ background:none repeat scroll 0 0 #555555;
 margin:auto auto 1px;
 width:70px;
 }
+div#right div.tip a {
+    color: #758200;
+    cursor: pointer;
+    display: inline;
+    height: auto;
+    padding-bottom: 0px;
+    padding-top: 0px;
+    text-decoration: none;
+    width: auto;
+}
+div#right div.tip a:hover {
+    text-decoration: underline;
+}
 div#right ul li a {
 background:none repeat scroll 0 0 #555555;
 cursor:pointer;
