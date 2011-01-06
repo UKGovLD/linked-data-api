@@ -94,6 +94,7 @@ var global_post="";
 var global_ST="";
 var global_postJSON="";
 var api_call_info = [];
+var firstLoad = true;
 	
 function init(deptSlug,postSlug){
 	
@@ -990,7 +991,13 @@ function loadPersonInfo(node){
 		setInfoBoxLinks();
 		$("#infobox").fadeIn();
 		$("div.heldBy").show();
-		$("div.heldBy div.expander a.infobox_"+global_post).click(); 
+		
+		if(firstLoad){
+			$("div.heldBy div.expander a.infobox_"+global_post).click(); 
+			firstLoad=false;
+		} else {
+			$("div.heldBy div.expander a").eq(0).click();
+		}
 		
 		displaySalaryReports(node,postUnit);
 	
