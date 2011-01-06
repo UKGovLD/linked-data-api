@@ -921,15 +921,20 @@ function loadPersonInfo(node){
 
 	for(var i=0; i<node.data.heldBy.length; i++) {
 		html += '<div class="expander">';
-		
+
+		var tempID = node.data.heldBy[i].holdsPostURI.split("/");
+		tempID = tempID[tempID.length-1];
+				
 		if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
-			html += '<a class="name">'+node.data.heldBy[i].foafName+'<span>+</span></a>';
+			html += '<a class="name infobox_'+tempID+'">'+node.data.heldBy[i].foafName+'<span>+</span></a>';
 		}else {
-			html += '<a class="name">?<span>+</span></a>';		
+			html += '<a class="name infobox_'+tempID+'">?<span>+</span></a>';		
 		}
 
 		html += '<div class="content">';
 		
+		html+= '<p class="id"><span>Post ID</span><a target="_blank" href="http://reference.data.gov.uk/id/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a> <a class="view_org" href="?dept='+global_department+'&post='+tempID+'">[View organogram]</a></p>';
+				
 		if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
 			html+='<p class="comment"><span>Comment</span>'+node.data.heldBy[i].comment+'</p>';
 		}
@@ -956,11 +961,6 @@ function loadPersonInfo(node){
 				html += '<p class="type"><span>Type</span>'+node.data.type[a]+'</p>';
 			}
 		}
-		
-		var tempID = node.data.heldBy[i].holdsPostURI.split("/");
-		tempID = tempID[tempID.length-1];
-		
-		html+= '<p class="id"><span>Post ID</span><a target="_blank" href="http://reference.data.gov.uk/id/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a> <a class="view_org" href="?dept='+global_department+'&post='+tempID+'">[View organogram]</a></p>';
 		
 		html+= '<p class="unit"><span>Unit(s)</span>';
 		
@@ -990,7 +990,7 @@ function loadPersonInfo(node){
 		setInfoBoxLinks();
 		$("#infobox").fadeIn();
 		$("div.heldBy").show();
-		$("div.heldBy div.expander a").eq(0).click(); 
+		$("div.heldBy div.expander a.infobox_"+global_post).click(); 
 		
 		displaySalaryReports(node,postUnit);
 	
@@ -1046,7 +1046,7 @@ function displaySalaryReports(node,postUnit) {
 									
 										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI.toString()) {
 										$(this).parent().children("a.name").css("background-position",-260+(parseInt(node.data.heldBy[v].salaryCostOfReports)/mapValue)+"px center");	
-											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">£'+node.data.heldBy[v].salaryCostOfReports+'</a> <span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
+											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">£'+node.data.heldBy[v].salaryCostOfReports+'</a> <span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
 										}
 									});					
 								} else {
@@ -1061,6 +1061,9 @@ function displaySalaryReports(node,postUnit) {
 							}
 						}
 					}
+													
+					// Sort heldBy elements by salary
+					$("div.expander").tsort("div.content p.salaryReports a",{attr:"value",order:"desc"});
 					
 					// Description of API call
 					for(var x=0;x<api_call_info.length;x++){
@@ -1091,7 +1094,9 @@ function displaySalaryReports(node,postUnit) {
 							}
 						});	
 					}
-			}			
+			}
+			
+			
 		} // end success
 	}); // end ajax call
 

@@ -31,15 +31,15 @@
 <div class="tip">
 	<p><strong>About: </strong></p>
 	
-	<p>This is a "treemap" visualisation of the UK Government's departmental structure - using data provided by data.gov.uk. (Note: as more data is uploaded and made available, this visualisation will change automatically as it accesses data in real-time).</p>
+	<p>This is a treemap visualisation of the UK government's department structure using data provided by data.gov.uk. As more of the &quot;reference&quot; linked data is made available, this visualisation will change and grow automatically as it accesses the data and is created in the browser in real-time.</p>
 	
-	<p>The visualisation lets you drill down from the top-level of the government structure (departments), into their units and finally through to the lowest-level (posts).</p>
+	<p>The visualisation lets you drill down from the top-level of the government's structure (departments), down into their units and then through to the lowest-level - the unit posts, which are held by people.</p>
 	
-	<p>When clicking on a post, an &quot;organogram&quot; visualisation will load, where you can see more information about who reports to who, their responsibilities and statistics such as salary totals.</p>
+	<p>When clicking on a post, an organisation chart (organogram) visualisation will load, where you will be able to see more information about who reports to who, their responsibilities and statistics such as salary totals.</p>
 	
-	<p>At any point, the raw data can be accessed by clicking on the "Data Sources" links in the bottom-right corner. Each data source link contains information about what data has been accessed, how it has been accessed and where you can get it yourself - it's open data after all!</p>
+	<p>To view the sources of data the visualisation uses at any time while using it, there's information provided about all of the the API calls made in the bottom right under "Data sources". Here you can grab the data in several different formats and see which parameters have been used to tailor the data for the visualisation.</p>
 	
-	<p>Updates to follow such as  features to come (including more types of data to link to as it uses Linked Data).</p>
+	<p>Please note: this web application is still under development.</p>
 	
 	<p>Created by Dan Paul Smith.</p>
 </div>
