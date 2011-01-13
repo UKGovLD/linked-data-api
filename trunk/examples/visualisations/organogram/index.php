@@ -74,7 +74,9 @@
 <script language="javascript" type="text/javascript"
 	src="js/Jit/jit-yc.js"></script>
 <script language="javascript" type="text/javascript"
-	src="js/jquery.tinysort.min.js"></script>	
+	src="js/jquery.tinysort.min.js"></script>
+<script language="javascript" type="text/javascript"
+	src="js/jquery.ajaxmanager.js"></script>		
 <script language="javascript" type="text/javascript"
 	src="js/organogram.js"></script>
 <script language="javascript" type="text/javascript" src="js/main.js"></script>

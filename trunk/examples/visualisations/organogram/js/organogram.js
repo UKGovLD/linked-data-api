@@ -95,7 +95,17 @@ var global_ST="";
 var global_postJSON="";
 var api_call_info = [];
 var firstLoad = true;
+var firstNodeLoad = true;
+var reOpen = false;
 	
+var ajax_rootPost;
+var ajax_postReports;
+var ajax_salaryReports;	
+
+$.manageAjax.create('rootPost', { queue: true, cacheResponse: false, abortOld: true }); 
+$.manageAjax.create('postReports', { queue: true, cacheResponse: false, abortOld: true }); 
+$.manageAjax.create('salaryReports', { queue: true, cacheResponse: false, abortOld: true }); 
+
 function init(deptSlug,postSlug){
 	
 	global_department = deptSlug;
@@ -229,12 +239,26 @@ function init(deptSlug,postSlug){
 			
 
 			label.onclick = function(){ 
+			
+				$.manageAjax.abort('salaryReports'); 
 
-				st.onClick(node.id,{
-					Move:{
-						enable:false
-					}
-				}); 
+				/*
+				var off = $("div#"+node.id).offset();
+				var t = off.top;
+				var l = off.left;
+				var h = $("div#"+node.id).height();
+				var w = $("div#"+node.id).width();
+				var docH = $(document).height();
+				var docW = $(document).width();
+				
+				var isEntirelyVisible = (t > 0 && l > 0 && t + h < docH && l+ w < docW);
+				*/
+				var m = {
+				    offsetX: st.canvas.translateOffsetX,
+				    offsetY: st.canvas.translateOffsetY
+				};
+			
+				st.onClick(node.id, { Move: m }); 				
 
 				$("div.node").css("border","1px solid #AAAAAA");
 				$("div#"+node.id).css("border","2px solid #333333");		
@@ -308,13 +332,13 @@ function loadPost(deptSlug,postSlug) {
 		parameters:""
 	});
 	
-	$.ajax({
+	$.manageAjax.add('rootPost',{ 
+	//$.ajax({	
 		url: api_call_info[api_call_info.length-1].url+".json"+"?callback=?",
 		type: "GET",
 		dataType: "jsonp",
 		async:true,
 		success: function(json){
-				
 				
 				try{
 				
@@ -322,7 +346,8 @@ function loadPost(deptSlug,postSlug) {
 				//console.log("Post In Question:");
 				//console.log(postInQuestion);
 				//firstNode = makeNode(json.result.primaryTopic);
-
+	
+				// Extract information for visualisation breadcrumbs
 				$("h1.title span#post").html(json.result.primaryTopic.label[0]);
 				var dSlug = json.result.primaryTopic.postIn[1]._about.toString().split("/");
 				dSlug = dSlug[dSlug.length-1];		
@@ -331,7 +356,7 @@ function loadPost(deptSlug,postSlug) {
 				var uSlug = json.result.primaryTopic.postIn[0]._about.toString().split("/");
 				uSlug = uSlug[uSlug.length-1];				
 				$("h1.title span#unit").html(json.result.primaryTopic.postIn[0].label[0]).attr("rel","../gov-structure?dept="+dSlug+"&unit="+uSlug);
-
+	
 				$("h1.title span").css("visibility","visible");
 				$("h1.title span#post").animate({opacity:'1'},1000,function(){
 					$("h1.title span#unit").animate({opacity:'1'},1000,function(){
@@ -344,15 +369,16 @@ function loadPost(deptSlug,postSlug) {
 				// Make a second API call to retrieve information about the posts that report to the root post
 				api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
 				//api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
-
+	
 				api_call_info.push({
 					title:"Retrieval of posts that report to the root post",
 					description:"This call retrieves information about the posts that report to the root post, such as their unit, grade and contact details.",
 					url:api_url,
-					parameters:"?_pageSize=300"
+					parameters:"?_pageSize=50"
 				});				
 				
-				$.ajax({
+				$.manageAjax.add('postReports',{ 
+				//$.ajax({
 					url: api_call_info[api_call_info.length-1].url+".json"+api_call_info[api_call_info.length-1].parameters+"&callback=?",
 					type: "GET",
 					dataType: "jsonp",
@@ -360,11 +386,9 @@ function loadPost(deptSlug,postSlug) {
 					success: function(json2){
 			
 						searchJSON.nodes = [];
-						
-						//console.log("Finding post in question in organogram data");
-						
+												
+						// Search for the post in question
 						for(var i=0;i<json2.result.items.length;i++){
-						
 							if(postInQuestion._about == json2.result.items[i]._about){
 								//console.log(postInQuestion);
 								//console.log(json2.result.items[i]);
@@ -492,14 +516,14 @@ function loadPost(deptSlug,postSlug) {
 							window.location = $(this).attr("rel");
 						});	
 					}
-				});
+				}); // end ajax_postReports
 				
 			}catch(e){
 				// No success when retrieving information about the root post
 				cl(e);
 			}
 		}
-	});
+	}); // end ajax_rootPost;
 
 	return false;
 }
@@ -904,6 +928,8 @@ function loadPersonInfo(node){
 	var postUnit;
 	var tempUnitID;
 	var tempUnitLabel;
+
+	//console.log(node);
 	
 	for(var j=0;j<node.data.postIn.length;j++){
 		if(node.data.postIn[j]._about.indexOf("/unit/") >= 0){
@@ -913,6 +939,8 @@ function loadPersonInfo(node){
 			postUnit = node.data.postIn[j]._about;
 		}
 	}
+	
+	//console.log("postUnit = "+postUnit);
 
 	
 	// Construct the HTML for the infobox
@@ -995,8 +1023,10 @@ function loadPersonInfo(node){
 		if(firstLoad){
 			$("div.heldBy div.expander a.infobox_"+global_post).click(); 
 			firstLoad=false;
+			reOpen=false;
 		} else {
 			$("div.heldBy div.expander a").eq(0).click();
+			reOpen=true;
 		}
 		
 		displaySalaryReports(node,postUnit);
@@ -1016,7 +1046,9 @@ function displaySalaryReports(node,postUnit) {
 	var api_url = "http://reference.data.gov.uk/doc/department/"+global_department+"/unit/"+postUnit+"/statistics";
 
 	// Call API for post statistics	
-	$.ajax({
+
+	$.manageAjax.add('salaryReports',{ 
+	//$.ajax({
 		url: api_url+".json?aboutPost.label="+postLabel+"&callback=?",
 		type: "GET",
 		dataType: "jsonp",
@@ -1034,8 +1066,8 @@ function displaySalaryReports(node,postUnit) {
 							highest = stats[t].salaryCostOfReports;
 						}
 					}
-					var mapValue = (parseInt(highest)/260);
-					
+					var mapValue = highest/260;
+						
 					for(var w=0;w<stats.length;w++){
 						for(var v=0;v<node.data.heldBy.length; v++) {
 							if(stats[w].aboutPost._about == node.data.heldBy[v].holdsPostURI){
@@ -1044,33 +1076,37 @@ function displaySalaryReports(node,postUnit) {
 	                            date = '['+date[date.length-1]+']';
 								node.data.heldBy[v].salaryCostOfReportsDate = date;
 								if(node.data.heldBy[v].salaryCostOfReports > -1){							
-									$("div.expander div.content").each(function(){
-									//find highest number - divide number by 260 = factor
-									//divide every other number by factor, multiply by -1
-									//background-image: url("../images/salaryGradient.png");
-   									//highest = background-position: 0 center;
-   									//zero = background-position: -260px center
-									
+									$("div.expander div.content").each(function(){									
 										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI.toString()) {
-										$(this).parent().children("a.name").css("background-position",-260+(parseInt(node.data.heldBy[v].salaryCostOfReports)/mapValue)+"px center");	
+											if(isNaN(parseInt(node.data.heldBy[v].salaryCostOfReports)/mapValue)){
+												$(this).parent().children("a.name").css("background-position","-260px center");
+											} else {
+												$(this).parent().children("a.name").css("background-position",-260+(parseInt(node.data.heldBy[v].salaryCostOfReports)/mapValue)+"px center");
+											}
 											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">£'+node.data.heldBy[v].salaryCostOfReports+'</a> <span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
 										}
 									});					
 								} else {
 									$("div.expander div.content").each(function(){
-										
 										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI) {
-										$(this).parent().children("a.name").css("background-position","-260px center");
+											$(this).parent().children("a.name").css("background-position","-260px center");
 											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">N/A</a>');
 										}
 									});								
-								}									
-							}
-						}
-					}
+								} // end else									
+							} // end if
+						} // end for
+					} // end for
 													
 					// Sort heldBy elements by salary
 					$("div.expander").tsort("div.content p.salaryReports a",{attr:"value",order:"desc"});
+					
+					//if(reOpen){
+					//	if($("div.heldBy div.expander a").eq(0).next("div.content").css("display") != "block") {
+					//		$("div.heldBy div.expander a").eq(0).click();
+					//	}
+					//}
+					
 					
 					// Description of API call
 					for(var x=0;x<api_call_info.length;x++){
@@ -1104,9 +1140,10 @@ function displaySalaryReports(node,postUnit) {
 			}
 			
 			
+			
 		} // end success
 	}); // end ajax call
-
+		
 	return false;
 }
 
