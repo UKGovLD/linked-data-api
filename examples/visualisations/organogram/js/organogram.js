@@ -7,7 +7,28 @@ visualisation.
 
 */
 
+
+/*** Customisation variables ***/
+
+
+
+
+
+/*** Globals ***/
+
+var global_department, global_post, global_ST, global_postJSON, labelType, useGradients, nativeTextSupport, animate;
 var debug = false;
+var api_call_info = [];
+var firstLoad = true;
+var var_move = true;
+var reOpen = false;
+var ajax_rootPost;
+var ajax_postReports;
+var ajax_salaryReports;	
+
+//$.manageAjax.create('rootPost', { queue: true, cacheResponse: false, abortOld: true }); 
+//$.manageAjax.create('postReports', { queue: true, cacheResponse: false, abortOld: true }); 
+//$.manageAjax.create('salaryReports', { queue: true, cacheResponse: false, abortOld: true }); 
 
 function a(string) {
 	if(debug){
@@ -29,7 +50,7 @@ function cl(obj) {
 }
 
 
-var labelType, useGradients, nativeTextSupport, animate;
+
 
 (function() {
 	var ua = navigator.userAgent,
@@ -84,27 +105,6 @@ $.fn.generateId = function() {
 	});
 };
 
-
-/*
- * Grab the department parameter from the URL and use it for an API call to list
- * the posts within that department
- */	
-var global_department="";
-var global_post="";
-var global_ST="";
-var global_postJSON="";
-var api_call_info = [];
-var firstLoad = true;
-var firstNodeLoad = true;
-var reOpen = false;
-	
-var ajax_rootPost;
-var ajax_postReports;
-var ajax_salaryReports;	
-
-$.manageAjax.create('rootPost', { queue: true, cacheResponse: false, abortOld: true }); 
-$.manageAjax.create('postReports', { queue: true, cacheResponse: false, abortOld: true }); 
-$.manageAjax.create('salaryReports', { queue: true, cacheResponse: false, abortOld: true }); 
 
 function init(deptSlug,postSlug){
 	
@@ -168,7 +168,7 @@ function init(deptSlug,postSlug){
 		offsetY: 0, 
 		transition: $jit.Trans.Sine.easeOut, 
 		levelDistance: 60,  
-		levelsToShow: 5,  
+		levelsToShow: 5, 
 		Node: {
 			height: 70,
 			width: 190,
@@ -255,10 +255,13 @@ function init(deptSlug,postSlug){
 				*/
 				var m = {
 				    offsetX: st.canvas.translateOffsetX,
-				    offsetY: st.canvas.translateOffsetY
+				    offsetY: st.canvas.translateOffsetY,
+				    enable: var_move
 				};
-			
-				st.onClick(node.id, { Move: m }); 				
+				
+				//console.log(m);
+				
+				st.onClick(node.id, { Move: m });								
 
 				$("div.node").css("border","1px solid #AAAAAA");
 				$("div#"+node.id).css("border","2px solid #333333");		
@@ -332,12 +335,13 @@ function loadPost(deptSlug,postSlug) {
 		parameters:""
 	});
 	
-	$.manageAjax.add('rootPost',{ 
-	//$.ajax({	
+	//$.manageAjax.add('rootPost',{ 
+	$.ajax({	
 		url: api_call_info[api_call_info.length-1].url+".json"+"?callback=?",
 		type: "GET",
 		dataType: "jsonp",
 		async:true,
+		cache:true,
 		success: function(json){
 				
 				try{
@@ -377,12 +381,13 @@ function loadPost(deptSlug,postSlug) {
 					parameters:"?_pageSize=50"
 				});				
 				
-				$.manageAjax.add('postReports',{ 
-				//$.ajax({
+				//$.manageAjax.add('postReports',{ 
+				$.ajax({
 					url: api_call_info[api_call_info.length-1].url+".json"+api_call_info[api_call_info.length-1].parameters+"&callback=?",
 					type: "GET",
 					dataType: "jsonp",
 					async:true,
+					cache:true,
 					success: function(json2){
 			
 						searchJSON.nodes = [];
@@ -490,7 +495,7 @@ function loadPost(deptSlug,postSlug) {
 						// cl(global_ST.canvas.getPos(true));
 			
 						// global_ST.canvas.scale(1,1,false);
-						global_ST.canvas.translate(-150-(global_ST.canvas.translateOffsetX),-200-(global_ST.canvas.translateOffsetY),false)
+						//global_ST.canvas.translate(-150-(global_ST.canvas.translateOffsetX),-200-(global_ST.canvas.translateOffsetY),false)
 			
 			//var slug = firstNode.id.split("/");
 			//slug = slug[slug.length-1];
@@ -500,10 +505,17 @@ function loadPost(deptSlug,postSlug) {
 						//global_ST.setRoot("post_"+global_post);
 						global_ST.onClick(global_ST.root);
 						
+						
 						setTimeout(function(){
-							$("div.post_"+global_post).click();
-							
+							if(!global_ST.busy){
+								$("div.post_"+global_post).click();
+							} else {
+								setTimeout(function(){
+									$("div.post_"+global_post).click();
+								},1000);							
+							}
 						},1000);
+						
 						
 						// end
 						
@@ -1047,12 +1059,13 @@ function displaySalaryReports(node,postUnit) {
 
 	// Call API for post statistics	
 
-	$.manageAjax.add('salaryReports',{ 
-	//$.ajax({
+	//$.manageAjax.add('salaryReports',{ 
+	$.ajax({
 		url: api_url+".json?aboutPost.label="+postLabel+"&callback=?",
 		type: "GET",
 		dataType: "jsonp",
-		async:false,
+		async:true,
+		cache:true,
 		success: function(json){
 		
 			// Check to see if posts have statistics
