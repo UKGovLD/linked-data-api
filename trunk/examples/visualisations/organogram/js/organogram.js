@@ -16,12 +16,13 @@ visualisation.
 
 /*** Globals ***/
 
-var global_department, global_post, global_ST, global_postJSON, labelType, useGradients, nativeTextSupport, animate;
+var global_department="", global_postJSON="", global_post="", global_ST="", labelType="", useGradients="", nativeTextSupport="", animate="";
 var debug = false;
 var api_call_info = [];
 var firstLoad = true;
 var var_move = true;
 var reOpen = false;
+var cacheObj;
 var ajax_rootPost;
 var ajax_postReports;
 var ajax_salaryReports;	
@@ -29,6 +30,15 @@ var ajax_salaryReports;
 //$.manageAjax.create('rootPost', { queue: true, cacheResponse: false, abortOld: true }); 
 //$.manageAjax.create('postReports', { queue: true, cacheResponse: false, abortOld: true }); 
 //$.manageAjax.create('salaryReports', { queue: true, cacheResponse: false, abortOld: true }); 
+
+
+/*cacheObj = {
+	req:[{
+		id:0,
+		url:"http://example.com",
+		json:
+	}],
+}*/
 
 function a(string) {
 	if(debug){
@@ -48,9 +58,6 @@ function cl(obj) {
 	}
 	return false;
 }
-
-
-
 
 (function() {
 	var ua = navigator.userAgent,
