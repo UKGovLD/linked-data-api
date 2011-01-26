@@ -4,7 +4,7 @@ html, body {
     font-family: "Lucida Grande", Verdana;
     font-size: 0.9em;
     text-align: center;
-    background:url('http://data.gov.uk/sites/all/themes/datagovuk/images/body_bg_big.png') repeat scroll 0 0 transparent;
+    background:url('../images/body_bg_big.png') repeat scroll 0 0 transparent;
 }
 canvas {
 cursor:move;
@@ -29,21 +29,22 @@ overflow:hidden;
 z-index:9999;
 }
 h1.title span {
-display:inline-block;
+/*display:inline-block;
 font-size:12px;
 height:30px;
 line-height:30px;
 padding:0 10px;
 opacity:0;
 overflow:hidden;
-visibility:hidden;
+visibility:hidden;*/
 }
 h1.title span#text{
-font-size:14px;
+/*font-size:14px;
 opacity:1;
 visibility:visible;
-cursor: none;
+cursor: none;*/
 }
+/*
 h1.title span#post {
 background-color:#EEEEEE;
 border-right:2px ridge #FFFFFF;
@@ -65,7 +66,8 @@ text-decoration:underline;
 } 
 h1.title span#post:hover {
 text-decoration:none;
-} 
+} */
+
 input, select {
     font-size:0.9em;
 }
@@ -233,7 +235,7 @@ div#apiCalls p.label {
 margin:0 0 10px;
 }
 div#apiCalls a.source {
-background-color:#555555;
+/*background-color:#555555;
 color:#FFFFFF;
 display:block;
 margin:0 auto 1px;
@@ -241,11 +243,16 @@ padding:4px;
 width:30px;
 cursor:pointer;
 position:relative;
-text-decoration: none;
+text-decoration: none;*/
+    display: block;
+    margin-bottom: 2px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30px;
 }
 div#apiCalls a.source:hover {
-background-color:#FFFFFF;
-color:#333333;
+/*background-color:#FFFFFF;
+color:#333333;*/
 }
 div#apiCalls div.apiCall {
 box-shadow:0 5px 24px #888888;
@@ -344,7 +351,7 @@ div#apiCalls div.apiCall p.formats {
 
 }
 div#apiCalls div.apiCall p.formats a {
-background-color:#333333;
+/*background-color:#333333;
 color:#EEEEEE;
 display:inline-block;
 font-size:13px;
@@ -355,13 +362,18 @@ margin-top:10px;
 padding:2px 1%;
 text-align:center;
 width:15%;
-text-decoration: none;
+text-decoration: none;*/
+margin-left: 2px;
+margin-right: 1px;
+margin-top: 10px;
 }
 div#apiCalls div.apiCall p.formats a:hover {
-background-color:#EEEEEE;
-color:#333333;
+/*background-color:#EEEEEE;
+color:#333333;*/
 }
-
+div#apiCalls div.apiCall p.formats a span {
+border:none !important;
+}
 /* Node styles */
 div.node {
 -moz-border-radius:5px 5px 5px 5px;
@@ -595,22 +607,14 @@ div.expander {
 clear:both;
 font-size:12px;
 }
-div.expander a.name {
-background-color:#555555;
-background-image: url("../images/salaryGradient.png");
-background-position: -285px center;
-color:#FFFFFF;
+div.panel h3 a.name {
+/*background-image: url("../images/salaryCostOfReports_gradient.png");
+background-position: -280px center;*/
 cursor:pointer;
-display:block;
-font-weight:bold;
-margin-top:5px;
-padding-bottom:2px;
-padding-right:10px;
-padding-top:2px;
 text-align:right;
 text-decoration:none;
 }
-div.expander a.name span {
+/*div.expander a.name span {
 margin:0;
 padding:0;
 display:inline-block;
@@ -625,7 +629,7 @@ display:none;
 float:right;
 padding:0;
 width:268px;
-}
+}*/
 div.panel div.content a {
 color:#577D00;
 }
@@ -1100,7 +1104,7 @@ margin:-42px 15px 0 0 !important;
 width:auto !important;
 }
 div.tip {
--moz-box-shadow:0 5px 24px #888888;
+/*-moz-box-shadow:0 5px 24px #888888;
 -webkit-box-shadow:0 5px 24px #888888;
 box-shadow:0 5px 24px #888888;
 -webkit-border-radius:10px 10px 10px 10px;
@@ -1109,20 +1113,20 @@ border-radius:10px 10px 10px 10px;
 background-color:#FFFFFF;
 border:10px solid #DDDDDD;
 color:#333333;
-display:none;
-font-size:12px;
+display:none;*/
+font-size:11px;
 font-weight:normal;
-height:auto;
+/*height:auto;*/
 opacity:1;
-overflow-x:hidden;
-overflow-y:auto;
-padding:15px 10px;
+/*overflow-x:hidden;
+overflow-y:auto;*/
+padding:10px;
 position:fixed;
-right:120px;
+/*right:120px;*/
 text-align:justify;
-top:50px;
-width:400px;
-z-index:9999 !important;
+/*top:50px;*/
+/*width:400px;*/
+/*z-index:9999 !important;*/
 }
 div.panel div.content img.salaryReports {
     border: medium none;
@@ -1150,4 +1154,169 @@ div.panel div.content p.id a.view_org {
 div.panel div.content p.id a.view_org:hover {
     text-decoration: none;
 	color:#333333;
+}
+
+/* UI Overrides */
+
+/* Infobox */
+
+#infobox .ui-accordion .ui-accordion-header a {
+    font-size: 0.8em !important;
+    padding: 0.3em 0.5em !important;
+    text-align: right !important;
+}
+div.panel {
+    padding: 5px !important;
+    font-size: 0.9em;    
+}
+div.panel h3 {
+    font-size: 0.8em;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+}
+#infobox .ui-accordion-content {
+    /*height: auto !important;*/
+    overflow: auto;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+}
+#infobox .ui-accordion .ui-accordion-header {
+    cursor: pointer;
+    margin-top: 3px !important;
+    position: relative;
+}
+#infobox .ui-accordion .ui-accordion-content {
+    border-top: 0 none;
+    margin-bottom: 2px;
+    margin-top: -2px;
+    overflow: auto;
+    padding: 0 !important;
+    position: relative;
+    top: 1px;
+}
+div.panel div.content p {
+    display: inline-block;
+    float: right;
+    font-family: Georgia;
+    font-weight: normal;
+    margin: 0;
+    padding: 0 0 5px 5px;
+    text-align: left;
+    width: 273px !important;
+    word-wrap: break-word;
+}
+div.panel {
+    background-color: #FFFFFF;
+    color: #333333;
+    padding: 5px;
+    width: 280px !important;
+}
+div.panel h3 {
+    color: #333333;
+    font-size: 14px !important;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+/* Controls */
+div#right .ui-buttonset {
+    margin-right: 2px !important;
+    margin-bottom: 15px;
+}
+div#right .ui-buttonset p {
+    padding:0;
+    margin:3px 0;
+}
+div#right div#navigate {
+    height: 71px;
+    margin-left: 2px;
+    padding: 5px;
+    position: inherit;
+    width: 78px;   
+}
+div#right div.navigate { 
+    position: relative;
+}
+div#right div#navigate button {
+    height: 26px;
+    position: absolute;
+    width: 26px;
+}
+div#right div#navigate button#up {
+    left: 35px;
+    top: 0;
+}
+div#right div#navigate button#down {
+    bottom: 0;
+    left: 35px;
+}
+div#right div#navigate button#left {
+    left: 9px;
+    top: 27px;
+}
+div#right div#navigate button#right {
+    right: 0;
+    top: 27px;
+}
+
+/* Breadcrumbs */
+h1.title {
+    -moz-box-shadow: 0 5px 24px #888888;
+    background-color: #333333;
+    border-bottom: 1px solid #EEEEEE;
+    color: #FFFFFF;
+    font-size: 16px;
+    height: 30px;
+    left: 0;
+    margin: 0;
+    min-height: 30px;
+    overflow: hidden;
+    padding-left: 10px;
+    padding-top: 1px !important;
+    position: fixed;
+    text-align: left;
+    width: 100%;
+    z-index: 8881;
+}
+h1.title span {
+    /*display: inline-block;
+    font-size: 12px;
+    height: 15px !important;
+    line-height: 15px !important;
+    opacity: 1  !important;
+    overflow: visible !important;
+    padding: 0 10px;
+    visibility: visible !important;*/
+    margin-right:5px;
+}
+h1.title button {
+    display: inline-block;
+    font-size: 11px;
+    height: 26px !important;
+    line-height: 26px !important;
+    margin-top: 1px;
+    margin-right: 3px;
+    padding: 0 10px;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0 10px;
+    visibility: hidden;
+}
+div#right {
+    -moz-box-shadow: 0 25px 25px #888888;
+    background-color: #333333;
+    border-left: 1px solid #EEEEEE;
+    color: #FFFFFF;
+    font-size: 10px;
+    height: 100%;
+    position: fixed;
+    right: 0;
+    top: 31px !important;
+    width: 100px;
+    z-index: 8888;
+}
+div#right > * {
+visibility: hidden;
 }
