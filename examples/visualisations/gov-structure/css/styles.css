@@ -600,7 +600,7 @@ padding-top:5px !important;
 div#nodeTip span.label {
     display: inline-block;
     padding:5px 5px 10px;
-    width:100%;
+    width:90%;
 }
 div#nodeTip span.prop {
     background: none repeat scroll 0 0 #CCCCCC;
