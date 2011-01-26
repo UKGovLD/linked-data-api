@@ -5,7 +5,7 @@ padding:0;
 font-size:10px;
 font-family: "Lucida Grande", Verdana;
 text-align: center;
-background:url('http://data.gov.uk/sites/all/themes/datagovuk/images/body_bg_big.png') repeat scroll 0 0 transparent;
+background:url('../images/body_bg_big.png') repeat scroll 0 0 transparent;
 }
 a:focus { outline:none }
 #infovis {
@@ -15,7 +15,7 @@ height:100%
 margin:auto auto;
 overflow:hidden;
 }
-
+/*
 h1.title {
 -moz-box-shadow:0 5px 24px #888888;
 -webkit-box-shadow:0 5px 24px #888888;
@@ -29,7 +29,6 @@ left:0;
 margin:0;
 min-height:30px;
 padding-left:10px;
-/*padding-top:5px;*/
 position:fixed;
 text-align:left;
 width:100%;
@@ -73,7 +72,7 @@ h1.title span#post {
 background-color:#CCCCCC;
 color:#333333;
 opacity:0;
-}
+}*/
 
 #log {
 -moz-box-shadow:0 5px 24px #888888;
@@ -268,7 +267,7 @@ width:150px;
 z-index:9999 !important;
 }
 div.tip {
--moz-box-shadow:0 5px 24px #888888;
+/*-moz-box-shadow:0 5px 24px #888888;
 -webkit-box-shadow:0 5px 24px #888888;
 box-shadow:0 5px 24px #888888;
 -webkit-border-radius:10px 10px 10px 10px;
@@ -277,20 +276,20 @@ border-radius:10px 10px 10px 10px;
 background-color:#FFFFFF;
 border:10px solid #DDDDDD;
 color:#333333;
-display:none;
+display:none;*/
 font-size:12px;
 font-weight:normal;
-height:auto;
+/*height:auto;*/
 opacity:1;
-overflow-x:hidden;
-overflow-y:auto;
-padding:15px 10px;
+/*overflow-x:hidden;
+overflow-y:auto;*/
+padding:10px;
 position:fixed;
-right:120px;
+/*right:120px;*/
 text-align:justify;
-top:50px;
-width:400px;
-z-index:9999 !important;
+/*top:50px;*/
+/*width:400px;*/
+/*z-index:9999 !important;*/
 }
 div#formats {
 margin-top:50px;
@@ -358,7 +357,7 @@ div#apiCalls p.label {
 margin:0 0 10px;
 }
 div#apiCalls a.source {
-background-color:#555555;
+/*background-color:#555555;
 color:#FFFFFF;
 display:block;
 margin:0 auto 1px;
@@ -366,11 +365,16 @@ padding:4px;
 width:30px;
 cursor:pointer;
 position:relative;
-text-decoration: none;
+text-decoration: none;*/
+    display: block;
+    margin-bottom: 2px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30px;
 }
 div#apiCalls a.source:hover {
-background-color:#FFFFFF;
-color:#333333;
+/*background-color:#FFFFFF;
+color:#333333;*/
 }
 div#apiCalls div.apiCall {
 -moz-box-shadow:0 5px 24px #888888;
@@ -468,7 +472,7 @@ div#apiCalls div.apiCall p.formats {
 
 }
 div#apiCalls div.apiCall p.formats a {
-background-color:#333333;
+/*background-color:#333333;
 color:#EEEEEE;
 display:inline-block;
 font-size:13px;
@@ -479,11 +483,17 @@ margin-top:10px;
 padding:2px 1%;
 text-align:center;
 width:15%;
-text-decoration: none;
+text-decoration: none;*/
+margin-left: 2px;
+margin-right: 1px;
+margin-top: 10px;
 }
 div#apiCalls div.apiCall p.formats a:hover {
-background-color:#EEEEEE;
-color:#333333;
+/*background-color:#EEEEEE;
+color:#333333;*/
+}
+div#apiCalls div.apiCall p.formats a span {
+border:none !important;
 }
 div.outer {
 height:100%;
@@ -516,3 +526,96 @@ div.outer {position: relative;}
 div.middle {position: absolute; top: 50%;}
 div.inner {position: relative; top: -50%;}
 */
+
+/* UI overrides */
+
+/* Controls */
+div#right .ui-buttonset {
+    margin-right: 2px !important;
+    margin-bottom: 15px;
+}
+div#right .ui-buttonset p {
+    padding:0;
+    margin:3px 0;
+}
+
+
+/* Breadcrumbs */
+h1.title {
+    -moz-box-shadow: 0 5px 24px #888888;
+    background-color: #333333;
+    border-bottom: 1px solid #EEEEEE;
+    color: #FFFFFF;
+    font-size: 16px;
+    height: 30px;
+    left: 0;
+    margin: 0;
+    min-height: 30px;
+    overflow: hidden;
+    padding-left: 10px;
+    padding-top: 1px !important;
+    position: fixed;
+    text-align: left;
+    width: 100%;
+    z-index: 8881;
+}
+h1.title button {
+    display: inline-block;
+    font-size: 11px;
+    height: 26px !important;
+    line-height: 26px !important;
+    margin-top: 1px;
+    margin-right: 3px;
+    padding: 0 10px;
+    opacity: 1;
+    overflow: hidden;
+    padding: 0 10px;
+    visibility: hidden;
+}
+div#right {
+    -moz-box-shadow: 0 25px 25px #888888;
+    background-color: #333333;
+    border-left: 1px solid #EEEEEE;
+    color: #FFFFFF;
+    font-size: 10px;
+    height: 100%;
+    position: fixed;
+    right: 0;
+    top: 31px !important;
+    width: 100px;
+    z-index: 8888;
+}
+div#right > * {
+visibility: hidden;
+}
+h1.title button#unit {
+/*display:none !important;*/
+}
+div#nodeTip {
+padding-left:0px !important;
+padding-bottom:0px !important;
+padding-right:0px !important;
+padding-top:5px !important;
+}
+div#nodeTip span.label {
+    display: inline-block;
+    padding:5px 5px 10px;
+    width:100%;
+}
+div#nodeTip span.prop {
+    background: none repeat scroll 0 0 #CCCCCC;
+    display: block;
+    float: left;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    width: 50%;
+}
+div#nodeTip span.value {
+    background: none repeat scroll 0 0 #333333;
+    color: #FFFFFF;
+    display: block;
+    float: left;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    width: 50%;
+}

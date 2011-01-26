@@ -2,12 +2,12 @@
 Treemap visualisation from the JIT.
 http://thejit.org/
 
-Modified by @danpaulsmith for the Government Overview 
+Modified by @danpaulsmith for the Government Structure 
 visualisation.
 
 */
 
-var debug = true;
+
 
 function a(string) {
 	if(debug){
@@ -89,23 +89,16 @@ $.fn.generateId = function() {
  * Grab the department parameter from the URL and use it for an API call to list
  * the posts within that department
  */	
-var global_department="";
-var global_post="";
-var global_TM="";
-var global_deptJSON="";
-var includeDeputyDirectors=false;
+var debug = true;
+var global_department="",global_post="",global_TM="",global_deptJSON="",deptParam="",unitParam="";
+var includeDeputyDirectors=false, sizeByUnits = true, sizeByPosts = false;
 var api_call_info = [];
-var sizeByUnits = true;
-var sizeByPosts = false;
-var rootNode;
-var prevNode;
-var deptParam="";
-var unitParam="";
+var rootNode, prevNode;
 
-function init(d,u){
+function init(pDept,pUnit){
 	
-	deptParam = d;
-	unitParam = u;
+	deptParam = pDept;
+	unitParam = pUnit;
 	
 	api_call_info = [];
 	$('div#apiCalls').hide();
@@ -118,7 +111,7 @@ function init(d,u){
 		//where to inject the visualization  
 		injectInto: 'infovis',  
 		//parent box title heights  
-		titleHeight: 30,  
+		titleHeight: 0,  
 		//enable animations  
 		animate: false,  
 		//box offsets  
@@ -127,107 +120,116 @@ function init(d,u){
 		//Attach left and right click events   	   
 		Events: {  
 			enable: true,  
-			onClick: function(node) {
-				$("h1.title span").css("visibility","visible");
+			onClick: function(node) {				
+				
+				$("h1.title button").css("visibility","visible");
+				
 				if(node){
-				$("div#nodeTip").hide();
-				prevNode = rootNode;
-				rootNode = node;  				
-				var tempSlug;
-				if(node.data.type == "Department"){
-					// Department node
-					$("h1.title span#unit").animate({opacity:'0'},500);
-					tempSlug = node.data.uri.split("/");
-					tempSlug = tempSlug[tempSlug.length-1];
-					$("h1.title span#dept").html(node.name.valueOf()).attr('rel',tempSlug).animate({opacity:'1'},500);
-					$("h1.title span#text").click(function(){
-						$("h1.title span#dept").animate({opacity:'0'},500);
-						tm.out();
-						global_TM.refresh();
-						restyle();
-						rootNode = global_govJSON;
-					});
-				} else if(node.data.type == "Unit"){
-					//showLog("Loading "+node.name.valueOf()+" ... ");
-					sizeUnitPosts(node);
-					// Unit node
-					tempSlug = node.data.uri.split("/");
-					tempSlug = tempSlug[tempSlug.length-1];
-					$("h1.title span#unit").html(node.name.valueOf()).attr('rel',tempSlug).animate({opacity:'1'},500);
-					$("h1.title span#text").click(function(){
-						$("h1.title span#dept").animate({opacity:'0'},500);
-						$("h1.title span#unit").animate({opacity:'0'},500);					
-						tm.out();
-						tm.out();
-						global_TM.refresh();
-						restyle();
-						rootNode = global_govJSON;
-					});
-					$("h1.title span#dept").click(function(){
-						$("h1.title span#unit").animate({opacity:'0'},500);										
-						tm.out();
-						global_TM.refresh();
-						restyle();
-						rootNode = prevNode;
-					});
-					//hideLog();
-				} else {
-					// Gov node
-					$("h1.title span").animate({opacity:'0'},500);
-					global_TM.refresh();
-					restyle();
-				}
-
-				if(typeof node.data != 'undefined' && node.data.type == "Post") {
-					var postSlug = node.data.uri.split("/");
-					var deptSlug = "";
-					for(var i=0;i<postSlug.length;i++){
-						if(postSlug[i] == "department") {
-							deptSlug = postSlug[i+1];
-						}
+					$("div#nodeTip").hide();
+					prevNode = rootNode;
+					rootNode = node;  				
+					var tempSlug;
+					if(node.data.type == "Department"){
+						//$('h1.title button#gov').button( "option", "disabled", false );
+						//$('h1.title button#dept').button( "option", "disabled", true );
+						
+						tempSlug = node.data.uri.split("/");
+						tempSlug = tempSlug[tempSlug.length-1];
+						$("h1.title button#dept").button( "option", "label", node.name.valueOf()).attr('rel',tempSlug).show();
+						$("h1.title button#gov").show();
+						$("h1.title button#unit").hide();
+						
+						$("h1.title button#gov").unbind('click').bind('click',function(){	
+							//$('h1.title button#gov').button( "option", "disabled", true );
+							$("h1.title button#gov").hide();
+							$("h1.title button#dept").hide();
+							$("h1.title button#unit").hide();
+							global_TM.out();
+							global_TM.refresh();
+							restyle();
+							rootNode = global_govJSON;					
+						});
+					} else if(node.data.type == "Unit"){
+						//$('h1.title button#dept').button( "option", "disabled", false );
+						sizeUnitPosts(node);
+						tempSlug = node.data.uri.split("/");
+						tempSlug = tempSlug[tempSlug.length-1];
+						$("h1.title button#unit").button( "option", "label", node.name.valueOf()).attr('rel',tempSlug).show();
+						$("h1.title button#gov").show();
+						$("h1.title button#dept").show();
+						
+						//$('h1.title button#unit').button( "option", "disabled", true );						
+						$("h1.title button#gov").unbind('click').bind('click',function(){
+							$("h1.title button#dept").hide();
+							$("h1.title button#unit").hide();					
+							global_TM.out();
+							global_TM.out();
+							global_TM.refresh();
+							restyle();
+							rootNode = global_govJSON;
+						});
+						$("h1.title button#dept").unbind('click').bind('click',function(){
+							//$('h1.title button#dept').button( "option", "disabled", true );
+							$("h1.title button#unit").hide();										
+							global_TM.out();
+							global_TM.refresh();
+							restyle();
+							rootNode = prevNode;
+						});
+						//hideLog();
+					} else {
+						// Gov node
 					}
-					postSlug = postSlug[postSlug.length-1];
-
-					window.location = "../organogram?dept="+deptSlug+"&post="+postSlug;
-
-                } else if(node) {
-                        tm.enter(node);                         
-                }
+	
+					if(typeof node.data != 'undefined' && node.data.type == "Post") {
+						var postSlug = node.data.uri.split("/");
+						var deptSlug = "";
+						for(var i=0;i<postSlug.length;i++){
+							if(postSlug[i] == "department") {
+								deptSlug = postSlug[i+1];
+							}
+						}
+						postSlug = postSlug[postSlug.length-1];
+	
+						window.location = "../organogram?dept="+deptSlug+"&post="+postSlug;
+	
+	                } else if(node) {
+	                        global_TM.enter(node);                         
+	                }
                 } else {
-                // not a node
+                	// not a node
                 }
                 global_TM.refresh();            
                 restyle();
-
 			},
 			onRightClick: function() {
-				global_TM.canvas.opt.levelsToShow = 1;
+				//global_TM.canvas.opt.levelsToShow = 1;
 				$("div#nodeTip").hide();
 				if(rootNode.data.type == "Department"){
 					rootNode = global_govJSON;
 				} else {
 					rootNode = prevNode;				
 				}
-				tm.out();
+				global_TM.out();
 				global_TM.refresh();  
 				restyle();
 				var tempSlug;
 				if(rootNode.data.type == "Department"){
 					// Department node
-					$("h1.title span#post").animate({opacity:'0'},500);
-					$("h1.title span#unit").animate({opacity:'0'},500);
+					$("h1.title button#post").hide();
+					$("h1.title button#unit").hide();
 					tempSlug = rootNode.data.uri.split("/");
 					tempSlug = tempSlug[tempSlug.length-1];
-					$("h1.title span#dept").html(rootNode.name.valueOf()).attr('rel',tempSlug).animate({opacity:'1'},500);
-					$("h1.title span#text").click(function(){
-						tm.out();
+					$("h1.title button#dept").html(rootNode.name.valueOf()).attr('rel',tempSlug).show();
+					$("h1.title button#gov").unbind('click').bind('click',function(){
+						global_TM.out();
 						global_TM.refresh();
 						restyle();
 					});					
 				} else {
 					// Gov node
-					$("h1.title span#dept").animate({opacity:'0'},500);
-					$("h1.title span#unit").animate({opacity:'0'},500);
+					$("h1.title button#dept").hide();
+					$("h1.title button#unit").hide();
 				}			
 			}  
 		},  
@@ -264,22 +266,21 @@ function init(d,u){
 			$(domElement).hover(function(e){
 				$(domElement).get(0).style.border = '1px solid #FFFFFF';											  									  
 				if(node.data.type == "Department"){
-					$("div#nodeTip").html(node.name.valueOf()+'<!-- p>Number of posts: '+(parseInt(node.data.$area)-1)+'</p -->').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
+					$("div#nodeTip").html('<span class="label">'+node.name.valueOf()+'</span><span class="prop">Posts</span><span class="value">'+(parseInt(node.data.$area)-1)+'</span>').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
 				} else if (node.data.type == "Unit") {
-					$("div#nodeTip").html(node.name.valueOf()+'<!-- p>Number of posts: '+(parseInt(node.data.$area))+'</p -->').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();				
+					$("div#nodeTip").html('<span class="label">'+node.name.valueOf()+'</span><span class="prop">Posts</span><span class="value">'+(parseInt(node.data.$area))+'</span>').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();				
 				} else if(node.data.type == "Post") {
-					$("div#nodeTip").html(node.name.valueOf()+'<!-- p>Posts that report to this post: '+(parseInt(node.data.$area)-1)+'</p -->').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
+					$("div#nodeTip").html('<span class="label">'+node.name.valueOf()+'</span><span class="prop">Reports</span><span class="value">'+(parseInt(node.data.$area)-1)+'</span>').css("top",(e.pageY - 100) + "px").css("left",(e.pageX - 200) + "px").show();
 				}
 			},function(){
 				$(domElement).get(0).style.border = '1px solid transparent'; 
 				$("div#nodeTip").hide();
-			});    
-		}             
-		
-	});  
+			});
+		}
+	});
 	
 	global_TM = tm;
- 
+
 } // end init
 
 
@@ -299,6 +300,9 @@ function loadDepts() {
 		url:"http://reference.data.gov.uk/doc/department",
 		parameters:"?_view=minimal&_properties=unit.label,unit.post.label,unit.post.reportsTo&_pageSize=100"
 	});	
+	
+	//api_call_info[0].url = "http://danpaulsmith.com/puelia3/doc/department.json?_view=minimal&_properties=unit.label,unit.post.label,unit.post.reportsTo&_pageSize=100"
+	//alert("using danpaulsmith.com API");
 	
 	$.ajax({
 		url: api_call_info[0].url+".json"+api_call_info[0].parameters+"&callback=?",
@@ -370,16 +374,16 @@ function loadDepts() {
 			if(typeof deptParam != 'undefined' && deptParam.length > 1 && (typeof unitParam == 'undefined' || unitParam.length < 1)){
 				try{
 					var node = global_TM.graph.getNode("dept_"+deptParam);
-					$("h1.title span#dept").html(node.name.valueOf()).animate({opacity:'1'},500);
-					$("h1.title span").css("visibility","visible");			
+					$("h1.title button#dept").html(node.name.valueOf()).show();
+					$("h1.title button").css("visibility","visible");
 					global_TM.enter(node);
 					prevNode = global_govJSON;
 					rootNode = node;
-					$("h1.title span#text").click(function(){
+					$("h1.title button#gov").unbind('click').bind('click',function(){
 						global_TM.out();
 						global_TM.refresh();
 						restyle();
-						$("h1.title span#dept").hide();
+						$("h1.title button#dept").hide();
 					});
 				}catch(e){
 					showLog("Department not found ...");
@@ -388,26 +392,26 @@ function loadDepts() {
 				try{
 					var uNode = global_TM.graph.getNode("unit_"+unitParam);
 					var dNode = global_TM.graph.getNode("dept_"+deptParam);
-					$("h1.title span#unit").html(uNode.name.valueOf()).animate({opacity:'1'},500);			
-					$("h1.title span#dept").html(dNode.name.valueOf()).animate({opacity:'1'},500);
+					$("h1.title button#unit").html(uNode.name.valueOf()).show();			
+					$("h1.title button#dept").html(dNode.name.valueOf()).show();
 					sizeUnitPosts(uNode);
-					$("h1.title span#dept").click(function(){
+					$("h1.title button#dept").unbind('click').bind('click',function(){
 						global_TM.out();
 						global_TM.refresh();
 						restyle();
 						rootNode = dNode;
 						prevNode = global_govJSON;
-						$("h1.title span#unit").hide();
+						$("h1.title button#unit").hide();
 					});	
-					$("h1.title span#text").click(function(){
+					$("h1.title button#gov").unbind('click').bind('click',function(){
 						global_TM.out();
 						global_TM.out();
 						global_TM.refresh();
 						restyle();
-						$("h1.title span#unit").hide();
-						$("h1.title span#dept").hide();
+						$("h1.title button#unit").hide();
+						$("h1.title button#dept").hide();
 					});							
-					$("h1.title span").css("visibility","visible");	
+					$("h1.title button").css("visibility","visible");	
 					global_TM.enter(uNode);	
 					prevNode = dNode;
 					rootNode = uNode;	
@@ -421,8 +425,6 @@ function loadDepts() {
 			displayDataSources();
 			
 			hideLog();
-			
-
 
 		}
 	});
@@ -562,7 +564,7 @@ function makeGovNode(){
 }
 function displayDataSources() {
 	
-	var html='';
+	var html='<p class="label">Data sources</p>';
 	
 	for(var i=0;i<api_call_info.length;i++){
 		
@@ -596,7 +598,16 @@ function displayDataSources() {
 		
 	}
 	
-	$('div#apiCalls').html($('div#apiCalls').html()+html);
+	//$('div#apiCalls').html($('div#apiCalls').html()+html);
+	$('div#apiCalls').html(html);
+	
+	$('div#apiCalls a.source').each(function(){
+		$(this).button({text:true}).toggle(function() { $(this).next('div.apiCall').show();return false; },function(){$('div.apiCall').hide();return false;});
+	});
+	
+	$('p.formats a').each(function(){
+		$(this).button({text:true});
+	});
 	
 	resetSourceLinks();
 	

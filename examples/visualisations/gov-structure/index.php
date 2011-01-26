@@ -4,90 +4,79 @@
 
 <html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-
 <link type="text/css" href="css/styles.css" rel="stylesheet">
-
+<link type="text/css" href="css/custom-theme/jquery-ui-1.8.8.custom.css" rel="stylesheet">
 <title>Government Overview</title>
-
+<script>
+var param_dept = '<?php print $_GET['dept'];?>';
+var param_unit = '<?php print $_GET['unit'];?>';
+</script>
 </head>
 
-<body onload="init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>');">
+<body>
 
-<h1 class="title"><span id="text" rel="government">HM Government</span><span id="dept">Department</span><span id="unit">Unit</span></h1>
+<h1 class="title breadcrumbs">
+	<span style="margin-right:5px">Government Structure</span><button id="gov" rel="government">HM Government</button><button id="dept">Department</button><button id="unit">Unit</button>
+</h1>
 
 <div id="infovis"></div>
-<div id="infobox">
+<div id="infobox"></div>
+<div id="log" style="border: 1px solid rgb(200, 200, 200);">
+	<span>Government Overview</span>
+	<img src="images/loading.gif" />
 </div>
-<!--div id="log-wrapper"-->
-<div id="log" style="border: 1px solid rgb(200, 200, 200);"><span>Government Overview</span><img src="images/loading.gif" /></div>
-<!--/div-->
 
 <div id="right">
-<ul>
-<li><a href="#">About</a>
 
-<div class="tip">
-	<p><strong>About: </strong></p>
-	
-	<p>This is a treemap visualisation of the UK government's department structure using data provided by data.gov.uk. As more of the &quot;reference&quot; linked data is made available, this visualisation will change and grow automatically as it accesses the data and is created in the browser in real-time.</p>
-	
-	<p>The visualisation lets you drill down from the top-level of the government's structure (departments), down into their units and then through to the lowest-level - the unit posts, which are held by people.</p>
-	
-	<p>When clicking on a post, an organisation chart (organogram) visualisation will load, where you will be able to see more information about who reports to who, their responsibilities and statistics such as salary totals.</p>
-	
-	<p>To view the sources of data the visualisation uses at any time while using it, there's information provided about all of the the API calls made in the bottom right under "Data sources". Here you can grab the data in several different formats and see which parameters have been used to tailor the data for the visualisation.</p>
-	
-	<p>Please note: this web application is still under development.</p>
-	
-	<p>Created by Dan Paul Smith.</p>
-</div>
-</li>
-<li><a href="#">Controls</a>
-<div class="tip">
-	<p><strong>Controls: </strong></p>
-	<p>Left-click: Zoom in</p>
-	<p>Right-click: Zoom out</p>
-	<p>Alternatively, you can zoom out by clicking the breadcrumb links in the top-left of the visualisation.</p>
-</div>
-</li>
+		<p><a class="aboutToggle" href="#">About</a></p>
+		
+		<div class="about-tip tip">
+		
+			<p>This is a treemap visualisation of the UK government's department structure using data provided by data.gov.uk. As more of the <a href="http://data.gov.uk/linked-data" target="_blank">&quot;reference&quot; linked data</a> is made available, this visualisation will change and grow automatically as it accesses the data and is created in the browser in real-time.</p>
+		
+			<p>The visualisation lets you drill down from the top-level of the government's structure (departments), down into their units and then through to the lowest-level - the unit posts, which are held by people.</p>
+			
+			<p>The departments and units are both sized by the number of posts they contain and the posts are sized by the number of posts that report to them (i.e. by a measure of responsibility).</p>
+		
+			<p>When clicking on a post, an organisation chart (organogram) visualisation will load, where you will be able to see more information about who reports to who, their responsibilities and statistics such as salary totals.</p>
+		
+			<p>To view the sources of data the visualisation uses at any time while using it, there's information provided about all of the the API calls made in the bottom right under "Data sources". Here you can grab the data in several different formats and see which parameters have been used to tailor the data for the visualisation.</p>
 
-<!-- li id="levelsToggle"><p>Levels to show:</p>
-	<select id="levels" value="1">
-	<option value="1">1</option>
-	<option value="2">2</option>
-	</select>
-</li -->
-
-<!--li id="deputyToggle"><p>Include Deputy Directors?</p>
-	<span><input type="radio" name="deputies" value="Yes"><label>Yes</label></span>
-	<span><input type="radio" name="deputies" value="No" checked><label>No</label></span>
-</li-->
-
-<!-- li id="resizeToggle"><p>Resize by:</p>
-	<span><input type="radio" name="resizeBy" value="Unit" checked><label>Unit</label></span>
-	<span><input type="radio" name="resizeBy" value="Post"><label>Post</label></span>
-</li -->
-
-</ul>
-
+			<p><strong>Controls: </strong></p>
+			<ul>
+				<li>Left-click: Zoom in</li>
+				<li>Right-click: Zoom out</li>
+				<li>Alternatively, you can zoom out by clicking the breadcrumb links in the top-left of the visualisation or the "Back" button on the right hand side.</li>
+			</ul>
+			
+			<p>Please note: this application is still in development.</p>
+			
+			<p><i>Powered by <a href="http://code.google.com/p/puelia-php/" target="_blank">Puelia v0.1</a>, an implementation of the <a href="http://code.google.com/p/linked-data-api" target="_blank">Linked Data API</a></i></p>
+		</div> <!-- end tip -->
+		
+		<p><a class="zoomOut" href="#">Back</a></p>
+		
 	<div id="apiCalls">
 		<p class="label">Data sources</p>
 		<!-- information about API calls goes here -->
 	</div>
 
-</div>
+</div> <!-- end right -->
 
 <div id="nodeTip" class="tooltip"></div>
 
 <!-- Scripts -->
 <script language="javascript" type="text/javascript"
-	src="js/jquery-1.4.2.min.js"></script>
+	src="js/jquery-1.4.4.min.js"></script>
+<!--script language="javascript" type="text/javascript"
+	src="js/jquery-ui-1.8.8.custom.min.js"></script-->	
+<script language="javascript" type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>		
 <script language="javascript" type="text/javascript"
 	src="js/jit.js"></script>
 <script language="javascript" type="text/javascript"
-	src="js/overview.js"></script>
+	src="js/gov-structure.js"></script>
 <script language="javascript" type="text/javascript"
 	src="js/jquery.overlaps.js"></script>
 <script language="javascript" type="text/javascript"

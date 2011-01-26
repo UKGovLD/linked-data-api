@@ -20,12 +20,15 @@ var global_department="", global_postJSON="", global_post="", global_ST="", labe
 var debug = false;
 var api_call_info = [];
 var firstLoad = true;
-var var_move = true;
+var autoalign = true;
 var reOpen = false;
 var cacheObj;
 var ajax_rootPost;
 var ajax_postReports;
 var ajax_salaryReports;	
+
+var visOffsetX=180;
+var visOffsetY=50;
 
 //$.manageAjax.create('rootPost', { queue: true, cacheResponse: false, abortOld: true }); 
 //$.manageAjax.create('postReports', { queue: true, cacheResponse: false, abortOld: true }); 
@@ -113,11 +116,9 @@ $.fn.generateId = function() {
 };
 
 
-function init(deptSlug,postSlug){
+function init(deptSlug,postSlug,reload){
 	
 	global_department = deptSlug;
-	
-	loadPost(deptSlug,postSlug);
 	
 	var getTree = (function() {
 		var global_postJSON_string = JSON.stringify(global_postJSON);
@@ -171,8 +172,8 @@ function init(deptSlug,postSlug){
 		}, 
 		duration: 300,
 		orientation: 'top',
-		offsetX: 0,  
-		offsetY: 0, 
+		offsetX: visOffsetX,  
+		offsetY: visOffsetY, 
 		transition: $jit.Trans.Sine.easeOut, 
 		levelDistance: 60,  
 		levelsToShow: 5, 
@@ -260,22 +261,31 @@ function init(deptSlug,postSlug){
 				
 				var isEntirelyVisible = (t > 0 && l > 0 && t + h < docH && l+ w < docW);
 				*/
+				
+				//visOffsetX = visOffsetX-st.canvas.translateOffsetX;
+				//visOffsetY = visOffsetY-st.canvas.translateOffsetY;
+				
 				var m = {
 				    offsetX: st.canvas.translateOffsetX,
 				    offsetY: st.canvas.translateOffsetY,
-				    enable: var_move
+				    enable: autoalign
 				};
 				
 				//console.log(m);
 				
-				st.onClick(node.id, { Move: m });								
-
+				st.onClick(node.id, { 
+					Move: m
+				});												
+				
+				//st.refresh();
+				
 				$("div.node").css("border","1px solid #AAAAAA");
 				$("div#"+node.id).css("border","2px solid #333333");		
 
 				$("#infobox").fadeOut('fast', function() {
 					loadPersonInfo(node);
 				});
+				
 
 			};  
 			
@@ -311,8 +321,47 @@ function init(deptSlug,postSlug){
 	
 	global_ST = st;
 
+	if(!reload){
+		loadPost(deptSlug,postSlug);
+	}else{
+		reloadPost();
+	}	
+
 } // end init
 
+function reloadPost() {
+
+	global_ST.loadJSON(global_postJSON);
+	// compute node positions and layout
+	global_ST.compute();
+	
+	// cl(global_ST.canvas.getPos(true));
+	
+	// global_ST.canvas.scale(1,1,false);
+	//global_ST.canvas.translate(-150-(global_ST.canvas.translateOffsetX),-200-(global_ST.canvas.translateOffsetY),false)
+	
+	//var slug = firstNode.id.split("/");
+	//slug = slug[slug.length-1];
+	//var node = global_ST.graph.getNode("post_"+global_post);
+	
+	//$("div#"+global_ST.root).click();
+	//global_ST.setRoot("post_"+global_post);
+	global_ST.onClick(global_ST.root);
+	
+	setTimeout(function(){
+		if(!global_ST.busy){
+			$("div.post_"+global_post).click();
+		} else {
+			setTimeout(function(){
+				$("div.post_"+global_post).click();
+			},1000);							
+		}
+	},1000);
+						
+	// end
+	
+	displayDataSources();
+}
 
 function loadPost(deptSlug,postSlug) {
 
@@ -333,6 +382,8 @@ function loadPost(deptSlug,postSlug) {
 	
 	// Make an API call to retrieve information about the root post
 	var api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug;
+	//var api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug;alert("using danpaulsmith.com API & google CDN for jqueryUI");
+	
 	
 	// Description of API call
 	api_call_info.push({
@@ -359,19 +410,19 @@ function loadPost(deptSlug,postSlug) {
 				//firstNode = makeNode(json.result.primaryTopic);
 	
 				// Extract information for visualisation breadcrumbs
-				$("h1.title span#post").html(json.result.primaryTopic.label[0]);
+				$("h1.title button#post").html(json.result.primaryTopic.label[0]);
 				var dSlug = json.result.primaryTopic.postIn[1]._about.toString().split("/");
 				dSlug = dSlug[dSlug.length-1];		
-				$("h1.title span#dept").html(json.result.primaryTopic.postIn[1].label[0]).attr("rel","../gov-structure?dept="+dSlug);
+				$("h1.title button#dept").html(json.result.primaryTopic.postIn[1].label[0]).attr("rel","../gov-structure?dept="+dSlug);
 				
 				var uSlug = json.result.primaryTopic.postIn[0]._about.toString().split("/");
 				uSlug = uSlug[uSlug.length-1];				
-				$("h1.title span#unit").html(json.result.primaryTopic.postIn[0].label[0]).attr("rel","../gov-structure?dept="+dSlug+"&unit="+uSlug);
+				$("h1.title button#unit").html(json.result.primaryTopic.postIn[0].label[0]).attr("rel","../gov-structure?dept="+dSlug+"&unit="+uSlug);
 	
-				$("h1.title span").css("visibility","visible");
-				$("h1.title span#post").animate({opacity:'1'},1000,function(){
-					$("h1.title span#unit").animate({opacity:'1'},1000,function(){
-						$("h1.title span#dept").animate({opacity:'1'},1000);
+				$("h1.title button").css("visibility","visible");
+				$("h1.title button#post").animate({opacity:'1'},1000,function(){
+					$("h1.title button#unit").animate({opacity:'1'},1000,function(){
+						$("h1.title button#dept").animate({opacity:'1'},1000);
 					})
 				});			
 				//cl(firstNode);
@@ -379,13 +430,13 @@ function loadPost(deptSlug,postSlug) {
 				
 				// Make a second API call to retrieve information about the posts that report to the root post
 				api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
-				//api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
+				//api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";alert("Using danpaulsmith.com API");
 	
 				api_call_info.push({
 					title:"Retrieval of posts that report to the root post",
 					description:"This call retrieves information about the posts that report to the root post, such as their unit, grade and contact details.",
 					url:api_url,
-					parameters:"?_pageSize=50"
+					parameters:"?_pageSize=300"
 				});				
 				
 				//$.manageAjax.add('postReports',{ 
@@ -504,14 +555,13 @@ function loadPost(deptSlug,postSlug) {
 						// global_ST.canvas.scale(1,1,false);
 						//global_ST.canvas.translate(-150-(global_ST.canvas.translateOffsetX),-200-(global_ST.canvas.translateOffsetY),false)
 			
-			//var slug = firstNode.id.split("/");
-			//slug = slug[slug.length-1];
+						//var slug = firstNode.id.split("/");
+						//slug = slug[slug.length-1];
 						//var node = global_ST.graph.getNode("post_"+global_post);
 						
 						//$("div#"+global_ST.root).click();
 						//global_ST.setRoot("post_"+global_post);
 						global_ST.onClick(global_ST.root);
-						
 						
 						setTimeout(function(){
 							if(!global_ST.busy){
@@ -522,8 +572,7 @@ function loadPost(deptSlug,postSlug) {
 								},1000);							
 							}
 						},1000);
-						
-						
+											
 						// end
 						
 						displayDataSources();
@@ -964,22 +1013,22 @@ function loadPersonInfo(node){
 	
 	// Construct the HTML for the infobox
 	var html = '<h1>'+node.name+'</h1>';			
-	html += '<div class="panel heldBy">';
-	html += '<h3>Held By :</h3>';
+	html += '<div class="panel heldBy ui-accordion ui-widget ui-helper-reset ui-accordion-icons">';
+	//html += '<h3>Held By :</h3>';
 
 	for(var i=0; i<node.data.heldBy.length; i++) {
-		html += '<div class="expander">';
+		//html += '<div class="expander">';
 
 		var tempID = node.data.heldBy[i].holdsPostURI.split("/");
 		tempID = tempID[tempID.length-1];
 				
 		if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
-			html += '<a class="name infobox_'+tempID+'">'+node.data.heldBy[i].foafName+'<span>+</span></a>';
+			html += '<h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-corner-all"><span class="ui-icon ui-icon-triangle-1-e"></span><a class="name infobox_'+tempID+'">'+node.data.heldBy[i].foafName+'</a></h3>';
 		}else {
-			html += '<a class="name infobox_'+tempID+'">?<span>+</span></a>';		
+			html += '<h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-corner-all"><span class="ui-icon ui-icon-triangle-1-e"></span><a class="name infobox_'+tempID+'">?</a></h3>';		
 		}
 
-		html += '<div class="content">';
+		html += '<div class="content ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">';
 		
 		html+= '<p class="id"><span>Post ID</span><a target="_blank" href="http://reference.data.gov.uk/id/department/'+global_department+'/post/'+tempID+'">'+tempID+'</a> <a class="view_org" href="?dept='+global_department+'&post='+tempID+'">[View organogram]</a></p>';
 				
@@ -1020,8 +1069,8 @@ function loadPersonInfo(node){
 		html+= '<ul class="external_posts"></ul>';
 
 		html += '</div><!-- end content -->';
-		html += '<div class="clear"><!-- --></div>';
-		html += '</div><!-- end expander -->';
+		//html += '<div class="clear"><!-- --></div>';
+		//html += '</div><!-- end expander -->';
 		
 		} // end for loop
 		
@@ -1040,19 +1089,17 @@ function loadPersonInfo(node){
 		$("div.heldBy").show();
 		
 		if(firstLoad){
-			$("div.heldBy div.expander a.infobox_"+global_post).click(); 
+			$("div.panel h3 a.infobox_"+global_post).click(); 
 			firstLoad=false;
 			reOpen=false;
 		} else {
-			$("div.heldBy div.expander a").eq(0).click();
+			$("div.panel h3 a").eq(0).click();
 			reOpen=true;
 		}
 		
 		displaySalaryReports(node,postUnit);
 	
 } // end loadPersonInfo
-
-var test;
 
 function displaySalaryReports(node,postUnit) {
 
@@ -1061,8 +1108,8 @@ function displaySalaryReports(node,postUnit) {
 	var postLabel = node.name.toString().replace(/ /g,"+");
 
 	// Make an API call to retrieve information about the root post
-	//var api_url = "http://reference.data.gov.uk/doc/department/"+global_department+"/post/"+postID+"/statistics";
 	var api_url = "http://reference.data.gov.uk/doc/department/"+global_department+"/unit/"+postUnit+"/statistics";
+	//var api_url = "http://danpaulsmith.com/puelia3/doc/department/"+global_department+"/unit/"+postUnit+"/statistics";alert("Using danpaulsmith.com API");
 
 	// Call API for post statistics	
 
@@ -1096,20 +1143,21 @@ function displaySalaryReports(node,postUnit) {
 	                            date = '['+date[date.length-1]+']';
 								node.data.heldBy[v].salaryCostOfReportsDate = date;
 								if(node.data.heldBy[v].salaryCostOfReports > -1){							
-									$("div.expander div.content").each(function(){									
+									$("div.panel div.content").each(function(){									
 										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI.toString()) {
+											/*
 											if(isNaN(parseInt(node.data.heldBy[v].salaryCostOfReports)/mapValue)){
-												$(this).parent().children("a.name").css("background-position","-260px center");
+												$(this).prev().children("a.name").css("background-position","-260px center");
 											} else {
-												$(this).parent().children("a.name").css("background-position",-260+(parseInt(node.data.heldBy[v].salaryCostOfReports)/mapValue)+"px center");
-											}
+												$(this).prev().children("a.name").css("background-position",-260+(parseInt(node.data.heldBy[v].salaryCostOfReports)/mapValue)+"px center");
+											}*/
 											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">£'+node.data.heldBy[v].salaryCostOfReports+'</a> <span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
 										}
 									});					
 								} else {
-									$("div.expander div.content").each(function(){
+									$("div.panel div.content").each(function(){
 										if($(this).children("p.id").children("a").attr("href") == node.data.heldBy[v].holdsPostURI) {
-											$(this).parent().children("a.name").css("background-position","-260px center");
+											//$(this).prev().children("a.name").css("background-position","-260px center");
 											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><a target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">N/A</a>');
 										}
 									});								
@@ -1119,7 +1167,7 @@ function displaySalaryReports(node,postUnit) {
 					} // end for
 													
 					// Sort heldBy elements by salary
-					$("div.expander").tsort("div.content p.salaryReports a",{attr:"value",order:"desc"});
+					//$("div.panel").tsort("div.content p.salaryReports a",{attr:"value",order:"desc"});
 					
 					//if(reOpen){
 					//	if($("div.heldBy div.expander a").eq(0).next("div.content").css("display") != "block") {
@@ -1211,6 +1259,14 @@ function displayDataSources() {
 	
 	
 	$('div#apiCalls').html(html);
+	
+	$('div#apiCalls a.source').each(function(){
+		$(this).button({text:true}).toggle(function() { $(this).next('div.apiCall').show();return false; },function(){$('div.apiCall').hide();return false;});
+	});
+	
+	$('p.formats a').each(function(){
+		$(this).button({text:true});
+	});
 	
 	resetSourceLinks();
 	
