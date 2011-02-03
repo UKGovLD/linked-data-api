@@ -439,6 +439,7 @@ function loadPost(deptSlug,postSlug) {
 					parameters:"?_pageSize=300"
 				});				
 				
+				
 				//$.manageAjax.add('postReports',{ 
 				$.ajax({
 					url: api_call_info[api_call_info.length-1].url+".json"+api_call_info[api_call_info.length-1].parameters+"&callback=?",
@@ -1112,10 +1113,11 @@ function displaySalaryReports(node,postUnit) {
 	//var api_url = "http://danpaulsmith.com/puelia3/doc/department/"+global_department+"/unit/"+postUnit+"/statistics";alert("Using danpaulsmith.com API");
 
 	// Call API for post statistics	
-
+	postLabel = postLabel.replace("&","%26");
+	
 	//$.manageAjax.add('salaryReports',{ 
 	$.ajax({
-		url: api_url+".json?aboutPost.label="+postLabel+"&callback=?",
+		url:api_url+".json?aboutPost.label="+postLabel+"&callback=?",
 		type: "GET",
 		dataType: "jsonp",
 		async:true,
