@@ -5,8 +5,8 @@
 <html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<link type="text/css" href="css/styles.css" rel="stylesheet">
-<link type="text/css" href="css/custom-theme/jquery-ui-1.8.8.custom.css" rel="stylesheet">
+<link type="text/css" href="../css/interface.css" rel="stylesheet">
+<link type="text/css" href="../css/gov-structure.css" rel="stylesheet">
 <title>Government Overview</title>
 <script>
 var param_dept = '<?php print $_GET['dept'];?>';
@@ -29,7 +29,7 @@ var param_unit = '<?php print $_GET['unit'];?>';
 
 <div id="right">
 
-		<p><a class="aboutToggle" href="#">About</a></p>
+		<a class="aboutToggle" href="#">About</a>
 		
 		<div class="about-tip tip">
 		
@@ -55,7 +55,7 @@ var param_unit = '<?php print $_GET['unit'];?>';
 			<p><i>Powered by <a href="http://code.google.com/p/puelia-php/" target="_blank">Puelia v0.1</a>, an implementation of the <a href="http://code.google.com/p/linked-data-api" target="_blank">Linked Data API</a></i></p>
 		</div> <!-- end tip -->
 		
-		<p><a class="zoomOut" href="#">Back</a></p>
+		<a class="zoomOut" href="#">Back</a>
 		
 	<div id="apiCalls">
 		<p class="label">Data sources</p>
@@ -67,23 +67,17 @@ var param_unit = '<?php print $_GET['unit'];?>';
 <div id="nodeTip" class="tooltip"></div>
 
 <!-- Scripts -->
-<script language="javascript" type="text/javascript"
-	src="js/jquery-1.4.4.min.js"></script>
-<!--script language="javascript" type="text/javascript"
-	src="js/jquery-ui-1.8.8.custom.min.js"></script-->	
-<script language="javascript" type="text/javascript"
-	src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>		
-<script language="javascript" type="text/javascript"
-	src="js/jit.js"></script>
-<script language="javascript" type="text/javascript"
-	src="js/gov-structure.js"></script>
-<script language="javascript" type="text/javascript"
-	src="js/jquery.overlaps.js"></script>
-<script language="javascript" type="text/javascript"
-	src="js/jquery.qtip.js"></script>		
-<script language="javascript" type="text/javascript" src="js/main.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
+<!--script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.8.custom.min.js"></script-->	
+<script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
+<script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
 
-<!--[if IE]><script language="javascript" type="text/javascript" src="js/Jit/Extras/excanvas.js"></script><![endif]-->
+<script language="javascript" type="text/javascript" src="../scripts/gov-structure.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery.overlaps.js"></script>
+<!--script language="javascript" type="text/javascript" src="js/jquery.qtip.js"></script-->		
+<!--script language="javascript" type="text/javascript" src="js/main.js"></script-->
+
+<!--[if IE]><script language="javascript" type="text/javascript" src="../scripts/Jit/Extras/excanvas.js"></script><![endif]-->
 
 </body>
 

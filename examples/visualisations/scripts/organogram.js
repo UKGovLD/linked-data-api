@@ -1,18 +1,197 @@
 /*
+
+organogram.js
+
 Spacetree visualisation from the JIT.
 http://thejit.org/
 
-Modified by @danpaulsmith for the Organogram 
-visualisation.
+Modified by Dan Paul Smith
+@danpaulsmith.
+
+2011
 
 */
 
+$(document).ready(function() {
+
+	$("#infobox").hide();
+	$("#infovis").width($(window).width()-0);
+	$("#infovis").height($(window).height()-30);	
+
+	// Breadcrumbs
+	$(function() {
+	    $( "button#post" ).button({
+	        text: true,
+	        disabled: true
+	    }).click(function() {
+	        // nothing
+	    });    
+	    $( "button#unit" ).button({
+	        text: true
+	    }).click(function() {
+	        window.location = $(this).attr("rel");
+	    });
+	    $( "button#dept" ).button({
+	        text: true
+	    }).click(function() {
+	        window.location = $(this).attr("rel");
+	    });       
+	});
+		
+	$('div.about-tip').dialog({
+		autoOpen:false, 
+		buttons: [{
+        	text: "Ok",
+        	click: function() { $(this).dialog("close"); }
+    	}], 
+    	modal: true, 
+    	position: 'center', 
+    	title: 'About', 
+    	resizable: false, 
+    	width: 500, 
+    	zIndex: 9999
+    });
+	
+	$( "a.aboutToggle").button();
+	$( "a.aboutToggle" ).click(function() { $('div.about-tip').dialog('open')});
+	$( "div#navigate button#up" ).button().click(function(){});
+	$( "div#navigate button#down" ).button();
+	$( "div#navigate button#left" ).button();
+	$( "div#navigate button#right" ).button();
+	$( "div#orientation" ).buttonset().click(function(value){
+		if(value.target.id == "top"){
+			global_ST.canvas.opt.orientation = "top";
+			global_ST.refresh();
+		}else if(value.target.id == "left"){
+			global_ST.canvas.opt.orientation = "left";
+			global_ST.refresh();
+		}
+	});
+	
+	$('label[for=top]').click();
+	
+	$( "div#autoalign" ).buttonset().click(function(value){
+		if(value.target.id == "on"){
+			autoalign = true;
+		}else if(value.target.id == "off"){
+			autoalign = false;
+			$('div#'+global_ST.clickedNode.id);
+		}
+	});
+	
+	$('label[for=on]').click();
+	
+	// Navigation controls
+	$(function() {
+	    $( "#navigate #up" ).button({
+	        icons: { primary: "ui-icon-circle-arrow-n" },
+	        text: false
+	    }).mousehold(50,function() {
+	        global_ST.canvas.translateOffsetY = global_ST.canvas.translateOffsetY + 10;
+			global_ST.canvas.canvases[0].translate(0,10,false);
+	    });    
+	     $( "#navigate #down" ).button({
+	        icons: { primary: "ui-icon-circle-arrow-s" },
+	        text: false
+	    }).mousehold(50,function() {
+	        global_ST.canvas.translateOffsetY = global_ST.canvas.translateOffsetY - 10;
+			global_ST.canvas.canvases[0].translate(0,-10,false);
+	    });  
+	     $( "#navigate #left" ).button({
+	        icons: { primary: "ui-icon-circle-arrow-w" },
+	        text: false
+	    }).mousehold(50,function() {
+	        global_ST.canvas.translateOffsetX = global_ST.canvas.translateOffsetX + 10;
+			global_ST.canvas.canvases[0].translate(10,0,false);		
+	    });  
+	     $( "#navigate #right" ).button({
+	        icons: { primary: "ui-icon-circle-arrow-e" },
+	        text: false
+	    }).mousehold(50,function() {
+	        global_ST.canvas.translateOffsetX = global_ST.canvas.translateOffsetX - 10;
+			global_ST.canvas.canvases[0].translate(-10,0,false);	
+	    });    
+	});
+	
+	$( "#reload button#reset" ).button({
+		icons: { primary: "ui-icon-refresh" },
+	    text: false
+	}).click(function(){
+		global_ST.canvas.clear();
+		global_ST.graph.clean();
+		$('#infovis').html("");
+		$('#infobox').html("").hide();	
+		init(global_department, global_post,true);
+	});
+
+	$('div#right').children().css('visibility','visible');
+	
+		
+}); // end docready
+
+function resetSourceLinks() {
+	
+	$("div#apiCalls a.source").click(function(){
+		$("div#apiCalls div.apiCall").hide();
+		$(this).next().fadeIn();
+	});
+	
+	$("a.close").click(function(){
+		$(this).parent().fadeOut();
+	});
+
+	return false;
+}
+
+function setInfoBoxLinks() {
+
+	$("a.close").click(function(){
+		$(this).parent().fadeOut();
+	});		
+	
+	$('div.heldBy').accordion({clearStyle:true, navigation:true, autoHeight:false, collapsible:true, active:true});
+	
+	$('.ui-state-default').mouseout(function(){$(this).removeClass('ui-state-focus')});
+	
+	$('div.panel h3').eq(0).click();
+
+	return false;
+}
+
+jQuery.fn.mousehold = function(timeout, f) {
+	if (timeout && typeof timeout == 'function') {
+		f = timeout;
+		timeout = 100;
+	}
+	if (f && typeof f == 'function') {
+		var timer = 0;
+		var fireStep = 0;
+		return this.each(function() {
+			jQuery(this).mousedown(function() {
+				fireStep = 1;
+				var ctr = 0;
+				var t = this;
+				timer = setInterval(function() {
+					ctr++;
+					f.call(t, ctr);
+					fireStep = 2;
+				}, timeout);
+			})
+
+			clearMousehold = function() {
+				clearInterval(timer);
+				if (fireStep == 1) f.call(this, 1);
+				fireStep = 0;
+			}
+			
+			jQuery(this).mouseout(clearMousehold);
+			jQuery(this).mouseup(clearMousehold);
+		})
+	}
+}
+
 
 /*** Customisation variables ***/
-
-
-
-
 
 /*** Globals ***/
 
@@ -23,17 +202,9 @@ var firstLoad = true;
 var autoalign = true;
 var reOpen = false;
 var cacheObj;
-var ajax_rootPost;
-var ajax_postReports;
-var ajax_salaryReports;	
 
-var visOffsetX=180;
-var visOffsetY=50;
-
-//$.manageAjax.create('rootPost', { queue: true, cacheResponse: false, abortOld: true }); 
-//$.manageAjax.create('postReports', { queue: true, cacheResponse: false, abortOld: true }); 
-//$.manageAjax.create('salaryReports', { queue: true, cacheResponse: false, abortOld: true }); 
-
+var visOffsetX=100;
+var visOffsetY=0;
 
 /*cacheObj = {
 	req:[{
@@ -199,8 +370,7 @@ function init(deptSlug,postSlug,reload){
 		onBeforeCompute: function(node){  
 		},  
 		onAfterCompute: function(){  
-			changeLog("Done",false);
-			hideLog(); 
+			//changeLog("Done",false);
 		},  
 		onCreateLabel: function(label, node){
 		
@@ -233,11 +403,15 @@ function init(deptSlug,postSlug,reload){
 				}
 				
 				//console.log(node);
-				
-				if(typeof node.data.postIn != 'undefined' && node.data.postIn.length > 0){
-					label.innerHTML = label.innerHTML + '<span class="postIn">'+node.data.postIn[0].label[0]+'</span>';
+
+				if(typeof node.data.postIn != 'undefined' && node.data.postIn.length > 0){					
+					for(var a in node.data.postIn){
+							if(node.data.postIn[a]._about.indexOf("/unit/") > 0){
+								label.innerHTML = label.innerHTML + '<span class="postIn ui-state-active">'+node.data.postIn[a].label[0]+'</span>';
+							} else {}
+					}
 				} else {
-					label.innerHTML = label.innerHTML + '<span class="postIn">?</span>';
+					label.innerHTML = label.innerHTML + '<span class="postIn ui-state-active">?</span>';
 				}
 				
 				if(node.data.heldBy.length>1){
@@ -248,8 +422,6 @@ function init(deptSlug,postSlug,reload){
 
 			label.onclick = function(){ 
 			
-				$.manageAjax.abort('salaryReports'); 
-
 				/*
 				var off = $("div#"+node.id).offset();
 				var t = off.top;
@@ -367,19 +539,14 @@ function loadPost(deptSlug,postSlug) {
 
 	var postTree;	
 	global_post = postSlug;
-	
-	//global_ST.canvas.clear();
-	
+		
 	showLog("Loading post ...");
 
 	$("#infovis-label").html("");
 	$("#infobox").fadeOut();
 	
-	var postInQuestion;
-	var firstNode;	
-	//$("div#formats").fadeOut();
-	//$('div#apiCalls').fadeOut();
-	
+	var postInQuestion, postInQuestionReportsTo = [], firstNode;	
+
 	// Make an API call to retrieve information about the root post
 	var api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug;
 	//var api_url = "http://danpaulsmith.com/puelia3/doc/department/"+deptSlug+"/post/"+postSlug;alert("using danpaulsmith.com API & google CDN for jqueryUI");
@@ -411,22 +578,58 @@ function loadPost(deptSlug,postSlug) {
 	
 				// Extract information for visualisation breadcrumbs
 				$("h1.title button#post").html(json.result.primaryTopic.label[0]);
-				var dSlug = json.result.primaryTopic.postIn[1]._about.toString().split("/");
-				dSlug = dSlug[dSlug.length-1];		
-				$("h1.title button#dept").html(json.result.primaryTopic.postIn[1].label[0]).attr("rel","../gov-structure?dept="+dSlug);
 				
-				var uSlug = json.result.primaryTopic.postIn[0]._about.toString().split("/");
-				uSlug = uSlug[uSlug.length-1];				
-				$("h1.title button#unit").html(json.result.primaryTopic.postIn[0].label[0]).attr("rel","../gov-structure?dept="+dSlug+"&unit="+uSlug);
-	
+				var uSlug,dSlug;	
+					
+				for(var a in json.result.primaryTopic.postIn){
+					if(json.result.primaryTopic.postIn[a]._about.indexOf("/unit/") > 0){
+						$("h1.title button#unit").html(json.result.primaryTopic.postIn[a].label[0]);
+						uSlug = json.result.primaryTopic.postIn[a]._about.toString().split("/");
+						uSlug = uSlug[uSlug.length-1];				
+					} else {
+						$("h1.title button#dept").html(json.result.primaryTopic.postIn[a].label[0]);
+						dSlug = json.result.primaryTopic.postIn[a]._about.toString().split("/");
+						dSlug = dSlug[dSlug.length-1];		
+					}
+				}
+				
+				$("h1.title button#unit").attr("rel","../gov-structure?dept="+dSlug+"&unit="+uSlug);
+				$("h1.title button#dept").attr("rel","../gov-structure?dept="+dSlug);
+			
 				$("h1.title button").css("visibility","visible");
-				$("h1.title button#post").animate({opacity:'1'},1000,function(){
+				$("h1.title button#dept").animate({opacity:'1'},1000,function(){
 					$("h1.title button#unit").animate({opacity:'1'},1000,function(){
-						$("h1.title button#dept").animate({opacity:'1'},1000);
+						$("h1.title button#post").animate({opacity:'1'},1000);
 					})
 				});			
 				//cl(firstNode);
 				
+				var tempPostEl = json.result.primaryTopic;
+				// Store the post ID's that the postInQuestion reports to
+
+				var piqrtSlug = tempPostEl._about.toString().split("/");
+				piqrtSlug = piqrtSlug[piqrtSlug.length-1];
+				postInQuestionReportsTo.push(piqrtSlug);
+						
+				if(typeof tempPostEl.reportsTo != 'undefined') {
+					for(var a=0;a<tempPostEl.reportsTo.length;a++){
+							
+						piqrtSlug = tempPostEl.reportsTo[a]._about.toString().split("/");
+						piqrtSlug = piqrtSlug[piqrtSlug.length-1];
+						postInQuestionReportsTo.push(piqrtSlug);
+												
+						if(typeof tempPostEl.reportsTo[a].reportsTo != 'undefined'){
+							tempPostEl = tempPostEl.reportsTo[a];						
+							a=a-1;
+						} else {
+						
+						}
+					}
+				} else {
+					piqrtSlug = tempPostEl._about.toString().split("/");
+					piqrtSlug = piqrtSlug[dSlug.length-1];
+					postInQuestionReportsTo.push(piqrtSlug);
+				}
 				
 				// Make a second API call to retrieve information about the posts that report to the root post
 				api_url = "http://reference.data.gov.uk/doc/department/"+deptSlug+"/post/"+postSlug+"/reportsFull";
@@ -563,18 +766,50 @@ function loadPost(deptSlug,postSlug) {
 						//$("div#"+global_ST.root).click();
 						//global_ST.setRoot("post_"+global_post);
 						global_ST.onClick(global_ST.root);
+
+						// Array Remove - By John Resig (MIT Licensed)
+						/*
+						Array.prototype.remove = function(from, to) {
+						  var rest = this.slice((to || from) + 1 || this.length);
+						  this.length = from < 0 ? this.length + from : from;
+						  return this.push.apply(this, rest);
+						};
+						*/
 						
-						setTimeout(function(){
-							if(!global_ST.busy){
-								$("div.post_"+global_post).click();
-							} else {
-								setTimeout(function(){
-									$("div.post_"+global_post).click();
-								},1000);							
-							}
-						},1000);
-											
-						// end
+						changeLog("Aligning node ...",true);
+						var t = 0;
+						var c = postInQuestionReportsTo.length;
+						//console.log("start c="+c);
+						setTimeout(function(){	
+							t = setInterval(function(){
+								//console.log("int c="+c);														
+								if(c == 1){
+									if(!global_ST.busy){
+									//console.log("clearing int");
+									//console.log("clicking on= "+"div.post_"+postInQuestionReportsTo[c-1].toString());
+									clearInterval(t);
+									global_ST.onClick($("div.post_"+postInQuestionReportsTo[c-1].toString()).attr("id"));
+									$("div.post_"+postInQuestionReportsTo[c-1].toString()).click();
+									hideLog(); 
+									return false;
+									}
+								} else {
+									if(!global_ST.busy){
+									//console.log("clicking on= "+"div.post_"+postInQuestionReportsTo[c-1].toString());
+									//$("div.post_"+postInQuestionReportsTo[c-1].toString()).click();
+									//console.log("Clicking post_"+postInQuestionReportsTo[postInQuestionReportsTo.length-1].toString());
+									global_ST.onClick($("div.post_"+postInQuestionReportsTo[c-1].toString()).attr("id"));
+									//console.log(postInQuestionReportsTo);									
+									//console.log("removing:"+postInQuestionReportsTo[postInQuestionReportsTo.length-1]);
+									//postInQuestionReportsTo.splice(c-1,1);
+									c--;
+									//console.log(postInQuestionReportsTo);
+									}
+								}				
+							},250);
+						},500);	
+						//end
+						
 						
 						displayDataSources();
 						
@@ -596,8 +831,6 @@ function loadPost(deptSlug,postSlug) {
 
 	return false;
 }
-
-
 
 function buildTree(apiResult,jsonObj) {
 
@@ -1066,8 +1299,8 @@ function loadPersonInfo(node){
 		
 		html+= '</p>';
 		
-		html+= '<span class="external_posts_title">External reporting posts:</span>';
-		html+= '<ul class="external_posts"></ul>';
+		//html+= '<span class="external_posts_title">External reporting posts:</span>';
+		//html+= '<ul class="external_posts"></ul>';
 
 		html += '</div><!-- end content -->';
 		//html += '<div class="clear"><!-- --></div>';
