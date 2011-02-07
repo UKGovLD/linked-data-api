@@ -1513,7 +1513,7 @@ $prefLabel, $altLabel, $title and $name variables.
 			</xsl:attribute>
 			<img src="{$activeImageBase}/Cancel.png" alt="remove this sort" />
 		</a>
-		<a>
+		<a rel="nofollow">
 			<xsl:attribute name="href">
 				<xsl:call-template name="substituteParam">
 					<xsl:with-param name="uri" select="$uri" />
@@ -1637,10 +1637,10 @@ $prefLabel, $altLabel, $title and $name variables.
 			</xsl:call-template>
 		</xsl:variable>
 		<li>
-			<a href="{$ascending}" title="sort in ascending order">
+			<a rel="nofollow" href="{$ascending}" title="sort in ascending order">
 				<img src="{$inactiveImageBase}/Arrow3 Up.png" alt="sort in ascending order" />
 			</a>
-			<a title="sort in descending order">
+			<a rel="nofollow" title="sort in descending order">
 				<xsl:attribute name="href">
 					<xsl:call-template name="substituteParam">
 						<xsl:with-param name="uri" select="$uri" />
@@ -1658,7 +1658,7 @@ $prefLabel, $altLabel, $title and $name variables.
 				<img src="{$inactiveImageBase}/Arrow3 Down.png" alt="sort in descending order" />
 			</a>
 			<xsl:text> </xsl:text>
-			<a href="{$ascending}" title="sort in ascending order">
+			<a rel="nofollow" href="{$ascending}" title="sort in ascending order">
 				<xsl:apply-templates select="." mode="contextLabel" />
 			</a>
 		</li>
