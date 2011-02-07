@@ -140,7 +140,7 @@ api:selector a rdf:Property ;
 	rdfs:label "Selector"@en ;
 	rdfs:comment "The selector that should be used to generate the list of items."@en ;
 	rdfs:domain api:ListEndpoint ;
-	rdfs:range rdfs:Literal ;
+	rdfs:range api:Selector ;
 	rdfs:isDefinedBy api: ; .
 
 api:viewer a rdf:Property ;
