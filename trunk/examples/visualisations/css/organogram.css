@@ -1,0 +1,368 @@
+
+
+canvas
+{
+	cursor:move;
+}
+
+#infobox
+{
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px 10px 10px 10px;
+	background-color:#FFFFFF;
+	border:1px solid #DDDDDD;
+	border-radius:10px 10px 10px 10px;
+	color:#333333;
+	display:none;
+	height:auto;
+	margin-bottom:20px;
+	opacity:1px;
+	overflow-x:hidden;
+	overflow-y:auto;
+	padding:0 0 5px;
+	position:absolute;
+	right:125px;
+	top:55px;
+	width:290px;
+}
+
+#infobox .ui-accordion .ui-accordion-content
+{
+	border-top:0 none;
+	margin-bottom:2px;
+	margin-top:-2px;
+	overflow:auto;
+	padding:0 !important;
+	position:relative;
+	top:1px;
+}
+
+#infobox .ui-accordion .ui-accordion-header
+{
+	cursor:pointer;
+	margin-top:3px !important;
+	position:relative;
+}
+
+/* UI Overrides 
+ Infobox */
+#infobox .ui-accordion .ui-accordion-header a
+{
+	font-size:0.8em !important;
+	padding:0.3em 0.5em !important;
+	text-align:right !important;
+}
+
+#infobox .ui-accordion-content
+{
+	overflow:auto;
+	padding-bottom:0 !important;
+	padding-top:0 !important;
+}
+
+#infobox h1
+{
+	border-bottom:1px solid #CCCCCC;
+	font-size:14px;
+	margin-bottom:0;
+	margin-left:0;
+	margin-top:0;
+	padding:10px 30px;
+	text-align:center;
+}
+
+#infobox h2
+{
+	color:#999999;
+	font-size:0.9em;
+	font-weight:normal;
+	margin:0;
+	padding:0;
+}
+
+#infobox hr
+{
+	border-color:#-moz-use-text-color #-moz-use-text-color #EEEEEE;
+	border-style:none none double;
+	border-width:medium medium 3px;
+	padding-top:10px;
+}
+
+#infobox p a.expand
+{
+	color:#333333;
+	font-weight:bold;
+	opacity:0.9px;
+	text-decoration:none;
+}
+
+#infobox p a.expand:hover
+{
+	color:#3970AE;
+	font-weight:bold;
+	opacity:1px;
+}
+
+#infobox p.comment
+{
+	font-style:italic;
+	height:expression( this.scrollHeight > 124 ? "125px" : "auto" );
+	max-height:125px;
+	overflow:auto;
+}
+
+#infobox p.comment span
+{
+	font-style:normal;
+}
+
+#infobox p.type
+{
+	text-transform:capitalize;
+}
+
+#infobox ul.members
+{
+	border-bottom:1px solid #EEEEEE;
+	display:none;
+	font-family:georgia;
+	list-style-type:none;
+	margin:0;
+	max-height:300px;
+	overflow-y:auto;
+	padding:5px 0;
+	text-align:left;
+}
+
+#infobox ul.members li
+{
+	padding-bottom:15px;
+}
+
+#infobox ul.members li span.memberType
+{
+	color:#999999;
+	display:block;
+	font-style:italic;
+	padding-left:15px;
+	padding-top:1px;
+}
+
+#infobox ul.members li span.name
+{
+	display:block;
+	font-weight:bold;
+}
+
+#infobox ul.members li span.salary
+{
+	float:right;
+	margin-right:10px;
+	margin-top:-20px;
+}
+
+#infobox ul.salaryMap
+{
+	display:block;
+	margin:0;
+	padding:0;
+	position:absolute;
+	visibility:hidden;
+}
+div.expander
+{
+	clear:both;
+	font-size:12px;
+}
+
+/* Node styles */
+div.node
+{
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px 5px 5px 5px;
+	background-color:#FFFFFF;
+	border:1px solid #AAAAAA;
+	border-radius:5px 5px 5px 5px;
+	padding-bottom:0;
+	padding-top:5px;
+}
+
+div.node span.heldBy
+{
+	background-color:#819C9B;
+	border:1px solid #333333;
+	color:#FFFFFF;
+	display:block;
+	font-size:11px;
+	font-weight:bold;
+	margin-top:-38px;
+	padding:0 3px;
+	position:absolute;
+	right:-9px;
+}
+
+div.node span.postIn
+{
+	border:none !important;
+	-moz-border-radius:0 0 3px 3px;
+	-webkit-border-radius:0 0 3px 3px;
+	background-color:#577D00;
+	border-radius:0 0 3px 3px;
+	color:#FFFFFF;
+	display:block;
+	font-size:10px;
+	margin-left:0;
+	margin-top:5px;
+	opacity:0.8px;
+	padding:2px 0;
+	position:relative;
+	width:100%;
+}
+
+/* New Infobox */
+div.panel
+{
+	background-color:#FFFFFF;
+	color:#333333;
+	font-size:0.9em;
+	padding:5px !important;
+	width:280px !important;
+}
+
+/*div.expander a.name span {
+margin:0;
+padding:0;
+display:inline-block;
+width:15px;
+cursor:pointer;
+}
+div.expander div.content {
+border-bottom:1px solid #CCCCCC;
+border-left:1px solid #CCCCCC;
+border-right:1px solid #CCCCCC;
+display:none;
+float:right;
+padding:0;
+width:268px;
+}*/
+div.panel div.content a
+{
+	color:#577D00;
+}
+
+div.panel div.content img
+{
+	border:1px solid #DDDDDD;
+	display:none;
+	float:left;
+	margin-top:0;
+	padding:5px;
+	width:60px;
+}
+
+div.panel div.content img.salaryReports
+{
+	border:medium none;
+	display:inline;
+	float:right;
+	margin-right:5px;
+	margin-top:1px;
+	padding:0;
+	width:auto;
+}
+
+div.panel div.content p
+{
+	display:inline-block;
+	float:right;
+	font-family:Georgia;
+	font-weight:normal;
+	margin:0;
+	padding:0 0 5px 5px;
+	text-align:left;
+	width:273px !important;
+	word-wrap:break-word;
+}
+
+div.panel div.content p span
+{
+	background:none repeat scroll 0 0 #EEEEEE;
+	border-bottom:1px solid #CCCCCC;
+	border-top:1px solid #CCCCCC;
+	color:#888888;
+	display:block;
+	font-family:"Lucida Grande",Verdana;
+	font-size:11px;
+	font-weight:bold;
+	margin-bottom:5px;
+	margin-left:-5px;
+	padding:1px 1px 1px 5px;
+}
+
+div.panel div.content p span.date
+{
+	background:none;
+	border:none;
+	color:#CCCCCC;
+	display:inline;
+	margin:0;
+	padding:0;
+}
+
+div.panel div.content p.grade span
+{
+	display:inline-block !important;
+}
+
+div.panel div.content p.grade span.g
+{
+	border:1px solid #999999;
+	font-family:Arial;
+	font-weight:normal !important;
+	padding:2px 3px;
+	text-align:center;
+}
+
+div.panel div.content p.id a.view_org
+{
+	background:none repeat scroll 0 0 transparent;
+	border:medium none;
+	color:#CCCCCC;
+	display:inline;
+	float:right;
+	font-family:"Lucida Grande",Verdana;
+	font-size:11px;
+	font-weight:bold;
+	margin:1px 5px 0 0;
+	padding:0;
+	text-decoration:none;
+}
+
+div.panel div.content p.id a.view_org:hover
+{
+	color:#333333;
+	text-decoration:none;
+}
+
+div.panel div.content p.salaryReports a
+{
+	font-family:serif;
+	letter-spacing:1px;
+}
+
+div.panel h3
+{
+	color:#333333;
+	font-size:14px !important;
+	margin:0;
+	padding:0;
+	text-align:left;
+}
+
+div.panel h3 a.name
+{
+	cursor:pointer;
+	text-align:right;
+	text-decoration:none;
+}
+

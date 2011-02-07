@@ -133,67 +133,7 @@ left:0;
 bottom:0;
 position:fixed;
 }
-.node {
-border:1px solid transparent;
-cursor:pointer;
-font-family:Arial;
-font-size:10px;
-overflow:hidden;
-text-align:center;
-color:#FFFFFF;
-}
-div.root {
-font-size:14px !important;
-line-height:25px !important;
-}
-div.Government {
-line-height:25px !important;
-}
-div.Government  {
-font-size:16px;
-padding-left:10px;
-padding-top:4px;
-text-align:center;
-}
-div.Department {
 
-}
-div.Department span {
-margin:16% auto auto;
-}
-div.Unit{
-
-}
-div.Unit span {
-font-size:10px;
-overflow: hidden;
-}
-div.Post {
-
-}
-div.Post span {
-display:block;
-font-size:10px;
-margin:16% auto auto;
-position:absolute;
-width:90%;
-}
-div#right {
--moz-box-shadow:0px 25px 25px #888888;
--webkit-box-shadow:0px 25px 25px #888888;
-box-shadow:0px 25px 25px #888888;
--moz-box-shadow:0 25px 25px #888888;
-background-color:#333333;
-border-left:1px solid #EEEEEE;
-color:#FFFFFF;
-font-size:10px;
-height:100%;
-position:fixed;
-right:0;
-top:30px;
-width:100px;
-z-index: 99999;
-}
 div#right ul {
 margin:0;
 padding:0;
@@ -495,31 +435,7 @@ color:#333333;*/
 div#apiCalls div.apiCall p.formats a span {
 border:none !important;
 }
-div.outer {
-height:100%;
-width:100%;
-display: table;
-position: static;
-}
-div.middle {
-display: table-cell;
-vertical-align: middle;
-text-align: center;
-height:100%;
-width: 100%;
-}
-div.inner {
-margin-left:auto;
-margin-right:auto;
-text-align: center;
-}
-div.Government div.middle {
-vertical-align: top !important;
-}
-div.vtop {
-padding-top:7px;
-vertical-align:top !important;
-}
+
 
 /* for explorer only
 div.outer {position: relative;}
@@ -590,32 +506,4 @@ visibility: hidden;
 }
 h1.title button#unit {
 /*display:none !important;*/
-}
-div#nodeTip {
-padding-left:0px !important;
-padding-bottom:0px !important;
-padding-right:0px !important;
-padding-top:5px !important;
-}
-div#nodeTip span.label {
-    display: inline-block;
-    padding:5px 5px 10px;
-    width:90%;
-}
-div#nodeTip span.prop {
-    background: none repeat scroll 0 0 #CCCCCC;
-    display: block;
-    float: left;
-    padding-bottom: 3px;
-    padding-top: 3px;
-    width: 50%;
-}
-div#nodeTip span.value {
-    background: none repeat scroll 0 0 #333333;
-    color: #FFFFFF;
-    display: block;
-    float: left;
-    padding-bottom: 3px;
-    padding-top: 3px;
-    width: 50%;
 }

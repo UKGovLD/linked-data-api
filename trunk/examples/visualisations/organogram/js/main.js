@@ -1,10 +1,8 @@
-
-
 $(document).ready(function() {
 
 	$("#infobox").hide();
-	$("#infovis").width($(window).width()-110);
-	$("#infovis").height($(window).height()-50);	
+	$("#infovis").width($(window).width()-0);
+	$("#infovis").height($(window).height()-30);	
 
 	// Breadcrumbs
 	$(function() {
@@ -26,12 +24,19 @@ $(document).ready(function() {
 	    });       
 	});
 		
-	$('div.about-tip').dialog({autoOpen:false, buttons: [
-  		{
+	$('div.about-tip').dialog({
+		autoOpen:false, 
+		buttons: [{
         	text: "Ok",
         	click: function() { $(this).dialog("close"); }
-    	}
-	], modal: true, position: 'center', title: 'About', resizable: false, width: 500, zIndex: 9999});
+    	}], 
+    	modal: true, 
+    	position: 'center', 
+    	title: 'About', 
+    	resizable: false, 
+    	width: 500, 
+    	zIndex: 9999
+    });
 	
 	$( "a.aboutToggle").button();
 	$( "a.aboutToggle" ).click(function() { $('div.about-tip').dialog('open')});
@@ -68,43 +73,29 @@ $(document).ready(function() {
 	        icons: { primary: "ui-icon-circle-arrow-n" },
 	        text: false
 	    }).mousehold(50,function() {
-	        global_ST.canvas.translateOffsetY = global_ST.canvas.translateOffsetY - 10;
-	        //visOffsetY=visOffsetY-10;
-			global_ST.canvas.canvases[0].translate(0,-10,false);
-			//global_ST.refresh();
-			//autoalign = false;
+	        global_ST.canvas.translateOffsetY = global_ST.canvas.translateOffsetY + 10;
+			global_ST.canvas.canvases[0].translate(0,10,false);
 	    });    
 	     $( "#navigate #down" ).button({
 	        icons: { primary: "ui-icon-circle-arrow-s" },
 	        text: false
 	    }).mousehold(50,function() {
-	        global_ST.canvas.translateOffsetY = global_ST.canvas.translateOffsetY + 10;
-	        //visOffsetY=visOffsetY+10;
-			global_ST.canvas.canvases[0].translate(0,10,false);
-			
-			//global_ST.refresh();
-			//autoalign = false;
+	        global_ST.canvas.translateOffsetY = global_ST.canvas.translateOffsetY - 10;
+			global_ST.canvas.canvases[0].translate(0,-10,false);
 	    });  
 	     $( "#navigate #left" ).button({
 	        icons: { primary: "ui-icon-circle-arrow-w" },
 	        text: false
 	    }).mousehold(50,function() {
-	        global_ST.canvas.translateOffsetX = global_ST.canvas.translateOffsetX - 10;
-	        //visOffsetX=visOffsetX-10;
-			global_ST.canvas.canvases[0].translate(-10,0,false);			
-			//global_ST.refresh();
-			//autoalign = false;
+	        global_ST.canvas.translateOffsetX = global_ST.canvas.translateOffsetX + 10;
+			global_ST.canvas.canvases[0].translate(10,0,false);		
 	    });  
 	     $( "#navigate #right" ).button({
 	        icons: { primary: "ui-icon-circle-arrow-e" },
 	        text: false
 	    }).mousehold(50,function() {
-	        global_ST.canvas.translateOffsetX = global_ST.canvas.translateOffsetX + 10;
-	        //visOffsetX=visOffsetX+10;
-			global_ST.canvas.canvases[0].translate(10,0,false);
-			
-			//global_ST.refresh();
-			//autoalign = false;
+	        global_ST.canvas.translateOffsetX = global_ST.canvas.translateOffsetX - 10;
+			global_ST.canvas.canvases[0].translate(-10,0,false);	
 	    });    
 	});
 	
@@ -147,37 +138,6 @@ function setInfoBoxLinks() {
 	$('div.heldBy').accordion({clearStyle:true, navigation:true, autoHeight:false, collapsible:true, active:true});
 	
 	$('.ui-state-default').mouseout(function(){$(this).removeClass('ui-state-focus')});
-	
-	//$('.ui-accordion-header').click(function(){$('div.panel div.content').slideUp()})
-	
-	/*
-	$('div.panel h3').toggle(function(){
-		// * Open *
-		// hide all panels
-		$('div.panel div.content').slideUp();
-		// remove active classes & triangles
-		$('div.panel h3').each(function(){$(this).removeClass('ui-state-active')});
-		$('div.panel h3').each(function(){$(this).children('span').removeClass('ui-icon-triangle-1-s').addClass('ui-icon-triangle-1-e')});		
-		// add active class
-		$(this).addClass('ui-state-active');
-		// change triangle
-		$(this).children('span').removeClass('ui-icon-triangle-1-e').addClass('ui-icon-triangle-1-s');
-		// open this one
-		$(this).next('div').slideDown();
-	},function(){
-		// * Close *
-		// close this one
-		$(this).next('div').slideUp();		
-		// remove active states
-		$(this).removeClass('ui-state-active');
-		// change triangle
-		$(this).children('span').removeClass('ui-icon-triangle-1-s').addClass('ui-icon-triangle-1-e');		
-	}).hover(function(){
-		$(this).addClass("ui-state-hover");
-	},function(){
-		$(this).removeClass("ui-state-hover");	
-	});
-	*/
 	
 	$('div.panel h3').eq(0).click();
 
