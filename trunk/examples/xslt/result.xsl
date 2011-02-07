@@ -1158,7 +1158,7 @@ $prefLabel, $altLabel, $title and $name variables.
 		</xsl:call-template>
 	</xsl:variable>
 	<li class="selected">
-		<a title="remove this property">
+		<a rel="nofollow" title="remove this property">
 			<xsl:attribute name="href">
 				<xsl:call-template name="substituteParam">
 					<xsl:with-param name="uri" select="@href" />
@@ -1248,7 +1248,7 @@ $prefLabel, $altLabel, $title and $name variables.
 	</xsl:variable>
 	<xsl:if test="not(contains(concat(',', $properties, ','), concat(',', $name, ',')))">
 		<li>
-			<a title="always include this property">
+			<a rel="nofollow" title="always include this property">
 				<xsl:attribute name="href">
 					<xsl:call-template name="substituteParam">
 						<xsl:with-param name="uri" select="/result/@href" />
@@ -1306,7 +1306,7 @@ $prefLabel, $altLabel, $title and $name variables.
 			</span>
 		</xsl:when>
 		<xsl:otherwise>
-			<a title="view {$size} items per page">
+			<a rel="nofollow" title="view {$size} items per page">
 				<xsl:attribute name="href">
 					<xsl:call-template name="substituteParam">
 						<xsl:with-param name="uri">
@@ -1399,13 +1399,13 @@ $prefLabel, $altLabel, $title and $name variables.
 						</xsl:choose>
 					</xsl:variable>
 					<li class="selected">
-						<a title="remove this sort" href="{$baseURI}">
+						<a rel="nofollow" title="remove this sort" href="{$baseURI}">
 							<img src="{$activeImageBase}/Cancel.png" alt="remove this sort" />
 						</a>
 						<xsl:choose>
 							<!-- this is the _orderBy that's used to sort by proximity to center of the map -->
 							<xsl:when test="starts-with($orderBy, 'desc')">
-								<a title="sort in ascending order">
+								<a rel="nofollow" title="sort in ascending order">
 									<xsl:attribute name="href">
 										<xsl:call-template name="substituteParam">
 											<xsl:with-param name="uri" select="$baseURI" />
@@ -1418,7 +1418,7 @@ $prefLabel, $altLabel, $title and $name variables.
 								<xsl:value-of select="$description" />
 							</xsl:when>
 							<xsl:when test="starts-with($orderBy, 'asc')">
-								<a title="sort in descending order">
+								<a rel="nofollow" title="sort in descending order">
 									<xsl:attribute name="href">
 										<xsl:call-template name="substituteParam">
 											<xsl:with-param name="uri" select="$baseURI" />
@@ -1431,7 +1431,7 @@ $prefLabel, $altLabel, $title and $name variables.
 								<xsl:value-of select="$description" />
 							</xsl:when>
 							<xsl:otherwise>
-								<a title="sort in descending order">
+								<a rel="nofollow" title="sort in descending order">
 									<xsl:attribute name="href">
 										<xsl:call-template name="substituteParam">
 											<xsl:with-param name="uri" select="$baseURI" />
@@ -1497,7 +1497,7 @@ $prefLabel, $altLabel, $title and $name variables.
 		</xsl:call-template>
 	</xsl:variable>
 	<li class="selected">
-		<a title="remove this sort">
+		<a rel="nofollow" title="remove this sort">
 			<xsl:attribute name="href">
 				<xsl:call-template name="substituteParam">
 					<xsl:with-param name="uri" select="$uri" />
@@ -2351,12 +2351,12 @@ $prefLabel, $altLabel, $title and $name variables.
 					</xsl:with-param>
 				</xsl:call-template>
 			</xsl:variable>
-			<a title="remove this property" href="{$href}">
+			<a rel="nofollow" title="remove this property" href="{$href}">
 				<img src="{$activeImageBase}/Star.png" alt="unstar this property" />
 			</a>
 		</xsl:when>
 		<xsl:otherwise>
-			<a title="add this property">
+			<a rel="nofollow" title="add this property">
 				<xsl:attribute name="href">
 					<xsl:call-template name="substituteParam">
 						<xsl:with-param name="uri" select="/result/@href" />
@@ -2403,7 +2403,7 @@ $prefLabel, $altLabel, $title and $name variables.
 		<xsl:when test="$value = ''" />
 		<xsl:when test="$hasNonLabelProperties = 'true' and $hasNoLabelProperties = 'true'" />
 		<xsl:when test="$paramValue = $value">
-			<a title="remove filter">
+			<a rel="nofollow" title="remove filter">
 				<xsl:attribute name="href">
 					<xsl:call-template name="substituteParam">
 						<xsl:with-param name="uri">
@@ -2435,7 +2435,7 @@ $prefLabel, $altLabel, $title and $name variables.
 			</xsl:variable>
 			<xsl:choose>
 				<xsl:when test="$max = $value">
-					<a title="remove maximum value filter">
+					<a rel="nofollow" title="remove maximum value filter">
 						<xsl:attribute name="href">
 							<xsl:call-template name="substituteParam">
 								<xsl:with-param name="uri">
@@ -2449,7 +2449,7 @@ $prefLabel, $altLabel, $title and $name variables.
 					</a>
 				</xsl:when>
 				<xsl:otherwise>
-					<a title="filter to values less than {$value}">
+					<a rel="nofollow" title="filter to values less than {$value}">
 						<xsl:attribute name="href">
 							<xsl:call-template name="substituteParam">
 								<xsl:with-param name="uri">
@@ -2470,7 +2470,7 @@ $prefLabel, $altLabel, $title and $name variables.
 					</a>
 				</xsl:otherwise>
 			</xsl:choose>
-			<a title="more like this">
+			<a rel="nofollow" title="more like this">
 				<xsl:attribute name="href">
 					<xsl:call-template name="substituteParam">
 						<xsl:with-param name="uri">
@@ -2484,7 +2484,7 @@ $prefLabel, $altLabel, $title and $name variables.
 			</a>
 			<xsl:choose>
 				<xsl:when test="$min = $value">
-					<a title="remove minimum value filter">
+					<a rel="nofollow" title="remove minimum value filter">
 						<xsl:attribute name="href">
 							<xsl:call-template name="substituteParam">
 								<xsl:with-param name="uri">
@@ -2498,7 +2498,7 @@ $prefLabel, $altLabel, $title and $name variables.
 					</a>
 				</xsl:when>
 				<xsl:otherwise>
-					<a title="more than {$value}">
+					<a rel="nofollow" title="more than {$value}">
 						<xsl:attribute name="href">
 							<xsl:call-template name="substituteParam">
 								<xsl:with-param name="uri">
@@ -2521,7 +2521,7 @@ $prefLabel, $altLabel, $title and $name variables.
 			</xsl:choose>
 		</xsl:when>
 		<xsl:otherwise>
-			<a title="more like this">
+			<a rel="nofollow" title="more like this">
 				<xsl:attribute name="href">
 					<xsl:call-template name="substituteParam">
 						<xsl:with-param name="uri">
