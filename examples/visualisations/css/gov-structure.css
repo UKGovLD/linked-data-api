@@ -1,7 +1,13 @@
-div#infovis {
+#infovis
+{
     border: 5px solid #666666;
     bottom: 15px;
+	height:800px;
     left: 15px;
+	margin:auto;
+	overflow:hidden;
+	position:fixed;
+	width:800px;
     visibility: hidden;
 }
 div#right a {
