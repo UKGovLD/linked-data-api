@@ -17,14 +17,14 @@ var param_unit = '<?php print $_GET['unit'];?>';
 <body>
 
 <h1 class="title breadcrumbs">
-	<span style="margin-right:5px">Government Structure</span><button id="gov" rel="government">HM Government</button><button id="dept">Department</button><button id="unit">Unit</button>
+	<button id="gov" rel="government">HM Government</button><button id="dept">Department</button><button id="unit">Unit</button>
 </h1>
 
 <div id="infovis"></div>
 <div id="infobox"></div>
-<div id="log" style="border: 1px solid rgb(200, 200, 200);">
+<div id="log">
 	<span>Government Overview</span>
-	<img src="images/loading.gif" />
+	<img src="../images/loading.gif" />
 </div>
 
 <div id="right">

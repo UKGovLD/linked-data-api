@@ -6,18 +6,17 @@
 <html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/organogram.css" rel="stylesheet">
 
-<!--link type="text/css" href="css/styles.css" rel="stylesheet"-->
-<!--link type="text/css" href="css/custom-theme/jquery-ui-1.8.8.custom.css" rel="stylesheet"-->
 <title>Organogram</title>
 </head>
 
 <body onload="init('<?php print $_GET['dept'];?>','<?php print $_GET['post'];?>',false);">
 
 <h1 class="title breadcrumbs">
-	<span id="text">Organogram</span><button id="dept">Department</button><button id="unit">Unit</button><button id="post">Post</button>
+	<button id="dept">Department</button><button id="unit">Unit</button><button id="post">Post</button>
 </h1>
 
 <div id="infovis"></div>
@@ -98,7 +97,7 @@
 </div>
 
 <!--div id="log-wrapper"-->
-<div id="log" style="border: 1px solid rgb(200, 200, 200);">
+<div id="log">
 	<span></span>
 	<img src="../images/loading.gif" />
 </div>
@@ -106,15 +105,9 @@
 
 <!-- Scripts -->
 <script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
-<!--script language="javascript" type="text/javascript"
-	src="js/jquery-ui-1.8.8.custom.min.js"></script-->	
-<script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>	
-	
+<script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
 <script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
-<!--script language="javascript" type="text/javascript" src="js/jquery.tinysort.min.js"></script-->
-<!--script language="javascript" type="text/javascript" src="js/jquery.ajaxmanager.js"></script -->		
 <script language="javascript" type="text/javascript" src="../scripts/organogram.js"></script>
-<script language="javascript" type="text/javascript" src="../scripts/main.js"></script>
 
 <!--[if lt IE 9]>
     <script src="../scripts/json2.js"></script>

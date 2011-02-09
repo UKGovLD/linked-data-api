@@ -1,10 +1,17 @@
-
-
 canvas
 {
 	cursor:move;
 }
-
+#infovis
+{
+	bottom:0;
+	height:800px;
+	left:0;
+	margin:auto;
+	overflow:hidden;
+	position:fixed;
+	width:800px;
+}
 #infobox
 {
 	-moz-border-radius:10px;
@@ -105,15 +112,27 @@ canvas
 
 #infobox p.comment
 {
-	font-style:italic;
-	height:expression( this.scrollHeight > 124 ? "125px" : "auto" );
-	max-height:125px;
-	overflow:auto;
+	padding-bottom: 0;
 }
 
 #infobox p.comment span
 {
 	font-style:normal;
+}
+#infobox p.comment span.text {
+    background: none repeat scroll 0 0 transparent !important;
+    border: medium none !important;
+    color: #333333;
+    display: inline-block;
+    font-family: Georgia !important;
+    font-size: 11px;
+    font-style: italic;
+    font-weight: normal;
+    margin: 0;
+    max-height: 75px;
+    overflow-y: auto;
+    padding: 0;
+	height:expression( this.scrollHeight > 74 ? "75px" : "auto" );
 }
 
 #infobox p.type
@@ -247,7 +266,8 @@ width:268px;
 }*/
 div.panel div.content a
 {
-	color:#577D00;
+	color:#333333;
+	font-weight: bold;
 }
 
 div.panel div.content img
@@ -364,5 +384,6 @@ div.panel h3 a.name
 	cursor:pointer;
 	text-align:right;
 	text-decoration:none;
+	font-weight: bold;
 }
 
