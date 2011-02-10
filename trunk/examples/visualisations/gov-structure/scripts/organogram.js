@@ -571,8 +571,8 @@ function loadPost(deptSlug,postSlug) {
 					}
 				}
 				
-				$("h1.title button#unit").attr("rel","../gov-structure?dept="+dSlug+"&unit="+uSlug);
-				$("h1.title button#dept").attr("rel","../gov-structure?dept="+dSlug);
+				$("h1.title button#unit").attr("rel","../departments?dept="+dSlug+"&unit="+uSlug);
+				$("h1.title button#dept").attr("rel","../departments?dept="+dSlug);
 			
 				$("h1.title button").css("visibility","visible");
 				$("h1.title button#dept").animate({opacity:'1'},1000,function(){
