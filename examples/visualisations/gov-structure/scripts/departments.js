@@ -1,6 +1,6 @@
 /*
 
-gov-structure.js
+departments.js
 
 Treemap visualisation from the JIT.
 http://thejit.org/

@@ -6,7 +6,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
-<link type="text/css" href="../css/gov-structure.css" rel="stylesheet">
+<link type="text/css" href="../css/departments.css" rel="stylesheet">
 <title>Department Overview</title>
 <script>
 var param_dept = '<?php print $_GET['dept'];?>';
@@ -23,7 +23,7 @@ var param_unit = '<?php print $_GET['unit'];?>';
 <div id="infovis"></div>
 <div id="infobox"></div>
 <div id="log">
-	<span>Government Overview</span>
+	<span>Department Overview</span>
 	<img src="../images/loading.gif" />
 </div>
 
@@ -72,7 +72,7 @@ var param_unit = '<?php print $_GET['unit'];?>';
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
 <script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
 
-<script language="javascript" type="text/javascript" src="../scripts/gov-structure.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/departments.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.overlaps.js"></script>
 <!--script language="javascript" type="text/javascript" src="js/jquery.qtip.js"></script-->		
 <!--script language="javascript" type="text/javascript" src="js/main.js"></script-->
