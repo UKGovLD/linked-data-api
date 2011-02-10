@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/gov-structure.css" rel="stylesheet">
-<title>Government Overview</title>
+<title>Department Overview</title>
 <script>
 var param_dept = '<?php print $_GET['dept'];?>';
 var param_unit = '<?php print $_GET['unit'];?>';

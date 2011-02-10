@@ -319,14 +319,14 @@ div.panel div.content p span
 	padding:1px 1px 1px 5px;
 }
 
-div.panel div.content p span.date
-{
-	background:none;
-	border:none;
-	color:#CCCCCC;
-	display:inline;
-	margin:0;
-	padding:0;
+div.panel div.content p span.date {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+    color: #CCCCCC;
+    display: inline;
+    float: right;
+    margin: 0 5px 0 0;
+    padding: 0;
 }
 
 div.panel div.content p.grade span
