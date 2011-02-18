@@ -113,7 +113,7 @@
     <script src="../scripts/json2.js"></script>
 <![endif]-->
 
-<!--[if IE]><script language="javascript" type="text/javascript" src="../scripts/js/Jit/Extras/excanvas.js"></script><![endif]-->
+<!--[if IE]><script language="javascript" type="text/javascript" src="../scripts/Jit/Extras/excanvas.js"></script><![endif]-->
 
 </body>
 
