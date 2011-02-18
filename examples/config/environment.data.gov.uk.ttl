@@ -2,16 +2,17 @@
 @prefix rdf:              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:             <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:              <http://www.w3.org/2002/07/owl#> .
+@prefix foaf:             <http://xmlns.com/foaf/0.1/> .
 @prefix xsd:              <http://www.w3.org/2001/XMLSchema#> .
 @prefix api:              <http://purl.org/linked-data/api/vocab#> .
 @prefix skos:             <http://www.w3.org/2004/02/skos/core#> .
 @prefix geo:              <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix spatialrelations: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
-@prefix admingeo:         <http://statistics.data.gov.uk/def/administrative-geography/> .
-@prefix qb:      	      <http://purl.org/linked-data/cube#> .
-@prefix time:	 	      <http://www.w3.org/2006/time#> .
+@prefix admingeo: 	    <http://statistics.data.gov.uk/def/administrative-geography/> .
+@prefix qb:      	    <http://purl.org/linked-data/cube#> .
+@prefix time:	 	    <http://www.w3.org/2006/time#> .
 @prefix interval:         <http://reference.data.gov.uk/def/intervals/> .
-@prefix dgu: 		      <http://reference.data.gov.uk/def/reference/> .
+@prefix dgu: 		    <http://reference.data.gov.uk/def/reference/> .
 @prefix bw:               <http://environment.data.gov.uk/id/bathing-water/> .
 @prefix bwsp:             <http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/> .
 @prefix bwq:  	          <http://environment.data.gov.uk/def/bathing-water-quality/> .
@@ -41,9 +42,17 @@ t:api
 		t:latestInSeasonAssessments,
 		t:latestInSeasonAssessmentBySamplePoint,
 		t:latestInSeasonAssessmentByBathingWater,
+		t:individualInSeasonAssessment,
 		t:inSeasonAssessments,
 		t:inSeasonAssessmentsBySamplePoint,
-		t:inSeasonAssessmentsByBathingWater;
+		t:inSeasonAssessmentsByBathingWater,
+		t:latestComplianceAssessments,
+		t:latestComplianceAssessmentBySamplePoint,
+		t:latestComplianceAssessmentByBathingWater,
+		t:individualComplianceAssessment,
+		t:complianceAssessments,
+		t:complianceAssessmentsBySamplePoint,
+		t:complianceAssessmentsByBathingWater;
 	.
 
 #FORMATTERS
@@ -186,12 +195,31 @@ t:inSeasonAssessments
   api:defaultViewer	t:inSeasonAssessmentValuesViewer;
   .
 ##############################################################################################
+## Individual In-Season Sample Assessments
+##############################################################################################
+t:individualInSeasonAssessment
+  a	api:ItemEndpoint;
+  api:uriTemplate			"/data/bathing-water-quality/in-season/sample/point/{bwspid}/date/{date}/time/{time}/recordDate/{recDate}" ;
+  api:exampleRequestPath		"/data/bathing-water-quality/in-season/sample/point/38660/date/20100917/time/110500/recordDate/20110111" ;
+  api:itemTemplate 			"http://environment.data.gov.uk/data/bathing-water-quality/in-season/sample/point/{bwspid}/date/{date}/time/{time}/recordDate/{recDate}" ;
+  api:viewer
+	t:inSeasonAssessmentViewer,
+	t:inSeasonAssessmentValuesViewer,
+	t:inSeasonClassificationViewer,
+	t:inSeasonColiformCountViewer,
+	t:inSeasonStreptococciCountViewer,
+	t:inSeasonEntrovirusCountViewer,
+	t:inSeasonSalmonellaPresentViewer; 
+#  api:defaultViewer	api:describeViewer;
+  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
+  .
+##############################################################################################
 ## In-Season Samples by Sampling Point
 ##############################################################################################
 t:inSeasonAssessmentsBySamplePoint
   a	api:ListEndpoint;
-  api:uriTemplate			"/doc/bathing-water-quality/in-season/point/{bwspid}/all" ;
-  api:exampleRequestPath		"/doc/bathing-water-quality/in-season/point/03600/all" ;
+  api:uriTemplate			"/doc/bathing-water-quality/in-season/point/{bwspid}" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/in-season/point/03600" ;
   api:viewer
 	t:inSeasonAssessmentViewer,
 	t:inSeasonAssessmentValuesViewer,
@@ -213,8 +241,8 @@ t:inSeasonAssessmentsBySamplePoint
 ##############################################################################################
 t:inSeasonAssessmentsByBathingWater
   a	api:ListEndpoint;
-  api:uriTemplate			"/doc/bathing-water-quality/in-season/bathing-water/{eubwid}/all" ;
-  api:exampleRequestPath		"/doc/bathing-water-quality/in-season/bathing-water/ukc2102-03600/all" ;
+  api:uriTemplate			"/doc/bathing-water-quality/in-season/bathing-water/{eubwid}" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/in-season/bathing-water/ukc2102-03600" ;
   api:viewer
 	t:inSeasonAssessmentViewer,
 	t:inSeasonAssessmentValuesViewer,
@@ -233,7 +261,7 @@ t:inSeasonAssessmentsByBathingWater
   .
 
 ##############################################################################################
-## Lastest Samples
+## Lastest In-Season Samples
 ##############################################################################################
 t:latestInSeasonAssessments
   a	api:ListEndpoint;
@@ -341,10 +369,143 @@ t:inSeasonSalmonellaPresentViewer
 	a				api:Viewer;
 	api:name			"InSeasonSalmonellaPresent";
 	api:properties	"label,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,salmonellaPresent.notation,abnormalWeatherException" .
-  
+
 ##############################################################################################
-## Property Labels
+## Annual Compliance Samples
 ##############################################################################################
+t:complianceAssessments
+  a	api:ListEndpoint;
+  api:uriTemplate			"/doc/bathing-water-quality/compliance" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/compliance" ;
+  api:viewer
+	t:complianceAssessmentViewer; 
+  api:defaultPageSize		"10";
+  api:selector [
+    api:filter "type=ComplianceAssessment";
+#    api:sort "sampleYear.ordinalYear";
+  ] ;
+#  api:defaultViewer	api:describeViewer;
+  api:defaultViewer	t:complianceAssessmentViewer;
+  .
+
+##############################################################################################
+## Individual Annual Compliance Assessments
+##############################################################################################
+t:individualComplianceAssessment
+  a	api:ItemEndpoint;
+  api:uriTemplate			"/data/bathing-water-quality/compliance/point/{bwspid}/year/{year}" ;
+  api:exampleRequestPath		"/data/bathing-water-quality/compliance/point/03600/year/2010" ;
+  api:itemTemplate 			"http://environment.data.gov.uk/data/bathing-water-quality/compliance/point/{bwspid}/year/{year}" ;
+  api:viewer
+	t:complianceAssessmentViewer; 
+#  api:defaultViewer	api:describeViewer;
+  api:defaultViewer	t:complianceAssessmentViewer;
+  .
+##############################################################################################
+## Annual Compliance Assessment by Sampling Point
+##############################################################################################
+t:complianceAssessmentsBySamplePoint
+  a	api:ListEndpoint;
+  api:uriTemplate			"/doc/bathing-water-quality/compliance/point/{bwspid}" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/compliance/point/03600" ;
+  api:viewer
+	t:complianceAssessmentViewer; 
+  api:defaultPageSize		"10";
+  api:selector [
+    api:filter "bwq_samplingPoint.samplePointNotation={bwspid}&type=ComplianceAssessment";
+    api:sort "sampleYear.ordinalYear";
+  ] ;
+#  api:defaultViewer	api:describeViewer;
+  api:defaultViewer	t:complianceAssessmentViewer;
+  .
+##############################################################################################
+## Annula Compliance Assessment by Bathing Water
+##############################################################################################
+t:complianceAssessmentsByBathingWater
+  a	api:ListEndpoint;
+  api:uriTemplate			"/doc/bathing-water-quality/compliance/bathing-water/{eubwid}" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/compliance/bathing-water/ukc2102-03600" ;
+  api:viewer
+	t:complianceAssessmentViewer; 
+  api:defaultPageSize		"10";
+  api:selector [
+    api:filter "bwq_bathingWater.eubwidNotation={eubwid}&type=ComplianceAssessment";
+    api:sort "sampleYear.ordinalYear";
+  ] ;
+#  api:defaultViewer	api:describeViewer;
+  api:defaultViewer	t:complianceAssessmentViewer;
+  .
+
+##############################################################################################
+## Lastest Annual Compliance Assessments
+##############################################################################################
+t:latestComplianceAssessments
+  a	api:ListEndpoint;
+  api:uriTemplate			"/doc/bathing-water-quality/compliance/latest" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/compliance/latest" ;
+  api:defaultPageSize			"10";
+  api:viewer
+	t:complianceAssessmentViewer; 
+  api:selector [
+    api:where	
+"""
+?slice a bwq:ComplianceByYearSlice;
+       bwq:sampleYear [interval:ordinalYear ?year] .
+
+# Find the most recent annual compliance slice
+OPTIONAL {
+  ?slice2 a bwq:ComplianceByYearSlice;
+          bwq:sampleYear [ interval:ordinalYear ?year2 ] .
+  FILTER (?year2>?year)          
+} FILTER (!bound(?slice2))
+?slice qb:observation ?item .
+""";
+    api:sort	"sampleYear.ordinalYear,bwq_bathingWater.name";
+  ] ;
+  api:defaultViewer	t:complianceAssessmentViewer;
+  .
+ 
+##############################################################################################
+# Latest Annual Compliance Assessment by sampling point.
+##############################################################################################
+t:latestComplianceAssessmentBySamplePoint
+  a	api:ListEndpoint;
+  api:uriTemplate			"/doc/bathing-water-quality/compliance/point/{bwspid}/latest" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/compliance/point/19100/latest" ;
+  api:viewer
+	t:complianceAssessmentViewer; 
+  api:defaultPageSize		"1";
+  api:maxPageSize 		"1";
+  api:selector [
+  		api:filter "bwq_samplingPoint.samplePointNotation={bwspid}&type=ComplianceAssessment";
+  		api:sort	"-sampleYear.ordinalYear";
+  ];
+  api:defaultViewer	t:complianceAssessmentViewer;
+  .
+
+t:complianceAssessmentViewer
+	a				api:Viewer;
+	api:name		"complianceAssessmentViewer";
+	api:properties	"label,bwq_samplingPoint.name,bwq_samplingPoint.notation,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,bwq_bathingWater.name,bwq_bathingWater.notation,sampleYear.ordinalYear,complianceClassification.notation,complianceClassification.name" .
+
+##############################################################################################
+# Latest in-season sample assessment by bathing water.
+##############################################################################################
+t:latestComplianceAssessmentByBathingWater
+  a	api:ListEndpoint;
+  api:uriTemplate			"/doc/bathing-water-quality/compliance/bathing-water/{eubwid}/latest" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/compliance/bathing-water/ukc2102-03600/latest" ;
+  api:viewer
+	t:complianceAssessmentViewer; 
+  api:defaultPageSize		"1";
+  api:maxPageSize 		"1";
+  api:selector [
+  		api:filter "bwq_bathingWater.eubwidNotation={eubwid}&type=ComplianceAssessment";
+  		api:sort	"-sampleDateTime";
+  ];
+  api:defaultViewer	t:complianceAssessmentViewer;
+  .  
+## Labels ##
 
 # Common #
 
@@ -441,6 +602,7 @@ ef_def:samplePointNotation a owl:DatatypeProperty;
                            
 
 bwq:SampleAssessment api:label  "SampleAssessment" .
+bwq:ComplianceAssessment api:label  "ComplianceAssessment" .
 bwq:sampleDateTime	 api:label  "sampleDateTime" .
 bwq:sampleWeek	 	 api:label  "sampleWeek" .
 bwq:sampleYear	 	 api:label  "sampleYear" .
@@ -448,6 +610,7 @@ bwq:samplingPoint    api:label  "bwq_samplingPoint" .
 bwq:bathingWater     api:label  "bwq_bathingWater" .
 
 bwq:sampleClassification api:label "sampleClassification" .
+bwq:complianceClassification api:label "complianceClassification" .
 
 bwq:complianceCodeNotation a			owl:DatatypeProperty;
                            api:label	"complianceCodeNotation";
@@ -479,7 +642,7 @@ rdf:value api:label "value" ;
   
 time:inXSDDateTime				api:label	"inXSDDateTime" .
 
-interval:ordinalYear			a			owl:DatatypeProperty;
+interval:ordinalYear			a		owl:DatatypeProperty;
 								rdfs:range	xsd:integer;
 								api:label	"ordinalYear" .
   
