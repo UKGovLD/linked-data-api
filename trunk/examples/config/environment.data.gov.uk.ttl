@@ -2,68 +2,49 @@
 @prefix rdf:              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:             <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:              <http://www.w3.org/2002/07/owl#> .
-@prefix foaf:             <http://xmlns.com/foaf/0.1/> .
 @prefix xsd:              <http://www.w3.org/2001/XMLSchema#> .
 @prefix api:              <http://purl.org/linked-data/api/vocab#> .
 @prefix skos:             <http://www.w3.org/2004/02/skos/core#> .
 @prefix geo:              <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix spatialrelations: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
-@prefix admingeo: 		  <http://statistics.data.gov.uk/def/administrative-geography/> .
-@prefix qb:      		  <http://purl.org/linked-data/cube#> .
+@prefix admingeo:         <http://statistics.data.gov.uk/def/administrative-geography/> .
+@prefix qb:      	      <http://purl.org/linked-data/cube#> .
 @prefix time:	 	      <http://www.w3.org/2006/time#> .
-@prefix	interval:         <http://reference.data.gov.uk/def/intervals/> .
-@prefix dgu: <http://reference.data.gov.uk/def/reference/> .
-@prefix bw:      <http://environment.data.gov.uk/id/bathing-water/> .
-@prefix bwsp:    <http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/> .
-@prefix bwq:  	 <http://environment.data.gov.uk/def/bathing-water-quality/> .
-@prefix bwq-iss:  <http://environment.data.gov.uk/data/bathing-water-quality/in-season/slice/> .
-@prefix bw_def:  <http://environment.data.gov.uk/def/bathing-water/> .
-@prefix ef_def:  <http://location.data.gov.uk/def/ef/SamplingPoint/> .
-@prefix t: <http://environment.data.gov.uk/api#> .
+@prefix interval:         <http://reference.data.gov.uk/def/intervals/> .
+@prefix dgu: 		      <http://reference.data.gov.uk/def/reference/> .
+@prefix bw:               <http://environment.data.gov.uk/id/bathing-water/> .
+@prefix bwsp:             <http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/> .
+@prefix bwq:  	          <http://environment.data.gov.uk/def/bathing-water-quality/> .
+@prefix bwq-iss:          <http://environment.data.gov.uk/data/bathing-water-quality/in-season/slice/> .
+@prefix bw_def:           <http://environment.data.gov.uk/def/bathing-water/> .
+@prefix ef_def:           <http://location.data.gov.uk/def/ef/SamplingPoint/> .
+@prefix t:                <http://environment.data.gov.uk/api#> .
 
 t:api
 	a api:API ;
-	rdfs:label "Bathing Water API"@en ;
-	api:prefixMapping [ 
-		api:namespace "http://environment.data.gov.uk/def/bathing-water-quality/";
-		api:prefix	  "bwq_def";
-	];
-	api:prefixMapping [ 
-		api:namespace "http://environment.data.gov.uk/id/bathing-water/";
-		api:prefix	  "bw_i";
-	];
-	api:prefixMapping [ 
-		api:namespace "http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/";
-		api:prefix	  "bswp";
-	];
+	rdfs:label "Bathing Water Environment API"@en ;
+
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
-  api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
-  api:defaultFormatter t:HtmlFormatter ;
-  api:formatter t:CsvFormatter ;
-	api:viewer
-		t:bathingWaterViewer,
-		t:samplingPointViewer,
-		t:inSeasonAssessmentViewer,
-		t:inSeasonAssessmentValuesViewer,
-		t:inSeasonClassificationViewer,
-		t:inSeasonColiformCountViewer,
-		t:inSeasonStreptococciCountViewer,
-		t:inSeasonEntrovirusCountViewer,
-		t:inSeasonSalmonellaPresentViewer; 
+	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
+##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
+	api:defaultFormatter t:HtmlFormatter ;
+	api:formatter t:CsvFormatter ;
 	api:endpoint
-    t:scheme ,
-    t:definition ,
-    t:subclasses , t:instances , t:properties ,
-	    t:bathingWater,
-	    t:bathingWaters,
-	    t:samplingPoint,
-	    t:samplingPoints,
-	    t:latestInSeasonAssessment2,
-	    t:latestInSeasonAssessments,
-        t:inSeasonAssessments;
+		t:scheme ,
+		t:definition ,
+		t:subclasses , 
+		t:instances , 
+		t:properties ,
+		t:bathingWater,
+		t:bathingWaters,
+		t:latestInSeasonAssessments,
+		t:latestInSeasonAssessmentBySamplePoint,
+		t:latestInSeasonAssessmentByBathingWater,
+		t:inSeasonAssessments,
+		t:inSeasonAssessmentsBySamplePoint,
+		t:inSeasonAssessmentsByBathingWater;
 	.
-
 
 #FORMATTERS
 
@@ -80,65 +61,24 @@ t:CsvFormatter
   api:stylesheet "xslt/environment-csv.xsl" .
 
 # Viewers #
-t:bathingWaterViewer
-	a	            api:Viewer;
-	api:name	    "bathingWater";
-	api:properties	"name,notation,samplingPoint.lat,samplingPoint.long,samplingPoint.easting,samplingPoint.northing" .
-
-t:samplingPointViewer
-	a	            api:Viewer;
-	api:name	    "bathingWater";
-	api:properties	"name,notation,lat,long,easting,northing,bathingWater.name" .
-		
-t:inSeasonAssessmentViewer
-	a				api:Viewer;
-	api:name		"inSeasonCountsAndLocation";
-	api:properties	"bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.notation,sampleClassification.name,totalColiformQualifier.notation,totalColiformCount,faecalColiformQualifier.notation,faecalColiformCount,faecalStreptococciQualifier.notation,faecalStreptococciCount,entrovirusQualifier.notation,entrovirusCount,salmonellaPresent.notation,abnormalWeatherException" .
-	
-t:inSeasonAssessmentValuesViewer
-	a				api:Viewer;
-	api:name		"inSeasonCounts";
-	api:properties	"sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.notation,sampleClassification.name,totalColiformQualifier.notation,totalColiformCount,faecalColiformQualifier.notation,faecalColiformCount,faecalStreptococciQualifier.notation,faecalStreptococciCount,entrovirusQualifier.notation,entrovirusCount,salmonellaPresent.notation,abnormalWeatherException" .
-	
-t:inSeasonClassificationViewer
-	a				api:Viewer;
-	api:name		"inSeasonClassification";
-	api:properties	"sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.notation,sampleClassification.name,abnormalWeatherException" .
-	
-t:inSeasonColiformCountViewer
-	a				api:Viewer;
-	api:name		"inSeasonColiformCount";
-	api:properties	"sampleDateTime.inXSDDateTime,sampleWeek.label,totalColiformQualifier.notation,totalColiformCount,faecalColiformQualifier.notation,faecalColiformCount,abnormalWeatherException" .
-
-t:inSeasonStretococciCountViewer
-	a				api:Viewer;
-	api:name		"inSeasonStreptococciCount";
-	api:properties	"sampleDateTime.inXSDDateTime,sampleWeek.label,faecalStreptococciQualifier.notation,faecalStreptococciCount,abnormalWeatherException" .
-	
-t:inSeasonEntrovirusCountViewer
-	a				api:Viewer;
-	api:name		"inSeasonEntrovirusCount";
-	api:properties	"sampleDateTime.inXSDDateTime,sampleWeek.label,entrovirusQualifier.notation,entrovirusCount,abnormalWeatherException" .
-
-t:inSeasonSalmonellaPresentViewer
-	a				api:Viewer;
-	api:name		"inSeasonSalmonella";
-	api:properties	"sampleDateTime.inXSDDateTime,sampleWeek.label,salmonellaPresent.notation,abnormalWeatherException" .
 
 
-## Definitions ##
-
+##############################################################################################
+## Definitions
+##############################################################################################
 t:scheme
   a api:ItemEndpoint ;
   api:uriTemplate "/def/{scheme}" ;
   api:itemTemplate "http://environment.data.gov.uk/def/{scheme}" ;
-  api:defaultViewer t:schemeViewer ;
+#  api:defaultViewer t:schemeViewer ;
+  api:defaultViewer	api:describeViewer;
+
   .
 
 t:schemeViewer
   a api:Viewer ;
   api:name "scheme" ;
-  api:properties "name,alias,label,note,scopeNote,topConcept.name,comment" ;
+  api:properties "name,type,alias,label,note,scopeNote,topConcept.name,comment" ;
   .
 
 t:definition
@@ -151,7 +91,7 @@ t:definition
 t:definitionViewer
   a api:Viewer ;
   api:name "definition" ;
-  api:properties "name,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
+  api:properties "name,type,definition,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
   .
 
 t:subclasses
@@ -196,48 +136,39 @@ t:properties
   api:defaultViewer t:definitionViewer ;
   .
 
+##############################################################################################
 ## Bathing Waters
-
+##############################################################################################
 t:bathingWaters
   a api:ListEndpoint ;
-  api:uriTemplate "/environment/doc/bathing-water" ;
-  api:exampleRequestPath "/environment/doc/bathing-water" ;
+  api:uriTemplate 		"/doc/bathing-water" ;
+  api:exampleRequestPath 	"/doc/bathing-water" ;
   api:selector [
     api:filter "type=BathingWater" ;
+    api:sort   "samplingPoint.northing,samplingPoint.easting";
   ] ;
   api:defaultViewer t:bathingWaterViewer .
 
 t:bathingWater
   a api:ItemEndpoint ;
-  api:uriTemplate "/environment/doc/bathing-water/{eubwid}" ;
-  api:exampleRequestPath "/environment/doc/bathing-water/00GA" ;
+  api:uriTemplate 		"/doc/bathing-water/{eubwid}" ;
+  api:exampleRequestPath 	"/doc/bathing-water/ukc2102-03600" ;
   api:itemTemplate "http://environment.data.gov.uk/id/bathing-water/{eubwid}" ;
   api:defaultViewer t:bathingWaterViewer .
 
-## Sampling Points
-t:samplingPoints
-  a api:ListEndpoint ;
-  api:maxPageSize "100";
-  api:uriTemplate "/location/doc/ef/SamplingPoint/bwsp.eaew" ;
-  api:exampleRequestPath "/location/doc/ef/SamplingPoint/bwsp.eaew" ;
-  api:selector [
-    api:filter "type=SamplingPoint" ;
-    api:sort "northing,easting";
-  ] ;
-  api:defaultViewer t:samplingPointViewer .
+t:bathingWaterViewer
+	a	            api:Viewer;
+	api:name	      "BathingWater";
+	api:properties	"name,notation,samplingPoint.lat,samplingPoint.long,samplingPoint.easting,samplingPoint.northing" .
 
-t:samplingPoint
-  a api:ItemEndpoint ;
-  api:uriTemplate "/location/doc/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
-  api:exampleRequestPath "/location/doc/ef/SamplingPoint/bwsp.eaew/03600" ;
-  api:itemTemplate "http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
-  api:defaultViewer t:samplingPointViewer .
-  
-## In-Season Samples by Sampling Point
+ 
+##############################################################################################
+## In-Season Samples
+##############################################################################################
 t:inSeasonAssessments
   a	api:ListEndpoint;
-  api:uriTemplate			"/environment/doc/bathing-water-quality/in-season/point/{bwspid}/all" ;
-  api:exampleRequestPath	"/environment/doc/bathing-water-quality/in-season/point/03600/all" ;
+  api:uriTemplate			"/doc/bathing-water-quality/in-season" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/in-season" ;
   api:viewer
 	t:inSeasonAssessmentViewer,
 	t:inSeasonAssessmentValuesViewer,
@@ -248,22 +179,67 @@ t:inSeasonAssessments
 	t:inSeasonSalmonellaPresentViewer; 
   api:defaultPageSize		"10";
   api:selector [
-    api:filter "type=SampleAssessment&bwq_samplingPoint.samplePointNotation={bwspid}";
-## Either this long 'where' clause 
-##    api:where  "?slice a bwq:BySamplingPointSlice; bwq:samplingPoint [ ef_def:samplePointNotation '?bwspid'^^ef_def:samplePointCode ]; qb:observation ?item . ?item bwq:sampleDateTime [time:inXSDDateTime ?x_dt] .";
-## or the short filter and where clause below
+    api:filter "type=SampleAssessment";
+#    api:sort "sampleDateTime.inXSDDateTime";
+  ] ;
+#  api:defaultViewer	api:describeViewer;
+  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
+  .
+##############################################################################################
+## In-Season Samples by Sampling Point
+##############################################################################################
+t:inSeasonAssessmentsBySamplePoint
+  a	api:ListEndpoint;
+  api:uriTemplate			"/doc/bathing-water-quality/in-season/point/{bwspid}/all" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/in-season/point/03600/all" ;
+  api:viewer
+	t:inSeasonAssessmentViewer,
+	t:inSeasonAssessmentValuesViewer,
+	t:inSeasonClassificationViewer,
+	t:inSeasonColiformCountViewer,
+	t:inSeasonStreptococciCountViewer,
+	t:inSeasonEntrovirusCountViewer,
+	t:inSeasonSalmonellaPresentViewer; 
+  api:defaultPageSize		"10";
+  api:selector [
+    api:filter "bwq_samplingPoint.samplePointNotation={bwspid}&type=SampleAssessment";
     api:sort "sampleDateTime.inXSDDateTime";
   ] ;
-  api:defaultViewer	api:describeViewer;
-#  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
+#  api:defaultViewer	api:describeViewer;
+  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
   .
-  
+##############################################################################################
+## In-Season Samples by Bathing Water
+##############################################################################################
+t:inSeasonAssessmentsByBathingWater
+  a	api:ListEndpoint;
+  api:uriTemplate			"/doc/bathing-water-quality/in-season/bathing-water/{eubwid}/all" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/in-season/bathing-water/ukc2102-03600/all" ;
+  api:viewer
+	t:inSeasonAssessmentViewer,
+	t:inSeasonAssessmentValuesViewer,
+	t:inSeasonClassificationViewer,
+	t:inSeasonColiformCountViewer,
+	t:inSeasonStreptococciCountViewer,
+	t:inSeasonEntrovirusCountViewer,
+	t:inSeasonSalmonellaPresentViewer; 
+  api:defaultPageSize		"10";
+  api:selector [
+    api:filter "bwq_bathingWater.eubwidNotation={eubwid}&type=SampleAssessment";
+    api:sort "sampleDateTime.inXSDDateTime";
+  ] ;
+#  api:defaultViewer	api:describeViewer;
+  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
+  .
+
+##############################################################################################
 ## Lastest Samples
+##############################################################################################
 t:latestInSeasonAssessments
   a	api:ListEndpoint;
-  api:uriTemplate			"/environment/doc/bathing-water-quality/in-season/latest" ;
-  api:exampleRequestPath	"/environment/doc/bathing-water-quality/in-season/latest" ;
-  api:defaultPageSize		"10";
+  api:uriTemplate			"/doc/bathing-water-quality/in-season/latest" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/in-season/latest" ;
+  api:defaultPageSize			"10";
   api:viewer
 	t:inSeasonAssessmentViewer,
 	t:inSeasonAssessmentValuesViewer,
@@ -273,94 +249,102 @@ t:latestInSeasonAssessments
 	t:inSeasonEntrovirusCountViewer,
 	t:inSeasonSalmonellaPresentViewer; 
   api:selector [
-    api:where
-    """
-    bwq-iss:latest
-       qb:observation ?item .
-    ?item bwq:sampleWeek [ rdfs:label ?week_l];
-          bwq:bathingWater [ skos:prefLabel ?name ] .            
-    """ ;
-    api:orderBy "?week_l ?name";
-  ] ;
-  api:defaultViewer	t:inSeasonAssessmentViewer;
-  .
-
-## Lastest Samples
-t:latestInSeasonAssessments2
-  a	api:ListEndpoint;
-  api:uriTemplate			"/environment/doc/bathing-water-quality/in-season/latest" ;
-  api:exampleRequestPath	"/environment/doc/bathing-water-quality/in-season/latest" ;
-  api:defaultPageSize		"20";
-  api:selector [
-    api:where
-    """
-    ?slice a bwq:BySamplingPointYearSlice;
-             bwq:samplingPoint   ?sp;
-            .  
-           
-    OPTIONAL {
-      ?slice2 a bwq:BySamplingPointYearSlice;
-              bwq:samplingPoint ?sp;
-              .
-      FILTER(STR(?slice2)>STR(?slice))
-    }
-    FILTER (!bound(?slice2))
-               
-    ?slice qb:observation ?item .   
-    
-    OPTIONAL {
-      ?slice qb:observation ?item2 .
-      FILTER(STR(?item2)>STR(?item))
-    }
-    FILTER(!bound(?item2))
-    
-    ?item bwq:bathingWater ?bw;
-          bwq:sampleWeek   ?week;
-          .
-    ?bw   skos:prefLabel   ?name .
-    ?week rdfs:label	   ?week_l.
-    """ ;
-    api:orderBy "?week_l ?name";
-    
+    api:where	"bwq-iss:latest qb:observation ?item .";
+    api:sort	"sampleWeek.label,bwq_bathingWater.name";
   ] ;
   api:defaultViewer	t:inSeasonAssessmentViewer;
   .
  
-# 
-# Latest in-season sample assessment by sampling point
-# that relies on a single 'constructed' LatestSampleSlice (bwq-iss:latest)
-# being present in the processed data
-#
-t:latestInSeasonAssessment2
+##############################################################################################
+# Latest in-season sample assessment by sampling point.
+##############################################################################################
+t:latestInSeasonAssessmentBySamplePoint
   a	api:ListEndpoint;
-  api:uriTemplate			"/environment/doc/bathing-water-quality/in-season/point/{bwspid}/latest" ;
-  api:exampleRequestPath	"/environment/doc/bathing-water-quality/in-season/point/19100/latest" ;
+  api:uriTemplate			"/doc/bathing-water-quality/in-season/point/{bwspid}/latest" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/in-season/point/19100/latest" ;
+  api:viewer
+	t:inSeasonAssessmentViewer,
+	t:inSeasonAssessmentValuesViewer,
+	t:inSeasonClassificationViewer,
+	t:inSeasonColiformCountViewer,
+	t:inSeasonStreptococciCountViewer,
+	t:inSeasonEntrovirusCountViewer,
+	t:inSeasonSalmonellaPresentViewer; 
   api:defaultPageSize		"1";
-  api:maxPageSize 			"1";
+  api:maxPageSize 		"1";
   api:selector [
-  		api:filter "type=SampleAssessment,bwq_samplingPoint.samplePointNotation=?bwspid";
-  		api:where  "bwq-iss:latest qb:observation ?item."
-  ];
-  api:defaultViewer	t:inSeasonAssessmentViewer;
-  . 
-  
-# 
-# Latest in-season sample assessment by sampling point based soley on the raw data.
-#
-t:latestInSeasonAssessment
-  a	api:ListEndpoint;
-  api:uriTemplate			"/environment/doc/bathing-water-quality/in-season/point/{bwspid}/latest" ;
-  api:exampleRequestPath	"/environment/doc/bathing-water-quality/in-season/point/19100/latest" ;
-  api:defaultPageSize		"1";
-  api:maxPageSize 			"1";
-  api:selector [
-  		api:filter "type=SampleAssessment,bwq_samplingPoint.samplePointNotation=?bwspid";
+  	  	api:where  "bwq-iss:latest qb:observation ?item .";
+  		api:filter "bwq_samplingPoint.samplePointNotation={bwspid}&type=SampleAssessment";
   		api:sort	"-sampleDateTime";
   ];
   api:defaultViewer	t:inSeasonAssessmentViewer;
-  . 
+  .
+
+##############################################################################################
+# Latest in-season sample assessment by bathing water.
+##############################################################################################
+t:latestInSeasonAssessmentByBathingWater
+  a	api:ListEndpoint;
+  api:uriTemplate			"/doc/bathing-water-quality/in-season/bathing-water/{eubwid}/latest" ;
+  api:exampleRequestPath		"/doc/bathing-water-quality/in-season/bathing-water/ukc2102-03600/latest" ;
+  api:viewer
+	t:inSeasonAssessmentViewer,
+	t:inSeasonAssessmentValuesViewer,
+	t:inSeasonClassificationViewer,
+	t:inSeasonColiformCountViewer,
+	t:inSeasonStreptococciCountViewer,
+	t:inSeasonEntrovirusCountViewer,
+	t:inSeasonSalmonellaPresentViewer; 
+  api:defaultPageSize		"1";
+  api:maxPageSize 		"1";
+  api:selector [
+  	  	api:where  "bwq-iss:latest qb:observation ?item .";
+  		api:filter "bwq_bathingWater.eubwidNotation={eubwid}&type=SampleAssessment";
+  		api:sort	"-sampleDateTime";
+  ];
+  api:defaultViewer	t:inSeasonAssessmentViewer;
+  .
+##############################################################################################
+# In-season sample assessment viewers 
+##############################################################################################
+t:inSeasonAssessmentViewer
+	a				api:Viewer;
+	api:name		"InSeasonAssessmentandLocation";
+	api:properties	"label,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.notation,sampleClassification.name,totalColiformQualifier.notation,totalColiformCount,faecalColiformQualifier.notation,faecalColiformCount,faecalStreptococciQualifier.notation,faecalStreptococciCount,entrovirusQualifier.notation,entrovirusCount,salmonellaPresent.notation,abnormalWeatherException" .
+	
+t:inSeasonAssessmentValuesViewer
+	a				api:Viewer;
+	api:name		"InSeasonAssessment";
+	api:properties	"label,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.notation,sampleClassification.name,totalColiformQualifier.notation,totalColiformCount,faecalColiformQualifier.notation,faecalColiformCount,faecalStreptococciQualifier.notation,faecalStreptococciCount,entrovirusQualifier.notation,entrovirusCount,salmonellaPresent.notation,abnormalWeatherException" .
+	
+t:inSeasonClassificationViewer
+	a				api:Viewer;
+	api:name		"InSeasonClassification";
+	api:properties	"label,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.notation,sampleClassification.name,abnormalWeatherException" .
+	
+t:inSeasonColiformCountViewer
+	a				api:Viewer;
+	api:name		"InSeasonColiformCounts";
+	api:properties	"label,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,totalColiformQualifier.notation,totalColiformCount,faecalColiformQualifier.notation,faecalColiformCount,abnormalWeatherException" .
+
+t:inSeasonStretococciCountViewer
+	a				api:Viewer;
+	api:name		"InSeasonStreptococciCount";
+	api:properties	"label,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,faecalStreptococciQualifier.notation,faecalStreptococciCount,abnormalWeatherException" .
+	
+t:inSeasonEntrovirusCountViewer
+	a				api:Viewer;
+	api:name		"InSeasonEntrovirusCount";
+	api:properties	"label,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,entrovirusQualifier.notation,entrovirusCount,abnormalWeatherException" .
+
+t:inSeasonSalmonellaPresentViewer
+	a				api:Viewer;
+	api:name			"InSeasonSalmonellaPresent";
+	api:properties	"label,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,salmonellaPresent.notation,abnormalWeatherException" .
   
-## Labels ##
+##############################################################################################
+## Property Labels
+##############################################################################################
 
 # Common #
 
@@ -371,11 +355,11 @@ rdf:value api:label "value" .
 
 rdfs:Class api:label "Class" .
 
-rdfs:label api:label "label" ; api:multiValued true .
+rdfs:label   api:label "label" ; api:multiValued true .
 rdfs:seeAlso api:label "seeAlso" ; api:multiValued true .
 rdfs:comment api:label "comment" .
-rdfs:range api:label "range" .
-rdfs:domain api:label "domain" .
+rdfs:range   api:label "range" .
+rdfs:domain  api:label "domain" .
 rdfs:isDefinedBy api:label "isDefinedBy" .
 rdfs:subClassOf api:label "subClassOf" .
 rdfs:subPropertyOf api:label "subPropertyOf" .
@@ -385,15 +369,16 @@ owl:sameAs api:label "sameAs" .
 skos:Concept api:label "Concept" .
 skos:ConceptScheme api:label "ConceptScheme" .
 
-skos:prefLabel api:label "name" .
-skos:altLabel api:label "alias" ; api:multiValued true .
-skos:note api:label "note" .
-skos:notation a owl:DatatypeProperty; api:label "notation"  .
-skos:scopeNote api:label "scopeNote" .
+skos:prefLabel 	api:label "name" .
+skos:altLabel 	api:label "alias" ; api:multiValued true .
+skos:note 		api:label "note" .
+skos:notation 	a owl:DatatypeProperty; api:label "notation"  .
+skos:scopeNote 	api:label "scopeNote" .
 skos:topConceptOf api:label "topConceptOf" .
 skos:hasTopConcept api:label "topConcept" ; api:multiValued true .
-skos:broader api:label "broader" .
-skos:narrower api:label "narrower" ; api:multiValued true .
+skos:broader 	api:label "broader" .
+skos:narrower 	api:label "narrower" ; api:multiValued true .
+skos:definition	api:label "definition" ; api:multiValued true .
 
 dgu:uriSet api:label "uriSet" .
 
@@ -442,8 +427,10 @@ admingeo:StandardCode a rdfs:Datatype .
 
 # Bathing Waters #
 
-bw_def:BathingWater	api:label	"BathingWater" .
-bw_def:bathingWater api:label   "bathingWater" .
+bw_def:BathingWater	api:label	 "BathingWater" .
+bw_def:bathingWater   api:label   "bathingWater" .
+bw_def:eubwidNotation api:label   "eubwidNotation";
+			 	rdfs:range  bw_def:eubwid .
 
 ef_def:samplingPoint api:label  "samplingPoint" .
 ef_def:SamplingPoint api:label  "SamplingPoint" .
@@ -484,7 +471,6 @@ bwq:salmonellaPresent			api:label	"salmonellaPresent" .
 bwq:presenceNotation			a			owl:DatatypeProperty;
 								api:label	"presenceNotation";
 								rdfs:range	bwq:presenceCode .
-								
 								
 bwq:abnormalWeatherException	api:label	"abnormalWeatherException" .
 

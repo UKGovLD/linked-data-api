@@ -1,0 +1,298 @@
+## Common prefixes.
+@prefix rdf:              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:             <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:              <http://www.w3.org/2002/07/owl#> .
+@prefix foaf:             <http://xmlns.com/foaf/0.1/> .
+@prefix xsd:              <http://www.w3.org/2001/XMLSchema#> .
+@prefix api:              <http://purl.org/linked-data/api/vocab#> .
+@prefix skos:             <http://www.w3.org/2004/02/skos/core#> .
+@prefix geo:              <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix spatialrelations: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
+@prefix admingeo:         <http://statistics.data.gov.uk/def/administrative-geography/> .
+@prefix qb:               <http://purl.org/linked-data/cube#> .
+@prefix time:             <http://www.w3.org/2006/time#> .
+@prefix interval:         <http://reference.data.gov.uk/def/intervals/> .
+@prefix dgu:              <http://reference.data.gov.uk/def/reference/> .
+@prefix bw:               <http://environment.data.gov.uk/id/bathing-water/> .
+@prefix bwsp:             <http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/> .
+@prefix bwq:  	          <http://environment.data.gov.uk/def/bathing-water-quality/> .
+@prefix bwq-iss:          <http://environment.data.gov.uk/data/bathing-water-quality/in-season/slice/> .
+@prefix bw_def:           <http://environment.data.gov.uk/def/bathing-water/> .
+@prefix ef_def:           <http://location.data.gov.uk/def/ef/SamplingPoint/> .
+@prefix t:                <http://location.data.gov.uk/api#> .
+
+t:api
+	a api:API ;
+	rdfs:label "Location (Bathing-Water Sampling Points)"@en ;
+
+	api:maxPageSize "100";
+	api:defaultPageSize "10" ;
+	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
+##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
+	api:defaultFormatter t:HtmlFormatter ;
+	api:formatter t:CsvFormatter ;
+	api:endpoint
+		t:scheme ,
+		t:definition ,
+		t:subclasses , 
+		t:instances , 
+		t:properties ,
+		t:samplingPoint,
+		t:samplingPoints;
+	.
+
+
+#FORMATTERS
+
+t:HtmlFormatter
+  a api:XsltFormatter ;
+  api:name "html" ;
+  api:mimeType "text/html" , "application/xhtml+xml" ;
+  api:stylesheet "xslt/location.xsl" .
+
+t:CsvFormatter
+  a api:XsltFormatter ;
+  api:name "csv" ;
+  api:mimeType "text/csv" ;
+  api:stylesheet "xslt/location-csv.xsl" .
+
+# Viewers #
+
+
+##############################################################################################
+## Definitions
+##############################################################################################
+t:scheme
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/ef/{concept}" ;
+  api:itemTemplate "http://location.data.gov.uk/def/ef/{concept}" ;
+  api:defaultViewer	api:describeViewer;
+#  api:defaultViewer t:schemeViewer ;
+  .
+
+t:schemeViewer
+  a api:Viewer ;
+  api:name "scheme" ;
+  api:properties "name,type,alias,label,note,scopeNote,topConcept.name,comment" ;
+  .
+
+t:definition
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/ef/{concept}/{term}" ;
+  api:itemTemplate "http://location.data.gov.uk/def/ef/{concept}/{term}" ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:definitionViewer
+  a api:Viewer ;
+  api:name "definition" ;
+  api:properties "name,type,definition,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
+  .
+
+t:subclasses
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/ef/{concept}/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://location.data.gov.uk/def/{concept}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item rdfs:subClassOf ?superclass . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:instances
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/ef/{concept}/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://location.data.gov.uk/def/ef/{concept}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item a ?class . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:properties
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/ef/{concept}/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://location.data.gov.uk/def/ef/{concept}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " [] a ?class ; ?item [] . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+##############################################################################################
+## Sampling Points
+##############################################################################################
+t:samplingPoints
+  a api:ListEndpoint ;
+  api:maxPageSize "100";
+  api:uriTemplate 		"/doc/ef/SamplingPoint/bwsp.eaew/" ;
+  api:exampleRequestPath 	"/doc/ef/SamplingPoint/bwsp.eaew/" ;
+  api:selector [
+    api:filter "type=SamplingPoint";
+    api:sort   "northing,easting";
+  ] ;
+  api:defaultViewer t:samplingPointViewer .
+
+t:samplingPoint
+  a api:ItemEndpoint ;
+  api:uriTemplate 		"/doc/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
+  api:exampleRequestPath 	"/doc/ef/SamplingPoint/bwsp.eaew/03600" ;
+  api:itemTemplate 		"http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
+  api:defaultViewer t:samplingPointViewer .
+
+t:samplingPointViewer
+	a	            api:Viewer;
+	api:name		"SamplingPoint";
+	api:properties	"name,notation,lat,long,easting,northing,bathingWater.name" .
+  
+##############################################################################################
+## Labels ##
+##############################################################################################
+# Common #
+
+rdf:Property api:label "Property" .
+
+rdf:type api:label "type" ; api:multiValued true .
+rdf:value api:label "value" .
+
+rdfs:Class api:label "Class" .
+
+rdfs:label   api:label "label" ; api:multiValued true .
+rdfs:seeAlso api:label "seeAlso" ; api:multiValued true .
+rdfs:comment api:label "comment" .
+rdfs:range   api:label "range" .
+rdfs:domain  api:label "domain" .
+rdfs:isDefinedBy api:label "isDefinedBy" .
+rdfs:subClassOf api:label "subClassOf" .
+rdfs:subPropertyOf api:label "subPropertyOf" .
+
+owl:sameAs api:label "sameAs" .
+
+skos:Concept api:label "Concept" .
+skos:ConceptScheme api:label "ConceptScheme" .
+
+skos:prefLabel 	api:label "name" .
+skos:altLabel 	api:label "alias" ; api:multiValued true .
+skos:note 		api:label "note" .
+skos:notation 	a owl:DatatypeProperty; api:label "notation"  .
+skos:scopeNote 	api:label "scopeNote" .
+skos:topConceptOf api:label "topConceptOf" .
+skos:hasTopConcept api:label "topConcept" ; api:multiValued true .
+skos:broader 	api:label "broader" .
+skos:narrower 	api:label "narrower" ; api:multiValued true .
+skos:definition	api:label "definition" ; api:multiValued true .
+
+dgu:uriSet api:label "uriSet" .
+
+geo:lat
+  a	owl:DatatypeProperty;
+  api:label "lat" ;
+  rdfs:range xsd:decimal .
+  
+geo:long
+  a owl:DatatypeProperty;
+  api:label "long" ;
+  rdfs:range xsd:decimal .
+
+spatialrelations:easting 
+  a owl:DatatypeProperty ;
+  api:label "easting" ;
+#  rdfs:range xsd:integer;
+  rdfs:range xsd:decimal;
+  .
+  
+spatialrelations:northing 
+  a owl:DatatypeProperty ;
+  api:label "northing" ;
+#  rdfs:range xsd:integer;
+  rdfs:range xsd:decimal;
+  .
+
+spatialrelations:containedBy api:label "containedBy" .
+spatialrelations:contains api:label "contains" .
+spatialrelations:borders api:label "borders" .
+
+admingeo:country api:label "countryAdmingeo" .
+admingeo:region api:label "regionAdmingeo" .
+admingeo:localAuthority api:label "localAuthority" .
+admingeo:district api:label "district" .
+admingeo:coverage api:label "coverage" .
+admingeo:standardCode
+  a owl:DatatypeProperty ;
+  api:label "snac" ;
+  rdfs:range admingeo:StandardCode .
+
+admingeo:LocalAuthority api:label "LocalAuthority" .
+admingeo:LocalAuthorityDistrict api:label "LocalAuthorityDistrict" .
+
+admingeo:StandardCode a rdfs:Datatype .
+
+# Bathing Waters #
+
+bw_def:BathingWater	api:label	"BathingWater" .
+bw_def:bathingWater api:label   "bathingWater" .
+
+ef_def:samplingPoint api:label  "samplingPoint" .
+ef_def:SamplingPoint api:label  "SamplingPoint" .
+
+ef_def:samplePointNotation a owl:DatatypeProperty;
+                           rdfs:range   ef_def:samplePointCode;
+                           api:label	"samplePointNotation" .
+                           
+
+bwq:SampleAssessment api:label  "SampleAssessment" .
+bwq:sampleDateTime	 api:label  "sampleDateTime" .
+bwq:sampleWeek	 	 api:label  "sampleWeek" .
+bwq:sampleYear	 	 api:label  "sampleYear" .
+bwq:samplingPoint    api:label  "bwq_samplingPoint" .
+bwq:bathingWater     api:label  "bwq_bathingWater" .
+
+bwq:sampleClassification api:label "sampleClassification" .
+
+bwq:complianceCodeNotation a			owl:DatatypeProperty;
+                           api:label	"complianceCodeNotation";
+                           rdfs:range	bwq:complianceCode .
+                           
+bwq:complianceCode api:label "complianceCode" .
+
+bwq:totalColiformCount     api:label     "totalColiformCount" .
+bwq:totalColiformQualifier api:label "totalColiformQualifier" .
+
+bwq:faecalColiformCount 		api:label "faecalColiformCount" .
+bwq:faecalColiformQualifier 	api:label "faecalColiformQualifier" .
+
+bwq:faecalStreptococciCount 	api:label "faecalStreptococciCount" .
+bwq:faecalStreptococciQualifier api:label "faecalStreptococciQualifier" .
+
+bwq:entrovirusCount 			api:label "entrovirusCount" .
+bwq:entrovirusQualifier 		api:label "entrovirusQualifier" .
+
+bwq:salmonellaPresent			api:label	"salmonellaPresent" .
+bwq:presenceNotation			a			owl:DatatypeProperty;
+								api:label	"presenceNotation";
+								rdfs:range	bwq:presenceCode .
+								
+bwq:abnormalWeatherException	api:label	"abnormalWeatherException" .
+
+rdf:value api:label "value" ;
+  rdfs:range xsd:integer .
+  
+time:inXSDDateTime				api:label	"inXSDDateTime" .
+
+interval:ordinalYear			a			owl:DatatypeProperty;
+								rdfs:range	xsd:integer;
+								api:label	"ordinalYear" .
+  
+  
