@@ -33,6 +33,7 @@ labs:api
 	api:defaultPageSize 20 ;
 #	api:sparqlEndpoint <http://api.talis.com/stores/ordnance-survey/services/sparql> ;
 	api:sparqlEndpoint <http://gov.tso.co.uk/alpha/sparql> ;
+#  api:sparqlEndpoint <http://services.data.gov.uk/alpha/sparql> ;
 	api:base "http://labs.data.gov.uk/lod" ;
 #  api:lang "en,cy" ;
 	api:viewer 
@@ -46,6 +47,7 @@ labs:api
     labs:drivingTestCentres , labs:theoryTestCentres , labs:practicalTestCentres , labs:drivingTestCentre ,
     labs:drivingTestCentresByType , labs:drivingTestAvailabilities ,
     labs:drivingTestCentresInSector , labs:drivingTestCentresInDistrict , labs:drivingTestCentresInArea ,
+    labs:drivingTestCentresNearPostcode ,
 	  labs:osPostcodeUnit , labs:osPostcodeUnits , labs:osPostcodeUnitInSector , labs:osPostcodeUnitInDistrict , labs:osPostcodeUnitInArea ,
 	  labs:osPostcodeSector , labs:osPostcodeSectors , labs:osPostcodeSectorInDistrict , labs:osPostcodeSectorInArea ,
 	  labs:osPostcodeDistrict , labs:osPostcodeDistricts , labs:osPostcodeDistrictInArea ,
@@ -261,6 +263,27 @@ labs:drivingTestCentresInArea
   api:defaultViewer labs:drivingTestCentreListViewer ;
   .
 
+## look within (roughly) 5 miles = 8047m = 8047 easting/northing units
+
+labs:drivingTestCentresNearPostcode
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode/{code}/driving-test-centre" ;
+  api:variable [
+    api:name "postcode" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodeunit/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where """
+      ?postcode spatialrelations:easting ?easting ; 
+        spatialrelations:northing ?northing .
+      ?item postcode:postcode ?nearbyPostcode .
+      ?nearbyPostcode spatialrelations:easting ?nearbyEasting ;
+        spatialrelations:northing ?nearbyNorthing . """ ;
+    api:orderBy "(((?easting - ?nearbyEasting) * (?easting - ?nearbyEasting)) + ((?northing - ?nearbyNorthing) * (?northing - ?nearbyNorthing)))" ;
+  ] ;
+  api:defaultViewer labs:drivingTestCentreListViewer ;
+  .
 
 # OS DATA #
 
