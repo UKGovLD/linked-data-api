@@ -150,8 +150,14 @@ $prefLabel, $altLabel, $title and $name variables.
 						<xsl:otherwise>?</xsl:otherwise>
 					</xsl:choose>
 				</xsl:variable>
+				<xsl:variable name="mapProperty" select="(//*[*[name(.) = $easting] and *[name(.) = $northing]])[1]" />
+				<xsl:variable name="mapParam">
+					<xsl:apply-templates select="$mapProperty" mode="paramHierarchy" />
+				</xsl:variable>
+				<xsl:variable name="eastingParam" select="concat($mapParam, '.', $easting)" />
+				<xsl:variable name="northingParam" select="concat($mapParam, '.', $northing)" />
 				<xsl:variable name="properties">
-					<xsl:if test="not(/result/items)">_properties=<xsl:value-of select="$easting"/>,<xsl:value-of select="$northing"/>&amp;</xsl:if>
+					<xsl:if test="not(/result/items)">_properties=<xsl:value-of select="$eastingParam"/>,<xsl:value-of select="$northingParam"/>&amp;</xsl:if>
 				</xsl:variable>
 				initMap();
 				
@@ -164,7 +170,7 @@ $prefLabel, $altLabel, $title and $name variables.
 					var midEasting = minEasting + ((maxEasting - minEasting) / 2);
 					var midNorthing = minNorthing + ((maxNorthing - minNorthing) / 2);
 					var orderBy = <xsl:if test="not(contains($uri, '_sort='))">(maxEasting - minEasting) &lt; 2000 ? '&amp;_orderBy=(((?<xsl:value-of select="$easting"/> - ' + midEasting + ')*(?<xsl:value-of select="$easting"/>- ' + midEasting + '))%2B((?<xsl:value-of select="$northing"/> - ' + midNorthing + ')*(?<xsl:value-of select="$northing"/> - ' + midNorthing + ')))' : </xsl:if>'';
-					window.location = '<xsl:value-of select="concat($uri, $sep, $properties)"/>min-<xsl:value-of select="$easting"/>=' + minEasting + '&amp;max-<xsl:value-of select="$easting"/>=' + maxEasting + '&amp;min-<xsl:value-of select="$northing"/>=' + minNorthing + '&amp;max-<xsl:value-of select="$northing"/>=' + maxNorthing + orderBy;
+					window.location = '<xsl:value-of select="concat($uri, $sep, $properties)"/>min-<xsl:value-of select="$eastingParam"/>=' + minEasting + '&amp;max-<xsl:value-of select="$eastingParam"/>=' + maxEasting + '&amp;min-<xsl:value-of select="$northingParam"/>=' + minNorthing + '&amp;max-<xsl:value-of select="$northingParam"/>=' + maxNorthing + orderBy;
 				});
 			</xsl:if>
 		});
@@ -201,7 +207,7 @@ $prefLabel, $altLabel, $title and $name variables.
 </xsl:template>
 
 <xsl:template match="result" mode="showMap">
-	<xsl:param name="items" select="items//*[*] | primaryTopic[not(../items)]/descendant-or-self::*[*]" />
+	<xsl:param name="items" select="items/item[position() &lt;= 10]/descendant-or-self::*[*] | primaryTopic[not(../items)]/descendant-or-self::*[*]" />
 	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
 	<xsl:choose>
 		<xsl:when test="not($items)">
@@ -223,17 +229,15 @@ $prefLabel, $altLabel, $title and $name variables.
 
 <xsl:template match="result" mode="showMapForItems">
 	<xsl:param name="items" />
-	<xsl:param name="sample" select="10" />
 	<xsl:variable name="showMap">
 		<xsl:apply-templates select="$items[1]" mode="showMap" />
 	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="$showMap = 'true'">true</xsl:when>
-		<xsl:when test="not($items) or $sample = 0">false</xsl:when>
+		<xsl:when test="not($items)">false</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="." mode="showMapForItems">
 				<xsl:with-param name="items" select="$items[position() > 1]" />
-				<xsl:with-param name="sample" select="$sample - 1" />
 			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -543,18 +547,22 @@ $prefLabel, $altLabel, $title and $name variables.
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:variable>
+			<xsl:variable name="searchMap" 
+				select="//*[*[name(.) = $easting] and *[name(.) = $northing]]" />
 			<section class="map">
 				<h1>Map</h1>
 				<xsl:call-template name="createInfo">
 					<xsl:with-param name="text">
 						<xsl:text>This map shows the items that are listed on this page. </xsl:text>
-						<xsl:text>There might be other items that match your query that aren't shown on this map. </xsl:text>
-						<xsl:text>If you want to search in a different area, move to that area and click the </xsl:text>
-						<img src="{$activeImageBase}/Search.png" alt="search" />
-						<xsl:text> icon.</xsl:text>
+						<xsl:text>There might be other items that match your query that aren't shown on this map.</xsl:text>
+						<xsl:if test="$searchMap">
+							<xsl:text> If you want to search in a different area, move to that area and click the </xsl:text>
+							<img src="{$activeImageBase}/Search.png" alt="search" />
+							<xsl:text> icon.</xsl:text>
+						</xsl:if>
 					</xsl:with-param>
 				</xsl:call-template>
-				<xsl:if test="items/item[*[name(.) = $easting] and *[name(.) = $northing]] or primaryTopic[not(../items) and *[name(.) = $easting] and *[name(.) = $northing]]">
+				<xsl:if test="$searchMap">
 					<p class="search">
 						<img src="{$activeImageBase}/Search.png" alt="search" />
 					</p>
@@ -927,6 +935,8 @@ $prefLabel, $altLabel, $title and $name variables.
 			<xsl:choose>
 				<xsl:when test="$label/item">
 					<xsl:for-each select="$label/item[not(. = preceding-sibling::item)]">
+						<xsl:sort select="@xml:lang = 'en'" order="descending" />
+						<xsl:sort select="@xml:lang" />
 						<xsl:apply-templates select="." mode="content" />
 						<xsl:if test="position() != last()"> / </xsl:if>
 					</xsl:for-each>
@@ -1856,7 +1866,7 @@ $prefLabel, $altLabel, $title and $name variables.
 					<xsl:apply-templates select="." mode="link">
 						<xsl:with-param name="content">
 							<xsl:choose>
-								<xsl:when test="self::item/parent::items/parent::result">
+								<xsl:when test="self::item/parent::items/parent::result or starts-with(@href, ancestor::*[@href][1]/@href)">
 									<xsl:call-template name="lastURIpart">
 										<xsl:with-param name="uri" select="@href" />
 									</xsl:call-template>
@@ -1914,6 +1924,8 @@ $prefLabel, $altLabel, $title and $name variables.
 				<xsl:choose>
 					<xsl:when test="item">
 						<xsl:for-each select="item[not(. = preceding-sibling::item)]">
+							<xsl:sort select="@xml:lang = 'en'" order="descending" />
+							<xsl:sort select="@xml:lang" />
 							<xsl:value-of select="." />
 							<xsl:if test="position() != last()"> / </xsl:if>
 						</xsl:for-each>
@@ -2316,7 +2328,11 @@ $prefLabel, $altLabel, $title and $name variables.
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="." mode="link">
-				<xsl:with-param name="content" select="@href" />
+				<xsl:with-param name="content">
+					<xsl:call-template name="lastURIpart">
+						<xsl:with-param name="uri" select="@href" />
+					</xsl:call-template>
+				</xsl:with-param>
 			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -2691,12 +2707,6 @@ $prefLabel, $altLabel, $title and $name variables.
 						<xsl:apply-templates select="." mode="label" />
 					</th>
 					<td class="input nested">
-						<xsl:comment>
-							<xsl:value-of select="$propertyName"/>
-							<xsl:for-each select="key('properties', concat($propertyName, '.item'))/*">
-								<xsl:value-of select="name()"/>
-							</xsl:for-each>
-						</xsl:comment>
 						<table>
 							<colgroup>
 								<col width="25%" />

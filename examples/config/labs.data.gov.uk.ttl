@@ -9,10 +9,20 @@
 @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix spatialrelations: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
 @prefix scovo: <http://purl.org/NET/scovo#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> .
+@prefix sdmx-dim: <http://purl.org/linked-data/sdmx/2009/dimension#> .
+@prefix sdmx-att: <http://purl.org/linked-data/sdmx/2009/attribute#> .
 
 @prefix dgu: <http://reference.data.gov.uk/def/reference/> .
 @prefix admingeo: <http://statistics.data.gov.uk/def/administrative-geography/> .
 @prefix postcode: <http://data.ordnancesurvey.co.uk/ontology/postcode/> .
+
+@prefix driving: <http://transport.data.gov.uk/def/driving/> .
+@prefix test: <http://transport.data.gov.uk/def/driving-test/> .
 
 @prefix labs: <http://labs.data.gov.uk/lod#> .
 
@@ -21,7 +31,8 @@ labs:api
 	rdfs:label "Labs API"@en ;
 	api:maxPageSize 100;
 	api:defaultPageSize 20 ;
-	api:sparqlEndpoint <http://api.talis.com/stores/ordnance-survey/services/sparql> ;
+#	api:sparqlEndpoint <http://api.talis.com/stores/ordnance-survey/services/sparql> ;
+	api:sparqlEndpoint <http://gov.tso.co.uk/alpha/sparql> ;
 	api:base "http://labs.data.gov.uk/lod" ;
 #  api:lang "en,cy" ;
 	api:viewer 
@@ -29,6 +40,12 @@ labs:api
 	  api:labelledDescribeViewer ;
   api:defaultFormatter labs:HtmlFormatter ;
 	api:endpoint
+  	labs:scheme ,
+    labs:definition ,
+    labs:subclasses , labs:instances , labs:properties ,
+    labs:drivingTestCentres , labs:theoryTestCentres , labs:practicalTestCentres , labs:drivingTestCentre ,
+    labs:drivingTestCentresByType , labs:drivingTestAvailabilities ,
+    labs:drivingTestCentresInSector , labs:drivingTestCentresInDistrict , labs:drivingTestCentresInArea ,
 	  labs:osPostcodeUnit , labs:osPostcodeUnits , labs:osPostcodeUnitInSector , labs:osPostcodeUnitInDistrict , labs:osPostcodeUnitInArea ,
 	  labs:osPostcodeSector , labs:osPostcodeSectors , labs:osPostcodeSectorInDistrict , labs:osPostcodeSectorInArea ,
 	  labs:osPostcodeDistrict , labs:osPostcodeDistricts , labs:osPostcodeDistrictInArea ,
@@ -42,6 +59,210 @@ labs:HtmlFormatter
   api:name "html" ;
   api:mimeType "text/html" , "application/xhtml+xml" ;
   api:stylesheet "xslt/labs.xsl" .
+
+## Definitions ##
+
+labs:scheme
+  a api:ItemEndpoint ;
+  api:uriTemplate "/{sector}/def/{scheme}" ;
+  api:itemTemplate "http://{sector}.data.gov.uk/def/{scheme}" ;
+  api:defaultViewer labs:schemeViewer ;
+  .
+
+labs:schemeViewer
+  a api:Viewer ;
+  api:name "scheme" ;
+  api:properties "prefLabel,altLabel,label,note,scopeNote,topConcept.prefLabel,comment" ;
+  .
+
+labs:definition
+  a api:ItemEndpoint ;
+  api:uriTemplate "/{sector}/def/{scheme}/{term}" ;
+  api:itemTemplate "http://{sector}.data.gov.uk/def/{scheme}/{term}" ;
+  api:defaultViewer labs:definitionViewer ;
+  .
+
+labs:definitionViewer
+  a api:Viewer ;
+  api:name "definition" ;
+  api:properties "prefLabel,altLabel,label,note,scopeNote,topConceptOf.prefLabel,broader.prefLabel,narrower.prefLabel,comment,range.label,domain.label,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
+  .
+
+labs:subclasses
+  a api:ListEndpoint ;
+  api:uriTemplate "/{sector}/def/{scheme}/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://{sector}.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item rdfs:subClassOf ?superclass . " ;
+  ] ;
+  api:defaultViewer labs:definitionViewer ;
+  .
+
+labs:instances
+  a api:ListEndpoint ;
+  api:uriTemplate "/{sector}/def/{scheme}/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://{sector}.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item a ?class . " ;
+  ] ;
+  api:defaultViewer labs:viewerShort ;
+  .
+
+labs:properties
+  a api:ListEndpoint ;
+  api:uriTemplate "/{sector}/def/{scheme}/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://{sector}.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " [] a ?class ; ?item [] . " ;
+  ] ;
+  api:defaultViewer labs:definitionViewer ;
+  .
+
+# DVLA DATA #
+
+labs:drivingTestCentreSelector
+  a api:Selector ;
+  api:filter "type=TestCentre" ;
+  .
+
+labs:drivingTestCentres
+  a api:ListEndpoint ;
+  api:uriTemplate "/transport/doc/driving-test-centre" ;
+  api:selector labs:drivingTestCentreSelector ;
+  api:defaultViewer labs:drivingTestCentreListViewer ;
+  .
+
+labs:theoryTestCentres
+  a api:ListEndpoint ;
+  api:uriTemplate "/transport/doc/theory-test-centre" ;
+  api:selector [
+    a api:Selector ;
+    api:filter "type=TheoryTestCentre" ;
+  ] ;
+  api:defaultViewer labs:drivingTestCentreListViewer ;
+  .
+
+labs:practicalTestCentres
+  a api:ListEndpoint ;
+  api:uriTemplate "/transport/doc/practical-test-centre" ;
+  api:selector [
+    a api:Selector ;
+    api:filter "type=PracticalTestCentre" ;
+  ] ;
+  api:defaultViewer labs:drivingTestCentreListViewer ;
+  .
+
+labs:drivingTestCentresByType
+  a api:ListEndpoint ;
+  api:uriTemplate "/transport/doc/practical-test-centre/{testType}" ;
+  api:variable [
+    api:name "test" ;
+    api:value "http://transport.data.gov.uk/def/driving-test/{testType}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    a api:Selector ;
+    api:where " ?item a driving:PracticalTestCentre ; driving:offersTest ?test " ;
+  ] ;
+  api:defaultViewer labs:drivingTestCentreListViewer ;
+  .
+
+labs:drivingTestCentreListViewer
+  a api:Viewer ;
+  api:name "test-centres" ;
+  api:properties "prefLabel,altLabel,type.label,postcode.label,postcode.easting,postcode.northing,postcode.lat,postcode.long,postcode.within.label,postcode.district.label,offersTest.prefLabel" ;
+  .
+
+labs:drivingTestCentre
+  a api:ItemEndpoint ;
+  api:uriTemplate "/transport/doc/driving-test-centre/{number}" ;
+  api:itemTemplate "http://transport.data.gov.uk/id/driving-test-centre/{number}" ;
+  api:defaultViewer labs:drivingTestCentreViewer ;
+  .
+
+labs:drivingTestCentreViewer
+  a api:Viewer ;
+  api:name "test-centre" ;
+  api:properties "prefLabel,altLabel,type.label,seeAlso,comment,contact.address.label,contact.address.locality,contact.address.postalCode,postcode.label,postcode.easting,postcode.northing,postcode.lat,postcode.long,postcode.within.label,postcode.district.label,offersTest.prefLabel,testAvailability.weeks,testAvailability.date,testAvailability.drivingTest.prefLabel" ;
+  .
+
+labs:drivingTestAvailabilities
+  a api:ListEndpoint ;
+  api:uriTemplate "/transport/doc/driving-test-centre/{number}/availability" ;
+  api:variable [
+    api:name "centre" ;
+    api:value "http://transport.data.gov.uk/id/driving-test-centre/{number}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    a api:Selector ;
+    api:where " ?item a driving:TestAvailability ; driving:testCentre ?centre . " ;
+  ] ;
+  api:defaultViewer labs:drivingTestAvailabilityListViewer
+  .
+
+labs:drivingTestAvailabilityListViewer
+  a api:Viewer ;
+  api:name "test-availability" ;
+  api:properties "weeks,date,testCentre.prefLabel,drivingTest.prefLabel" ;
+  .
+
+labs:drivingTestCentresInSector
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-sector/{code}/driving-test-centre" ;
+  api:variable [
+    api:name "sector" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodesector/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?postcode spatialrelations:within ?sector . ?item postcode:postcode ?postcode . " ;
+  ] ;
+  api:defaultViewer labs:drivingTestCentreListViewer ;
+  .
+
+labs:drivingTestCentresInDistrict
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-district/{code}/driving-test-centre" ;
+  api:variable [
+    api:name "district" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodedistrict/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?postcode spatialrelations:within ?district . ?item postcode:postcode ?postcode . " ;
+  ] ;
+  api:defaultViewer labs:drivingTestCentreListViewer ;
+  .
+
+labs:drivingTestCentresInArea
+  a api:ListEndpoint ;
+  api:uriTemplate "/os/postcode-area/{code}/driving-test-centre" ;
+  api:variable [
+    api:name "area" ;
+    api:value "http://data.ordnancesurvey.co.uk/id/postcodearea/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?postcode spatialrelations:within ?area . ?item postcode:postcode ?postcode . " ;
+  ] ;
+  api:defaultViewer labs:drivingTestCentreListViewer ;
+  .
+
+
+# OS DATA #
 
 ## PostCodeUnits ##
 
@@ -285,8 +506,10 @@ owl:sameAs api:label "sameAs" .
 skos:Concept api:label "Concept" .
 skos:ConceptScheme api:label "ConceptScheme" .
 
-skos:prefLabel api:label "name" .
-skos:altLabel api:label "alias" .
+skos:prefLabel api:label "prefLabel" .
+skos:altLabel api:label "altLabel" ;
+  api:multiValued true
+  .
 skos:note api:label "note" .
 skos:notation api:label "notation" .
 skos:scopeNote api:label "scopeNote" .
@@ -338,7 +561,34 @@ postcode:PostcodeArea api:label "PostcodeArea" .
 postcode:country api:label "country" .
 postcode:district api:label "district" .
 postcode:ward api:label "ward" .
+postcode:postcode api:label "postcode" .
 
 postcode:LH api:label "localHealthAuthority" .
 postcode:RH api:label "regionalHealthAuthority" .
 postcode:PQ api:label "positionalQuality" .
+
+org:Site api:label "Site" .
+org:siteAddress api:label "contact" .
+
+vcard:Address api:label "Address" .
+vcard:adr api:label "address" .
+vcard:locality api:label "locality" .
+vcard:region api:label "region" .
+vcard:postal-code api:label "postalCode" .
+
+driving:TestCentre api:label "TestCentre" .
+driving:TheoryTestCentre api:label "TheoryTestCentre" .
+driving:PracticalTestCentre api:label "PracticalTestCentre" .
+driving:TestAvailability api:label "TestAvailability" .
+
+driving:testCentre api:label "testCentre" .
+driving:offersTest api:label "offersTest" ; api:multiValued true .
+driving:testAvailability api:label "testAvailability" ; api:multiValued true .
+
+test:DrivingTest api:label "DrivingTest" .
+
+test:drivingTest api:label "drivingTest" .
+
+sdmx-measure:obsValue api:label "weeks" .
+sdmx-dim:timePeriod api:label "date" .
+sdmx-att:unitMeasure api:label "units" .
