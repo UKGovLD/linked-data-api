@@ -199,6 +199,28 @@
 				</xsl:call-template>
 			</ul>
 		</xsl:when>
+		<xsl:when test="starts-with($base, '/lod/os/postcode/')">
+			<xsl:variable name="postcode">
+				<xsl:call-template name="subPath">
+					<xsl:with-param name="uri" select="$base" />
+					<xsl:with-param name="component" select="'postcode'" />
+				</xsl:call-template>
+			</xsl:variable>
+			<ul>
+				<xsl:call-template name="moreinfoLink">
+					<xsl:with-param name="uri" select="concat($postcode, '/driving-test-centre')" />
+					<xsl:with-param name="current" select="$base" />
+					<xsl:with-param name="label">Driving test centres near postcode</xsl:with-param>
+				</xsl:call-template>
+				<xsl:if test="contains($base, '/driving-test-centre')">
+					<xsl:call-template name="moreinfoLink">
+						<xsl:with-param name="uri" select="'/lod/transport/doc/driving-test-centre'" />
+						<xsl:with-param name="current" select="$base" />
+						<xsl:with-param name="label">All driving test centres</xsl:with-param>
+					</xsl:call-template>
+				</xsl:if>
+			</ul>
+		</xsl:when>
 	</xsl:choose>
 	<xsl:choose>
 		<xsl:when test="starts-with($base, '/lod/os/postcode')">
