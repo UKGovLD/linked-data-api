@@ -47,7 +47,7 @@ labs:api
     labs:drivingTestCentres , labs:theoryTestCentres , labs:practicalTestCentres , labs:drivingTestCentre ,
     labs:drivingTestCentresByType , labs:drivingTestAvailabilities ,
     labs:drivingTestCentresInSector , labs:drivingTestCentresInDistrict , labs:drivingTestCentresInArea ,
-    labs:drivingTestCentresNearPostcode ,
+    labs:drivingTestCentresNearPostcode , labs:drivingTestCentresNearLocation ,
 	  labs:osPostcodeUnit , labs:osPostcodeUnits , labs:osPostcodeUnitInSector , labs:osPostcodeUnitInDistrict , labs:osPostcodeUnitInArea ,
 	  labs:osPostcodeSector , labs:osPostcodeSectors , labs:osPostcodeSectorInDistrict , labs:osPostcodeSectorInArea ,
 	  labs:osPostcodeDistrict , labs:osPostcodeDistricts , labs:osPostcodeDistrictInArea ,
@@ -263,7 +263,7 @@ labs:drivingTestCentresInArea
   api:defaultViewer labs:drivingTestCentreListViewer ;
   .
 
-## look within (roughly) 5 miles = 8047m = 8047 easting/northing units
+## look within (roughly) 20 miles = 32186.88m = 32186.88 easting/northing units
 
 labs:drivingTestCentresNearPostcode
   a api:ListEndpoint ;
@@ -281,6 +281,30 @@ labs:drivingTestCentresNearPostcode
       ?nearbyPostcode spatialrelations:easting ?nearbyEasting ;
         spatialrelations:northing ?nearbyNorthing . """ ;
     api:orderBy "(((?easting - ?nearbyEasting) * (?easting - ?nearbyEasting)) + ((?northing - ?nearbyNorthing) * (?northing - ?nearbyNorthing)))" ;
+  ] ;
+  api:defaultViewer labs:drivingTestCentreListViewer ;
+  .
+
+labs:drivingTestCentresNearLocation
+  a api:ListEndpoint ;
+  api:uriTemplate "/location/{latitude},{longitude}/driving-test-centre" ;
+  api:variable [
+    api:name "lat" ;
+    api:value "{latitude}" ;
+    api:type xsd:decimal ;
+  ] ;
+  api:variable [
+    api:name "long" ;
+    api:value "{longitude}" ;
+    api:type xsd:decimal ;
+  ] ;
+  api:selector [
+    api:where """
+      ?item postcode:postcode ?postcode .
+      ?postcode geo:lat ?nearbyLat ;
+        geo:long ?nearbyLong .
+      FILTER (?lat + 0.2 >= ?nearbyLat && ?lat - 0.2 <= ?nearbyLat && ?long + 0.5 >= ?nearbyLong && ?long - 0.5 <= ?nearbyLong) """ ;
+    api:orderBy "(((?lat - ?nearbyLat) * (?lat - ?nearbyLat)) + ((?long - ?nearbyLong) * (?long - ?nearbyLong)))" ;
   ] ;
   api:defaultViewer labs:drivingTestCentreListViewer ;
   .
