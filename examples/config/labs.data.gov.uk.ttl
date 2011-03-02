@@ -276,13 +276,26 @@ labs:drivingTestCentresNearPostcode
   api:selector [
     api:where """
       ?postcode spatialrelations:easting ?easting ; 
-        spatialrelations:northing ?northing .
-      ?item postcode:postcode ?nearbyPostcode .
-      ?nearbyPostcode spatialrelations:easting ?nearbyEasting ;
-        spatialrelations:northing ?nearbyNorthing . """ ;
+        spatialrelations:northing ?northing ;
+        skos:notation ?notation .
+      {
+        # include the postcode itself
+        ?item skos:notation ?notation .
+        ?item spatialrelations:easting ?nearbyEasting ;
+          spatialrelations:northing ?nearbyNorthing ;
+      } UNION {
+        ?item postcode:postcode ?nearbyPostcode .
+        ?nearbyPostcode spatialrelations:easting ?nearbyEasting ;
+          spatialrelations:northing ?nearbyNorthing .        
+      }
+      """ ;
     api:orderBy "(((?easting - ?nearbyEasting) * (?easting - ?nearbyEasting)) + ((?northing - ?nearbyNorthing) * (?northing - ?nearbyNorthing)))" ;
   ] ;
-  api:defaultViewer labs:drivingTestCentreListViewer ;
+  api:defaultViewer [
+    a api:Viewer ;
+    api:name "test-centres" ;
+    api:properties "label,lat,long,easting,northing,prefLabel,altLabel,type.label,postcode.label,postcode.easting,postcode.northing,postcode.lat,postcode.long,postcode.within.label,postcode.district.label,offersTest.prefLabel" ;
+  ]
   .
 
 labs:drivingTestCentresNearLocation
