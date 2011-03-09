@@ -6,7 +6,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
-<link type="text/css" href="../css/post-list.css" rel="stylesheet">
+<link type="text/css" href="../css/posts.css" rel="stylesheet">
 <title>Post list</title>
 <script>
 var param_dept = '<?php print $_GET['dept'];?>';
@@ -61,7 +61,7 @@ var param_unit = '<?php print $_GET['unit'];?>';
 <script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
 <!--script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.8.custom.min.js"></script-->	
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
-<script language="javascript" type="text/javascript" src="../scripts/post-list.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/posts.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.quicksand.js"></script>		
 
 <!--[if IE]><script language="javascript" type="text/javascript" src="../scripts/Jit/Extras/excanvas.js"></script><![endif]-->
