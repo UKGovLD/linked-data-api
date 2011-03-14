@@ -189,7 +189,7 @@ t:bathingWater
 
 t:bathingWaterViewer
 	a	            api:Viewer;
-	api:name	      "BathingWater";
+	api:name	      "bathing-water";
 	api:properties	"name,eubwidNotation,samplingPoint.lat,samplingPoint.long,samplingPoint.easting,samplingPoint.northing" .
 
  
@@ -394,37 +394,37 @@ t:latestInSeasonAssessmentByBathingWater
 ##############################################################################################
 t:inSeasonAssessmentViewer
 	a				api:Viewer;
-	api:name		"InSeasonAssessmentandLocation";
+	api:name		"location";
 	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.complianceCodeNotation,sampleClassification.name,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,entrovirusQualifier.countQualifierNotation,entrovirusCount,salmonellaPresent.name,salmonellaPresent.presenceNotation,abnormalWeatherException" .
 	
 t:inSeasonAssessmentValuesViewer
 	a				api:Viewer;
-	api:name		"InSeasonAssessment";
+	api:name		"assessment";
 	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.complianceCodeNotation,sampleClassification.name,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,entrovirusQualifier.countQualifierNotation,entrovirusCount,salmonellaPresent.name,salmonellaPresent.presenceNotation,abnormalWeatherException" .
 	
 t:inSeasonClassificationViewer
 	a				api:Viewer;
-	api:name		"InSeasonClassification";
+	api:name		"classification";
 	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.complianceCodeNotation,sampleClassification.name,abnormalWeatherException" .
 	
 t:inSeasonColiformCountViewer
 	a				api:Viewer;
-	api:name		"InSeasonColiformCounts";
+	api:name		"coliforms";
 	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,abnormalWeatherException" .
 
 t:inSeasonStretococciCountViewer
 	a				api:Viewer;
-	api:name		"InSeasonStreptococciCount";
+	api:name		"streptococci";
 	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,abnormalWeatherException" .
 	
 t:inSeasonEntrovirusCountViewer
 	a				api:Viewer;
-	api:name		"InSeasonEntrovirusCount";
+	api:name		"entrovirus";
 	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,entrovirusQualifier.countQualifierNotation,entrovirusCount,abnormalWeatherException" .
 
 t:inSeasonSalmonellaPresentViewer
 	a				api:Viewer;
-	api:name			"InSeasonSalmonellaPresent";
+	api:name		"salmonella";
 	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,salmonellaPresent.name,salmonellaPresent.presenceNotation,abnormalWeatherException" .
 
 ##############################################################################################
@@ -458,13 +458,13 @@ t:inSeasonByWeekSlice
 
 t:sliceByWeekListViewer
 	a			api:Viewer;
-	api:name	"SliceByWeekListViewer";
-	api:properties	"name,label,sampleWeek.ordinalWeekOfYear,sampleWeek.ordinalWeekOfYearYear,bwq_samplingPoint,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing";
+	api:name	"slice-by-week";
+	api:properties	"name,label,sampleWeek.ordinalWeekOfYear,sampleWeek.ordinalWeekOfYearYear,bwq_samplingPoint,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,,bwq_samplingPoint.lat,bwq_samplingPoint.long";
 	.
 	
 t:sliceByWeekItemViewer
 	a			api:Viewer;
-	api:name	"SliceByWeekItemViewer";
+	api:name	"slice-by-week";
 	api:properties	"name,label,observation.bwq_bathingWater.name";
 	.
 
@@ -498,13 +498,13 @@ t:inSeasonByYearSlice
   
 t:sliceByYearListViewer
 	a			api:Viewer;
-	api:name	"SliceByYearListViewer";
-	api:properties	"name,label,sampleYear.ordinalYear,bwq_samplingPoint,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing";
+	api:name	"slice-by-year";
+	api:properties	"name,label,sampleYear.ordinalYear,bwq_samplingPoint,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,,bwq_samplingPoint.lat,bwq_samplingPoint.long";
 	.
 	
 t:sliceByYearItemViewer
 	a			api:Viewer;
-	api:name	"SliceByYearItemViewer";
+	api:name	"slice-by-year";
 	api:properties	"name,label,bwq_samplingPoint.name,observation.sampleWeek.label";
 	.
 #
@@ -536,14 +536,14 @@ t:inSeasonByPointYearSlice
   
 t:sliceByPointYearListViewer
 	a			api:Viewer;
-	api:name	"SliceByPointYearListViewer";
-	api:properties	"name,label,sampleYear.ordinalYear,bwq_samplingPoint,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing";
+	api:name	"slice-by-point-and-year";
+	api:properties	"name,label,sampleYear.ordinalYear,bwq_samplingPoint,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long";
 	.
 
 t:sliceByPointYearItemViewer
 	a			api:Viewer;
-	api:name	"SliceByPointYearItemViewer";
-	api:properties	"name,label,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,observation.sampleWeek.label";
+	api:name	"slice-by-point-year";
+	api:properties	"name,label,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,observation.sampleWeek.label";
 	.
 #
 # BySamplingPointSlice
@@ -574,14 +574,14 @@ t:inSeasonByPointSlice
   
 t:sliceByPointListViewer
 	a			api:Viewer;
-	api:name	"SliceByPointListViewer";
-	api:properties	"name,label,bwq_samplingPoint,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing";
+	api:name	"slice-by-point";
+	api:properties	"name,label,bwq_samplingPoint,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long";
 	.
 
 t:sliceByPointItemViewer
 	a			api:Viewer;
-	api:name	"SliceByPointItemViewer";
-	api:properties	"name,label,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,observation.sampleWeek.label";
+	api:name	"slice-by-point";
+	api:properties	"name,label,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,observation.sampleWeek.label";
 	.
 
 ##############################################################################################
@@ -703,7 +703,7 @@ t:latestComplianceAssessmentBySamplePoint
 
 t:complianceAssessmentViewer
 	a				api:Viewer;
-	api:name		"complianceAssessmentViewer";
+	api:name		"compliance";
 	api:properties	"label,bwq_samplingPoint.name,bwq_samplingPoint.samplePointNotation,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,bwq_bathingWater.name,bwq_bathingWater.eubwidNotation,sampleYear.ordinalYear,complianceClassification.complianceCodeNotation,complianceClassification.name" .
 
 
@@ -759,13 +759,13 @@ t:complianceByYearSlice
   
 t:complianceByYearListViewer
 	a				api:Viewer;
-	api:name		"ComplianceByYearListViewer";
+	api:name		"slice-by-year";
 	api:properties	"name,label,sampleYear.ordinalYear";
 	.
 	
 t:complianceByYearItemViewer
 	a				api:Viewer;
-	api:name		"ComplianceByYearItemViewer";
+	api:name		"slice-by-year";
 	api:properties	"name,label,observation.bwq_bathingWater.name,observation.complianceClassification.name";
 	.
 
@@ -798,13 +798,13 @@ t:complianceByPointSlice
   
 t:complianceByPointListViewer
 	a				api:Viewer;
-	api:name		"ComplianceByPointListViewer";
+	api:name		"slice-by-point";
 	api:properties	"name,label,bwq_bathingWater.name";
 	.
 	
 t:complianceByPointItemViewer
 	a				api:Viewer;
-	api:name		"ComplianceByPointItemViewer";
+	api:name		"slice-by-point";
 	api:properties	"name,label,observation.sampleYear.ordinalYear,observation.complianceClassification.name";
 	.
 ##############################################################################################
@@ -914,9 +914,21 @@ ef_def:samplePointNotation a owl:DatatypeProperty;
 
 bwq:SampleAssessment api:label  "SampleAssessment" .
 bwq:ComplianceAssessment api:label  "ComplianceAssessment" .
-bwq:sampleDateTime	 api:label  "sampleDateTime" .
-bwq:sampleWeek	 	 api:label  "sampleWeek" .
-bwq:sampleYear	 	 api:label  "sampleYear" .
+
+bwq:sampleDateTime	 a			owl:ObjectProperty;
+					 api:label  "sampleDateTime"; 
+					 rdfs:range	time:Instant;
+					 .
+bwq:sampleWeek	 	 a			owl:ObjectProperty;
+				 	 api:label  "sampleWeek"; 
+				 	 rdfs:range	time:Interval;
+				 	 .
+				 	 
+bwq:sampleYear	 	 a			owl:ObjectProperty;
+					 api:label  "sampleYear";
+					 rdfs:range	time:Interval;
+				 	 .
+
 bwq:samplingPoint    api:label  "bwq_samplingPoint" .
 bwq:bathingWater     api:label  "bwq_bathingWater" .
 
