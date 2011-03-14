@@ -27,8 +27,8 @@ t:api
 
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
-	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
-##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
+##	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
+	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
 	api:defaultFormatter t:HtmlFormatter ;
 	api:formatter t:CsvFormatter ;
 	api:endpoint
@@ -38,7 +38,9 @@ t:api
 		t:instances , 
 		t:properties ,
 		t:samplingPoint,
-		t:samplingPoints;
+		t:samplingPoints,
+		t:samplingDocPoint,
+		t:samplingDocPoints;
 	.
 
 
@@ -137,8 +139,9 @@ t:properties
 t:samplingPoints
   a api:ListEndpoint ;
   api:maxPageSize "100";
-  api:uriTemplate 		"/doc/ef/SamplingPoint/bwsp.eaew/" ;
-  api:exampleRequestPath 	"/doc/ef/SamplingPoint/bwsp.eaew/" ;
+  api:viewer	t:samplingPointViewer,api:describeViewer;
+  api:uriTemplate 			"/so/ef/SamplingPoint/bwsp.eaew/" ;
+  api:exampleRequestPath 	"/so/ef/SamplingPoint/bwsp.eaew/" ;
   api:selector [
     api:filter "type=SamplingPoint";
     api:sort   "northing,easting";
@@ -147,15 +150,39 @@ t:samplingPoints
 
 t:samplingPoint
   a api:ItemEndpoint ;
-  api:uriTemplate 		"/doc/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
-  api:exampleRequestPath 	"/doc/ef/SamplingPoint/bwsp.eaew/03600" ;
+  api:viewer	t:samplingPointViewer,api:describeViewer;
+  api:uriTemplate 			"/so/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
+  api:exampleRequestPath 	"/so/ef/SamplingPoint/bwsp.eaew/03600" ;
   api:itemTemplate 		"http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
   api:defaultViewer t:samplingPointViewer .
 
+#
+# Doc Clones of SO endpoints until we sort redirections out
+#
+t:samplingDocPoints
+  a api:ListEndpoint ;
+  api:maxPageSize "100";
+  api:viewer	t:samplingPointViewer,api:describeViewer;
+  api:uriTemplate 			"/doc/ef/SamplingPoint/bwsp.eaew/" ;
+  api:exampleRequestPath 	"/doc/ef/SamplingPoint/bwsp.eaew/" ;
+  api:selector [
+    api:filter "type=SamplingPoint";
+    api:sort   "northing,easting";
+  ] ;
+  api:defaultViewer t:samplingPointViewer .
+
+t:samplingDocPoint
+  a api:ItemEndpoint ;
+  api:viewer	t:samplingPointViewer,api:describeViewer;
+  api:uriTemplate 			"/doc/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
+  api:exampleRequestPath 	"/doc/ef/SamplingPoint/bwsp.eaew/03600" ;
+  api:itemTemplate 		"http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
+  api:defaultViewer t:samplingPointViewer .
+  
 t:samplingPointViewer
 	a	            api:Viewer;
 	api:name		"SamplingPoint";
-	api:properties	"name,notation,lat,long,easting,northing,bathingWater.name" .
+	api:properties	"name,samplePointNotation,lat,long,easting,northing,bathingWater.name" .
   
 ##############################################################################################
 ## Labels ##
