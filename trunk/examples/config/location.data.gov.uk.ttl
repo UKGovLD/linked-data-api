@@ -140,29 +140,6 @@ t:samplingPoints
   a api:ListEndpoint ;
   api:maxPageSize "100";
   api:viewer	t:samplingPointViewer,api:describeViewer;
-  api:uriTemplate 			"/so/ef/SamplingPoint/bwsp.eaew/" ;
-  api:exampleRequestPath 	"/so/ef/SamplingPoint/bwsp.eaew/" ;
-  api:selector [
-    api:filter "type=SamplingPoint";
-    api:sort   "northing,easting";
-  ] ;
-  api:defaultViewer t:samplingPointViewer .
-
-t:samplingPoint
-  a api:ItemEndpoint ;
-  api:viewer	t:samplingPointViewer,api:describeViewer;
-  api:uriTemplate 			"/so/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
-  api:exampleRequestPath 	"/so/ef/SamplingPoint/bwsp.eaew/03600" ;
-  api:itemTemplate 		"http://location.data.gov.uk/so/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
-  api:defaultViewer t:samplingPointViewer .
-
-#
-# Doc Clones of SO endpoints until we sort redirections out
-#
-t:samplingDocPoints
-  a api:ListEndpoint ;
-  api:maxPageSize "100";
-  api:viewer	t:samplingPointViewer,api:describeViewer;
   api:uriTemplate 			"/doc/ef/SamplingPoint/bwsp.eaew/" ;
   api:exampleRequestPath 	"/doc/ef/SamplingPoint/bwsp.eaew/" ;
   api:selector [
@@ -171,7 +148,7 @@ t:samplingDocPoints
   ] ;
   api:defaultViewer t:samplingPointViewer .
 
-t:samplingDocPoint
+t:samplingPoint
   a api:ItemEndpoint ;
   api:viewer	t:samplingPointViewer,api:describeViewer;
   api:uriTemplate 			"/doc/ef/SamplingPoint/bwsp.eaew/{bwspid}" ;
