@@ -29,7 +29,6 @@ t:api
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
 ##  api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
-##	api:sparqlEndpoint <http://localhost:8080/bwqShell/sparql> ;
 	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
 	api:defaultFormatter t:HtmlFormatter ;
 	api:formatter t:CsvFormatter ;
@@ -262,7 +261,7 @@ t:individualInSeasonAssessment
 	t:inSeasonSalmonellaPresentViewer,
 	api:describeViewer; 
 #  api:defaultViewer	api:describeViewer;
-  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
+   api:defaultViewer	t:inSeasonAssessmentViewer;
   .
 ##############################################################################################
 ## In-Season Samples by Sampling Point
@@ -332,7 +331,9 @@ t:latestInSeasonAssessments
 	api:describeViewer; 
   api:selector [
     api:where	"bwq-iss:latest qb:observation ?item .";
-    api:sort	"sampleWeek.label,bwq_bathingWater.name";
+#   api:sort	"sampleWeek.label,bwq_bathingWater.name";
+	api:sort	"bwq_samplingPoint.samplePointNotation";
+    
   ] ;
   api:defaultViewer	t:inSeasonAssessmentViewer;
   .
@@ -412,7 +413,7 @@ t:inSeasonColiformCountViewer
 	api:name		"coliforms";
 	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,abnormalWeatherException" .
 
-t:inSeasonStretococciCountViewer
+t:inSeasonStreptococciCountViewer
 	a				api:Viewer;
 	api:name		"streptococci";
 	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,abnormalWeatherException" .
@@ -677,7 +678,8 @@ OPTIONAL {
 } FILTER (!bound(?slice2))
 ?slice qb:observation ?item .
 """;
-    api:sort	"sampleYear.ordinalYear,bwq_bathingWater.name";
+#    api:sort	"sampleYear.ordinalYear,bwq_bathingWater.name";
+	api:sort	"bwq_samplingPoint.samplePointNotation";
   ] ;
   api:defaultViewer	t:complianceAssessmentViewer;
   .
