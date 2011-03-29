@@ -196,7 +196,6 @@ body.IE7 div#infobox {
     display: block;
     font-family: Georgia !important;
     font-size: 11px;
-    font-style: italic;
     font-weight: normal;
     margin: 0;
     max-height: 75px;
@@ -388,7 +387,20 @@ div.panel div.content p span
 	margin-left:-5px;
 	padding:1px 1px 1px 5px;
 }
-
+div.panel div.content p span.value {
+	float:left;
+	display: inline-block;
+	background:none;
+	border:none;
+	color:#333333;
+	font-family:Georgia;
+	font-size:100%;
+	font-weight:normal;
+	margin:0px;
+	letter-spacing: 0px;
+	padding:0px;
+	word-wrap: break-word;
+}
 div.panel div.content p span.date {
     background: none repeat scroll 0 0 transparent;
     border: medium none;
@@ -412,8 +424,8 @@ div.panel div.content p.grade span.g
 	padding:2px 3px;
 	text-align:center;
 }
-div.panel div.content p.salary, div.panel div.content p.salaryReports {
-	letter-spacing: 1px;
+div.panel div.content p.salary span.value, div.panel div.content p.salaryReports span.value {
+	letter-spacing: 1px !important;
 }
 a.data
 {
@@ -434,6 +446,7 @@ a.data
     text-decoration: none !important;
     text-shadow: 1px 1px #666666;
     text-transform: uppercase;
+    word-wrap: normal !important;
 }
 
 a.data:hover
