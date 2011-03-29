@@ -9,11 +9,30 @@
 
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/organogram.css" rel="stylesheet">
+<!-- Scripts -->
+<script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
+<script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/organogram2.js"></script>
+<!--[if lt IE 9]>
+<script language="javascript" type="text/javascript" src="../scripts/json2.js"></script>
+<![endif]-->
+<!--[if IE]>
+<script language="javascript" type="text/javascript" src="../scripts/Jit/Extras/excanvas.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery.corner.js"></script>
+<![endif]-->
 
-<title>Organogram</title>
+
+<title>Cabinet Office | Organogram</title>
 </head>
 
-<body onload="init('<?php print $_GET['dept'];?>','<?php print $_GET['post'];?>',false);">
+<!--[if IE 7]> 
+	<body class="IE7" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['post'];?>',false);"> 
+<![endif]--> 
+<!--[if IE 8]> 
+	<body class="IE8" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['post'];?>',false);"> 
+<![endif]--> 
+<body onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['post'];?>',false);">
 
 <h1 class="title breadcrumbs">
 	<button id="dept">Department</button><button id="unit">Unit</button><button id="post">Post</button>
@@ -25,7 +44,7 @@
 	<a class="close">x</a>
 </div>
 
-<div id="right">
+<div id="right" data-corner="left 10px">
 		
 		<a class="aboutToggle" href="#">About</a>
 		
@@ -61,33 +80,15 @@
 			</form>
 		</div>
 
-		<div class="autoalign">
-		<p>Auto-adjust</p>
-			<form>
-				<div id="autoalign">
-					<input type="radio" id="on" name="autoalign" checked="checked" /><label for="on">On</label>
-					<input type="radio" id="off" name="autoalign" /><label for="off">Off</label>
-				</div>
-			</form>
-		</div>	
-		
 		<div class="navigate">
 			<p>Adjust</p>
-            <div id="navigate">
-                <button id="up">Up</button>
-                <button id="down">Down</button>
-                <button id="left">Left</button>
-                <button id="right">Right</button>
+            <div id="nav">
+                <button id="nav_up">Up</button>
+                <button id="nav_down">Down</button>
+                <button id="nav_left">Left</button>
+                <button id="nav_right">Right</button>
             </div>
 		</div>
-		
-		<!--div class="reload">
-			<p>Reset</p>
-            <div id="reload">
-                <button id="reset">Reset</button>
-            </div>
-		</div-->		
-		
 				
 	<div id="apiCalls">
 		<p class="label">Data sources</p>
@@ -96,25 +97,17 @@
 
 </div>
 
-<!--div id="log-wrapper"-->
 <div id="log">
 	<span></span>
 	<img src="../images/loading.gif" />
 </div>
-<!--/div-->
 
-<!-- Scripts -->
-<script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
-<script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
-<script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
-<script language="javascript" type="text/javascript" src="../scripts/organogram.js"></script>
-
-<!--[if lt IE 9]>
-    <script src="../scripts/json2.js"></script>
-<![endif]-->
-
-<!--[if IE]><script language="javascript" type="text/javascript" src="../scripts/Jit/Extras/excanvas.js"></script><![endif]-->
+<noscript>
+<div class="noscript">
+<p>It looks like you have JavaScript disabled.</p>
+<p>Please turn JavaScript <strong>ON</strong> and reload the page in order to use this application.</p>
+</div>
+</noscript>
 
 </body>
-
 </html>
