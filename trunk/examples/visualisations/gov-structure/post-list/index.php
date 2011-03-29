@@ -8,10 +8,6 @@
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/post-list.css" rel="stylesheet">
 <title>Cabinet Office | Post list</title>
-<script>
-var param_dept = '<?php print $_GET['dept'];?>';
-var param_unit = '<?php print $_GET['unit'];?>';
-</script>
 
 <!-- Scripts -->
 <script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
@@ -20,11 +16,19 @@ var param_unit = '<?php print $_GET['unit'];?>';
 <script language="javascript" type="text/javascript" src="../scripts/post-list.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.quicksand.js"></script>		
 
-<!--[if IE]><script language="javascript" type="text/javascript" src="../scripts/Jit/Extras/excanvas.js"></script><![endif]-->
+<!--[if IE]>
+<script language="javascript" type="text/javascript" src="../scripts/jquery.corner.js"></script>		
+<![endif]-->
 
 </head>
 
-<body>
+<!--[if IE 7]> 
+	<body class="IE7" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>');"> 
+<![endif]--> 
+<!--[if IE 8]> 
+	<body class="IE8" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>');"> 
+<![endif]--> 
+<body onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>');">
 
 <h1 class="title breadcrumbs">
 	<button id="gov" rel="government">HM Government</button><button id="dept">Department</button><button id="unit">Unit</button>
@@ -35,14 +39,14 @@ var param_unit = '<?php print $_GET['unit'];?>';
 		<option value="Director">Director</option>
 		<option value="Deputy Director">Deputy Director</option>
 	</select>
-	<label for="postType">Post Type</label>
+	<label for="postType" class="postType">Post Type</label>
 	
 	<select id="sortBy">
 		<option value="name">Name</option>
 		<option value="title">Title</option>
 		<option value="unit">Unit</option>
 	</select>
-	<label for="sortBy">Sort by</label>
+	<label for="sortBy" class="sortBy">Sort by</label>
 
 </h1>
 
