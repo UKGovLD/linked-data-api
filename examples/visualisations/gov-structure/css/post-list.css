@@ -1,16 +1,64 @@
 h1.title label {
-    float: right;
-    font: 300 12px/22px "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
-    position: relative;
-    top: 4px;
-    margin-left: 5px;
-    margin-right: 5px;
+	display: block;
+	float: right;
+	font: normal normal 300 12px/normal 'Helvetica Neue', Helvetica, 'Arial Unicode MS', Arial, sans-serif;
+	margin-bottom: 0px;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 10px;
+	padding: 0px;
+	position: relative;
+}
+body.IE7 h1.breadcrumbs  {
+    -moz-box-shadow: 0 5px 24px #888888;
+    box-shadow: 0 5px 24px #888888;
+    -webkit-box-shadow: 0 5px 24px #888888;
+    background-color: #111111;
+    background-image: url("../images/hmg-banner.png");
+    background-position: left center;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid #666666;
+    color: #FFFFFF;
+    font-size: 16px;
+    height: 33px;
+    margin: 0 0 0 -1px;
+    min-height: 30px;
+    padding-left: 200px;
+    padding-top: 1px !important;
+    text-align: left;
+    top: 0;
+    width: auto;
+    z-index: 8881;
+	position: fixed;
+	overflow:visible;
+	right:0px;
+	left:0px;
 }
 h1.title select {
     float: right;
     position: relative;
     top: 7px;
     margin-right: 10px;
+}
+body.IE7 h1.title select {
+    right: 0px;
+    position: fixed;
+    top: 4px;
+    margin-right: 10px;
+}
+body.IE7 h1.title label {
+	position:fixed;
+	right:0px;
+	top:-2px;
+}
+body.IE7 h1.title select#sortBy {
+    margin-right: 230px;
+}
+body.IE7 h1.title label.sortBy {
+    margin-right: 300px;
+}
+body.IE7 h1.title label.postType {
+    margin-right: 168px;
 }
 #infovis {
     left: 10px;
@@ -19,12 +67,15 @@ h1.title select {
     right: 115px;
     top: 35px;
 }
+#infovis div.postHolder {
+height:auto !important;
+}
 #infovis div.post {
 	border-radius: 8px 8px 8px 8px;
     -moz-border-radius: 8px 8px 8px 8px;
     -webkit-border-radius: 8px 8px 8px 8px;
     background: none repeat scroll 0 0 #FAFAFA;
-    border: 3px solid #989393;
+    border: 3px solid #FFFFFF;
     float: left;
     height: 300px;
     margin: 10px;
@@ -40,6 +91,8 @@ opacity:0.7;
 }
 #infovis div.post h3 {
     -moz-border-radius: 5px 5px 0 0;
+    border-radius: 5px 5px 0 0;
+    -webkit-border-radius: 5px 5px 0 0;    
     background: none repeat scroll 0 0 #333333;
     color: #EEEEEE;
     font: 300 12px/22px "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
@@ -60,7 +113,7 @@ opacity:0.7;
     width: 130px;
 }
 #infovis div.post p.name {
-    /*background: none repeat scroll 0 0 #6740B5;*/
+    background-position:50% 60% !important;
     color: #FFFFFF;
     font: 300 110.01%/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
     margin: 0px;
