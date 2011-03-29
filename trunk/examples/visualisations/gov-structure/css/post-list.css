@@ -1,0 +1,129 @@
+h1.title label {
+    float: right;
+    font: 300 12px/22px "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
+    position: relative;
+    top: 4px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+h1.title select {
+    float: right;
+    position: relative;
+    top: 7px;
+    margin-right: 10px;
+}
+#infovis {
+    left: 10px;
+    margin: auto;
+    position: absolute;
+    right: 115px;
+    top: 35px;
+}
+#infovis div.post {
+	border-radius: 8px 8px 8px 8px;
+    -moz-border-radius: 8px 8px 8px 8px;
+    -webkit-border-radius: 8px 8px 8px 8px;
+    -moz-box-shadow: 5px 5px 25px #888888;
+    box-shadow: 5px 5px 25px #888888;
+    -webkit-box-shadow: 5px 5px 25px #888888;
+    background: none repeat scroll 0 0 #FAFAFA;
+    border: 3px solid #CCCCCC;
+    float: left;
+    height: 300px;
+    margin: 10px;
+    padding: 0;
+    width: 220px;
+}
+#infovis div.post:hover {
+border:3px solid #000000;
+cursor: pointer;
+}
+#infovis div.post:active {
+opacity:0.7;
+}
+#infovis div.post h3 {
+    -moz-border-radius: 5px 5px 0 0;
+    background: none repeat scroll 0 0 #333333;
+    color: #EEEEEE;
+    font: 300 12px/22px "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
+    height: 45px;
+    margin: 0;
+    padding: 0 10px;
+    overflow: hidden;
+}
+#infovis div.post div.image {
+    background: none repeat scroll 0 0 #555555;
+    display: block;
+    padding: 10px;
+} 
+#infovis div.post img {
+    background-color: #EEEEEE;
+    margin: 0;
+    padding: 5px;
+    width: 130px;
+}
+#infovis div.post p.name {
+    /*background: none repeat scroll 0 0 #6740B5;*/
+    color: #FFFFFF;
+    font: 300 110.01%/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
+    margin: 0px;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    text-shadow: -1px -1px #3A1B67;
+    /*width: 100%;*/
+}
+#infovis div.post p.comment {
+    font-size: 10px;
+    height: 75px;
+    margin: 0;
+    overflow-y: auto;
+    padding: 5px;
+    text-align: justify;
+    display: none;
+}
+#infovis div.post ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+#infovis div.post table {
+    background: none repeat scroll 0 0 #555555;
+    border: 0 solid #AEAAB4;
+    border-collapse: collapse;
+    font-size: 11px;
+    height: 108px;
+    text-align: left;
+    width: 100%;
+}
+#infovis div.post table tr {
+
+}
+#infovis div.post table tr.odd {
+	background: none repeat scroll 0 0 #F6F6F6;
+}
+#infovis div.post table tr.even {
+    background: none repeat scroll 0 0 #FFFFFF;
+}
+#infovis div.post table tr.end {
+}
+#infovis div.post table tr td {
+    margin: 0;
+    padding: 2px 2px 2px 5px;
+    vertical-align: middle;
+}
+#infovis div.post table tr td.label {
+    border-right: 1px solid #E8E4E4;
+    color: #AAAAAA;
+    font-weight: bold;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 35%;
+}
+#infovis div.post ul li {
+    font-size: 11px;
+    padding: 2px;
+}
+#infovis div.post ul li span.label {
+
+}
