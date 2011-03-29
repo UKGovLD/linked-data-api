@@ -207,16 +207,11 @@ var Orgvis = {
 										
 						$("div.node").css("border","1px solid #AAAAAA");
 						$("div#"+node.id).css("border","3px solid #333333");		
-		
-						if($.browser.msie){
-							//log("cornering");
-							$("div#"+node.id).corner("3px")
-						}
 						
 						$("#infobox").fadeOut('fast', function() {
 							
 							if(node.data.type != 'junior_posts'){
-								Orgvis.loadPersonInfo(node);
+								Orgvis.loadInfobox(node);
 							} else {
 								//loadJuniorPostInfo(node);
 							}
@@ -233,6 +228,13 @@ var Orgvis = {
 				style.textAlign= 'center';
 				style.textDecoration = 'none';
 				style.paddingTop = '3px'; 	
+		
+				/*
+				if($.browser.msie){
+					//log("cornering");
+					$(label).corner("3px");
+				}	
+				*/			
 			},  
 			onBeforePlotNode: function(node){  
 				if (node.selected) {  
@@ -803,7 +805,7 @@ var Orgvis = {
 		return newNode;
 
 	},
-	loadPersonInfo:function(node){
+	loadInfobox:function(node){
 				
 		var postID = node.data.uri.split("/");
 		postID=postID[postID.length-1];
@@ -841,7 +843,7 @@ var Orgvis = {
 	
 			html += '<div class="content ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">';
 			
-			html+= '<p class="id"><span>Post ID</span>'+tempID+'<a class="data center_organogram" href="?dept='+Orgvis.vars.global_department+'&post='+tempID+'">Center organogram</a><a class="data postID" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/post/'+tempID+'">Data</a></p>';
+			html+= '<p class="id"><span>Post ID</span>'+tempID+'<a class="data postID" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?dept='+Orgvis.vars.global_department+'&post='+tempID+'">Center organogram</a></p>';
 			
 			html += '<p class="salary"><span>Salary</span>£'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'<a class="data" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/post/'+tempID+'">Data</a></p>';
 	
@@ -861,7 +863,7 @@ var Orgvis = {
 		
 			if(typeof node.data.type != 'undefined'){
 				for(var a=0;a<node.data.type.length;a++){
-					html += '<p class="type"><span>Type</span>'+node.data.type[a]+'</p>';
+					html += '<p class="type"><span>Type</span>'+node.data.type[a]+'<a class="data center_organogram" href="../post-list?dept='+Orgvis.vars.global_department+'&type='+node.data.type[a].replace(" ","+")+'">Post list</a></p>';
 				}
 			}
 							
@@ -950,7 +952,7 @@ var Orgvis = {
 								if(node.data.heldBy[v].salaryCostOfReports > -1){							
 									$("div.panel div.content").each(function(){									
 										if($(this).children("p.id").children("a.postID").attr("href") == node.data.heldBy[v].holdsPostURI.toString()) {
-											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span>£'+addCommas(node.data.heldBy[v].salaryCostOfReports)+'<span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span><a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">Data</a>');
+											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span>£'+addCommas(node.data.heldBy[v].salaryCostOfReports)+'<a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">Data</a><span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
 										}
 									});					
 								} else {
