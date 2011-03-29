@@ -12,10 +12,74 @@ canvas
 	position:fixed;
 	width:800px;
 }
+div#right div#nav
+{
+	height:78px;
+	margin-left:15px;
+	padding:1px;
+	position:relative;
+	width:79px;
+}
+body.IE7 div#right div#nav
+{
+	height:78px;
+	margin-left:3px;
+	padding:1px;
+	position:relative;
+	width:79px;
+}
+div#right div#nav button
+{
+	height:26px;
+	position:absolute;
+	width:26px;
+}
+
+div#right div#nav button#nav_down
+{
+	bottom:0;
+	left:27px;
+}
+
+div#right div#nav button#nav_left
+{
+	left:0px;
+	top:27px;
+}
+
+div#right div#nav button#nav_right
+{
+	right:0;
+	top:27px;
+}
+
+div#right div#nav button#nav_up
+{
+	left:27px;
+	top:0;
+}
+
+div#right div.navigate
+{
+	position:relative;
+}
+div#right div#orientation label {
+	margin-right:-5px;
+}
+
+div#right ul li#orientation span
+{
+	display:block;
+	padding-bottom:5px;
+}
+
 #infobox
 {
 	-moz-border-radius:10px;
 	-webkit-border-radius:10px 10px 10px 10px;
+	-moz-box-shadow: 0 5px 24px #888888;
+	box-shadow: 0 5px 24px #888888;
+	-webkit-box-shadow: 0 5px 24px #888888;
 	background-color:#FFFFFF;
 	border:1px solid #DDDDDD;
 	border-radius:10px 10px 10px 10px;
@@ -28,11 +92,16 @@ canvas
 	overflow-y:auto;
 	padding:0 0 5px;
 	position:absolute;
-	right:125px;
+	right:135px;
 	top:55px;
 	width:290px;
 }
-
+body.IE8 div#infobox {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=225, Color='#777777')";
+}
+body.IE7 div#infobox {
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=225, Color='#777777');
+}
 #infobox .ui-accordion .ui-accordion-content
 {
 	border-top:0 none;
@@ -118,8 +187,25 @@ canvas
 #infobox p.comment span
 {
 	font-style:normal;
+	margin-bottom: 0px;
 }
 #infobox p.comment span.text {
+    background: none repeat scroll 0 0 transparent !important;
+    border: medium none !important;
+    color: #333333;
+    display: block;
+    font-family: Georgia !important;
+    font-size: 11px;
+    font-style: italic;
+    font-weight: normal;
+    margin: 0;
+    max-height: 75px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 3px 0 0;
+	height:expression( this.scrollHeight > 74 ? "75px" : "auto" );
+}
+#infobox p.notes span.text {
     background: none repeat scroll 0 0 transparent !important;
     border: medium none !important;
     color: #333333;
@@ -202,8 +288,7 @@ div.node
 	background-color:#FFFFFF;
 	border:1px solid #AAAAAA;
 	border-radius:5px 5px 5px 5px;
-	padding-bottom:0;
-	padding-top:5px;
+	padding:5px 3px 0;
 }
 
 div.node span.heldBy
@@ -230,12 +315,12 @@ div.node span.postIn
 	color:#FFFFFF;
 	display:block;
 	font-size:10px;
-	margin-left:0;
+	margin-left:-3px;
 	margin-top:5px;
 	opacity:0.8px;
 	padding:2px 0;
 	position:relative;
-	width:100%;
+	width:176px;
 }
 
 /* New Infobox */
@@ -264,12 +349,13 @@ float:right;
 padding:0;
 width:268px;
 }*/
+/*
 div.panel div.content a
 {
-	color:#333333;
 	font-weight: bold;
+	color:#333333;
 }
-
+*/
 div.panel div.content img
 {
 	border:1px solid #DDDDDD;
@@ -284,7 +370,8 @@ div.panel div.content img.salaryReports
 {
 	border:medium none;
 	display:inline;
-	float:right;
+    position: absolute;
+    right: 0;
 	margin-right:5px;
 	margin-top:1px;
 	padding:0;
@@ -325,7 +412,7 @@ div.panel div.content p span.date {
     color: #CCCCCC;
     display: inline;
     float: right;
-    margin: 0 5px 0 0;
+    margin: 0 50px 0 0;
     padding: 0;
 }
 
@@ -343,33 +430,36 @@ div.panel div.content p.grade span.g
 	text-align:center;
 }
 
-div.panel div.content p.id a.view_org
+a.data
 {
-	background:none repeat scroll 0 0 transparent;
-	border:medium none;
-	color:#CCCCCC;
-	display:inline;
-	float:right;
-	font-family:"Lucida Grande",Verdana;
-	font-size:11px;
-	font-weight:bold;
-	margin:1px 5px 0 0;
-	padding:0;
-	text-decoration:none;
+    background: none repeat scroll 0 0 #999999;
+    border: 1px solid #666666;
+    border-radius: 5px 5px 5px 5px;
+    color: #EEEEEE;
+    display: inline;
+    font-family: "Lucida Grande",Verdana;
+    font-size: 9px;
+    font-weight: bold;
+    margin: 0 3px 0 0;
+    padding: 1px 3px;
+    position: absolute;
+    right: 0;
+    text-decoration: none !important;
+    text-shadow: 1px 1px #666666;
+    text-transform: uppercase;
 }
 
-div.panel div.content p.id a.view_org:hover
+a.data:hover
 {
-	color:#333333;
-	text-decoration:none;
+    background: none repeat scroll 0 0 #CCCCCC;
+    border: 1px solid #AAAAAA;
+    color: #555555;
+    text-shadow: 1px 1px #FFFFFF;
+    text-decoration: none !important;
 }
-
-div.panel div.content p.salaryReports a
-{
-	font-family:serif;
-	letter-spacing:1px;
+a.center_organogram {
+	right:38px;
 }
-
 div.panel h3
 {
 	color:#333333;
@@ -386,4 +476,57 @@ div.panel h3 a.name
 	text-decoration:none;
 	font-weight: bold;
 }
-
+div.juniorPost {
+    background-color: #888888;
+    font-family: Helvetica;
+    font-size: 11px !important;
+    font-weight: bold;
+    height: 35px !important;
+    line-height: 32px;
+    text-transform: uppercase;
+}
+div.juniorPost span.heldBy {
+    -moz-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px;
+    -webkit-border-radius: 3px 3px 3px 3px;
+    border: 1px solid #9A9A9A;
+    color: #000000;
+    font-size: 14px;
+    height: 20px;
+    line-height: 20px;
+    position: absolute;
+    text-align: center;
+    top: 65px;
+    width: 16px;
+}
+div.JP_parent {
+	color:#FFFFFF !important;
+}
+div.JP_child {
+	font-size:9px !important;
+	line-height: 18px !important;
+	cursor: default !important;
+}
+div.JP_none {
+	border:1px dashed #333333 !important;
+	background-color: #CCCCCC;
+	font-weight: normal;
+	cursor: default !important;
+}
+div.JP_none span.heldBy {
+	display: none;
+}
+div.JP_child span.JP_grade {
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-bottomright: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;    
+    background-color: #555555;
+    color: #FFFFFF;
+    display: block;
+    font-weight: normal;
+    margin-left:-3px;
+   	width:176px;
+}
