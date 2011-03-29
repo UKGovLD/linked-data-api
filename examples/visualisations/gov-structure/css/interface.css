@@ -1,14 +1,37 @@
-@import url("custom-theme/jquery-ui-1.8.8.custom.css");
+@import url("custom-theme-purple/jquery-ui-1.8.9.custom.css");
 @import url("ie.css");
 
 html,body
 {
-	background:url('../images/body_bg_big.png') repeat scroll 0 0 transparent;
+	background:url('../images/body_bg_big.png') repeat scroll 0 0 #CCCCCC;
 	font-family:"Lucida Grande", Verdana;
 	font-size:0.9em;
 	margin:0;
 	padding:0;
 	text-align:center;
+}
+
+div.noscript {
+    -moz-border-radius: 10px 10px 10px 10px;
+    -moz-box-shadow: 0 0 25px #717171;
+    border-radius: 10px 10px 10px 10px;
+    box-shadow: 0 0 25px #717171;
+    -webkit-border-radius: 10px 10px 10px 10px;
+    -webkit-box-shadow: 0 0 25px #717171;    
+    background-color: #F1CBCB;
+    background-image: url("../images/error.png");
+    background-position: 10px center;
+    background-repeat: no-repeat;
+    border: 5px solid #9C4848;
+    color: #7E2020;
+    margin: 200px auto auto;
+    padding: 10px 10px 10px 70px;
+    position: relative;
+    text-align: left;
+    width: 300px;
+}
+div.noscript p {
+
 }
 
 .clear
@@ -24,34 +47,38 @@ h1.title
     -moz-box-shadow: 0 5px 24px #888888;
     box-shadow: 0 5px 24px #888888;
     -webkit-box-shadow: 0 5px 24px #888888;
-    background-color: #000000;
+    background-color: #111111;
     background-image: url("../images/hmg-banner.png");
-    background-position: -1px center;
+    background-position: left center;
     background-repeat: no-repeat;
     border-bottom: 1px solid #666666;
     color: #FFFFFF;
     font-size: 16px;
     height: 33px;
     left: 0;
-    margin-bottom: 0;
-    margin-right: 0;
-    margin-top: 0;
+    margin: 0 0 0 -1px;
     min-height: 30px;
     overflow: hidden;
     padding-left: 200px;
     padding-top: 1px !important;
     position: fixed;
+    right: 0;
     text-align: left;
-    width: 100%;
+    top: 0;
+    width: auto;
     z-index: 8881;
 }
-
+body.IE8 h1.title {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=180, Color='#777777')";
+}
+body.IE7 h1.title {
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=180, Color='#777777');
+}
 h1.title button
 {
 	display:inline-block;
 	font-size:11px;
 	height:24px !important;
-	line-height:24px !important;
 	margin-right:3px;
 	margin-top:4px;
 	opacity:0;
@@ -59,12 +86,21 @@ h1.title button
 	padding:0 8px;
 	visibility:hidden;
 }
-
+body.IE7 h1.title button {
+	display:inline-block;
+	font-size:11px;
+	height:24px !important;
+	margin-right:3px;
+	margin-top:4px;
+	opacity:0;
+	overflow:visible;
+	padding:0 8px;
+	visibility:hidden;
+}
 h1.title span
 {
 	margin-right:5px;
 }
-
 div.tip
 {
 	font-size:11px;
@@ -107,9 +143,11 @@ a
 	color:#111111;
 	text-decoration:none;
 }
+/*
 a:hover {
 	text-decoration: underline;
-}
+}*/
+
 a.close
 {
 	-moz-border-radius:5px;
@@ -142,31 +180,34 @@ a:focus
 	outline:none;
 }
 
-#log
+div#log
 {
-	border-radius: 5px;
-	-moz-border-radius:5px;
-	-webkit-border-radius:5px;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
     -moz-box-shadow: 0 5px 24px #888888;
     box-shadow: 0 5px 24px #888888;
     -webkit-box-shadow: 0 5px 24px #888888;	
-	background-color:#FFFFFF;
-	border:1px solid #DDDDDD;
-	border-radius:5px 5px 5px 5px;
-	color:#111111;
-	display:none;
-	font-size:14px;
-	font-weight:bold;
-	left:-55px;
-	margin:0 auto;
-	opacity:1px;
-	padding:10px;
-	position:relative;
-	text-align:center;
-	top:80px;
-	width:250px;
+    background-color: #111111;
+    /*border: 3px solid #DDDDDD;*/
+    color: #EEEEEE;
+    display: none;
+    font-size: 13px;
+    font-weight: bold;
+    left: -55px;
+    margin: 0 auto;
+    padding: 10px;
+    position: relative;
+    text-align: center;
+    top: 80px;
+    width: 200px;
 }
-
+body.IE8 div#log {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=225, Color='#777777')";
+}
+body.IE7 div#log {
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=225, Color='#777777');
+}
 #log img
 {
 	margin-left:0;
@@ -199,7 +240,7 @@ div#right
     -moz-box-shadow: 0 5px 24px #888888;
     box-shadow: 0 5px 24px #888888;
     -webkit-box-shadow: 0 5px 24px #888888;
-    background-color: #222222;
+    background-color: #111111;
     bottom: 15px !important;
     color: #EEEEEE;
     font-size: 10px;
@@ -208,9 +249,16 @@ div#right
     padding-top: 30px;
     position: fixed;
     right: 0;
-    top: 46px !important;
-    width: 100px;
+    top: 55px !important;
+    width: 110px;
     z-index: 8888;
+    display: none;
+}
+body.IE8 div#right {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=225, Color='#777777')";
+}
+body.IE7 div#right {
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=225, Color='#777777');
 }
 div#right p {
 	text-shadow:1px 1px #111111;
@@ -232,51 +280,6 @@ div#right .ui-buttonset p
 div#right > *
 {
 	visibility:hidden;
-}
-
-div#right div#navigate
-{
-	height:71px;
-	margin-left:2px;
-	padding:5px;
-	position:inherit;
-	width:78px;
-}
-
-div#right div#navigate button
-{
-	height:26px;
-	position:absolute;
-	width:26px;
-}
-
-div#right div#navigate button#down
-{
-	bottom:0;
-	left:35px;
-}
-
-div#right div#navigate button#left
-{
-	left:9px;
-	top:27px;
-}
-
-div#right div#navigate button#right
-{
-	right:0;
-	top:27px;
-}
-
-div#right div#navigate button#up
-{
-	left:35px;
-	top:0;
-}
-
-div#right div.navigate
-{
-	position:relative;
 }
 
 div#right select
@@ -327,11 +330,7 @@ div#right ul li p
 	text-decoration:none;
 }
 
-div#right ul li#orientation span
-{
-	display:block;
-	padding-bottom:5px;
-}
+
 
 
 /* Data Sources Panel */
@@ -342,7 +341,7 @@ div#apiCalls
     padding: 10px;
     position: absolute;
     right: 0;
-    width: 80px;
+    width: 90px;
     z-index: 9999;
 }
 
@@ -374,7 +373,7 @@ div#apiCalls div.apiCall
 	overflow-y:auto;
 	padding:25px 20px;
 	position:fixed;
-	right:115px;
+	right:125px;
 	text-align:left;
 	width:300px;
 	z-index:9999;
@@ -423,11 +422,11 @@ div#apiCalls div.apiCall p.url a
 	text-decoration:none;
 }
 
-div#apiCalls div.apiCall p.url a:hover,div.panel div.content a:hover,ul.external_posts li a.post:hover
+/*div#apiCalls div.apiCall p.url a:hover
 {
 	text-decoration:underline;
 }
-
+*/
 div#apiCalls div.apiCall ul.paramlist
 {
 	list-style-type:disc;
