@@ -843,39 +843,37 @@ var Orgvis = {
 	
 			html += '<div class="content ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">';
 			
-			html+= '<p class="id"><span>Post ID</span>'+tempID+'<a class="data postID" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?dept='+Orgvis.vars.global_department+'&post='+tempID+'">Center organogram</a></p>';
+			html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?dept='+Orgvis.vars.global_department+'&post='+tempID+'">Center organogram</a></p>';
 			
-			html += '<p class="salary"><span>Salary</span>£'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'<a class="data" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/post/'+tempID+'">Data</a></p>';
+			html += '<p class="salary"><span>Salary</span><span class="value">£'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'</span><a class="data" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/post/'+tempID+'">Data</a></p>';
 	
-			html += '<p class="salaryReports"><span>Combined salary of reporting posts </span>Checking...<img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
+			html += '<p class="salaryReports"><span>Combined salary of reporting posts </span><span class="value">Checking...</span><img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
 							
 			if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
 				html+='<p class="comment"><span>Comment</span><span class="text">'+node.data.heldBy[i].comment+'</span></p>';
 			}
 	
 			if(typeof node.data.heldBy[i].foafMbox != 'undefined' && node.data.heldBy[i].foafMbox != ''){
-				html += '<p class="email"><span>Email</span> '+node.data.heldBy[i].foafMbox+'</p>';
+				html += '<p class="email"><span>Email</span><span class="value">'+node.data.heldBy[i].foafMbox+'</span></p>';
 			}
 			
 			if(typeof node.data.heldBy[i].foafPhone != 'undefined' && node.data.heldBy[i].foafPhone != ''){
-				html += '<p class="tel"><span>Phone</span>'+node.data.heldBy[i].foafPhone+'</p>';
+				html += '<p class="tel"><span>Phone</span><span class="value">'+node.data.heldBy[i].foafPhone+'</span></p>';
 			}
 		
 			if(typeof node.data.type != 'undefined'){
 				for(var a=0;a<node.data.type.length;a++){
-					html += '<p class="type"><span>Type</span>'+node.data.type[a]+'<a class="data center_organogram" href="../post-list?dept='+Orgvis.vars.global_department+'&type='+node.data.type[a].replace(" ","+")+'">Post list</a></p>';
+					html += '<p class="type"><span>Type</span><span class="value">'+node.data.type[a]+'</span><a class="data center_organogram" href="../post-list?dept='+Orgvis.vars.global_department+'&type='+node.data.type[a].replace(" ","+")+'">Post list</a></p>';
 				}
 			}
 							
 			if(typeof node.data.grade != 'undefined'){
 				for(var a=0;a<node.data.grade.length;a++){
-					html += '<p class="grade"><span>Grade</span> <span class="g '+node.data.grade[a]+'">'+node.data.grade[a]+'</span></p>';
+					html += '<p class="grade"><span>Grade</span><span class="value">'+node.data.grade[a]+'</span></p>';
 				}
 			}				
 			
-			html+= '<p class="unit"><span>Unit(s)</span>';
-			
-			html+= tempUnitLabel+'<a class="data" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/unit/'+tempUnitID+'">Data</a>';
+			html+= '<p class="unit"><span>Unit(s)</span><span class="value">'+tempUnitLabel+'</span><a class="data" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/unit/'+tempUnitID+'">Data</a>';
 	
 			if(typeof node.data.heldBy[i].notes != 'undefined' && node.data.heldBy[i].notes.toString().length > 1){
 				html+='<p class="notes"><span>Notes</span><span class="text">'+node.data.heldBy[i].notes+'</span></p>';
@@ -952,13 +950,13 @@ var Orgvis = {
 								if(node.data.heldBy[v].salaryCostOfReports > -1){							
 									$("div.panel div.content").each(function(){									
 										if($(this).children("p.id").children("a.postID").attr("href") == node.data.heldBy[v].holdsPostURI.toString()) {
-											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span>£'+addCommas(node.data.heldBy[v].salaryCostOfReports)+'<a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">Data</a><span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
+											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><span class="value">£'+addCommas(node.data.heldBy[v].salaryCostOfReports)+'</span><a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">Data</a><span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
 										}
 									});					
 								} else {
 									$("div.panel div.content").each(function(){
 										if($(this).children("p.id").children("a.postID").attr("href") == node.data.heldBy[v].holdsPostURI) {
-											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span>N/A<a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">Data</a>');
+											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><span class="value">N/A</span><a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">Data</a>');
 										}
 									});								
 								} // end else									
@@ -995,7 +993,7 @@ var Orgvis = {
 					for(var v=0;v<node.data.heldBy.length; v++) {					
 						$("div.expander div.content").each(function(){
 							if($(this).children("p.id").children("a.postID").attr("href") == node.data.heldBy[v].holdsPostURI) {
-								$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span>N/A<a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">Data</a>');
+								$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><span class="value">N/A</span><a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">Data</a>');
 							}
 						});	
 					}
