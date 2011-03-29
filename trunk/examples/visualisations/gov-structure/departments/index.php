@@ -8,10 +8,19 @@
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/departments.css" rel="stylesheet">
 <title>Department Overview</title>
+
+<!-- Scripts -->
 <script>
 var param_dept = '<?php print $_GET['dept'];?>';
 var param_unit = '<?php print $_GET['unit'];?>';
 </script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
+<script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/departments.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery.overlaps.js"></script>
+<!--[if IE]><script language="javascript" type="text/javascript" src="../scripts/Jit/Extras/excanvas.js"></script><![endif]-->
+
 </head>
 
 <body>
@@ -23,7 +32,7 @@ var param_unit = '<?php print $_GET['unit'];?>';
 <div id="infovis"></div>
 <div id="infobox"></div>
 <div id="log">
-	<span>Department Overview</span>
+	<span>Government Overview</span>
 	<img src="../images/loading.gif" />
 </div>
 
@@ -66,18 +75,12 @@ var param_unit = '<?php print $_GET['unit'];?>';
 
 <div id="nodeTip" class="tooltip"></div>
 
-<!-- Scripts -->
-<script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
-<!--script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.8.custom.min.js"></script-->	
-<script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
-<script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
-
-<script language="javascript" type="text/javascript" src="../scripts/departments.js"></script>
-<script language="javascript" type="text/javascript" src="../scripts/jquery.overlaps.js"></script>
-<!--script language="javascript" type="text/javascript" src="js/jquery.qtip.js"></script-->		
-<!--script language="javascript" type="text/javascript" src="js/main.js"></script-->
-
-<!--[if IE]><script language="javascript" type="text/javascript" src="../scripts/Jit/Extras/excanvas.js"></script><![endif]-->
+<noscript>
+<div class="noscript">
+<p>It looks like you have JavaScript disabled.</p>
+<p>Please turn JavaScript <strong>ON</strong> and reload the page in order to use this application.</p>
+</div>
+</noscript>
 
 </body>
 
