@@ -23,11 +23,8 @@ h1.title select {
 	border-radius: 8px 8px 8px 8px;
     -moz-border-radius: 8px 8px 8px 8px;
     -webkit-border-radius: 8px 8px 8px 8px;
-    -moz-box-shadow: 5px 5px 25px #888888;
-    box-shadow: 5px 5px 25px #888888;
-    -webkit-box-shadow: 5px 5px 25px #888888;
     background: none repeat scroll 0 0 #FAFAFA;
-    border: 3px solid #CCCCCC;
+    border: 3px solid #989393;
     float: left;
     height: 300px;
     margin: 10px;
