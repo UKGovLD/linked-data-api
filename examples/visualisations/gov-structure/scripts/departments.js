@@ -16,8 +16,8 @@ visualisation.
 
 $(document).ready(function() {
 
-	$("#infovis").width($(window).width()-140);
-	$("#infovis").height($(window).height()-71);
+	$("#infovis").width($(window).width()-150);
+	$("#infovis").height($(window).height()-81);
 	
 	$('div.about-tip').dialog({autoOpen:false, buttons: [
   		{
@@ -121,6 +121,7 @@ $(document).ready(function() {
 	
 	init(param_dept,param_unit);
 	
+	$("div#right").show();
 	
 });
 
@@ -645,7 +646,7 @@ function makeUnitNode(item){
 				uri:item._about,
 				processed:false,
              	//$color: "#819C9B", //teal
-             	$color: "#758200",
+             	$color: "#6740b5",
              	text: "#FFFFFF", 
              	$area: 1							
 			},
