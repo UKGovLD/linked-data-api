@@ -1,0 +1,138 @@
+#infovis
+{
+    border: 5px solid #666666;
+    bottom: 15px;
+	height:800px;
+    left: 15px;
+	margin:auto;
+	overflow:hidden;
+	position:fixed;
+	width:800px;
+    visibility: hidden;
+}
+div#right a {
+margin-top:25px;
+}
+.node {
+border:1px solid transparent;
+cursor:pointer;
+font-family:Arial;
+font-size:10px;
+overflow:hidden;
+text-align:center;
+color:#FFFFFF;
+}
+div.root {
+font-size:14px !important;
+line-height:25px !important;
+}
+div.Government {
+line-height:25px !important;
+}
+div.Government  {
+font-size:16px;
+padding-left:10px;
+padding-top:4px;
+text-align:center;
+}
+div.Department {
+
+}
+div.Department span {
+margin:16% auto auto;
+}
+div.Unit{
+
+}
+div.Unit span {
+font-size:10px;
+overflow: hidden;
+}
+div.Post {
+
+}
+div.Post span {
+display:block;
+font-size:10px;
+margin:16% auto auto;
+position:absolute;
+width:90%;
+}
+
+div.outer {
+height:100%;
+width:100%;
+display: table;
+position: static;
+}
+div.middle {
+display: table-cell;
+vertical-align: middle;
+text-align: center;
+height:100%;
+width: 100%;
+}
+div.inner {
+margin-left:auto;
+margin-right:auto;
+text-align: center;
+}
+div.Government div.middle {
+vertical-align: top !important;
+}
+div.vtop {
+padding-top:7px;
+vertical-align:top !important;
+}
+
+div#nodeTip {
+padding-left:0px !important;
+padding-bottom:0px !important;
+padding-right:0px !important;
+padding-top:5px !important;
+}
+div#nodeTip span.label {
+    display: inline-block;
+    padding:5px 5px 10px;
+    width:90%;
+}
+div#nodeTip span.prop {
+    background: none repeat scroll 0 0 #CCCCCC;
+    display: block;
+    float: left;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    width: 50%;
+}
+div#nodeTip span.value {
+    background: none repeat scroll 0 0 #333333;
+    color: #FFFFFF;
+    display: block;
+    float: left;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    width: 50%;
+}
+.tooltip {
+-moz-box-shadow:0 5px 24px #888888;
+-webkit-box-shadow:0 5px 24px #888888;
+box-shadow:0 5px 24px #888888;
+-webkit-border-radius:10px 10px 10px 10px;
+-moz-border-radius:10px 10px 10px 10px;
+border-radius:10px 10px 10px 10px;
+background-color:#FFFFFF;
+border:10px solid #DDDDDD;
+color:#333333;
+display:none;
+font-size:12px;
+font-weight:bold;
+height:auto;
+opacity:1;
+overflow-x:hidden;
+overflow-y:auto;
+padding:15px 10px;
+position:fixed;
+text-align:center;
+width:150px;
+z-index:9999 !important;
+}

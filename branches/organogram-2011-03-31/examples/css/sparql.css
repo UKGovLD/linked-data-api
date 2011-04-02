@@ -1,0 +1,46 @@
+html {
+  cursor: text;
+  padding-top: 5px;
+}
+
+.editbox {
+	background-color: white;
+	font-family: Monaco, Consolas, "Lucida Console", monospace;
+	font-size: 0.7em;
+	margin-bottom: 15px;
+	white-space: nowrap;
+}
+
+.editbox p {
+  margin: 0;
+}
+
+span.sp-keyword {
+  color: #333;
+}
+
+span.sp-prefixed {
+  color: #229922;
+}
+
+span.sp-var {
+  color: #992299;
+}
+
+span.sp-comment {
+  color: #999;
+  font-style: italic;
+}
+
+span.sp-literal {
+  color: #333;
+  font-weight: bold;
+}
+
+span.sp-uri {
+  color: #1F328C;
+}
+
+span.sp-operator {
+  color: #333;
+}

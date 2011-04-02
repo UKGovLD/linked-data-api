@@ -1,0 +1,61 @@
+body {
+	text-align: center;
+}
+
+#page {
+	margin-right: auto;
+	margin-left: auto;
+	text-align: left;
+}
+
+nav.topnav {
+	width: 286px;
+}
+
+nav.topnav section {
+	width: 286px;
+}
+
+nav.topnav section h1 {
+	margin-bottom: 10px;
+}
+
+nav.topnav section ul {
+	width: 266px;
+}
+
+nav.topnav section.view li {
+	display: block;
+}
+
+div.info {
+	top: 8px;
+}
+
+div.panel {
+	width: 518px;
+}
+
+#search {
+	width: 518px;
+}
+
+.nested table td, .nested table th {
+	border-bottom: none;
+}
+
+td, th {
+	border-bottom: 1px solid #D3D3D3;
+}
+
+tr.last td, tr.last th {
+	border-bottom: none;
+}
+
+section#search td, section#search th {
+	border-bottom: 1px dotted #C4C4C4;
+}
+
+section#search .nested tr.last td, section#search .nested tr.last th {
+	border-bottom: none;
+}

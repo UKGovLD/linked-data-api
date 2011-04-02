@@ -1,0 +1,589 @@
+body {
+	background-image: url(/images/body_bg_big.png);
+	color:#555555;
+	font-family: Arial,sans-serif;
+	font-size: 0.813em;
+	line-height: 1.188em;
+}
+
+#page {
+	-webkit-box-shadow: #888 0px 5px 24px;
+	-moz-box-shadow: 0 5px 24px #888;
+	background: white;
+	margin: 0px auto 50px;
+	width: 940px;
+}
+
+nav.site {
+	background: url(/images/hmg-banner.png) no-repeat 0% 0%;
+	padding-top: 54px;
+}
+
+header h1 {
+	background: url("/images/molecule.png") no-repeat scroll 0 0 transparent;
+	color: #555555;
+	font-size: 3em;
+	font-weight: 300;
+	font-family: Gill Sans, Arial, sans-serif;
+	margin-left: 42px;
+	padding: 0.5em 66px 1em;
+}
+
+nav.topnav {
+	float: right;
+	clear: right;
+	padding-right: 30px;
+	width: 286px;
+}
+
+#result {
+	float: left;
+	clear: left;
+	padding-right: 43px;
+	padding-left: 43px;
+	width: 538px;
+}
+
+#result .panel {
+	position: relative;
+}
+
+.panel, nav.topnav section {
+	background: none repeat scroll 0 0 #EBEBEB;
+	border-bottom: 1px solid #D3D3D3;
+	margin: 0 0 30px;
+	padding: 0 0 10px;
+}
+
+.panel header {
+	background: none repeat scroll 0 0 #3B393F;
+	color: #FFFFFF;
+	padding: 10px;
+}
+
+.panel, .panel header, nav.topnav section, nav.topnav section h1 {
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-topright: 5px;
+
+}
+
+.panel header h1 {
+	background: none;
+	font-size: 25px;
+	font-family: Helvetica,Arial,sans-serif;
+	line-height: 26px;
+	color: white;
+	font-weight: bold;
+	margin: 0;
+	padding: 5px;
+}
+
+.panel section {
+	width: 496px;
+}
+
+nav.topnav section {
+	position: relative;
+}
+
+nav.topnav section ul {
+	width: 244px;
+}
+
+nav.topnav section table {
+	width: 265px;
+}
+
+.panel section, nav.topnav section ul, nav.topnav section table, nav.topnav section.map div.mapWrapper {
+	background: none repeat scroll 0 0 #FFFFFF;
+	border: 1px solid #D3D3D3;
+	margin: 10px 10px 0;
+	padding: 10px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+nav.topnav section.map div.mapWrapper {
+	padding: 0;
+}
+
+nav.topnav section.map div#map {
+	width: 265px;
+	height: 285px;
+}
+
+td.map div.mapWrapper {
+	padding: 5px;
+}
+
+div.itemMap {
+	width: 91px;
+	height: 91px;
+	border: 1px solid #D3D3D3;
+}
+
+div.olLayerDiv img {
+	-moz-box-shadow: 1px 1px 3px 2px #555555;
+	-webkit-box-shadow: 1px 1px 3px 2px #555555;
+	box-shadow: 1px 1px 3px 2px #555555;
+}
+
+div.mapInfo {
+	width: 155px;
+	padding: 2px 5px 2px 22px;
+	height: 1.2em;
+	overflow: hidden;
+	background: url("/images/icon_li_arrow.png") no-repeat scroll 10px 4px white;
+	border: 1px solid #D3D3D3;
+}
+
+div.osCopyright {
+	background-color: white;
+	bottom: 0;
+	font-size: 8pt;
+	height: 20pt;
+	line-height: 1.2em;
+	padding: 1px 5px;
+	border-top: 1px solid #D3D3D3;
+}
+
+.panel section caption {
+	background: transparent;
+	color: #555;
+	font-size: 1.231em;
+	font-weight: bold;
+	padding: 0 5px 10px;
+	text-align: left;
+}
+
+nav.topnav section h1 {
+	background: none repeat scroll 0 0 #3B393F;
+	color: #FFFFFF;
+	font-size: 1em;
+	line-height: 1.231em;
+	padding: 8px 15px;
+}
+
+nav.topnav section li {
+	background: url("/images/icon_li_arrow.png") no-repeat scroll 3px 4px transparent;
+	display: inline;
+	padding-left: 15px;
+	padding-right: 5px;
+	white-space: nowrap;
+}
+
+nav.topnav section.formats li {
+	background: none;
+}
+
+nav.topnav section.summary li {
+	display: block;
+	white-space: normal;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.188em;
+}
+
+nav.topnav section.moreinfo li {
+	display: block;
+	white-space: normal;
+}
+
+nav.topnav section.sort p.reset, nav.topnav section.view p.reset, nav.topnav section.map p.search {
+	position: absolute;
+	top: 8px;
+	right: 29px;
+	z-index: 6000;
+}
+
+nav.topnav section.map p.search img {
+	cursor: pointer;
+}
+
+nav.topnav section.sort li, nav.topnav section.view ul.properties li {
+	display: block;
+	background: none;
+	padding-left: 0;
+	white-space: normal;
+}
+
+nav.topnav section.sort li.selected, nav.topnav section.view ul.properties li.selected {
+	font-weight: bold;
+}
+
+nav.topnav section.sort li a, nav.topnav section.view ul.properties li a {
+	padding: 0 1px;
+}
+
+nav.topnav section.sort li img, nav.topnav section.view ul.properties li img {
+	position: relative;
+	top: 2px;
+}
+
+nav.topnav section.sort li {
+	text-indent: -40px;
+	margin-left: 40px;
+}
+
+nav.topnav section.view ul.properties li {
+	text-indent: -20px;
+	margin-left: 20px;
+}
+
+section.filter th.label {
+	padding-left: 10px;
+	width: auto;
+}
+
+#search th.label {
+	width: auto;
+}
+
+th.label {
+	width: 25%;
+}
+
+section.filter td.filter {
+	width: 16px;
+	min-width: 16px;
+	opacity: 1;
+}
+
+td.filter {
+	width: 54px;
+	min-width: 54px;
+	text-align: center;
+}
+
+td.filter, td.select, tr:hover td.nested td.filter, tr:hover td.nested td.select {
+	opacity: 0.5;
+}
+
+tr:hover td.filter, tr:hover td.select {
+	opacity: 1;
+}
+
+tr td.nested tr:hover td.filter, tr td.nested tr:hover td.select {
+	opacity: 1;
+}
+
+
+td.filter a {
+	margin: 0 1px;
+}
+
+section header {
+	background-image: none;
+}
+
+nav section.page {
+	text-align: center;
+}
+
+nav section.page ul, nav section.formats ul {
+	display: block;
+}
+
+nav section.page li, nav section.formats li {
+	display: inline;
+	padding: 3px;
+	margin: 0 5px;
+}
+
+nav section.formats {
+	float: right;
+	margin-right: 20px;
+	margin-top: 20px;
+}
+
+nav section.formats li {
+	border-right: 1px solid #D3D3D3;
+	padding-right: 13px;
+}
+
+nav section.formats li.last {
+	border-right: none;
+}
+
+section#search {
+	background: url("/images/green/lttomed.png") repeat-x scroll 0 bottom #F2F6EC;
+	border: 1px solid #577D00;
+	border-top: none;
+	border-radius: 0;
+	-moz-border-radius: 0;
+	padding: 10px 20px;
+	margin: 0;
+}
+
+section#search p {
+	padding: 5px;
+	text-align: right;
+}
+
+section#search .nested table {
+	width: 100%;
+	border: none;
+}
+
+section#search .nested tr.last {
+	border-bottom: none;
+}
+
+section#search tr, section#search tr.last {
+	border-bottom: 1px dotted #C4C4C4;
+}
+
+section#search td {
+	text-align: right;
+}
+
+#openSearch {
+	padding: 5px;
+	float: right;
+	text-align: right;
+	z-index: 5000;
+}
+
+button, #openSearch {
+	background-image: url(/images/gradient_nav_item.png);
+	background-color: #577D00;
+	border-color: #577D00;
+	color: white;
+	cursor: pointer;
+	font-family: Lucida Grande, sans-serif;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+button {
+	font-size: 1em;
+	border-style: none;
+	padding: 3px 8px;
+}
+
+button img {
+	padding: 0;
+	margin: -2px 0 0 -4px;
+	cursor: pointer;
+}
+
+footer, nav.bottomnav {
+	clear: both;
+}
+
+footer {
+	font-size: 0.923em;
+}
+
+footer .provenance {
+ 	background: url("/images/gradient_footer.png") repeat-x scroll 0 bottom #EAEAEA;
+  color: #666666;
+  margin-top: 30px;
+	padding: 30px;
+	position: relative;
+}
+
+footer .provenance .query {
+	padding: 0 10px;
+	width: 410px;
+}
+
+footer .provenance .col2 {
+	position: absolute;
+	right: 30px;
+	top: 30px;
+}
+
+footer h2 {
+ 	border-color: #626165;
+  border-style: solid;
+  border-width: 3px 0 1px;
+  color: #333333;
+  margin-bottom: 15px;
+  padding: 8px 0;
+}
+
+footer .provenance p {
+	padding: 0 0 8px;
+	text-align: left;
+	border-bottom: 1px solid #626165;
+	margin-bottom: 15px;
+}
+
+footer .provenance textarea {
+	height: 300px;
+	width: 100%;
+	background-color: white;
+	padding: 5px 0 0 5px;
+	border: 1px solid #D3D3D3;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	font-family: Monaco, Consolas, "Lucida Console", monospace;
+	font-size: 0.8em;
+}
+
+.CodeMirror-wrapper {
+	border: 1px solid #D3D3D3;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+footer .provenance form p {
+	border-bottom: none;
+	text-align: right;
+	margin-top: 15px;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+footer p {
+	margin: 0.5em 0;
+	padding: 30px 30px 1em;
+	text-align: right;
+}
+
+span.current {
+	font-weight: bold;
+}
+
+table {
+	width: 100%;
+}
+
+tr {
+	border-bottom: 1px solid #D3D3D3;
+}
+
+tr.last {
+	border-bottom: none;
+}
+
+th, td {
+	text-align: left;
+	vertical-align: top;
+	padding: 5px;
+}
+
+td.nested {
+	padding: 0;
+}
+
+td.nested td.nested {
+	padding: 0 5px 0 0;
+}
+
+.nested ul {
+	display: block;
+}
+
+.nested ul li {
+	background: url("/images/icon_li_arrow.png") no-repeat scroll 5px 7px white;
+	display: block;
+	padding: 3px 17px;
+}
+
+.nested table {
+	border: 1px solid #EBEBEB;
+	margin: 5px 0;
+}
+
+.panel section .nested caption {
+	font-size: 1em;
+	text-align: left;
+	padding-top: 5px;
+	background-color: #EBEBEB;
+}
+
+tr tr {
+	border-bottom: none;
+}
+
+.info {
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	width: 250px;
+	z-index: 5000;
+}
+
+.info p {
+	display: none;
+	background-color: white;
+	border: 1px solid #D3D3D3;
+	padding: 5px;
+	margin-top: 24px;
+	line-height: 1.5em;
+	opacity: 0.95;
+}
+
+.info img.open {
+	float: right;
+	clear: right;
+	padding: 5px;
+	cursor: pointer;
+}
+
+a.outlink:before {
+	content: '[';
+}
+
+a.outlink:after {
+	content: ']';
+}
+
+a.outlink {
+	font-size: 0.8em;
+	font-weight: normal;
+}
+
+.panel section .nested caption a:link.outlink, .panel section .nested caption a:visited.outlink, .panel section .nested caption a:active.outlink {
+	color: #999999;
+}
+
+a:link.outlink, a:visited.outlink, a:active.outlink {
+	color: #D3D3D3;
+}
+
+a:hover.outlink, .panel section .nested caption a:hover.outlink {
+	color: #1F328C;
+}
+
+a:link , a:visited , a:active , a:hover {
+	color: #1F328C;
+	text-decoration: none;
+}
+
+header h1 a:link , header h1 a:visited , header h1 a:active , header h1 a:hover {
+	color: #555555;
+}
+
+.panel header p.id {
+	padding-left: 15px;
+	text-indent: -10px;
+	font-weight: bold;
+	font-size: 0.8em;
+}
+
+.panel header p.id a {
+	color: #CCCCCC;
+}
+
+.boxplot {
+	float: right;
+	padding-right: 20%;
+}
+
+.graphs th.label {
+	width: auto;
+}
+
+.barchart {
+	width: 100px;
+	text-align: center;
+}
+
+#ui-datepicker-div {
+	font-size: 0.8em;
+}
