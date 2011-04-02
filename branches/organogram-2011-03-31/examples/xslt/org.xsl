@@ -92,6 +92,16 @@
 							<xsl:with-param name="label">Post statistics</xsl:with-param>
 						</xsl:call-template>
 						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($post, '/immediate-junior-staff')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post immediate junior staff</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($post, '/junior-staff')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post junior staff</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
 							<xsl:with-param name="uri" select="concat($post, '/immediate-reports')" />
 							<xsl:with-param name="current" select="$base" />
 							<xsl:with-param name="label">Post immediate reports</xsl:with-param>
