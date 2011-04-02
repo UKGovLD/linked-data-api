@@ -15,6 +15,8 @@
 @prefix parl: <http://reference.data.gov.uk/def/parliament/> .
 @prefix gov: <http://reference.data.gov.uk/def/central-government/> .
 @prefix pub: <http://reference.data.gov.uk/def/public-body/> .
+@prefix postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/> .
+@prefix grade: <http://reference.data.gov.uk/def/civil-service-grade/> .
 @prefix organogram: <http://reference.data.gov.uk/def/organogram/> .
 
 ############################################################################################
@@ -28,7 +30,8 @@ spec:api
 	rdfs:label "Organisation API"@en;
 	api:maxPageSize "300";
 	api:defaultPageSize "20" ;
-	api:sparqlEndpoint <http://services.data.gov.uk/reference/sparql> ;
+#	api:sparqlEndpoint <http://services.data.gov.uk/reference/sparql> ;
+  api:sparqlEndpoint <http://localhost:8900/sparql> ;
 	api:lang "en,cy" ;
 	api:defaultViewer api:labelledDescribeViewer ;
 	api:viewer 
@@ -67,6 +70,8 @@ spec:api
 	  spec:postInDepartmentReportsFull ,	  
 	  spec:postInDepartmentStatistics ,
 	  spec:postsInDepartmentUnit ,
+	  spec:salaryRanges ,
+	  spec:salaryRange ,
 	  spec:ministers ,
 	  spec:minister ,
 	  spec:ministersInDepartment ,
@@ -528,7 +533,7 @@ spec:postInDepartmentReportsFull
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "
+    api:where """
     { ?item org:reportsTo ?postResource . } UNION 
     { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  
     { ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION 
@@ -537,7 +542,7 @@ spec:postInDepartmentReportsFull
     { ?postResource org:reportsTo ?superior . ?item org:reportsTo ?superior . } UNION 
     { ?postResource org:reportsTo [ org:reportsTo ?item ] } UNION
     { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo ?item ] ] } UNION
-    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo [ org:reportsTo ?item ] ] ] } " ;
+    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo [ org:reportsTo ?item ] ] ] } """ ;
   ] ;
   api:viewer spec:postViewer ;
   api:defaultViewer spec:postListViewer ;
@@ -561,13 +566,13 @@ spec:postsInDepartmentUnit
 spec:postListViewer
   a api:Viewer ;
   api:name "post list" ;
-  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,reportsTo.label,heldBy.name,heldBy.email.label,heldBy.phone.label" ;
+  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,reportsTo.label,heldBy.name,heldBy.email.label,heldBy.phone.label,heldBy.tenure.fullTimeEquivalent,salaryRange.label,postStatus,grade.label" ;
   .
 
 spec:postViewer
   a api:Viewer ;
   api:name "post details" ;
-  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,heldBy.name,heldBy.phone.label,heldBy.email.label,reportsTo.label,reportsTo.heldBy.name,reportsTo.reportsTo.label,reportsTo.reportsTo.heldBy.name,reportsTo.reportsTo.reportsTo.label,reportsTo.reportsTo.reportsTo.heldBy.name" ;
+  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,heldBy.name,heldBy.phone.label,heldBy.email.label,heldBy.tenure.fullTimeEquivalent,reportsTo.label,reportsTo.heldBy.name,reportsTo.reportsTo.label,reportsTo.reportsTo.heldBy.name,reportsTo.reportsTo.reportsTo.label,reportsTo.reportsTo.reportsTo.heldBy.name,salaryRange.label,postStatus,grade.label" ;
   .
 
 spec:postInDepartmentStatistics
@@ -589,7 +594,39 @@ spec:postInDepartmentStatistics
 spec:statisticListViewer
   a api:Viewer ;
   api:name "statistic list" ;
-  api:properties "date,aboutPost.label,salaryCostOfReports" ;
+  api:properties "label,date,aboutPost.label,salaryCostOfReports" ;
+  .
+
+# Grades, Paybands and Salaries
+
+spec:salaryRanges
+  a api:ListEndpoint ;
+  rdfs:label "Salary Ranges" ;
+  api:uriTemplate "/doc/salary-range" ;
+  api:selector [
+    api:filter "type=SalaryRange" ;
+  ] ;
+  api:defaultViewer spec:salaryRangeListViewer ;
+  .
+
+spec:salaryRange
+  a api:ItemEndpoint ;
+  rdfs:label "Salary Range" ;
+  api:uriTemplate "/doc/salary-range/{range}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/salary-range/{range}" ;
+  api:defaultViewer spec:salaryRangeViewer ;
+  .
+
+spec:salaryRangeListViewer
+  a api:Viewer ;
+  api:name "salary range list" ;
+  api:properties "label,lowerBound,upperBound" ;
+  .
+
+spec:salaryRangeViewer
+  a api:Viewer ;
+  api:name "salary range" ;
+  api:properties "label,lowerBound,upperBound" ;
   .
 
 # Ministers #
@@ -870,6 +907,9 @@ gov:NonMinisterialDepartment api:label "NonMinisterialDepartment" .
 gov:Minister a rdfs:Class ; api:label "Minister" .
 gov:CabinetCommittee api:label "CabinetCommittee" .
 
+gov:Tenure a rdfs:Class ; api:label "Tenure" .
+gov:SalaryRange a rdfs:Class ; api:label "SalaryRange" .
+
 gov:parentDepartment api:label "parentDepartment" .
 gov:ministerOf api:label "ministerOf" .
 gov:holdsMinisterialPost api:label "holdsMinisterialPost" ;
@@ -880,6 +920,17 @@ gov:postIn api:label "postIn" ;
   api:multiValued true .
 gov:heldBy api:label "heldBy" ;
   api:multiValued true .
+
+gov:tenure api:label "tenure" .
+gov:fullTimeEquivalent api:label "fullTimeEquivalent" .
+
+gov:salary api:label "salary" .
+gov:salaryRange api:label "salaryRange" .
+gov:upperBound api:label "upperBound" .
+gov:lowerBound api:label "lowerBound" .
+
+postStatus:postStatus api:label "postStatus" .
+grade:grade api:label "grade" .
 
 parl:PoliticalParty api:label "PoliticalParty" .
 parl:Seat api:label "Seat" .
