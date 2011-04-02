@@ -1,9 +1,0 @@
-** 16/2/10 Updates to match Linked Data API specs
-  - recursive serialization now nests referenced resources as far as possible
-    before cycles
-  - context now supports loading of multiple vocabulary files
-  - bug fixes for serialization of empty bNodes and type generalization
-  - support for use of Jettison instead of json.org to enable Jersey
-    compatibility
-
-** 8/1/10  Initial release

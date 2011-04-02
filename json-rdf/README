@@ -1,8 +1,0 @@
-This is an experimental implementation of the RDF to JSON encoder
-and decoder as discussed in:
-http://code.google.com/p/linked-data-api/wiki/DI_expimental_translator
-
-The code includes a Maven POM file defining the dependencies on Jena
-and related artifacts. If you have m2eclipse installed then importing this
-as an Eclipse project should automatically download the dependencies
-and add them to the project classpath.
