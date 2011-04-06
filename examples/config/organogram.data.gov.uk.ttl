@@ -333,7 +333,7 @@ spec:postInPublicBodyReports
 spec:postInPublicBodyReportsFull
   a api:ListEndpoint ;
   rdfs:label "Posts in Public Body Reports Full" ;
-  api:uriTemplate "/doc/department/{code}/post/{post}/reports-full" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/reports-full" ;
   api:variable [
     a api:Variable ;
     api:name "postResource" ;
