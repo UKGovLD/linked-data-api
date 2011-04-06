@@ -55,6 +55,7 @@ spec:api
 	  spec:postInPublicBody ,
 	  spec:postInPublicBodyImmediateReports ,
 	  spec:postInPublicBodyReports ,
+	  spec:postInPublicBodyReportsFull ,
 	  spec:postInPublicBodyImmediateJuniorStaff ,
 	  spec:postInPublicBodyJuniorStaff ,
 	  spec:postInPublicBodyJuniorStaffFull ,
@@ -331,8 +332,8 @@ spec:postInPublicBodyReports
 
 spec:postInPublicBodyReportsFull
   a api:ListEndpoint ;
-  rdfs:label "Posts in Public Body Reports" ;
-  api:uriTemplate "/doc/department/{code}/post/{post}/reportsFull" ;
+  rdfs:label "Posts in Public Body Reports Full" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/reports-full" ;
   api:variable [
     a api:Variable ;
     api:name "postResource" ;
