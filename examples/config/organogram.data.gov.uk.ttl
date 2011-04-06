@@ -389,6 +389,31 @@ spec:postInPublicBodyJuniorStaff
   api:defaultViewer spec:juniorStaffListViewer ;
   .
 
+spec:postInPublicBodyJuniorStaffFull
+  a api:ListEndpoint ;
+  rdfs:label "Junior Staff Reporting to Full Public Body Posts" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/junior-staff-full" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where """
+    { ?item organogram:reportingTo ?postResource . } UNION 
+    { ?item organogram:reportingTo [ org:reportsTo ?postResource ] } UNION  
+    { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION 
+    { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] } UNION 
+    { ?postResource org:reportsTo ?superior . ?item organogram:reportingTo ?superior . } UNION
+    { ?postResource org:reportsTo [ org:reportsTo ?superior ] . ?item organogram:reportingTo ?superior . } UNION
+    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo ?superior ] ] . ?item organogram:reportingTo ?superior . } UNION
+    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo [ org:reportsTo ?superior ] ] ] . ?item organogram:reportingTo ?superior . }""" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
 spec:postInPublicBodyStatistics
   a api:ListEndpoint ;
   rdfs:label "Posts in Public Body Statistics" ;
@@ -592,7 +617,7 @@ spec:postInDepartmentReports
 spec:postInDepartmentReportsFull
   a api:ListEndpoint ;
   rdfs:label "Posts in Department Reports" ;
-  api:uriTemplate "/doc/department/{code}/post/{post}/reportsFull" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/reports-full" ;
   api:variable [
     a api:Variable ;
     api:name "postResource" ;
@@ -649,6 +674,31 @@ spec:postInDepartmentJuniorStaff
   ] ;
   api:viewer spec:juniorStaffListViewer ;
   api:defaultViewer spec:juniorStaffListViewer ;
+  .
+
+spec:postInDepartmentJuniorStaffFull
+  a api:ListEndpoint ;
+  rdfs:label "Junior Staff Reporting to Full Department Posts" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/junior-staff-full" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where """
+    { ?item organogram:reportingTo ?postResource . } UNION 
+    { ?item organogram:reportingTo [ org:reportsTo ?postResource ] } UNION  
+    { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION 
+    { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] } UNION 
+    { ?postResource org:reportsTo ?superior . ?item organogram:reportingTo ?superior . } UNION
+    { ?postResource org:reportsTo [ org:reportsTo ?superior ] . ?item organogram:reportingTo ?superior . } UNION
+    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo ?superior ] ] . ?item organogram:reportingTo ?superior . } UNION
+    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo [ org:reportsTo ?superior ] ] ] . ?item organogram:reportingTo ?superior . }""" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
   .
 
 spec:juniorStaffListViewer
