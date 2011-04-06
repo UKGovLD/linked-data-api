@@ -18,7 +18,12 @@ var Orgvis = {
 		useGradients:"",		// var for theJIT
 		nativeTextSupport:"",	// var for theJIT
 		animate:"",				// var for theJIT
+		previewMode:false,
 		global_department:"",	// The department in questions ID
+		global_pubbod:"",		// The public body in questions ID
+		global_typeOfOrg:"",	// The type of organisation the post is in (used for URL slugs)
+		global_postOrg:"",
+		global_orgSlug:"",
 		global_post:"",			// The post in question's ID
 		global_ST:"",			// Holds theJIT's SpaceTree instance
 		global_postJSON:"",		// Holds the organogram data
@@ -31,19 +36,181 @@ var Orgvis = {
 		visOffsetX:180,			// horizontal positioning
 		visOffsetY:0,			// vertical positioning
 		JPcount:0,				// Junior post count
+	 	apiBase:"",
 	 	apiCallInfo: {			// Stores information about each API call to be made
 			rootPost:{},		
 			postReports:{},
+			juniorStaff:{},
 			unitStats:{}
 		},
 		apiResponses:[],		// Stores JSON responses from the API
 		cacheObj:{},			// An object to store API responses
 		debug:true				// Output to console or not
 	},
-	init:function(deptSlug,postSlug,reload){
+	init:function(deptSlug,pubbodSlug,postSlug,reload,pMode){
+
+		if(pMode == "clear"){
+			$.cookie("organogram-preview-mode", null);
+			$.cookie("organogram-username", null);
+			$.cookie("organogram-password", null);
+		}
 		
-		Orgvis.vars.global_department = deptSlug;
-		Orgvis.vars.global_post = postSlug;
+		if(deptSlug.length > 0){
+			Orgvis.vars.global_typeOfOrg = "department";	
+			Orgvis.vars.global_orgSlug = "dept";
+			Orgvis.vars.global_postOrg = deptSlug;
+		} else if(pubbodSlug.length > 0) {
+			Orgvis.vars.global_typeOfOrg = "public-body";
+			Orgvis.vars.global_orgSlug = "pubbod";
+			Orgvis.vars.global_postOrg = pubbodSlug;
+		}
+
+		if(postSlug.length < 1){
+			showLog("No post selected!");
+		} else{
+			Orgvis.vars.global_post = postSlug;		
+		}
+			
+		// Check for preview parameter
+		if(pMode){
+			// In preview mode
+			
+			/*
+			if($.cookie("organogram-preview-mode") == "true") {
+				// Already authenticated
+				Orgvis.vars.previewMode = pMode;
+				Orgvis.vars.apiBase = "organogram.data.gov.uk";
+				Orgvis.initSpaceTree(reload);
+			} else {
+				// Ask for username and pass
+				Orgvis.showLogin();
+			}
+			*/
+			
+			Orgvis.vars.apiBase = "organogram.data.gov.uk";
+			Orgvis.initSpaceTree(reload);
+
+		} // Check for user & pass in cookie
+		/*
+		else if($.cookie("organogram-preview-mode") == "true") {
+			// In preview mode
+			Orgvis.vars.previewMode = pMode;
+			Orgvis.vars.apiBase = "organogram.data.gov.uk";
+			$("h1.title span#previewModeSign").show();		
+		} 
+		*/
+		else {
+			// Not in preview mode
+			Orgvis.vars.apiBase = "reference.data.gov.uk";
+			Orgvis.initSpaceTree(reload);
+		}		
+		
+	},
+	showLogin:function(){
+		
+		$('div#login').dialog({
+			autoOpen:true, 
+			buttons: [{
+	        	text: "OK",
+	        	click: function() { 
+	        		// Check for wrong login details
+	        		if($('div#login input#username').attr("value").length > 0 && $('div#login input#password').attr("value").length) {
+	        			$("div#login p.login-message").hide();
+	        			$("div#login p.logging-in").slideDown(1000);
+
+						// Store username in cookie
+						$.cookie('organogram-username', $('div#login input#username').attr("value"), { expires: 1 });
+						// Store password in cookie
+						$.cookie('organogram-password', $('div#login input#password').attr("value"), { expires: 1 });
+												
+						Orgvis.vars.apiBase = "organogram.data.gov.uk";
+    					Orgvis.vars.apiCallInfo.rootPost = {
+							title:"Retrieval of root post information",
+							description:"This call retrieves information about the root post in the organogram, such as their unit, grade and contact details.",
+							url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post,
+							parameters:"",
+							complete:false
+						};	
+
+
+	        			$.ajax({
+							url: Orgvis.vars.apiCallInfo.rootPost.url+".json"+"?"+Orgvis.vars.apiCallInfo.rootPost.parameters+"&callback=?",
+							type: "GET",
+							dataType: "jsonp",
+							async:true,
+							cache:true,
+							username:$.cookie('organogram-username'),
+							password:$.cookie('organogram-password'),
+	        				success:function(json){
+	        					
+	        					$("div#login p.login-message").slideUp(500);
+	        					$("div#login p.login-success").slideDown(1000);
+	        					
+								// If successful login
+								$.cookie("organogram-preview-mode", "true", { expires: 1 });
+								
+								Orgvis.vars.apiBase = "organogram.data.gov.uk";
+								Orgvis.vars.previewMode = true;
+								$("h1.title span#previewModeSign").show();
+															
+								// Display the breadcrumbs at the top of the vis
+								Orgvis.loadRootPost(json);
+								// Pass data to the regData function
+								Orgvis.regData(json);
+								Orgvis.vars.apiCallInfo.rootPost.complete = true;
+
+								$("div#login p.login-message").slideUp(1000);
+								$('div#login').dialog("close"); 
+								Orgvis.initSpaceTree(false);
+	        				},
+	        				error:function(){
+								$.cookie("organogram-preview-mode", null);
+								$.cookie("organogram-username", null);
+								$.cookie("organogram-password", null);	 
+								       				
+		        				$("div#login p.login-message").hide();
+		        				$("div#login p.login-failed").slideDown(1000); 
+		        				$('div#login input#password').val("");
+		        				$('div#login input#username').focus();
+		        				Orgvis.vars.apiCallInfo.rootPost = {};       					
+	        				}
+	        			});	     			
+	        		} else {
+	        			$("div#login p.login-message").hide();
+	        			$("div#login p.login-failed").slideDown(1000);
+	        		}		
+	        	}
+	    	},
+	    	{
+	        	text: "Cancel",
+	        	click: function() { 
+	        		Orgvis.vars.apiBase = "reference.data.gov.uk";
+	        		Orgvis.vars.previewMode = false;
+	        		$(this).dialog("close"); 
+	        		Orgvis.initSpaceTree(false);
+	        	}
+	    	},
+	    	{
+	        	text: "Delete login history",
+	        	click: function() { 
+	        		$.cookie('organogram-username',null);
+	        		$.cookie('organogram-password',null);
+					$.cookie("organogram-preview-mode", null);
+					$("div#login p.delHistory").slideDown(1000).slideUp(2000);
+	        	}
+	    	}], 
+	    	modal: true, 
+	    	position: 'center', 
+	    	title: 'Preview mode', 
+	    	resizable: false, 
+	    	width: 500, 
+	    	zIndex: 9999
+	    });		
+
+
+		
+	},
+	initSpaceTree:function(reload){
 		
 		var getTree = (function() {
 			var global_postJSON_string = JSON.stringify(Orgvis.vars.global_postJSON);
@@ -257,12 +424,18 @@ var Orgvis = {
 		});  
 		
 		Orgvis.vars.global_ST = st;
-	
-		if(!reload){	
+		
+		if(Orgvis.vars.previewMode){
+			log(Orgvis.vars.apiCallInfo);
+			log(Orgvis.vars.apiResponses);
+			Orgvis.getReportsFullData();
+			Orgvis.getJuniorStaffFullData();			
+		} else if(!reload){	
 			Orgvis.showLog("Loading data ...");	
 			Orgvis.getRootPostData();
-			Orgvis.getPostReportsData();
-		}else{
+			Orgvis.getReportsFullData();
+			Orgvis.getJuniorStaffFullData();
+		} else{
 			Orgvis.reloadPost();
 		}
 	},
@@ -271,7 +444,7 @@ var Orgvis = {
 		Orgvis.vars.apiCallInfo.rootPost = {
 			title:"Retrieval of root post information",
 			description:"This call retrieves information about the root post in the organogram, such as their unit, grade and contact details.",
-			url:"http://reference.data.gov.uk/doc/department/"+Orgvis.vars.global_department+"/post/"+Orgvis.vars.global_post,
+			url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post,
 			parameters:"",
 			complete:false
 		};	
@@ -283,9 +456,15 @@ var Orgvis = {
 			async:true,
 			cache:true,
 			error: function(){
-				Orgvis.changeLog("Error loading post data", false);
+				if(Orgvis.vars.previewMode){
+					Orgvis.changeLog("Error loading post data", false);
+					Orgvis.showLogin();					
+				}else{
+					Orgvis.changeLog("Error loading post data", false);
+				}
 			},
 			success: function(json){
+				Orgvis.vars.previewMode = true;			
 				// Display the breadcrumbs at the top of the vis
 				Orgvis.loadRootPost(json);
 				// Pass data to the regData function
@@ -294,38 +473,128 @@ var Orgvis = {
 			}
 		});
 	},
-	getPostReportsData:function() {
-	
+	getReportsFullData:function() {
+		
+		log("getting reports full data");
+		
 		Orgvis.vars.apiCallInfo.postReports = {
 				title:"Retrieval of posts that report to the root post",
 				description:"This call retrieves information about the posts that report to the root post, such as their unit, grade and contact details.",
-				url:"http://reference.data.gov.uk/doc/department/"+Orgvis.vars.global_department+"/post/"+Orgvis.vars.global_post+"/reportsFull",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post+"/reports-full",
 				parameters:"?_pageSize=300",
 				complete:false
 		};		
 
-		$.ajax({
-			url: Orgvis.vars.apiCallInfo.postReports.url+".json"+Orgvis.vars.apiCallInfo.postReports.parameters+"&callback=?",
-			type: "GET",
-			dataType: "jsonp",
-			async:true,
-			cache:true,
-			error: function(){
-				Orgvis.changeLog("Error loading organogram data", false);
-			},
-			success: function(json){
-				// Pass data to the regData function
-				Orgvis.regData(json);
-				Orgvis.vars.apiCallInfo.postReports.complete = true;
-			}
-		});				
+
+		if(Orgvis.vars.previewMode){
+			$.ajax({
+				url: Orgvis.vars.apiCallInfo.postReports.url+".json"+Orgvis.vars.apiCallInfo.postReports.parameters+"&callback=?",
+				type: "GET",
+				dataType: "jsonp",
+				async:true,
+				cache:true,
+				username:$.cookie('organogram-username'),
+				password:$.cookie('organogram-password'),				
+				error: function(){
+					Orgvis.changeLog("Error loading organogram data", false);
+				},
+				success: function(json){
+					// Pass data to the regData function
+					log("passing data to regData");
+					Orgvis.regData(json);
+					Orgvis.vars.apiCallInfo.postReports.complete = true;
+				}
+			});						
+		} else {
+			$.ajax({
+				url: Orgvis.vars.apiCallInfo.postReports.url+".json"+Orgvis.vars.apiCallInfo.postReports.parameters+"&callback=?",
+				type: "GET",
+				dataType: "jsonp",
+				async:true,
+				cache:true,
+				error: function(){
+					Orgvis.changeLog("Error loading organogram data", false);
+				},
+				success: function(json){
+					// Pass data to the regData function
+					log("passing data to regData");
+					Orgvis.regData(json);
+					Orgvis.vars.apiCallInfo.postReports.complete = true;
+				}
+			});			
+		}
+		
+			
+	},
+	getJuniorStaffFullData:function() {
+		
+		log("getting junior reports data");
+		
+		Orgvis.vars.apiCallInfo.juniorStaff = {
+				title:"Retrieval of all junior staff",
+				description:"This call retrieves information about the junior staff that report to the posts within this organogram, such as their grade, title and profession.",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post+"/junior-staff-full",
+				parameters:"?_pageSize=300",
+				complete:false
+		};		
+
+
+		if(Orgvis.vars.previewMode){
+			$.ajax({
+				url: Orgvis.vars.apiCallInfo.juniorStaff.url+".json"+Orgvis.vars.apiCallInfo.juniorStaff.parameters+"&callback=?",
+				type: "GET",
+				dataType: "jsonp",
+				async:true,
+				cache:true,
+				username:$.cookie('organogram-username'),
+				password:$.cookie('organogram-password'),				
+				error: function(){
+					Orgvis.changeLog("Error loading organogram data", false);
+				},
+				success: function(json){
+					// Pass data to the regData function
+					log("passing data to regData");
+					Orgvis.regData(json);
+					Orgvis.vars.apiCallInfo.juniorStaff.complete = true;							
+				}
+			});						
+		} else {
+			$.ajax({
+				url: Orgvis.vars.apiCallInfo.juniorStaff.url+".json"+Orgvis.vars.apiCallInfo.juniorStaff.parameters+"&callback=?",
+				type: "GET",
+				dataType: "jsonp",
+				async:true,
+				cache:true,
+				error: function(){
+					Orgvis.changeLog("Error loading organogram data", false);
+				},
+				success: function(json){
+					// Pass data to the regData function
+					log("passing data to regData");
+					Orgvis.regData(json);
+					Orgvis.vars.apiCallInfo.juniorStaff.complete = true;							
+				}
+			});			
+		}
+		
+			
 	},
 	regData:function(data) {
+		
+		log("registering data");
+		
 		Orgvis.vars.apiResponses.push(data);
+		log("Orgvis.vars.apiResponses:");
+		log(Orgvis.vars.apiResponses);
 		// If both API calls have been made then load the organogram
-		if(Orgvis.vars.apiResponses.length == 2){
+		if(Orgvis.vars.apiResponses.length == 3){
+		log("length is 3");
 			for(var i in Orgvis.vars.apiResponses){
-				if(typeof Orgvis.vars.apiResponses[i].result.items != 'undefined'){
+				log('Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full"):');
+				log(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full"));
+				
+				if(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full") > 0){
+					log("found reports-full data");
 					Orgvis.loadOrganogram(Orgvis.vars.apiResponses[i]);
 				}
 			}
@@ -334,6 +603,9 @@ var Orgvis = {
 		}
 	},
 	loadRootPost:function(json){
+	
+		log("loading root post");
+		
 		var postTree;	
 	
 		$("#infovis-label").html("");
@@ -404,6 +676,8 @@ var Orgvis = {
 		}			
 	},
 	loadOrganogram:function(json) {
+							
+		log("loading organogram");
 									
 		// Search for the post in question
 		for(var i=0;i<json.result.items.length;i++){
@@ -430,6 +704,9 @@ var Orgvis = {
 		} else {
 			Orgvis.vars.firstNode = Orgvis.makeNode(Orgvis.vars.postInQuestion);						
 		}
+		
+		log("Orgvis.vars.firstNode:");
+		log(Orgvis.vars.firstNode);
 		
 		Orgvis.vars.global_postJSON = Orgvis.connectPosts(json.result.items);
 		
@@ -843,9 +1120,9 @@ var Orgvis = {
 	
 			html += '<div class="content ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">';
 			
-			html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?dept='+Orgvis.vars.global_department+'&post='+tempID+'">Center organogram</a></p>';
+			html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+'">Center organogram</a></p>';
 			
-			html += '<p class="salary"><span>Salary</span><span class="value">£'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'</span><a class="data" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/post/'+tempID+'">Data</a></p>';
+			html += '<p class="salary"><span>Salary</span><span class="value">£'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
 	
 			html += '<p class="salaryReports"><span>Combined salary of reporting posts </span><span class="value">Checking...</span><img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
 							
@@ -863,7 +1140,7 @@ var Orgvis = {
 		
 			if(typeof node.data.type != 'undefined'){
 				for(var a=0;a<node.data.type.length;a++){
-					html += '<p class="type"><span>Type</span><span class="value">'+node.data.type[a]+'</span><a class="data center_organogram" href="../post-list?dept='+Orgvis.vars.global_department+'&type='+node.data.type[a].replace(" ","+")+'">Post list</a></p>';
+					html += '<p class="type"><span>Type</span><span class="value">'+node.data.type[a]+'</span><a class="data center_organogram" href="../post-list?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&type='+node.data.type[a].replace(" ","+")+'">Post list</a></p>';
 				}
 			}
 							
@@ -873,7 +1150,7 @@ var Orgvis = {
 				}
 			}				
 			
-			html+= '<p class="unit"><span>Unit(s)</span><span class="value">'+tempUnitLabel+'</span><a class="data" target="_blank" href="http://reference.data.gov.uk/id/department/'+Orgvis.vars.global_department+'/unit/'+tempUnitID+'">Data</a>';
+			html+= '<p class="unit"><span>Unit(s)</span><span class="value">'+tempUnitLabel+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/unit/'+tempUnitID+'">Data</a>';
 	
 			if(typeof node.data.heldBy[i].notes != 'undefined' && node.data.heldBy[i].notes.toString().length > 1){
 				html+='<p class="notes"><span>Notes</span><span class="text">'+node.data.heldBy[i].notes+'</span></p>';
@@ -918,8 +1195,7 @@ var Orgvis = {
 		var postLabel = node.name.toString().replace(/ /g,"+");
 	
 		// Make an API call to retrieve information about the root post
-		var api_url = "http://reference.data.gov.uk/doc/department/"+Orgvis.vars.global_department+"/unit/"+postUnit+"/statistics";
-		//var api_url = "http://danpaulsmith.com/puelia3/doc/department/"+Orgvis.vars.global_department+"/unit/"+postUnit+"/statistics";alert("Using danpaulsmith.com API");
+		var api_url = "http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/unit/"+postUnit+"/statistics";
 	
 		// Call API for post statistics	
 		postLabel = postLabel.replace("&","%26");
@@ -935,6 +1211,8 @@ var Orgvis = {
 			},		
 			success: function(json){
 			
+				// Put this code into a function
+				
 				// Check to see if posts have statistics
 				if(json.result.items.length > 0) {
 					
@@ -1232,7 +1510,7 @@ $(document).ready(function() {
 	    $( "button#dept" ).button({
 	        text: true
 	    }).click(function() {
-	        window.location = "../post-list?dept=co";
+	        window.location = "../post-list?"+Orgvis.vars.orgSlug+"="+Orgvis.vars.global_postOrg;
 	    });       
 	});
 		

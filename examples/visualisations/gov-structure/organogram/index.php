@@ -13,7 +13,9 @@
 <script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
 <script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery.cookie.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/organogram.js"></script>
+
 <!--[if lt IE 9]>
 <script language="javascript" type="text/javascript" src="../scripts/json2.js"></script>
 <![endif]-->
@@ -27,15 +29,18 @@
 </head>
 
 <!--[if IE 7]> 
-	<body class="IE7" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['post'];?>',false);"> 
+	<body class="IE7" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');"> 
 <![endif]--> 
 <!--[if IE 8]> 
-	<body class="IE8" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['post'];?>',false);"> 
+	<body class="IE8" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>'));"> 
 <![endif]--> 
-<body onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['post'];?>',false);">
+<body onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');">
 
 <h1 class="title breadcrumbs">
 	<button id="dept">Department</button><button id="unit">Unit</button><button id="post">Post</button>
+	<span id="previewModeSign">
+		Preview Mode
+	</span>
 </h1>
 
 <div id="infovis"></div>
@@ -101,6 +106,24 @@
 	<span></span>
 	<img src="../images/loading.gif" />
 </div>
+
+<div id="login">
+	<form>
+	<legend>Login</legend>	
+		<fieldset>
+			<label for="username">Username</label>
+			<input type="text" name="username" id="username" class="text" maxlength="30" />
+			<label for="password">Password</label>
+			<input type="password" name="password" id="password" class="text" maxlength="30" />
+		</fieldset>
+	</form>
+	<p class="logging-in login-message">Logging in...</p>
+	<p class="login-success login-message">Login successful!</p>
+	<p class="login-failed login-message">Login failed, try again.</p>
+	<p class="delHistory login-message">Login details forgotten!</p>
+</div>
+
+
 
 <noscript>
 <div class="noscript">
