@@ -1,0 +1,1060 @@
+@prefix spec: <http://reference.data.gov.uk/api#> .
+@prefix api: <http://purl.org/linked-data/api/vocab#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix dgu: <http://reference.data.gov.uk/def/reference/> .
+@prefix parl: <http://reference.data.gov.uk/def/parliament/> .
+@prefix gov: <http://reference.data.gov.uk/def/central-government/> .
+@prefix pub: <http://reference.data.gov.uk/def/public-body/> .
+@prefix postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/> .
+@prefix grade: <http://reference.data.gov.uk/def/civil-service-grade/> .
+@prefix payband: <http://reference.data.gov.uk/def/civil-service-payband/> .
+@prefix organogram: <http://reference.data.gov.uk/def/organogram/> .
+
+############################################################################################
+#
+# API DESCRIPTION
+#
+############################################################################################
+
+spec:api
+	a api:API ;
+	rdfs:label "Organisation API"@en;
+	api:maxPageSize "300";
+	api:defaultPageSize "20" ;
+#	api:sparqlEndpoint <http://services.data.gov.uk/reference/sparql> ;
+  api:sparqlEndpoint <http://localhost:8900/sparql> ;
+	api:lang "en,cy" ;
+	api:defaultViewer api:labelledDescribeViewer ;
+	api:viewer 
+	  api:describeViewer ,
+	  api:labelledDescribeViewer ,
+	  spec:minimalViewer ;
+  api:defaultFormatter spec:htmlFormatter ;
+  api:formatter spec:csvFormatter ;
+	api:endpoint 
+    spec:scheme ,
+    spec:definition ,
+    spec:subclasses , spec:instances , spec:properties ,
+	  spec:cabinetCommittees ,
+	  spec:publicBodies ,
+	  spec:publicBody ,
+	  spec:unitsInPublicBody ,
+	  spec:unitInPublicBody ,
+	  spec:unitInPublicBodyStatistics ,
+	  spec:postsInPublicBody ,
+	  spec:postInPublicBody ,
+	  spec:postInPublicBodyImmediateReports ,
+	  spec:postInPublicBodyReports ,
+	  spec:postInPublicBodyImmediateJuniorStaff ,
+	  spec:postInPublicBodyJuniorStaff ,
+	  spec:postInPublicBodyStatistics ,
+	  spec:postsInPublicBodyUnit ,
+	  spec:departments ,
+	  spec:ministerialDepartments ,
+	  spec:nonMinisterialDepartments ,
+	  spec:department ,
+	  spec:unitsInDepartment ,
+	  spec:unitInDepartment ,
+	  spec:unitInDepartmentStatistics ,
+	  spec:postsInDepartment ,
+	  spec:postInDepartment ,
+	  spec:postInDepartmentImmediateReports ,
+	  spec:postInDepartmentReports ,
+	  spec:postInDepartmentReportsFull ,	  
+	  spec:postInDepartmentImmediateJuniorStaff ,
+	  spec:postInDepartmentJuniorStaff ,
+	  spec:postInDepartmentStatistics ,
+	  spec:postsInDepartmentUnit ,
+	  spec:salaryRanges ,
+	  spec:salaryRange ,
+	  spec:ministers ,
+	  spec:minister ,
+	  spec:ministersInDepartment ,
+	  spec:postholdersInDepartment ,
+	  spec:peers ,
+	  spec:peer ,
+	  spec:mps ,
+	  spec:mp ,
+	  spec:mpMembership1 ,
+	  spec:mpMembership2 ,
+	  spec:politicalParties ,
+	  spec:seats ,
+	  spec:seat ;
+	.
+
+spec:minimalViewer
+  a api:Viewer ;
+  api:name "minimal" ;
+  api:properties "prefLabel,altLabel,name,label"
+  .
+
+spec:htmlFormatter
+  a api:XsltFormatter ;
+  api:name "html" ;
+  api:mimeType "text/html" , "application/xhtml+xml" ;
+  api:stylesheet "xslt/org.xsl" ;
+  .
+
+spec:csvFormatter
+  a api:XsltFormatter ;
+  api:name "csv" ;
+  api:mimeType "text/csv" ;
+  api:stylesheet "xslt/org-csv.xsl" .
+
+#ENDPOINTS
+
+## Definitions ##
+
+spec:scheme
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/{scheme}" ;
+  api:defaultViewer spec:schemeViewer ;
+  .
+
+spec:schemeViewer
+  a api:Viewer ;
+  api:name "scheme" ;
+  api:properties "prefLabel,altLabel,label,note,scopeNote,topConcept.prefLabel,comment" ;
+  .
+
+spec:definition
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/{scheme}/{term}" ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:definitionViewer
+  a api:Viewer ;
+  api:name "definition" ;
+  api:properties "prefLabel,altLabel,label,note,scopeNote,topConceptOf,broader.prefLabel,narrower.prefLabel,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
+  .
+
+spec:subclasses
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://reference.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item rdfs:subClassOf ?superclass . " ;
+  ] ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:instances
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item a ?class . " ;
+  ] ;
+  api:defaultViewer spec:viewerShort ;
+  .
+
+spec:properties
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/{scheme}/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " [] a ?class ; ?item [] . " ;
+  ] ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+#List all Cabinet Committees
+spec:cabinetCommittees
+	a api:ListEndpoint ;
+	rdfs:label "Cabinet Committees" ;
+	api:uriTemplate "/doc/cabinet-committee" ;
+	api:selector spec:cabinetCommitteeSelector .
+
+spec:cabinetCommiteeSelector
+  a api:Selector ;
+  api:filter "type=CabinetCommittee"
+    .
+
+spec:publicBodies
+  a api:ListEndpoint ;
+	rdfs:label "Public Bodies" ;
+	api:uriTemplate "/doc/public-body" ;
+	api:selector spec:publicBodySelector ;
+	api:defaultViewer spec:publicBodyViewer ;
+	.
+
+spec:publicBodySelector
+  a api:Selector ;
+  api:where "?item rdf:type gov:PublicBody . FILTER regex(str(?item), '^http://reference.data.gov.uk/id/public-body/') " ;
+  .
+
+spec:publicBody
+  a api:ItemEndpoint ;
+  rdfs:label "Public Body" ;
+  api:uriTemplate "/doc/public-body/{code}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/public-body/{code}" ;
+	api:defaultViewer spec:publicBodyViewer ;
+  .
+
+spec:publicBodyViewer
+  a api:Viewer ;
+  api:name "public body" ;
+  api:properties "type.label,label,prefLabel,altLabel,comment,unit.label,parentDepartment.label" ;
+  .
+
+#List all Units in a Public Body
+
+spec:unitsInPublicBody
+  a api:ListEndpoint ;
+  rdfs:label "Units in Public Body" ;
+  api:uriTemplate "/doc/public-body/{code}/unit" ;
+	api:defaultPageSize "10" ;
+  api:variable [
+    a api:Variable ;
+    api:name "publicBody" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?publicBody org:hasUnit ?item ." ;
+  ] ;
+  api:defaultViewer spec:unitsViewer ;
+  .
+
+spec:unitInPublicBody
+  a api:ItemEndpoint ;
+  rdfs:label "Unit in Public Body" ;
+  api:uriTemplate "/doc/public-body/{code}/unit/{unit}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/public-body/{code}/unit/{unit}" ;
+  api:defaultViewer spec:unitViewer ;
+  .
+
+spec:unitInPublicBodyStatistics
+  a api:ListEndpoint ;
+  rdfs:label "Public Body Unit Statistics" ;
+  api:uriTemplate "/doc/public-body/{code}/unit/{unit}/statistics" ;
+  api:variable [
+    a api:Variable ;
+    api:name "unitResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/unit/{unit}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item organogram:post ?post . ?post gov:postIn ?unitResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . } }" ;
+  ] ;
+  api:defaultViewer spec:statisticListViewer ;
+  .
+
+#List all Posts in a Public Body
+
+spec:postsInPublicBody
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Public Body" ;
+  api:uriTemplate "/doc/public-body/{code}/post" ;
+  api:variable [
+    a api:Variable ;
+    api:name "publicBody" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?item gov:postIn ?publicBody . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
+spec:postInPublicBody
+  a api:ItemEndpoint ;
+  rdfs:label "Post in Public Body" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
+  api:viewer spec:postListViewer ;
+  api:defaultViewer spec:postViewer ;
+  .
+
+spec:postInPublicBodyImmediateReports
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Public Body Immediate Reports" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/immediate-reports" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?item a gov:CivilServicePost ; org:reportsTo ?postResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
+spec:postInPublicBodyReports
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Public Body Reports" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/reports" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?item a gov:CivilServicePost . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . } { ?item org:reportsTo ?postResource . } UNION { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  { ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION { ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] }" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
+spec:postInPublicBodyReportsFull
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Public Body Reports" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/reportsFull" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where """
+    ?item a gov:CivilServicePost . 
+    { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+    { ?item org:reportsTo ?postResource . } UNION 
+    { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  
+    { ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION 
+    { ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] } UNION 
+    { ?postResource org:reportsTo ?item . } UNION
+    { ?postResource org:reportsTo ?superior . ?item org:reportsTo ?superior . } UNION 
+    { ?postResource org:reportsTo [ org:reportsTo ?item ] } UNION
+    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo ?item ] ] } UNION
+    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo [ org:reportsTo ?item ] ] ] } """ ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
+spec:postInPublicBodyImmediateJuniorStaff
+  a api:ListEndpoint ;
+  rdfs:label "Junior Staff Immediately Reporting to Public Body Posts" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/immediate-junior-staff" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?item organogram:reportingTo ?postResource ." ;
+  ] ;
+  api:viewer spec:juniorStaffListViewer ;
+  api:defaultViewer spec:juniorStaffListViewer ;
+  .
+
+spec:postInPublicBodyJuniorStaff
+  a api:ListEndpoint ;
+  rdfs:label "Junior Staff Reporting to Public Body Posts" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/junior-staff" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item organogram:reportingTo ?postResource . } UNION { ?item organogram:reportingTo [ org:reportsTo ?postResource ] } UNION  { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] }" ;
+  ] ;
+  api:viewer spec:juniorStaffListViewer ;
+  api:defaultViewer spec:juniorStaffListViewer ;
+  .
+
+spec:postInPublicBodyStatistics
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Public Body Statistics" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/statistics" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item organogram:post ?postResource . }" ;
+  ] ;
+  api:defaultViewer spec:statisticListViewer ;
+  .
+
+#List all Departments
+spec:departments
+	a api:ListEndpoint ;
+	rdfs:label "Departments" ;
+	api:uriTemplate "/doc/department" ;
+	api:selector spec:departmentSelector ;
+	api:defaultViewer spec:departmentViewer ;
+	api:viewer spec:departmentViewerWithPosts ;
+	api:formatter spec:csvFormatter ;
+	.
+
+spec:departmentSelector
+  a api:Selector ;
+  api:filter "type=Department" ;
+  .
+
+spec:department
+  a api:ItemEndpoint ;
+  rdfs:label "Department" ;
+  api:uriTemplate "/doc/department/{code}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/department/{code}" ;
+	api:defaultViewer spec:departmentViewer ;
+	api:viewer spec:departmentViewerWithPosts ;
+  .
+
+#List all Ministerial Departments
+spec:ministerialDepartments
+	a api:ListEndpoint ;
+	rdfs:label "Ministerial Departments" ;
+	api:uriTemplate "/doc/ministerial-department" ;
+	api:selector spec:ministerialDepartmentSelector ;
+	api:defaultViewer spec:departmentViewer ;
+	api:viewer spec:departmentViewerWithPosts ;
+	.
+
+spec:ministerialDepartmentSelector
+  a api:Selector ;
+  api:filter "type=MinisterialDepartment" ;
+  .
+
+#List all Non-Ministerial Departments
+spec:nonMinisterialDepartments
+	a api:ListEndpoint ;
+	rdfs:label "Non-Ministerial Departments" ;
+	api:uriTemplate "/doc/non-ministerial-department" ;
+	api:selector spec:nonMinisterialDepartmentSelector ;
+	api:defaultViewer spec:departmentViewer ;
+	api:viewer spec:departmentViewerWithPosts ;
+	.
+
+spec:nonMinisterialDepartmentSelector
+  a api:Selector ;
+  api:filter "type=NonMinisterialDepartment" ;
+  .
+
+spec:departmentViewer
+  a api:Viewer ;
+  api:name "department" ;
+  api:properties "type.label,label,prefLabel,altLabel,comment,unit.label" ;
+  .
+
+spec:departmentViewerWithPosts
+  a api:Viewer ;
+  api:name "department including posts" ;
+  api:properties "type.label,label,prefLabel,altLabel,comment,unit.label,unit.post.label,unit.post.prefLabel,unit.post.altLabel,unit.post.comment" ;
+  . 
+
+#List all Units in a Department
+
+spec:unitsInDepartment
+  a api:ListEndpoint ;
+  rdfs:label "Units in Department" ;
+  api:uriTemplate "/doc/department/{dept}/unit" ;
+	api:defaultPageSize "10" ;
+  api:variable [
+    a api:Variable ;
+    api:name "department" ;
+    api:value "http://reference.data.gov.uk/id/department/{dept}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?department org:hasUnit ?item ." ;
+  ] ;
+  api:defaultViewer spec:unitsViewer ;
+  .
+
+spec:unitInDepartment
+  a api:ItemEndpoint ;
+  rdfs:label "Unit in Department" ;
+  api:uriTemplate "/doc/department/{dept}/unit/{unit}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/department/{dept}/unit/{unit}" ;
+  api:defaultViewer spec:unitViewer ;
+  .
+
+spec:unitInDepartmentStatistics
+  a api:ListEndpoint ;
+  rdfs:label "Department Unit Statistics" ;
+  api:uriTemplate "/doc/department/{code}/unit/{unit}/statistics" ;
+  api:variable [
+    a api:Variable ;
+    api:name "unitResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/unit/{unit}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item organogram:post ?post . ?post gov:postIn ?unitResource }" ;
+  ] ;
+  api:defaultViewer spec:statisticListViewer ;
+  .
+
+spec:unitsViewer
+  a api:Viewer ;
+  api:name "units" ;
+  api:properties "label,prefLabel,altLabel,post.label" ;
+  .
+
+spec:unitViewer
+  a api:Viewer ;
+  api:name "unit" ;
+  api:properties "label,prefLabel,altLabel,post.label,post.prefLabel,post.altLabel,post.comment,post.heldBy.name,post.heldBy.phone.label,post.heldBy.email.label,post.reportsTo.label" ;
+  .
+
+#List all Posts in a Department
+
+spec:postsInDepartment
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Department" ;
+  api:uriTemplate "/doc/department/{dept}/post" ;
+  api:variable [
+    a api:Variable ;
+    api:name "department" ;
+    api:value "http://reference.data.gov.uk/id/department/{dept}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?item gov:postIn ?department . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
+spec:postInDepartment
+  a api:ItemEndpoint ;
+  rdfs:label "Post in Department" ;
+  api:uriTemplate "/doc/department/{dept}/post/{post}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/department/{dept}/post/{post}" ;
+  api:viewer spec:postListViewer ;
+  api:defaultViewer spec:postViewer ;
+  .
+
+spec:postInDepartmentImmediateReports
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Department Immediate Reports" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/immediate-reports" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?item a gov:CivilServicePost ; org:reportsTo ?postResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
+spec:postInDepartmentReports
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Department Reports" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/reports" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?item a gov:CivilServicePost . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . } { ?item org:reportsTo ?postResource . } UNION { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  { ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION { ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] }" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
+spec:postInDepartmentReportsFull
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Department Reports" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/reportsFull" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where """
+    ?item a gov:CivilServicePost . 
+    { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+    { ?item org:reportsTo ?postResource . } UNION 
+    { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  
+    { ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION 
+    { ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] } UNION 
+    { ?postResource org:reportsTo ?item . } UNION
+    { ?postResource org:reportsTo ?superior . ?item org:reportsTo ?superior . } UNION 
+    { ?postResource org:reportsTo [ org:reportsTo ?item ] } UNION
+    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo ?item ] ] } UNION
+    { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo [ org:reportsTo ?item ] ] ] } """ ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+  
+spec:postInDepartmentImmediateJuniorStaff
+  a api:ListEndpoint ;
+  rdfs:label "Junior Staff Immediately Reporting to Department Posts" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/immediate-junior-staff" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "?item organogram:reportingTo ?postResource ." ;
+  ] ;
+  api:viewer spec:juniorStaffListViewer ;
+  api:defaultViewer spec:juniorStaffListViewer ;
+  .
+
+spec:postInDepartmentJuniorStaff
+  a api:ListEndpoint ;
+  rdfs:label "Junior Staff Reporting to Department Posts" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/junior-staff" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item organogram:reportingTo ?postResource . } UNION { ?item organogram:reportingTo [ org:reportsTo ?postResource ] } UNION  { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] }" ;
+  ] ;
+  api:viewer spec:juniorStaffListViewer ;
+  api:defaultViewer spec:juniorStaffListViewer ;
+  .
+
+spec:juniorStaffListViewer
+  a api:Viewer ;
+  api:name "junior staff" ;
+  api:properties "label,date.label,reportingTo.label,reportingTo.prefLabel,inUnit.label,withProfession.prefLabel,atGrade.prefLabel,atGrade.payband.prefLabel,atGrade.payband.salaryRange.label,withJob.prefLabel,fullTimeEquivalent" ;
+  .
+
+spec:postsInDepartmentUnit
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/department/{dept}/unit/{unit}/post" ;
+  api:variable [
+    api:name "unitResource";
+    api:type rdfs:Resource ;
+    api:value "http://reference.data.gov.uk/id/department/{dept}/unit/{unit}" ;
+  ] ;
+  api:selector [
+    api:where " ?item gov:postIn ?unitResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }"
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+.
+
+spec:postListViewer
+  a api:Viewer ;
+  api:name "post list" ;
+  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,reportsTo.label,heldBy.name,heldBy.email.label,heldBy.phone.label,heldBy.tenure.workingTime,salaryRange.label,postStatus,grade.label" ;
+  .
+
+spec:postViewer
+  a api:Viewer ;
+  api:name "post details" ;
+  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,heldBy.name,heldBy.phone.label,heldBy.email.label,heldBy.tenure.workingTime,reportsTo.label,reportsTo.heldBy.name,reportsTo.reportsTo.label,reportsTo.reportsTo.heldBy.name,reportsTo.reportsTo.reportsTo.label,reportsTo.reportsTo.reportsTo.heldBy.name,salaryRange.label,postStatus,grade.label" ;
+  .
+
+spec:postInDepartmentStatistics
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Department Statistics" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/statistics" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where "{ ?item organogram:post ?postResource . }" ;
+  ] ;
+  api:defaultViewer spec:statisticListViewer ;
+  .
+
+spec:statisticListViewer
+  a api:Viewer ;
+  api:name "statistic list" ;
+  api:properties "label,date,aboutPost.label,salaryCostOfReports" ;
+  .
+
+# Grades, Paybands and Salaries
+
+spec:salaryRanges
+  a api:ListEndpoint ;
+  rdfs:label "Salary Ranges" ;
+  api:uriTemplate "/doc/salary-range" ;
+  api:selector [
+    api:filter "type=SalaryRange" ;
+  ] ;
+  api:defaultViewer spec:salaryRangeListViewer ;
+  .
+
+spec:salaryRange
+  a api:ItemEndpoint ;
+  rdfs:label "Salary Range" ;
+  api:uriTemplate "/doc/salary-range/{range}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/salary-range/{range}" ;
+  api:defaultViewer spec:salaryRangeViewer ;
+  .
+
+spec:salaryRangeListViewer
+  a api:Viewer ;
+  api:name "salary range list" ;
+  api:properties "label,lowerBound,upperBound" ;
+  .
+
+spec:salaryRangeViewer
+  a api:Viewer ;
+  api:name "salary range" ;
+  api:properties "label,lowerBound,upperBound" ;
+  .
+
+# Ministers #
+
+spec:ministers
+	a api:ListEndpoint ;
+	rdfs:label "Ministers" ;
+	api:uriTemplate "/doc/minister" ;
+	api:selector spec:ministerSelector ;
+	api:defaultViewer spec:personViewer ;
+	.
+
+spec:ministerSelector
+  a api:Selector ;
+  api:where " ?membership rdf:type org:Membership ; org:role <http://reference.data.gov.uk/def/ministerial-role/postholder> ; org:member ?item . " ;
+  .
+
+spec:ministerMembershipViewer
+  a api:Viewer ;
+  api:name "minister" ;
+  api:properties "prefLabel,altLabel,organisation.prefLabel,organisation.altLabel,organisation.ministerOf.prefLabel,member.name" ;
+  .
+
+spec:minister
+  a api:ItemEndpoint ;
+  rdfs:label "Minister" ;
+  api:uriTemplate "/doc/minister/{department}/{post}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/minister/{department}/{post}" ;
+	api:defaultViewer spec:ministerViewer ;
+  .
+
+spec:ministerViewer
+  a api:Viewer ;
+  api:name "minister" ;
+  api:properties "prefLabel,altLabel,ministerOf.prefLabel" ;
+  .
+
+spec:ministersInDepartment
+  a api:ListEndpoint ;
+  rdfs:label "Ministers in Department" ;
+  api:uriTemplate "/doc/minister/{id}" ;
+  api:variable [
+    a api:Variable ;
+    api:name "department" ;
+    api:value "http://reference.data.gov.uk/id/department/{id}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:parent spec:ministerSelector ;
+    api:filter "ministerOf={department}" ;
+  ] ;
+  api:defaultViewer spec:ministerViewer ;
+  .
+
+spec:postholdersInDepartment
+  a api:ListEndpoint ;
+  rdfs:label "Postholders in Department" ;
+  api:uriTemplate "/doc/department/{id}/minister" ;
+  api:variable [
+    a api:Variable ;
+    api:name "department" ;
+    api:value "http://reference.data.gov.uk/id/department/{id}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:filter "holdsMinisterialPost.ministerOf={department}" ;
+  ] ;
+  api:defaultViewer spec:personViewer ;
+  .
+
+# Peers #
+
+spec:peers
+  a api:ListEndpoint ;
+  rdfs:label "Peers" ;
+  api:uriTemplate "/doc/peer" ;
+  api:selector [
+    api:filter "uriSet=Peers" ;
+  ] ;
+  api:defaultViewer spec:personViewer ;
+  api:viewer spec:personDetailViewer ;
+  .
+
+spec:peer
+  a api:ItemEndpoint ;
+  rdfs:label "Peer" ;
+  api:uriTemplate "/doc/peer/{name}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/peer/{name}" ;
+  api:defaultViewer spec:personViewer ;
+  api:viewer spec:personDetailViewer ;
+  .
+
+# MPs #
+
+spec:mps
+  a api:ListEndpoint ;
+  rdfs:label "MPs" ;
+  api:uriTemplate "/doc/mp" ;
+  api:selector [
+    api:filter "uriSet=MPs" ;
+  ] ;
+  api:defaultViewer spec:personViewer ;
+  api:viewer spec:personDetailViewer ;
+  .
+
+spec:mp
+  a api:ItemEndpoint ;
+  rdfs:label "MP" ;
+  api:uriTemplate "/doc/mp/{constituency}/{name}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/mp/{constituency}/{name}" ;
+  api:defaultViewer spec:personViewer ;
+  api:viewer spec:personDetailViewer ;
+  .
+
+spec:personViewer
+  a api:Viewer ;
+  api:name "person" ;
+  api:properties "name,description,memberOf.prefLabel,memberOfParty.prefLabel,memberOfParliament.prefLabel,holdsMinisterialPost.prefLabel,holdsMinisterialPost.ministerOf.prefLabel,holdsSeat.prefLabel,holdsSeat.memberOfParliament.label,seeAlso" ;
+  .
+
+spec:personDetailViewer
+  a api:Viewer ;
+  api:name "person detail" ;
+  api:include spec:personViewer ;
+  api:properties "name,description,memberOf.prefLabel,memberOfParty.prefLabel,memberOfParliament.prefLabel,holdsMinisterialPost.prefLabel,holdsMinisterialPost.ministerOf.prefLabel,holdsSeat.prefLabel,holdsSeat.memberOfParliament.label,seeAlso,firstName,lastName,membership.prefLabel,membership.organisation.prefLabel,membership.role.prefLabel" ;
+  .
+
+# Memberships #
+
+spec:mpMembership1
+  a api:ItemEndpoint ;
+  rdfs:label "Membership 1" ;
+  api:uriTemplate "/doc/mp/{constituency}/{name}/{post}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/mp/{constituency}/{name}/{post}" ;
+  api:defaultViewer spec:membershipViewer ;
+  .
+
+spec:mpMembership1
+  a api:ItemEndpoint ;
+  rdfs:label "Membership 2" ;
+  api:uriTemplate "/doc/mp/{constituency}/{name}/member/{post}" ;
+  api:itemTemplate "http://reference.data.gov.uk/id/mp/{constituency}/{name}/member/{post}" ;
+  api:defaultViewer spec:membershipViewer ;
+  .
+
+spec:membershipViewer
+  a api:Viewer ;
+  api:name "membership" ;
+  api:properties "prefLabel,altLabel,label,member.name,member.prefLabel,organisation.prefLabel,role.prefLabel" ;
+  .
+
+# Political Parties #
+
+spec:politicalParties
+  a api:ListEndpoint ;
+  rdfs:label "Political Parties" ;
+  api:uriTemplate "/doc/political-party" ;
+  api:selector [
+    api:filter "type=PoliticalParty" ;
+  ] ;
+  api:defaultViewer api:politicalPartyViewer ;
+  .
+
+api:politicalPartyViewer
+  a api:Viewer ;
+  api:name "political-party" ;
+  api:properties "type.label,label,prefLabel,altLabel" ;
+  .
+
+# Parliamentary Seats #
+
+spec:seats
+  a api:ListEndpoint ;
+  rdfs:label "Seats" ;
+  api:uriTemplate "/doc/seat" ;
+  api:selector [
+    api:filter "type=Seat" ;
+  ] ;
+  api:defaultViewer api:seatViewer ;
+  .
+
+spec:seat
+  a api:ItemEndpoint ;
+  rdfs:label "Seat" ;
+  api:uriTemplate "/doc/mp/{constituency}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/mp/{constituency}" ;
+  api:defaultViewer api:seatViewer ;
+  .
+
+api:seatViewer
+  a api:Viewer ;
+  api:name "seat" ;
+  api:properties "type.label,label,prefLabel,altLabel,memberOfParliament.label,memberOfParliament.partOf.label" ;
+  .
+
+### VIEWERS ###
+
+############################################################################################
+#
+# VOCABULARY
+#
+############################################################################################
+
+rdf:Property api:label "Property" .
+
+rdf:type api:label "type" ; api:multiValued true .
+rdf:value api:label "value" .
+
+rdfs:Class api:label "Class" .
+
+rdfs:label api:label "label" ; api:multiValued true .
+rdfs:seeAlso api:label "seeAlso" ; api:multiValued true .
+rdfs:comment api:label "comment" .
+rdfs:range api:label "range" .
+rdfs:domain api:label "domain" .
+rdfs:isDefinedBy api:label "isDefinedBy" .
+rdfs:subClassOf api:label "subClassOf" .
+rdfs:subPropertyOf api:label "subPropertyOf" .
+
+owl:sameAs api:label "sameAs" .
+
+skos:Concept api:label "Concept" .
+skos:ConceptScheme api:label "ConceptScheme" .
+
+skos:prefLabel api:label "prefLabel" .
+skos:altLabel api:label "altLabel" ; api:multiValued true .
+skos:note api:label "note" .
+skos:notation api:label "notation" .
+skos:scopeNote api:label "scopeNote" .
+skos:topConceptOf api:label "topConceptOf" .
+skos:hasTopConcept api:label "topConcept" ; api:multiValued true .
+skos:broader api:label "broader" .
+skos:narrower api:label "narrower" ; api:multiValued true .
+
+foaf:name api:label "name" .
+foaf:firstName api:label "firstName" .
+foaf:lastName api:label "lastName" .
+foaf:mbox api:label "email" .
+foaf:phone api:label "phone" .
+foaf:page api:label "page" ;
+  api:multiValued true ;
+  .
+foaf:isPrimaryTopicOf api:label "primaryTopicOf" ;
+  api:multiValued true ;
+  .
+
+dct:description api:label "description" .
+
+org:subOrganizationOf api:label "partOf" .
+org:memberOf api:label "memberOf" .
+org:hasMembership api:label "membership" .
+org:memberDuring api:label "memberDuring" .
+org:member api:label "member" .
+org:organization api:label "organisation" .
+org:role api:label "role" .
+org:hasUnit api:label "unit" ;
+  api:multiValued true .
+org:unitOf api:label "unitOf" .
+org:reportsTo api:label "reportsTo" ;
+  api:multiValued true .
+
+dgu:uriSet api:label "uriSet" .
+
+organogram:post api:label "aboutPost" .
+organogram:date api:label "date" .
+organogram:unit api:label "inUnit" .
+organogram:reportingTo api:label "reportingTo" .
+organogram:grade api:label "atGrade" .
+organogram:job api:label "withJob" .
+organogram:profession api:label "withProfession" .
+organogram:fullTimeEquivalent api:label "fullTimeEquivalent" ;
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:decimal ;
+  .
+organogram:salaryCostOfReports api:label "salaryCostOfReports" ;
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:integer ;
+  .
+
+<http://reference.data.gov.uk/id/peer> api:label "Peers" .
+<http://reference.data.gov.uk/id/mp> api:label "MPs" .
+
+gov:PublicBody a rdfs:Class ; api:label "PublicBody" .
+gov:Department a rdfs:Class ; api:label "Department" .
+gov:MinisterialDepartment api:label "MinisterialDepartment" .
+gov:NonMinisterialDepartment api:label "NonMinisterialDepartment" .
+gov:Minister a rdfs:Class ; api:label "Minister" .
+gov:CabinetCommittee api:label "CabinetCommittee" .
+
+gov:Tenure a rdfs:Class ; api:label "Tenure" .
+gov:SalaryRange a rdfs:Class ; api:label "SalaryRange" .
+
+gov:parentDepartment api:label "parentDepartment" .
+gov:ministerOf api:label "ministerOf" .
+gov:holdsMinisterialPost api:label "holdsMinisterialPost" ;
+  api:multiValued true .
+gov:hasPost api:label "post" ;
+  api:multiValued true .
+gov:postIn api:label "postIn" ;
+  api:multiValued true .
+gov:heldBy api:label "heldBy" ;
+  api:multiValued true .
+
+gov:tenure api:label "tenure" .
+gov:fullTimeEquivalent api:label "workingTime" .
+
+gov:salary api:label "salary" .
+gov:salaryRange api:label "salaryRange" .
+gov:upperBound api:label "upperBound" .
+gov:lowerBound api:label "lowerBound" .
+
+postStatus:postStatus api:label "postStatus" .
+grade:grade api:label "grade" .
+payband:payBand api:label "payband" .
+
+parl:PoliticalParty api:label "PoliticalParty" .
+parl:Seat api:label "Seat" .
+parl:Parliament api:label "Parliament" .
+
+parl:memberOf api:label "memberOfParliament" .
+parl:partyMemberOf api:label "memberOfParty" .
+parl:holdsSeat api:label "holdsSeat" .
