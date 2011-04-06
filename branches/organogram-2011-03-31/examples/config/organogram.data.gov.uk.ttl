@@ -57,6 +57,7 @@ spec:api
 	  spec:postInPublicBodyReports ,
 	  spec:postInPublicBodyImmediateJuniorStaff ,
 	  spec:postInPublicBodyJuniorStaff ,
+	  spec:postInPublicBodyJuniorStaffFull ,
 	  spec:postInPublicBodyStatistics ,
 	  spec:postsInPublicBodyUnit ,
 	  spec:departments ,
@@ -73,6 +74,7 @@ spec:api
 	  spec:postInDepartmentReportsFull ,	  
 	  spec:postInDepartmentImmediateJuniorStaff ,
 	  spec:postInDepartmentJuniorStaff ,
+	  spec:postInDepartmentJuniorStaffFull ,
 	  spec:postInDepartmentStatistics ,
 	  spec:postsInDepartmentUnit ,
 	  spec:salaryRanges ,
@@ -410,8 +412,8 @@ spec:postInPublicBodyJuniorStaffFull
     { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo ?superior ] ] . ?item organogram:reportingTo ?superior . } UNION
     { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo [ org:reportsTo ?superior ] ] ] . ?item organogram:reportingTo ?superior . }""" ;
   ] ;
-  api:viewer spec:postViewer ;
-  api:defaultViewer spec:postListViewer ;
+  api:viewer spec:juniorStaffListViewer ;
+  api:defaultViewer spec:juniorStaffListViewer ;
   .
 
 spec:postInPublicBodyStatistics
@@ -697,8 +699,8 @@ spec:postInDepartmentJuniorStaffFull
     { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo ?superior ] ] . ?item organogram:reportingTo ?superior . } UNION
     { ?postResource org:reportsTo [ org:reportsTo [ org:reportsTo [ org:reportsTo ?superior ] ] ] . ?item organogram:reportingTo ?superior . }""" ;
   ] ;
-  api:viewer spec:postViewer ;
-  api:defaultViewer spec:postListViewer ;
+  api:viewer spec:juniorStaffListViewer ;
+  api:defaultViewer spec:juniorStaffListViewer ;
   .
 
 spec:juniorStaffListViewer
