@@ -87,6 +87,11 @@
 					</xsl:variable> 
 					<ul>
 						<xsl:call-template name="moreinfoLink">
+							<xsl:with-param name="uri" select="concat($post, '/non-disclosures')" />
+							<xsl:with-param name="current" select="$base" />
+							<xsl:with-param name="label">Post non-disclosures</xsl:with-param>
+						</xsl:call-template>
+						<xsl:call-template name="moreinfoLink">
 							<xsl:with-param name="uri" select="concat($post, '/statistics')" />
 							<xsl:with-param name="current" select="$base" />
 							<xsl:with-param name="label">Post statistics</xsl:with-param>
