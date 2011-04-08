@@ -18,23 +18,12 @@ var Orgvis = {
 		useGradients:"",		// var for theJIT
 		nativeTextSupport:"",	// var for theJIT
 		animate:"",				// var for theJIT
-<<<<<<< .mine
 		previewMode:false,		// Used to initialise authentication and to swap API locations
-=======
-		previewMode:false,
->>>>>>> .r359
 		global_department:"",	// The department in questions ID
-<<<<<<< .mine
 		global_pubbod:"",		// The public body in questions ID
 		global_typeOfOrg:"",	// The type of organisation the post is in (used for URL slugs)
 		global_postOrg:"",		// The organisation the post is in regardless of it being a dept/public-body
 		global_orgSlug:"",		// The variable name for the post's organisation
-=======
-		global_pubbod:"",		// The public body in questions ID
-		global_typeOfOrg:"",	// The type of organisation the post is in (used for URL slugs)
-		global_postOrg:"",
-		global_orgSlug:"",
->>>>>>> .r359
 		global_post:"",			// The post in question's ID
 		global_ST:"",			// Holds theJIT's SpaceTree instance
 		global_postJSON:"",		// Holds the organogram data
@@ -82,7 +71,6 @@ var Orgvis = {
 			$.cookie("organogram-password", null);
 		}
 		
-<<<<<<< .mine
 		if(deptSlug.length > 0){
 			Orgvis.vars.global_typeOfOrg = "department";	
 			Orgvis.vars.global_orgSlug = "dept";
@@ -133,57 +121,6 @@ var Orgvis = {
 			Orgvis.vars.apiBase = "reference.data.gov.uk";
 			Orgvis.initSpaceTree(reload);
 		}		
-=======
-		if(deptSlug.length > 0){
-			Orgvis.vars.global_typeOfOrg = "department";	
-			Orgvis.vars.global_orgSlug = "dept";
-			Orgvis.vars.global_postOrg = deptSlug;
-		} else if(pubbodSlug.length > 0) {
-			Orgvis.vars.global_typeOfOrg = "public-body";
-			Orgvis.vars.global_orgSlug = "pubbod";
-			Orgvis.vars.global_postOrg = pubbodSlug;
-		}
-
-		if(postSlug.length < 1){
-			showLog("No post selected!");
-		} else{
-			Orgvis.vars.global_post = postSlug;		
-		}
-			
-		// Check for preview parameter
-		if(pMode){
-			// In preview mode
-			
-			/*
-			if($.cookie("organogram-preview-mode") == "true") {
-				// Already authenticated
-				Orgvis.vars.previewMode = pMode;
-				Orgvis.vars.apiBase = "organogram.data.gov.uk";
-				Orgvis.initSpaceTree(reload);
-			} else {
-				// Ask for username and pass
-				Orgvis.showLogin();
-			}
-			*/
-			
-			Orgvis.vars.apiBase = "organogram.data.gov.uk";
-			Orgvis.initSpaceTree(reload);
-
-		} // Check for user & pass in cookie
-		/*
-		else if($.cookie("organogram-preview-mode") == "true") {
-			// In preview mode
-			Orgvis.vars.previewMode = pMode;
-			Orgvis.vars.apiBase = "organogram.data.gov.uk";
-			$("h1.title span#previewModeSign").show();		
-		} 
-		*/
-		else {
-			// Not in preview mode
-			Orgvis.vars.apiBase = "reference.data.gov.uk";
-			Orgvis.initSpaceTree(reload);
-		}		
->>>>>>> .r359
 		
 	},
 	showLogin:function(){
@@ -544,7 +481,6 @@ var Orgvis = {
 			dataType: "jsonp",
 			async:true,
 			cache:true,
-<<<<<<< .mine
 			error:function (xhr, ajaxOptions, thrownError){
 				log("xhr.status:");				
 				log(xhr.status);
@@ -557,15 +493,6 @@ var Orgvis = {
 				}else{
 					Orgvis.changeLog("Error loading post data", false);
 				}
-=======
-			error: function(){
-				if(Orgvis.vars.previewMode){
-					Orgvis.changeLog("Error loading post data", false);
-					Orgvis.showLogin();					
-				}else{
-					Orgvis.changeLog("Error loading post data", false);
-				}
->>>>>>> .r359
 			},
 			success: function(json){
 				Orgvis.vars.previewMode = true;			
@@ -809,19 +736,12 @@ var Orgvis = {
 			Orgvis.vars.firstNode = Orgvis.makeNode(Orgvis.vars.postInQuestion);						
 		}
 		
-<<<<<<< .mine
 		log("Orgvis.vars.firstNode:");
 		log(Orgvis.vars.firstNode);
 
 		Orgvis.buildPostList(json.result.items);
 		Orgvis.connectJuniorPosts();
 		Orgvis.vars.global_postJSON = Orgvis.connectPosts();
-=======
-		log("Orgvis.vars.firstNode:");
-		log(Orgvis.vars.firstNode);
-		
-		Orgvis.vars.global_postJSON = Orgvis.connectPosts(json.result.items);
->>>>>>> .r359
 		
 		//groupSamePosts(Orgvis.vars.global_postJSON,false);
 		
@@ -1409,14 +1329,9 @@ var Orgvis = {
 			
 			html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+'">Center organogram</a></p>';
 			
-<<<<<<< .mine
 			html += '<p class="salary"><span>Salary</span><span class="value">£?</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
 			//'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'
 			
-=======
-			html += '<p class="salary"><span>Salary</span><span class="value">£'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
-	
->>>>>>> .r359
 			html += '<p class="salaryReports"><span>Combined salary of reporting posts </span><span class="value">Checking...</span><img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
 							
 			if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
@@ -1865,11 +1780,7 @@ $(document).ready(function() {
 	    $( "button#dept" ).button({
 	        text: true
 	    }).click(function() {
-<<<<<<< .mine
 	        window.location = "../post-list?"+Orgvis.vars.global_orgSlug+"="+Orgvis.vars.global_postOrg;
-=======
-	        window.location = "../post-list?"+Orgvis.vars.orgSlug+"="+Orgvis.vars.global_postOrg;
->>>>>>> .r359
 	    });       
 	});
 		
