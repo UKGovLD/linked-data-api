@@ -485,13 +485,14 @@ div.juniorPost span.heldBy {
     -webkit-border-radius: 3px 3px 3px 3px;
     border: 1px solid #9A9A9A;
     color: #000000;
-    font-size: 14px;
-    height: 20px;
+    font-size: 12px;
+    height: 14px;
     line-height: 20px;
+    padding: 0 5px 5px;
     position: absolute;
     text-align: center;
     top: 65px;
-    width: 16px;
+    width: auto;
 }
 div.JP_parent {
 	color:#FFFFFF !important;
@@ -520,6 +521,7 @@ div.JP_child span.JP_grade {
     background-color: #555555;
     color: #FFFFFF;
     display: block;
+    font-size: 12px !important;
     font-weight: normal;
     margin-left:-3px;
    	width:176px;
