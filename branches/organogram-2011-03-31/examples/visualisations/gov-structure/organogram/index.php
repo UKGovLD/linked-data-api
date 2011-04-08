@@ -25,7 +25,7 @@
 <![endif]-->
 
 
-<title>Cabinet Office | Organogram</title>
+<title>Her Majesty's Government | Organogram Viewer</title>
 </head>
 
 <!--[if IE 7]> 

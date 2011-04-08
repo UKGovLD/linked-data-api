@@ -409,12 +409,6 @@ div.panel div.content p span.date {
     margin: 0 5px 0 0;
     padding: 0;
 }
-
-div.panel div.content p.grade span
-{
-	/*display:inline-block !important;*/
-}
-
 div.panel div.content p.grade span.g
 {
 	border:1px solid #999999;
@@ -529,7 +523,6 @@ div.JP_child span.JP_grade {
     font-weight: normal;
     margin-left:-3px;
    	width:176px;
-<<<<<<< .mine
 }
 div#login {
 	display: none;
@@ -573,46 +566,4 @@ span#previewModeSign {
     padding: 0 10px;
     position: fixed;
     width: 134px;
-=======
-}
-div#login {
-display: none;
-}
-div#login form {
-
-}
-div#login form fieldset {
-
-}
-div#login form legend {
-
-}
-div#login form label {
-
-}
-div#login form input {
-
-}
-div#login p.login-message {
-display: none;
-}
-div#login p.login-failed {
-}
-div#login p.login-success {
-}
-div#login p.logging-in {
-}
-span#previewModeSign {
-    background: none repeat scroll 0 0 blue;
-    display: none;
-    font-size: 12px;
-    font-weight: bold;
-    height: 34px;
-    line-height: 34px;
-    margin: 0;
-    padding: 0 10px;
-    position: absolute;
-    right: 0;
-    top: 0;
->>>>>>> .r359
 }
