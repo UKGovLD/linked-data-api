@@ -60,6 +60,7 @@ spec:api
 	  spec:postInPublicBodyJuniorStaff ,
 	  spec:postInPublicBodyJuniorStaffFull ,
 	  spec:postInPublicBodyStatistics ,
+	  spec:postInPublicBodyNonDisclosures ,
 	  spec:postsInPublicBodyUnit ,
 	  spec:departments ,
 	  spec:ministerialDepartments ,
@@ -77,6 +78,7 @@ spec:api
 	  spec:postInDepartmentJuniorStaff ,
 	  spec:postInDepartmentJuniorStaffFull ,
 	  spec:postInDepartmentStatistics ,
+	  spec:postInDepartmentNonDisclosures ,
 	  spec:postsInDepartmentUnit ,
 	  spec:salaryRanges ,
 	  spec:salaryRange ,
@@ -263,7 +265,15 @@ spec:unitInPublicBodyStatistics
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "{ ?item organogram:post ?post . ?post gov:postIn ?unitResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . } }" ;
+    api:where """{ 
+      ?post gov:postIn ?unitResource . 
+      {
+        ?item organogram:post ?post . 
+      } UNION {
+        ?item organogram:tenure ?tenure .
+        ?tenure gov:post ?post .
+      }
+    }""" ;
   ] ;
   api:defaultViewer spec:statisticListViewer ;
   .
@@ -428,10 +438,34 @@ spec:postInPublicBodyStatistics
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "{ ?item organogram:post ?postResource . }" ;
+    api:where """{ 
+      { ?item organogram:post ?postResource . }
+      UNION
+      { ?item organogram:tenure [gov:post ?postResource] . }
+    }""" ;
   ] ;
   api:defaultViewer spec:statisticListViewer ;
   .
+  
+spec:postInPublicBodyNonDisclosures
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Public Body Non-Disclosures" ;
+  api:uriTemplate "/doc/public-body/{code}/post/{post}/non-disclosures" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where """
+      { ?item rdf:subject [ gov:holdsPost ?postResource ] . }
+      UNION
+      { ?item rdf:subject [ gov:post ?postResource ] . }""" ;
+  ] ;
+  api:defaultViewer spec:nonDisclosureListViewer ;
+  .
+
 
 #List all Departments
 spec:departments
@@ -538,7 +572,15 @@ spec:unitInDepartmentStatistics
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "{ ?item organogram:post ?post . ?post gov:postIn ?unitResource }" ;
+    api:where """{ 
+      ?post gov:postIn ?unitResource . 
+      {
+        ?item organogram:post ?post . 
+      } UNION {
+        ?item organogram:tenure ?tenure .
+        ?tenure gov:post ?post .
+      }
+    }""" ;
   ] ;
   api:defaultViewer spec:statisticListViewer ;
   .
@@ -748,7 +790,10 @@ spec:postInDepartmentStatistics
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "{ ?item organogram:post ?postResource . }" ;
+    api:where """
+      { ?item organogram:post ?postResource . }
+      UNION
+      { ?item organogram:tenure [gov:post ?postResource] . }""" ;
   ] ;
   api:defaultViewer spec:statisticListViewer ;
   .
@@ -756,7 +801,32 @@ spec:postInDepartmentStatistics
 spec:statisticListViewer
   a api:Viewer ;
   api:name "statistic list" ;
-  api:properties "label,date,aboutPost.label,salaryCostOfReports" ;
+  api:properties "label,date,aboutPost.label,salaryCostOfReports,aboutTenure.label,aboutTenure.postholder.name,aboutTenure.inPost.salaryRange.label,aboutTenure.workingTime,totalPay" ;
+  .
+
+spec:postInDepartmentNonDisclosures
+  a api:ListEndpoint ;
+  rdfs:label "Posts in Department Non-Disclosures" ;
+  api:uriTemplate "/doc/department/{code}/post/{post}/non-disclosures" ;
+  api:variable [
+    a api:Variable ;
+    api:name "postResource" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}/post/{post}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where """
+      { ?item rdf:subject [ gov:holdsPost ?postResource ] . }
+      UNION
+      { ?item rdf:subject [ gov:post ?postResource ] . }""" ;
+  ] ;
+  api:defaultViewer spec:nonDisclosureListViewer ;
+  .
+
+spec:nonDisclosureListViewer
+  a api:Viewer ;
+  api:name "non-disclosure list" ;
+  api:properties "label,comment,page,subject.label,predicate.label,subject.email.label,subject.phone.label,subject.postholder.name,subject.inPost.label" ;
   .
 
 # Grades, Paybands and Salaries
@@ -996,6 +1066,8 @@ rdf:Property api:label "Property" .
 
 rdf:type api:label "type" ; api:multiValued true .
 rdf:value api:label "value" .
+rdf:subject api:label "subject" .
+rdf:predicate api:label "predicate" .
 
 rdfs:Class api:label "Class" .
 
@@ -1023,7 +1095,7 @@ skos:hasTopConcept api:label "topConcept" ; api:multiValued true .
 skos:broader api:label "broader" .
 skos:narrower api:label "narrower" ; api:multiValued true .
 
-foaf:name api:label "name" .
+foaf:name api:label "name" ; rdfs:label "name" .
 foaf:firstName api:label "firstName" .
 foaf:lastName api:label "lastName" .
 foaf:mbox api:label "email" .
@@ -1053,6 +1125,7 @@ org:reportsTo api:label "reportsTo" ;
 dgu:uriSet api:label "uriSet" .
 
 organogram:post api:label "aboutPost" .
+organogram:tenure api:label "aboutTenure" .
 organogram:date api:label "date" .
 organogram:unit api:label "inUnit" .
 organogram:reportingTo api:label "reportingTo" .
@@ -1066,6 +1139,10 @@ organogram:fullTimeEquivalent api:label "fullTimeEquivalent" ;
 organogram:salaryCostOfReports api:label "salaryCostOfReports" ;
   a owl:DatatypeProperty ;
   rdfs:range xsd:integer ;
+  .
+organogram:totalPay api:label "totalPay" ;
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:decimal ;
   .
 
 <http://reference.data.gov.uk/id/peer> api:label "Peers" .
@@ -1092,10 +1169,12 @@ gov:postIn api:label "postIn" ;
 gov:heldBy api:label "heldBy" ;
   api:multiValued true .
 
+gov:postholder api:label "postholder" .
+gov:post api:label "inPost" .
 gov:tenure api:label "tenure" .
 gov:fullTimeEquivalent api:label "workingTime" .
 
-gov:salary api:label "salary" .
+gov:salary api:label "salary" ; rdfs:label "salary" .
 gov:salaryRange api:label "salaryRange" .
 gov:upperBound api:label "upperBound" .
 gov:lowerBound api:label "lowerBound" .
