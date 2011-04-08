@@ -14,7 +14,7 @@ Modified by Dan Paul Smith
 
 var Orgvis = {
 	vars: {
-		labelType:"", 			// var for theJIT
+		labelType:"",			// var for theJIT
 		useGradients:"",		// var for theJIT
 		nativeTextSupport:"",	// var for theJIT
 		animate:"",				// var for theJIT
@@ -374,9 +374,9 @@ var Orgvis = {
 											
 					label.innerHTML = node.name;
 					if(node.data.nodeType == 'JP_child'){
-						label.innerHTML = label.innerHTML + '<span class="JP_grade">'+node.data.grade.label+'</span>';
+						label.innerHTML = label.innerHTML + '<span class="JP_grade">'+addCommas(node.data.grade.payband.salaryRange)+'</span>' + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+node.data.fullTimeEquivalent+'</span>';
 					} else {
-						label.innerHTML = label.innerHTML + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+node.data.total+'</span>';			}
+						label.innerHTML = label.innerHTML + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+node.data.fteTotal+'</span>';			}
 						
 					//log(node.data.colour);
 					$(label).css('color',node.data.colour);	
@@ -811,6 +811,7 @@ var Orgvis = {
 			name:"Junior Posts",
 			data:{
 				total:0,
+				fteTotal:0,
 				nodeType:'JP_parent',
 				type:'junior_posts',
 				colour:'#FFFFFF'
@@ -937,7 +938,15 @@ var Orgvis = {
 								
 								// Add the actual junior staff item to the Junior Posts node
 								postChildren[k].children.push(Orgvis.makeJuniorNode(el));
-								postChildren[k].data.total++;
+								
+								log("el.fullTimeEquivalent:");
+								log(el.fullTimeEquivalent);
+								
+								postChildren[k].data.fteTotal += el.fullTimeEquivalent;
+								
+								log("postChildren[k].data.fteTotal:");
+								log(postChildren[k].data.fteTotal);
+								
 								log("Added a junior post");
 								log(Orgvis.vars.postList[postID]);
 							}
@@ -1442,7 +1451,7 @@ var Orgvis = {
 		html += '<p class="fte"><span>Full Time Equivalent</span><span class="value">'+node.data.fullTimeEquivalent+'</span></p>';
 		html += '<p class="grade"><span>Grade</span><span class="value">'+node.data.grade.label+'</span></p>';
 		html += '<p class="payband"><span>Payband</span><span class="value">'+node.data.grade.payband.label+'</span></p>';
-		html += '<p class="paybandRange"><span>Payband Salary Range</span><span class="value">'+node.data.grade.payband.salaryRange+'</span></p>';
+		html += '<p class="paybandRange"><span>Payband Salary Range</span><span class="value">'+addCommas(node.data.grade.payband.salaryRange)+'</span></p>';
 		html += '<p class="reportsTo"><span>Reports To</span><span class="value">'+node.data.reportingTo.label+'</span></p>';
 		html += '<p class="unit"><span>Unit</span><span class="value">'+node.data.unit.label+'</span></p>';
 		
