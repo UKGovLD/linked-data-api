@@ -102,8 +102,7 @@ body.IE8 div#infobox {
 body.IE7 div#infobox {
 	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=225, Color='#777777');
 }
-#infobox .ui-accordion .ui-accordion-content
-{
+#infobox .ui-accordion .ui-accordion-content, #infobox div.panel div.content {
 	border-top:0 none;
 	margin-bottom:2px;
 	margin-top:-2px;
@@ -413,7 +412,7 @@ div.panel div.content p span.date {
 
 div.panel div.content p.grade span
 {
-	display:inline-block !important;
+	/*display:inline-block !important;*/
 }
 
 div.panel div.content p.grade span.g
@@ -506,7 +505,7 @@ div.JP_parent {
 div.JP_child {
 	font-size:9px !important;
 	line-height: 18px !important;
-	cursor: default !important;
+	/*cursor: default !important;*/
 }
 div.JP_none {
 	border:1px dashed #333333 !important;
@@ -530,6 +529,51 @@ div.JP_child span.JP_grade {
     font-weight: normal;
     margin-left:-3px;
    	width:176px;
+<<<<<<< .mine
+}
+div#login {
+	display: none;
+}
+div#login form {
+
+}
+div#login form fieldset {
+
+}
+div#login form legend {
+
+}
+div#login form label {
+
+}
+div#login form input {
+
+}
+div#login p.login-message {
+	display: none;
+}
+div#login p.login-failed {
+}
+div#login p.login-success {
+}
+div#login p.logging-in {
+}
+span#previewModeSign {
+    background-image: url("../images/preview_sign.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    bottom: 7px;
+    display: none;
+    font-size: 12px;
+    font-weight: bold;
+    height: 36px;
+    left: 10px;
+    line-height: 100px;
+    margin: 0;
+    padding: 0 10px;
+    position: fixed;
+    width: 134px;
+=======
 }
 div#login {
 display: none;
@@ -570,4 +614,5 @@ span#previewModeSign {
     position: absolute;
     right: 0;
     top: 0;
+>>>>>>> .r359
 }
