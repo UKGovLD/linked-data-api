@@ -13,6 +13,9 @@
 			starts-with(., 'http://reference.data.gov.uk/id/gregorian-instant')">
 			<xsl:value-of select="." />
 		</xsl:when>
+		<xsl:when test="starts-with(., 'http://reference.data.gov.uk/')">
+			<xsl:value-of select="substring-after(., 'http://reference.data.gov.uk')" />
+		</xsl:when>
 		<xsl:otherwise>
 			<xsl:value-of select="." />
 		</xsl:otherwise>
@@ -20,7 +23,19 @@
 </xsl:template>
 
 <xsl:template match="isPartOf" mode="moreinfo">
-	<xsl:variable name="base" select="substring-after(@href, 'http://reference.data.gov.uk')" />
+	<xsl:variable name="base">
+		<xsl:choose>
+			<xsl:when test="starts-with(@href, 'http://reference.data.gov.uk')"> 
+				<xsl:value-of select="substring-after(@href, 'http://reference.data.gov.uk')" />
+			</xsl:when>
+			<xsl:when test="starts-with(@href, 'http://organogram.data.gov.uk')">
+				<xsl:value-of select="substring-after(@href, 'http://organogram.data.gov.uk')" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="." />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
 	<xsl:variable name="path" select="substring-before(concat($base, '?'), '?')" />
 	<xsl:call-template name="orgLinks">
 		<xsl:with-param name="base" select="$path" />
@@ -32,6 +47,9 @@
 		<xsl:with-param name="base">
 			<xsl:choose>
 				<xsl:when test="starts-with(@href, 'http://reference.data.gov.uk/id/')">
+					<xsl:value-of select="concat('/doc/', substring-after(@href, '/id/'))"/>
+				</xsl:when>
+				<xsl:when test="starts-with(@href, 'http://organogram.data.gov.uk/id/')">
 					<xsl:value-of select="concat('/doc/', substring-after(@href, '/id/'))"/>
 				</xsl:when>
 				<xsl:otherwise>
