@@ -3,51 +3,74 @@
 div.steps {
     background: none repeat scroll 0 0 #C8C3D3;
     border-radius: 10px 10px 10px 10px;
-    margin-bottom: 25px;
     padding: 10px;
 }
-div.steps div.step1, div.steps div.step2, div.steps div.step3 {
+div.steps a.step1, div.steps a.step2, div.steps a.step3 {
     background: none repeat scroll 0 0 #8A809F;
+    border: 2px solid #8A809F;
     border-radius: 10px 10px 10px 10px;
     float: left;
-    height: 140px;
+    height: 100px;
     margin: 0.5em;
     padding: 10px 0;
     position: inherit;
     text-align: center;
-    width: 21.216em;
+    text-decoration: none;
+    width: 20.9em;
 }
-div.steps div.step1:hover, div.steps div.step2:hover, div.steps div.step3:hover {
+div.steps a.step1:hover, div.steps a.step2:hover, div.steps a.step3:hover {
+    border: 2px solid #FFFFFF;
+    cursor: pointer;
+}
+div.steps a.current {
+	border:2px solid #5E5A67;
     background: none repeat scroll 0 0 #5E5A67;
     cursor: pointer;
 }
-div.steps div.active {
-    background: none repeat scroll 0 0 #5E5A67;
-    cursor: pointer;
+div.steps a.current:hover {
+	border:2px solid #5E5A67;
 }
-div.steps div div.image {
-padding-top:5px;
+div.steps a.disabled:hover {
+	border: 2px solid #8A809F;
+}
+body.IE7 div.steps a.disabled {
+	filter: alpha(opacity=20);
+}
+body.IE8 div.steps a.disabled {
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+}
+div.steps a.disabled {
+    opacity: 0.2;
+    cursor: auto !important;
+}
+div.steps a.disabled:hover {
+	border: 2px solid #8A809F;
+    background: none repeat scroll 0 0 #8A809F;
+    cursor: auto !important;
+}
+div.steps a div.image {
+padding-top:0px;
 } 
-div.steps div div.image img {
+div.steps a div.image img {
 
 } 
-div.steps div div.text {
+div.steps a div.text {
     background: none repeat scroll 0 0 #FFFFFF;
     border-radius: 5px 5px 5px 5px;
     margin: 10px auto 0;
     padding: 5px 0;
     position: relative;
 } 
-div.steps div.step1 div.text {
+div.steps a.step1 div.text {
 	width: 167px;
 }
-div.steps div.step2 div.text {
+div.steps a.step2 div.text {
 	width: 140px;
 }
-div.steps div.step3 div.text {
+div.steps a.step3 div.text {
 	width: 110px;
 }
-div.steps div div.text p {
+div.steps a div.text p {
     color: #333333;
     font: 300 100%/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
     margin: 0;
@@ -55,22 +78,23 @@ div.steps div div.text p {
     width: auto;
 } 
 .clear {
-clear:both;
-margin:0;
-padding:0;
+	clear:both;
+	margin:0;
+	padding:0;
 }
-div#content-header {
+div.content-header {
     background-color: #C8C3D3;
     border-radius: 10px 10px 10px 10px;
+    margin-bottom: 20px;
     padding: 15px;
 }
 div#content-area {
-   background-color: #F4F2F9;
+    background-color: #C8C3D3;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     margin-left: 20px;
     margin-right: 20px;
-    padding: 35px;
+    padding: 10px;
 }
 body.dps #content h1.title {
    background: none repeat scroll 0 0 transparent;
@@ -81,48 +105,94 @@ body.dps #content h1.title {
     text-shadow: 0 1px #333333;
 }
 div.panel {
-
+    padding-bottom: 20px;
+    min-height: 300px;
 }
-div.upload form#upload_spreadsheet {
+div.panel form {
     background: none repeat scroll 0 0 #FFFFFF;
     border-radius: 10px 10px 10px 10px;
+    height: 285px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 20px 10px;
     width: 50%;
 }
-div.upload form#upload_spreadsheet fieldset {
+div.panel fieldset {
 	border:none;
 }
-div.upload form#upload_spreadsheet label {
+div.panel form label {
     border-radius: 5px 5px 5px 5px;
     color: #79678F;
     display: block;
-    font: 300 16px/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
+    font: 300 14px/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
     letter-spacing: 0.5px;
     margin-bottom: 0;
     padding: 3px;
     width: 350px;
 }
-div.upload form#upload_spreadsheet input {
+div.panel form input {
     border: 1px solid #DDDDDD;
     border-radius: 5px 5px 5px 5px;
-    font: 300 16px/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
+    font: 300 14px/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
     height: 30px;
     letter-spacing: 0.5px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     padding-left: 5px;
     padding-right: 5px;
     width: 350px;
 }
-div.upload form#upload_spreadsheet input:select {
-    background-color:#C8C3D3;
+div.panel form input:focus {
+    background-color:#FEFDCB;
+    color:#333333;
 }
-div.upload form#upload_spreadsheet input#submit {
-
+div.panel form input#upload {
+	font:300 16px/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
 }
-
-
-
+div.panel form input[type=submit] {
+    background: url("../images/bg-submit.gif") repeat-x scroll center bottom #333333;
+    border: 1px solid #999999;
+    border-radius: 5px 5px 5px 5px;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 20px;
+    height: 32px;
+    margin-left: 125px;
+    margin-top: 10px;
+    padding: 1px 0.6em 0.3em;
+    text-align: center;
+    text-decoration: none;
+    width: 120px;
+}
+div.panel form input[type=submit]:hover {
+	background:#555555;
+}
+div.panel form input[type=submit]:active {
+	background:#9E7FB5;
+	color:#333333;
+}
+a.preview_link {
+    background: url("../images/bg-submit.gif") repeat-x scroll center bottom #333333;
+    border: 1px solid #999999;
+    border-radius: 5px 5px 5px 5px;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: block;
+    font-size: 20px;
+    height: 28px;
+    line-height: 28px;
+    margin-bottom: 20px;
+    margin-left: 144px;
+    margin-top: 40px;
+    text-align: center;
+    text-decoration: none;
+    width: 120px;
+}
+a.preview_link:hover {
+	background:#555555;
+}
+a.preview_link:active {
+	background:#9E7FB5;
+	color:#333333;
+}
 
 
 
@@ -449,85 +519,7 @@ body {
     font-size: 0.813em;
     line-height: 1.188em;
 }
-h1, h2, h3, h4, #site-name {
-    font-family: Helvetica,Arial,sans-serif;
-    font-weight: bold;
-}
-#content h1, #content h1.title {
-    background: none repeat scroll 0 0 #3B393F;
-    color: #FFFFFF;
-    font-size: 25px;
-    line-height: 26px;
-    padding: 15px;
-}
-h2 {
-    color: #FFFFFF;
-    font-size: 1em;
-    margin: 0 0 15px;
-    padding: 8px 15px;
-}
-h2 a:link, h2 a:visited, h2 a:active, h2 a:hover {
-    color: #FFFFFF;
-    text-decoration: underline;
-}
-.page-fbconnect h2 a {
-    color: black;
-}
-div.node-inner h2, div#sidebar-right h2, div#block-data_gov_uk_custom-blogslist h2, div.view-blog-posts h2, h2#comments-title, body.section-search div#main h2 {
-    background: none repeat scroll 0 0 #3B393F;
-}
-h3 {
-    color: #222222;
-    font-size: 1.154em;
-    margin: 0 0 15px;
-}
-h4, h5, h6 {
-    color: #222222;
-    font-size: 1em;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-p, ol, ul, dl, dd {
-    margin-bottom: 1em;
-}
-a:link, a:visited, a:active, a:hover {
-    color: #1F328C;
-    text-decoration: none;
-}
-#main a:hover, #footer a:hover {
-    text-decoration: underline;
-}
-ol {
-    margin-left: 8px;
-}
-ol li {
-    list-style-type: decimal;
-    margin: 0 0 0 15px;
-    padding: 0 0 0 0;
-}
-ul {
-    margin-left: 3px;
-}
-ul li {
-    list-style-type: square;
-    margin: 0 0 0 12px;
-    padding: 0 0 0 0;
-}
-strong {
-    font-weight: bold;
-}
-em {
-    font-style: italic;
-}
-table {
-    width: 100%;
-}
-td {
-    padding: 0.25em;
-}
-td p {
-    margin-bottom: 0;
-}
+
 div.fieldgroup .content {
     padding: 0;
 }
