@@ -1197,6 +1197,7 @@ var Orgvis = {
 					postIn:[],
 					reportsTo:[],
 					heldBy:[],
+					salaryRange:item.salaryRange.label,
 					processed:false
 				},
 				children:[]
@@ -1287,6 +1288,7 @@ var Orgvis = {
 					type:node.data.type,
 					postIn:node.data.postIn,
 					reportsTo:node.data.reportsTo,
+					salaryRange:node.data.salaryRange,
 					heldBy:[],
 					processed:true
 				},
@@ -1338,7 +1340,7 @@ var Orgvis = {
 			
 			html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+'">Center organogram</a></p>';
 			
-			html += '<p class="salary"><span>Salary</span><span class="value">£?</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
+			html += '<p class="salary"><span>Salary</span><span class="value">'+node.data.salaryRange+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
 			//'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'
 			
 			html += '<p class="salaryReports"><span>Combined salary of reporting posts </span><span class="value">Checking...</span><img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
