@@ -32,7 +32,7 @@
 	<body class="IE7" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');"> 
 <![endif]--> 
 <!--[if IE 8]> 
-	<body class="IE8" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>'));"> 
+	<body class="IE8" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');"> 
 <![endif]--> 
 <body onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');">
 
