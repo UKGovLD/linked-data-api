@@ -33,7 +33,7 @@ spec:api
 	api:defaultPageSize "20" ;
 #	api:sparqlEndpoint <http://services.data.gov.uk/reference/sparql> ;
   api:sparqlEndpoint <http://localhost:8900/sparql> ;
-	api:lang "en,cy" ;
+# api:lang "en,cy" ;
 	api:defaultViewer api:labelledDescribeViewer ;
 	api:viewer 
 	  api:describeViewer ,
