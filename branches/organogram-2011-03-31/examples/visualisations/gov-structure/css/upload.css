@@ -6,6 +6,7 @@ div.steps {
     padding: 10px;
 }
 div.steps a.step1, div.steps a.step2, div.steps a.step3 {
+    display: block;
     background: none repeat scroll 0 0 #8A809F;
     border: 2px solid #8A809F;
     border-radius: 10px 10px 10px 10px;
@@ -18,7 +19,7 @@ div.steps a.step1, div.steps a.step2, div.steps a.step3 {
     text-decoration: none;
     width: 20.9em;
 }
-div.steps a.step1:hover, div.steps a.step2:hover, div.steps a.step3:hover {
+div.steps a:hover {
     border: 2px solid #FFFFFF;
     cursor: pointer;
 }
@@ -31,6 +32,7 @@ div.steps a.current:hover {
 	border:2px solid #5E5A67;
 }
 div.steps a.disabled:hover {
+  cursor: default;
 	border: 2px solid #8A809F;
 }
 body.IE7 div.steps a.disabled {
@@ -48,29 +50,33 @@ div.steps a.disabled:hover {
     background: none repeat scroll 0 0 #8A809F;
     cursor: auto !important;
 }
-div.steps a div.image {
-padding-top:0px;
+div.steps a span.image {
+  display: block;
+  padding-top:0px;
 } 
-div.steps a div.image img {
-
+div.steps a span.image img {
+	outline: none;
+	border:none;
 } 
-div.steps a div.text {
+div.steps a span.text {
+    display: block;
     background: none repeat scroll 0 0 #FFFFFF;
     border-radius: 5px 5px 5px 5px;
     margin: 10px auto 0;
     padding: 5px 0;
     position: relative;
 } 
-div.steps a.step1 div.text {
+div.steps a.step1 span.text {
 	width: 167px;
 }
-div.steps a.step2 div.text {
+div.steps a.step2 span.text {
 	width: 140px;
 }
-div.steps a.step3 div.text {
+div.steps a.step3 span.text {
 	width: 110px;
 }
-div.steps a div.text p {
+div.steps a span.text span {
+    display: block;
     color: #333333;
     font: 300 100%/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
     margin: 0;
@@ -107,8 +113,9 @@ body.dps #content h1.title {
 div.panel {
     padding-bottom: 20px;
     min-height: 300px;
+    text-align: center;
 }
-div.panel form {
+div.panel form, div.panel div.links, div#errors {
     background: none repeat scroll 0 0 #FFFFFF;
     border-radius: 10px 10px 10px 10px;
     height: 285px;
@@ -118,6 +125,7 @@ div.panel form {
 }
 div.panel fieldset {
 	border:none;
+	text-align: left;
 }
 div.panel form label {
     border-radius: 5px 5px 5px 5px;
@@ -138,7 +146,7 @@ div.panel form input {
     margin-bottom: 10px;
     padding-left: 5px;
     padding-right: 5px;
-    width: 350px;
+    width: 390px;
 }
 div.panel form input:focus {
     background-color:#FEFDCB;
@@ -147,7 +155,7 @@ div.panel form input:focus {
 div.panel form input#upload {
 	font:300 16px/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
 }
-div.panel form input[type=submit] {
+div.panel form input#submit, div.panel form input#download {
     background: url("../images/bg-submit.gif") repeat-x scroll center bottom #333333;
     border: 1px solid #999999;
     border-radius: 5px 5px 5px 5px;
@@ -162,36 +170,74 @@ div.panel form input[type=submit] {
     text-decoration: none;
     width: 120px;
 }
-div.panel form input[type=submit]:hover {
+div.panel form input#submit:hover, div.panel form input#download:hover  {
 	background:#555555;
 }
-div.panel form input[type=submit]:active {
+div.panel form input#submit:active, div.panel form input#download:active  {
 	background:#9E7FB5;
-	color:#333333;
 }
-a.preview_link {
-    background: url("../images/bg-submit.gif") repeat-x scroll center bottom #333333;
-    border: 1px solid #999999;
-    border-radius: 5px 5px 5px 5px;
-    color: #FFFFFF;
-    cursor: pointer;
-    display: block;
-    font-size: 20px;
-    height: 28px;
-    line-height: 28px;
-    margin-bottom: 20px;
-    margin-left: 144px;
-    margin-top: 40px;
-    text-align: center;
-    text-decoration: none;
-    width: 120px;
+div.panel form input.error {
+  border: 2px solid #CC0000;
 }
-a.preview_link:hover {
-	background:#555555;
+div.links {
+	text-align: left;
 }
-a.preview_link:active {
-	background:#9E7FB5;
-	color:#333333;
+div.links p {
+    color: #333333;
+    font: 300 100%/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
+    margin-top: 0;
+}
+div#errors p {
+    color: #CC0000;
+    font: 300 100%/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
+    margin-top: 0;
+}
+div.links li, div.links ul {
+  display: block;
+}
+div.links p {
+margin:0;
+padding-top: 3px;
+padding-bottom: 3px;
+}
+div.links a {
+
+}
+div.links ul {
+	margin:0;
+  	padding-left: 20px;
+}
+div.links ul li {
+
+}
+div.links ul li a {
+text-decoration: none;
+color: #5E5A67;
+}
+div.links ul li a:hover {
+text-decoration: underline;
+}
+div#errors {
+    background-color: #FFDDDD;
+    border: 2px solid #CC0000;
+    color: #CC0000;
+    height: auto;
+    margin-bottom: 10px;
+    padding: 20px 20px 0;
+    position: relative;
+}
+
+body.IE7 #content .content {
+height:310px;
+overflow-y: auto;
+}
+body.IE8 #content .content {
+height:310px;
+overflow-y: auto;
+}
+#content .content {
+    height: 335px;
+	overflow-y: auto;
 }
 
 
@@ -208,7 +254,7 @@ a.preview_link:active {
 div#page {
     background: none repeat scroll 0 0 #FFFFFF;
     box-shadow: 0 5px 24px #888888;
-    margin: 0 auto 50px;
+    margin: 0 auto 0;
     text-align: left;
     width: 72.8em;
 }
@@ -250,10 +296,15 @@ ul#accesslinks li a:focus, ul#accesslinks li a:active {
 div#login {
     background-color: black;
     color: white;
+    display: block;
+    height: 30px;
+    margin: 0;
     overflow: hidden;
-    padding-bottom: 11px;
-    padding-top: 11px;
+    padding-top: 10px;
     text-align: right;
+}
+body.IE7 div#login, body.IE8 div#login {
+    height: 40px;
 }
 div#login a {
     color: #FFFFFF;
@@ -518,6 +569,7 @@ body {
     font-family: Arial,sans-serif;
     font-size: 0.813em;
     line-height: 1.188em;
+    text-align: center;
 }
 
 div.fieldgroup .content {
