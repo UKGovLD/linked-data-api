@@ -1148,6 +1148,12 @@ organogram:totalPay api:label "totalPay" ;
 <http://reference.data.gov.uk/id/peer> api:label "Peers" .
 <http://reference.data.gov.uk/id/mp> api:label "MPs" .
 
+<http://reference.data.gov.uk/def/civil-service-grade/SCS1> api:label "SCS1" .
+<http://reference.data.gov.uk/def/civil-service-grade/SCS1A> api:label "SCS1A" .
+<http://reference.data.gov.uk/def/civil-service-grade/SCS2> api:label "SCS2" .
+<http://reference.data.gov.uk/def/civil-service-grade/SCS3> api:label "SCS3" .
+<http://reference.data.gov.uk/def/civil-service-grade/SCS4> api:label "SCS4" .
+
 gov:PublicBody a rdfs:Class ; api:label "PublicBody" .
 gov:Department a rdfs:Class ; api:label "Department" .
 gov:MinisterialDepartment api:label "MinisterialDepartment" .
