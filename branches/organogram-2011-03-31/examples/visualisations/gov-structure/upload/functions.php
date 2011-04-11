@@ -484,8 +484,7 @@ $str = <<<TRANSFORMATION
   [ xl:uri "IF(UCASE(STRING(P2)) == 'N/D' && (UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2'), '$fileURL#totalPayDisclosure' & ROW(A2))"^^xl:Expr ]
     a gov:NonDisclosure , rdf:Statement ;
     rdfs:label "'Non-Disclosure of total pay of ' & B2 & ' as ' & D2"^^xl:Expr ;
-    rdf:subject [ xl:uri "'$fileURL#tenure
-' & ROW(A2)"^^xl:Expr ] ;
+    rdf:subject [ xl:uri "'$fileURL#tenure' & ROW(A2)"^^xl:Expr ] ;
     rdf:predicate gov:salary ;
     foaf:page <$fileURL> ;
     .
