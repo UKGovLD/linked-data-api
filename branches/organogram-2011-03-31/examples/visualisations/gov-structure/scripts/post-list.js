@@ -167,7 +167,7 @@ var PostList = {
 			if(typeof name != 'undefined'){
 				html += '<p class="name ui-state-hover" data-type="name">'+name+'</p>';
 			} else {
-				html += '<p class="name ui-state-hover" data-type="name">?</p>';							
+				html += '<p class="name ui-state-hover" data-type="name">?</p>';
 			}
 
 			try{
@@ -228,6 +228,7 @@ var PostList = {
 			}	
 			*/
 			
+			/*
 			try{
 				type = json.result.items[i].type[0].label[0];
 			}catch(e){}
@@ -236,6 +237,7 @@ var PostList = {
 			}else {
 				html += '<tr class="type even"><td class="label">Type</td><td data-type="type">?</td></tr>';			
 			}
+			*/
 			
 			try{
 				grade = json.result.items[i].grade[0].label[0];
@@ -245,6 +247,15 @@ var PostList = {
 			}else {
 				html += '<tr class="type odd"><td class="label">Grade</td><td data-type="grade">?</td></tr>';		
 			}			
+			
+			try{
+				salaryRange = json.result.items[i].salaryRange.label[0];
+			}catch(e){}
+			if(typeof type != 'undefined'){
+				html += '<tr class="type even"><td class="label">Salary</td><td data-type="type">'+salaryRange+'</td></tr>';
+			}else {
+				html += '<tr class="type even"><td class="label">Salary</td><td data-type="type">?</td></tr>';			
+			}
 		
 			try{
 				reportsTo = json.result.items[i].reportsTo[0].heldBy[0].name;
