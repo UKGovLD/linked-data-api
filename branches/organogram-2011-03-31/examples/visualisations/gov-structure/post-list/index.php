@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/post-list.css" rel="stylesheet">
-<title>Cabinet Office | Post list</title>
+<title>Organogram Data | Post Listing</title>
 
 <!-- Scripts -->
 <script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
@@ -15,6 +15,7 @@
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
 <script language="javascript" type="text/javascript" src="../scripts/post-list.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.quicksand.js"></script>		
+<script language="javascript" type="text/javascript" src="../scripts/jquery.cookie.js"></script>
 
 <!--[if IE]>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.corner.js"></script>		
@@ -23,31 +24,48 @@
 </head>
 
 <!--[if IE 7]> 
-	<body class="IE7" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>');"> 
+	<body class="IE7" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>,'<?php print $_GET['grade'];?>'),'<?php print $_GET['preview'];?>');"> 
 <![endif]--> 
 <!--[if IE 8]> 
-	<body class="IE8" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>');"> 
+	<body class="IE8" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>,'<?php print $_GET['grade'];?>'),'<?php print $_GET['preview'];?>');"> 
 <![endif]--> 
-<body onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>');">
+<![if !IE]> 
+<body onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>','<?php print $_GET['grade'];?>','<?php print $_GET['preview'];?>');">
+<![endif]> 
 
 <h1 class="title breadcrumbs">
 	<button id="gov" rel="government">HM Government</button><button id="dept">Department</button><button id="unit">Unit</button>
 
-	<select id="postType">
-		<option value="Permanent Secretary">Permanent Secretary</option>
-		<option value="Director General">Director General</option>
-		<option value="Director">Director</option>
-		<option value="Deputy Director">Deputy Director</option>
+	<select id="loadBy">
+		<optgroup label="Post type">
+			<option value="Permanent Secretary">Permanent Secretary</option>
+			<option value="Director General">Director General</option>
+			<option value="Director">Director</option>
+			<option value="Deputy Director">Deputy Director</option>
+		</optgroup>
+		<optgroup label="Grade">
+			<option value="SCS1">SCS1</option>
+			<option value="SCS1A">SCS1A</option>
+			<option value="SCS2">SCS2</option>
+			<option value="SCS3">SCS3</option>
+			<option value="SCS4">SCS4</option>		
+		</optgroup>
 	</select>
-	<label for="postType" class="postType">Post Type</label>
+	<label for="loadBy" class="loadBy">Load</label>
 	
 	<select id="sortBy">
+		<option disabled value="--">--</option>
 		<option value="name">Name</option>
 		<option value="title">Title</option>
 		<option value="unit">Unit</option>
+		<option value="type">Type</option>
+		<option value="grade">Grade</option>
 	</select>
 	<label for="sortBy" class="sortBy">Sort by</label>
 
+	<span id="previewModeSign">
+		Preview Mode
+	</span>	
 </h1>
 
 <div id="infovis">
@@ -57,7 +75,7 @@
 </div>
 
 <div id="log">
-	<span>Government Overview</span>
+	<span>Loading posts</span>
 	<img src="../images/loading.gif" />
 </div>
 
