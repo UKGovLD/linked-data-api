@@ -177,3 +177,24 @@ opacity:0.7;
 #infovis div.post ul li span.label {
 
 }
+div.noPosts {
+    -moz-border-radius: 10px 10px 10px 10px;
+    -moz-box-shadow: 0 0 25px #717171;
+    border-radius: 10px 10px 10px 10px;
+    box-shadow: 0 0 25px #717171;
+    -webkit-border-radius: 10px 10px 10px 10px;
+    -webkit-box-shadow: 0 0 25px #717171;    
+    background-color: #F1F1CB;
+    background-image: url("../images/warning.png");
+    background-position: 20px center;
+    background-repeat: no-repeat;
+    border:5px solid #BFBF97;
+    color: #000000;
+    display: none;
+    left: -70px;
+    margin: 200px auto auto;
+    padding: 10px 10px 10px 70px;
+    position: relative;
+    text-align: left;
+    width: 300px;
+}

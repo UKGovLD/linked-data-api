@@ -24,6 +24,7 @@ div.noscript {
     background-repeat: no-repeat;
     border: 5px solid #9C4848;
     color: #7E2020;
+    left: -70px;
     margin: 200px auto auto;
     padding: 10px 10px 10px 70px;
     position: relative;
