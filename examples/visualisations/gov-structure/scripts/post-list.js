@@ -251,7 +251,7 @@ var PostList = {
 			try{
 				salaryRange = json.result.items[i].salaryRange.label[0];
 			}catch(e){}
-			if(typeof type != 'undefined'){
+			if(typeof salaryRange != 'undefined'){
 				html += '<tr class="type even"><td class="label">Salary</td><td data-type="type">'+salaryRange+'</td></tr>';
 			}else {
 				html += '<tr class="type even"><td class="label">Salary</td><td data-type="type">?</td></tr>';			
