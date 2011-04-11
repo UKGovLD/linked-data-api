@@ -1,6 +1,12 @@
 $(document).ready(function(){
 
-	$("div.preview, div.download").hide();
+  if ($('a.step1').hasClass('current')) {
+  	$("div.preview, div.download").hide();
+  } else if ($('a.step2').hasClass('current')) {
+  	$("div.upload, div.download").hide();
+  } else if ($('a.step3').hasClass('current')) {
+  	$("div.upload, div.preview").hide();
+  }
 	
 	// Upload your data
 	$("a.step1").click(function(){

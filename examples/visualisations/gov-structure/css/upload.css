@@ -118,7 +118,6 @@ div.panel {
 div.panel form, div.panel div.links, div#errors {
     background: none repeat scroll 0 0 #FFFFFF;
     border-radius: 10px 10px 10px 10px;
-    height: 285px;
     margin: 0 auto;
     padding: 20px 20px 10px;
     width: 50%;
@@ -177,7 +176,8 @@ div.panel form input#submit:active, div.panel form input#download:active  {
 	background:#9E7FB5;
 }
 div.panel form input.error {
-  border: 2px solid #CC0000;
+    background-color: #FFCBCE;
+    border: 1px solid #9C2F2F;
 }
 div.links {
 	text-align: left;
@@ -195,27 +195,58 @@ div#errors p {
 div.links li, div.links ul {
   display: block;
 }
+div#preview div.links p {
+    margin: 0;
+    padding-bottom: 3px;
+    padding-top: 3px;
+}
 div.links p {
-margin:0;
-padding-top: 3px;
-padding-bottom: 3px;
+    margin: 0;
+    padding-bottom: 20px;
+    padding-top: 3px;
 }
 div.links a {
-
+	text-decoration: underline;
 }
 div.links ul {
 	margin:0;
   	padding-left: 20px;
 }
+div.links ul.post_list {
+    background: url("../images/list_thumb.png") no-repeat scroll right top transparent;
+    min-height: 88px;
+}
+div.links ul.organogram {
+    background: url("../images/org_thumb.png") no-repeat scroll right top transparent;
+    min-height: 88px;
+}
 div.links ul li {
-
+    margin-bottom: 5px;
+}
+div.preview div ul li {
+    width: 180px;
 }
 div.links ul li a {
-text-decoration: none;
-color: #5E5A67;
+text-decoration: underline;
 }
 div.links ul li a:hover {
-text-decoration: underline;
+color: #5E5A67; 
+}
+div.links a.rdf {
+    background: url("../images/rdf_file.png") no-repeat scroll 0 0 transparent;
+    display: block;
+    height: 60px;
+    line-height: 60px;
+    margin-bottom: 10px;
+    padding-left: 75px;
+}
+div.links a.csv {
+    background: url("../images/csv_file.png") no-repeat scroll 0 0 transparent;
+    display: block;
+    height: 60px;
+    line-height: 60px;
+    margin-bottom: 10px;
+    padding-left: 75px;
 }
 div#errors {
     background-color: #FFDDDD;
@@ -239,11 +270,30 @@ overflow-y: auto;
     height: 335px;
 	overflow-y: auto;
 }
-
-
-
-
-
+div.preview div.links {
+	width:500px;
+}
+body.IE7 div.preview div.links {
+	width:500px;
+}
+body.IE8 div.preview div.links {
+	width:500px;
+}
+div.uploading {
+text-align: center;
+}
+div.uploading img {
+margin-top: 40px;
+margin-bottom: 40px;
+}
+body.IE7 div.uploading img {
+margin-top: 20px;
+margin-bottom: 20px;
+}
+body.IE8 div.uploading img {
+margin-top: 20px;
+margin-bottom: 20px;
+}
 
 
 
