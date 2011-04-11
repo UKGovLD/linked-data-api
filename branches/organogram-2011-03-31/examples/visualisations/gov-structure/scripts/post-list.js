@@ -243,18 +243,18 @@ var PostList = {
 				grade = json.result.items[i].grade.label[0];
 			}catch(e){}			
 			if(typeof grade != 'undefined'){
-				html += '<tr class="type odd"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
+				html += '<tr class="grade even"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
 			}else {
-				html += '<tr class="type odd"><td class="label">Grade</td><td data-type="grade">?</td></tr>';		
+				html += '<tr class="grade even"><td class="label">Grade</td><td data-type="grade">?</td></tr>';		
 			}			
 			
 			try{
 				salaryRange = json.result.items[i].salaryRange.label[0];
 			}catch(e){}
 			if(typeof salaryRange != 'undefined'){
-				html += '<tr class="type even"><td class="label">Salary</td><td data-type="type">'+salaryRange+'</td></tr>';
+				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="type">'+salaryRange+'</td></tr>';
 			}else {
-				html += '<tr class="type even"><td class="label">Salary</td><td data-type="type">?</td></tr>';			
+				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="type">?</td></tr>';			
 			}
 		
 			try{
