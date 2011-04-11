@@ -13,6 +13,10 @@ var PostList = {
 	vars:{
 		dept:"",
 		unit:"",
+		pbod:"",
+		org:"",
+		orgType:"",
+		orgTypeSlug:"",
 		postType:"",
 		grade:"",
 		previewMode:false,		// Used to initialise authentication and to swap API locations
@@ -23,16 +27,19 @@ var PostList = {
 		debug:true,
 		apiBase:"http://reference.data.gov.uk"
 	},
-	init:function(pDept,pUnit,pType,pGrade,pMode){
+	init:function(pDept,pBod,pUnit,pType,pGrade,pMode){
 	
-		if(pMode == "clear"){
+		if(pMode == "clear") {
 			$.cookie("organogram-preview-mode", null);
 			$.cookie("organogram-username", null);
 			$.cookie("organogram-password", null);
+			window.location = "?dept="+pDept+"&pubbod="+pBod+"&unit="+pUnit+"&type="+pType+"&grade="+pGrade;
 		}
 
 		log('$.cookie("organogram-preview-mode"):'+$.cookie("organogram-preview-mode"));
 		log(pMode);
+		
+		log(pDept+","+pBod+","+pUnit+","+pType+","+pGrade+","+pMode);
 
 		// Check for preview parameter
 		if(pMode == "true"){
@@ -63,12 +70,26 @@ var PostList = {
 			// Not in preview mode
 			PostList.vars.apiBase = "reference.data.gov.uk";
 		}
-				
+
+		if(pDept.length>0){
+			log("department");
+			PostList.vars.org = pDept;
+			PostList.vars.orgType = "department";
+			PostList.vars.orgTypeSlug = "dept";
+		}else if(pBod.length>0){
+			log("public-body");
+			PostList.vars.org = pBod;
+			PostList.vars.orgType = "public-body";
+			PostList.vars.orgTypeSlug = "pubbod";
+		}				
+		
 		PostList.vars.dept = pDept;
+		PostList.vars.pbod = pBod;
 		PostList.vars.unit = pUnit;
 		PostList.vars.postType = pType;
 		PostList.vars.grade = pGrade;
 		
+
 		if(PostList.vars.postType.length > 0){
 			$("select#loadBy").val(PostList.vars.postType.replace("+"," "));
 			PostList.getPostsByType();
@@ -80,17 +101,14 @@ var PostList = {
 			PostList.getPostsByGrade();
 		}
 
-
-
-
-
 		$('div#apiCalls').hide();
 		$("a.source").remove();
 		$('div.apiCall').remove();
 				
 	},
 	getPostsByType:function(){
-
+		
+		$("div.noPosts").hide();
 		PostList.showLog("Loading data ...");
 
 		PostList.vars.apiCallInfo.postTypeList = {
@@ -106,7 +124,8 @@ var PostList = {
 			dataType: "jsonp",
 			async:true,
 			success: function(json){	
-				PostList.loadDepts(json);
+				PostList.vars.previewMode = "true";
+				PostList.loadPosts(json);
 			},
 			error: function(){
 				PostList.changeLog("Error loading data",false);
@@ -114,13 +133,14 @@ var PostList = {
 		});	
 	},
 	getPostsByGrade:function(){
-
+		
+		$("div.noPosts").hide();
 		PostList.showLog("Loading data ...");
 
 		PostList.vars.apiCallInfo.gradeList = {
 			title:"Posts by grade",
 			description:"Retrieve posts within a department by a specific grade.",
-			url:"http://"+PostList.vars.apiBase+"/doc/department/"+PostList.vars.dept+"/post",
+			url:"http://"+PostList.vars.apiBase+"/doc/"+PostList.vars.orgType+"/"+PostList.vars.org+"/post",
 			parameters:"?_pageSize=100&grade="+PostList.vars.grade.replace(" ","+")
 		};
 		
@@ -129,16 +149,31 @@ var PostList = {
 			type: "GET",
 			dataType: "jsonp",
 			async:true,
-			success: function(json){	
-				previewMode=true;
-				PostList.loadDepts(json);
+			success: function(json){
+				PostList.vars.previewMode = "true";	
+				if(json.result.items.length < 1){
+					PostList.displayNoPosts("grade",PostList.vars.grade);
+				} else {
+					PostList.loadPosts(json);				
+				}
 			},
 			error: function(){
 				PostList.changeLog("Error loading data",false);
 			}
 		});	
 	},	
-	loadDepts:function(json){
+	displayNoPosts:function(filter,value){
+
+		$("div.noPosts").html('<p>No posts found for '+PostList.vars.orgType+' ID "'+PostList.vars.org+'", when filtering by '+filter+': '+value+'</p>');
+
+		PostList.displayDataSources();
+		
+		PostList.hideLog();
+		
+		$("div.noPosts").show();
+		
+	},
+	loadPosts:function(json){
 	
 		//var postList = new Array();
 			
@@ -279,7 +314,7 @@ var PostList = {
 		$("div.postHolder").html(html);
 		
 		$("div.post").click(function(){
-			window.location = "../organogram?dept="+PostList.vars.dept+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+			window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
 		});
 		
 		//$("div.post").dropShadow();
@@ -335,8 +370,8 @@ var PostList = {
 	    	adjustHeight: 'dynamic'
 	    },function(){
 			$("div.post").click(function(){
-					window.location = "../organogram?dept="+PostList.vars.dept+"&post="+$(this).attr("rel");
-				});
+				window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+			});
 	    });
 	
 	  });
@@ -466,9 +501,9 @@ $(document).ready(function() {
 		$("div.postHolder").html("");
 		//$("div.postHolder").css("height","auto");
 		if(loadType == "Post type"){
-			PostList.init(PostList.vars.dept,PostList.vars.unit,$(this).val(),'',PostList.vars.previewMode);		
+			PostList.init(PostList.vars.dept,PostList.vars.pbod,PostList.vars.unit,$(this).val(),'',PostList.vars.previewMode);		
 		} else if(loadType == "Grade"){
-			PostList.init(PostList.vars.dept,PostList.vars.unit,'',$(this).val(),PostList.vars.previewMode);
+			PostList.init(PostList.vars.dept,PostList.vars.pbod,PostList.vars.unit,'',$(this).val(),PostList.vars.previewMode);
 		}
 		//$('#infovis').quicksand( $('#infovis').find("div."+postType), { adjustHeight: 'dynamic' } );
 	});
