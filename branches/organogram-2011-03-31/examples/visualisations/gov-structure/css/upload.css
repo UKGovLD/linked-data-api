@@ -279,18 +279,19 @@ body.IE7 div.preview div.links {
 body.IE8 div.preview div.links {
 	width:500px;
 }
-div.uploading {
+div.uploading, div.downloading {
+display: none;
 text-align: center;
 }
-div.uploading img {
+div.uploading img, div.downloading img {
 margin-top: 40px;
 margin-bottom: 40px;
 }
-body.IE7 div.uploading img {
+body.IE7 div.uploading img, body.IE7 div.downloading img {
 margin-top: 20px;
 margin-bottom: 20px;
 }
-body.IE8 div.uploading img {
+body.IE8 div.uploading img, body.IE8 div.downloading img {
 margin-top: 20px;
 margin-bottom: 20px;
 }

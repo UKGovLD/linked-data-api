@@ -229,9 +229,15 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
                         <input id="upload-file" name="file" type="file" <?php if ($action != '' && !$validFile) { echo 'class="error"'; } ?> />
                         <label for="upload-date">Snapshot date (dd/mm/yyyy)</label>
                         <input id="upload-date" type="text" name="date" maxlength="10" value="<?php if ($date == '') { echo '31/03/2011'; } else { echo $date; } ?>" <?php if ($action != '' && !$validDate) { echo 'class="error"'; } ?> />
-                        <input id="submit" type="submit" value="Upload" title="The organogram spreadsheets are large and can take some time to upload. Please be patient." />
+                        <input type="submit" value="Upload" title="The organogram spreadsheets are large and can take some time to upload. Please be patient." />
                       </fieldset>
-                    </form>    
+                    </form>
+                    <div class="uploading links">
+                      <img src="../images/uploading.gif" />
+                      <p style="font-weight:bold;">Uploading...</p>
+                      <p>The organogram spreadsheets are large and take time to upload.</p>
+                      <p>Please be patient.</p>
+                    </div>
                 </div> <!-- end upload panel -->
                 <div id="preview" class="preview panel">
                   <div class="links">
@@ -287,12 +293,18 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
                     <div class="links">
                       <p>You can now download your data through the following links.<?php if ($action != 'download') { echo ' Note that it can take some time for the RDF to be generated. Please be patient.'; } ?></p>
                       <ul>
-                        <li><a href="<?php echo $rdfUri ?>">Download RDF</a></li>
-                        <li><a href="<?php echo $seniorCSVUri ?>">Download Senior Post CSV</a></li>
-                        <li><a href="<?php echo $juniorCSVUri ?>">Download Junior Post CSV</a></li>
+                        <li><a class="rdf <?php if ($action != 'download') { echo 'generating'; } ?>" href="<?php echo $rdfUri ?>">Download RDF</a></li>
+                        <li><a class="csv" href="<?php echo $seniorCSVUri ?>">Download Senior Post CSV</a></li>
+                        <li><a class="csv" href="<?php echo $juniorCSVUri ?>">Download Junior Post CSV</a></li>
                       </ul>
                     </div>
                   <?php } ?>
+                  <div class="downloading links">
+                    <img src="../images/uploading.gif" />
+                    <p style="font-weight:bold;">Downloading...</p>
+                    <p>The organogram RDF is large and takes time to be generated.</p>
+                    <p>Please be patient.</p>
+                  </div>
                 </div> <!-- end download panel -->
               </div>
             </div> <!-- /node-inner, /node -->
