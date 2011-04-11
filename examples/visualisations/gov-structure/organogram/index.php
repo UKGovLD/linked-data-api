@@ -24,17 +24,23 @@
 <script language="javascript" type="text/javascript" src="../scripts/jquery.corner.js"></script>
 <![endif]-->
 
+<!--[if IE]><p>You are using Internet Explorer.</p><![endif]-->
+<p>You are not using Internet Explorer.</p><![endif]>
 
 <title>Her Majesty's Government | Organogram Viewer</title>
 </head>
 
-<!--[if IE 7]> 
+<!--[if IE 7]>
 	<body class="IE7" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');"> 
-<![endif]--> 
+<![endif]-->
+
 <!--[if IE 8]> 
 	<body class="IE8" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');"> 
-<![endif]--> 
-<body onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');">
+<![endif]-->
+
+<![if !IE]>
+  <body onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');">
+<![endif]> 
 
 <h1 class="title breadcrumbs">
 	<button id="dept">Department</button><button id="unit">Unit</button><button id="post">Post</button>
