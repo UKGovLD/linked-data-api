@@ -120,7 +120,7 @@ var PostList = {
 			title:"Posts by grade",
 			description:"Retrieve posts within a department by a specific grade.",
 			url:"http://"+PostList.vars.apiBase+"/doc/department/"+PostList.vars.dept+"/post",
-			parameters:"?_pageSize=100&grade.label="+PostList.vars.grade.replace(" ","+")
+			parameters:"?_pageSize=100&grade="+PostList.vars.grade.replace(" ","+")
 		};
 		
 		$.ajax({
