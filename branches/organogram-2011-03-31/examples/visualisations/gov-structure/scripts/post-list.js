@@ -240,7 +240,7 @@ var PostList = {
 			*/
 			
 			try{
-				grade = json.result.items[i].grade[0].label[0];
+				grade = json.result.items[i].grade.label[0];
 			}catch(e){}			
 			if(typeof grade != 'undefined'){
 				html += '<tr class="type odd"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
