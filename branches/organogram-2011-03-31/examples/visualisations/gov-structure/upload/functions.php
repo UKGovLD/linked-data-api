@@ -371,24 +371,24 @@ $str = <<<TRANSFORMATION
       foaf:page <$fileURL> ;
     ] ;
     grade:grade [ 
-      xl:uri "'http://reference.data.gov.uk/def/civil-service-grade/' & C2"^^xl:Expr ;
-      rdfs:label "C2"^^xl:Expr ;
+      xl:uri "'http://reference.data.gov.uk/def/civil-service-grade/' & UCASE(C2)"^^xl:Expr ;
+      rdfs:label "UCASE(C2)"^^xl:Expr ;
     ] ;
-    postStatus:postStatus [ xl:uri "'http://reference.data.gov.uk/def/civil-service-post-status/' & IF(B2 == 'Vacant', 'vacant', IF(B2 == 'Eliminated', 'eliminated', 'current'))"^^xl:Expr ] ;
-    org:reportsTo [ xl:uri "IF(STRING(K2) != 'XX', NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & K2)"^^xl:Expr ; ] ;
+    postStatus:postStatus [ xl:uri "'http://reference.data.gov.uk/def/civil-service-post-status/' & IF(LCASE(B2) == 'vacant', 'vacant', IF(LCASE(B2) == 'eliminated', 'eliminated', 'current'))"^^xl:Expr ] ;
+    org:reportsTo [ xl:uri "IF(UCASE(STRING(K2)) != 'XX', NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & K2)"^^xl:Expr ; ] ;
     gov:heldBy [ 
       # person
-      xl:uri "IF(B2 != 'Vacant' && B2 != 'Eliminated' && STRING(A2) != '0', '$fileURL#person' & ROW(A2))"^^xl:Expr ;
+      xl:uri "IF(LCASE(B2) != 'vacant' && LCASE(B2) != 'eliminated' && STRING(A2) != '0', '$fileURL#person' & ROW(A2))"^^xl:Expr ;
       a foaf:Person ;
-      foaf:name "IF(B2 != 'N/D' && B2 != 'N/A', B2)"^^xl:Expr ;
+      foaf:name "IF(UCASE(B2) != 'N/D' && UCASE(B2) != 'N/A', B2)"^^xl:Expr ;
       foaf:phone [
-        xl:uri "IF(I2 != 'N/D' && I2 != 'N/A', 'tel:+44.' & SUBSTRING(SUBSTITUTE(I2, ' ', '.'), 1))"^^xl:Expr ;
+        xl:uri "IF(UCASE(I2) != 'N/D' && UCASE(I2) != 'N/A', 'tel:+44.' & SUBSTRING(SUBSTITUTE(I2, ' ', '.'), 1))"^^xl:Expr ;
         a vcard:Tel ;
         rdfs:label "I2"^^xl:Expr ;
         foaf:page <$fileURL> ;
       ] ;
       foaf:mbox [
-        xl:uri "IF(J2 != 'N/D' && J2 != 'N/A', 'mailto:' & J2)"^^xl:Expr ;
+        xl:uri "IF(UCASE(J2) != 'N/D' && UCASE(J2) != 'N/A', 'mailto:' & J2)"^^xl:Expr ;
         a vcard:Email ;
         rdfs:label "J2"^^xl:Expr ;
         foaf:page <$fileURL> ;
@@ -402,14 +402,14 @@ $str = <<<TRANSFORMATION
         rdfs:label "B2 & ' as ' & D2"^^xl:Expr ;
         gov:postholder [ xl:uri "'$fileURL#person' & ROW(A2)"^^xl:Expr ] ;
         gov:post [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & A2"^^xl:Expr ] ;
-        gov:salary "IF(STRING(P2) != 'N/D' && STRING(P2) != 'N/A', P2)"^^xl:Expr ;
+        gov:salary "IF(UCASE(STRING(P2)) != 'N/D' && UCASE(STRING(P2)) != 'N/A', P2)"^^xl:Expr ;
         gov:fullTimeEquivalent "M2"^^xl:Expr ;
         foaf:page <$fileURL> ;
       ] ;
       foaf:page <$fileURL> ;
     ] ;
     gov:salaryRange [ 
-      xl:uri "IF(STRING(N2) != 'N/D' && STRING(N2) != 'N/A' && B2 != 'Vacant' && B2 != 'Eliminated' && STRING(A2) != '0', 'http://reference.data.gov.uk/id/salary-range/' & N2 & '-' & O2)"^^xl:Expr ;
+      xl:uri "IF(UCASE(STRING(N2)) != 'N/D' && UCASE(STRING(N2)) != 'N/A' && LCASE(B2) != 'vacant' && LCASE(B2) != 'eliminated' && STRING(A2) != '0', 'http://reference.data.gov.uk/id/salary-range/' & N2 & '-' & O2)"^^xl:Expr ;
       a gov:SalaryRange ;
       ## NOTE: derive from salaries
       rdfs:label "'£' & N2 & ' - £' & O2"^^xl:Expr ;
@@ -422,20 +422,20 @@ $str = <<<TRANSFORMATION
     .
   
   # people without posts
-  [ xl:uri "IF(B2 != 'Vacant' && B2 != 'Eliminated' && STRING(A2) == '0', '$fileURL#person' & ROW(A2))"^^xl:Expr ]
+  [ xl:uri "IF(LCASE(B2) != 'vacant' && LCASE(B2) != 'eliminated' && STRING(A2) == '0', '$fileURL#person' & ROW(A2))"^^xl:Expr ]
     a foaf:Person ;
-    grade:grade [ xl:uri "'http://reference.data.gov.uk/def/civil-service-grade/' & C2"^^xl:Expr ] ;
-    org:reportsTo [ xl:uri "IF(STRING(K2) != 'XX', NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & K2)"^^xl:Expr ] ;
+    grade:grade [ xl:uri "'http://reference.data.gov.uk/def/civil-service-grade/' & UCASE(C2)"^^xl:Expr ] ;
+    org:reportsTo [ xl:uri "IF(UCASE(STRING(K2)) != 'XX', NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & K2)"^^xl:Expr ] ;
     org:memberOf [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf')"^^xl:Expr ] ;
     org:hasMembership [ 
-      xl:uri "IF(B2 != 'Vacant' && B2 != 'Eliminated' && STRING(A2) == '0', '$fileURL#tenure' & ROW(A2))"^^xl:Expr ;
+      xl:uri "IF(LCASE(B2) != 'vacant' && LCASE(B2) != 'eliminated' && STRING(A2) == '0', '$fileURL#tenure' & ROW(A2))"^^xl:Expr ;
       a org:Membership ;
       ## NOTE: derive label as "{person name} in {organisation}"
       rdfs:label "B2 & ' in ' & G2"^^xl:Expr ;
       org:member [ xl:uri "'$fileURL#person' & ROW(A2)"^^xl:Expr ] ;
       org:organization [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf')"^^xl:Expr ] ;
       gov:salaryRange [
-        xl:uri "IF(STRING(N2) != 'N/D' && STRING(N2) != 'N/A' && B2 != 'Vacant' && B2 != 'Eliminated' && STRING(A2) == '0', 'http://reference.data.gov.uk/id/salary-range/' & N2 & '-' & O2)"^^xl:Expr ;
+        xl:uri "IF(UCASE(STRING(N2)) != 'N/D' && UCASE(STRING(N2)) != 'N/A' && LCASE(B2) != 'vacant' && LCASE(B2) != 'eliminated' && STRING(A2) == '0', 'http://reference.data.gov.uk/id/salary-range/' & N2 & '-' & O2)"^^xl:Expr ;
         a gov:SalaryRange ;
         ## NOTE: derive from salaries
         rdfs:label "'£' & N2 & ' - £' & O2"^^xl:Expr ;
@@ -451,7 +451,7 @@ $str = <<<TRANSFORMATION
     .
   
   # salary cost of reports observation
-  [ xl:uri "IF(B2 != 'Eliminated', '$fileURL#salaryCostOfReports' & ROW(A2))"^^xl:Expr ]
+  [ xl:uri "IF(LCASE(B2) != 'eliminated', '$fileURL#salaryCostOfReports' & ROW(A2))"^^xl:Expr ]
     a qb:Observation ;
     rdfs:label "D2 & ' Salary Cost of Reports on 31/03/2011'"^^xl:Expr ;
     qb:dataSet <$fileURL#salaryCostOfReports> ;
@@ -461,18 +461,18 @@ $str = <<<TRANSFORMATION
     .
 
   # totalPay observation
-  [ xl:uri "IF((C2 == 'SCS4' || C2 == 'SCS3' || C2 == 'SCS2') && B2 != 'Vacant' && B2 != 'Eliminated', '$fileURL#totalPay' & ROW(A2))"^^xl:Expr ]
+  [ xl:uri "IF((UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2') && LCASE(B2) != 'vacant' && LCASE(B2) != 'eliminated', '$fileURL#totalPay' & ROW(A2))"^^xl:Expr ]
     a qb:Observation ;
     rdfs:label "B2 & ' as ' & D2 & ' Total Pay on 31/03/2011'"^^xl:Expr ;
     qb:dataSet <$fileURL#totalPay> ;
     organogram:date <http://reference.data.gov.uk/id/day/2011-03-31> ;
     organogram:tenure [ xl:uri "'$fileURL#tenure' & ROW(A2)"^^xl:Expr ; ] ;
-    organogram:totalPay "IF(STRING(P2) != 'N/D', P2)"^^xl:Expr ;
-    sdmxa:obsStatus [ xl:uri "IF(STRING(P2) == 'N/D', 'http://purl.org/linked-data/sdmx/2009/code#obsStatus-M')"^^xl:Expr ] ;
+    organogram:totalPay "IF(UCASE(STRING(P2)) != 'N/D', P2)"^^xl:Expr ;
+    sdmxa:obsStatus [ xl:uri "IF(UCASE(STRING(P2)) == 'N/D', 'http://purl.org/linked-data/sdmx/2009/code#obsStatus-M')"^^xl:Expr ] ;
     .
 
   # non-disclosed names
-  [ xl:uri "IF(B2 == 'N/D' && (C2 == 'SCS4' || C2 == 'SCS3' || C2 == 'SCS2'), '$fileURL#nameDisclosure' & ROW(A2))"^^xl:Expr ]
+  [ xl:uri "IF(UCASE(B2) == 'N/D' && (UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2'), '$fileURL#nameDisclosure' & ROW(A2))"^^xl:Expr ]
     a gov:NonDisclosure , rdf:Statement ;
     rdfs:label "'Non-Disclosure of name of ' & D2"^^xl:Expr ;
     rdf:subject [ xl:uri "'$fileURL#person' & ROW(A2)"^^xl:Expr ] ;
@@ -481,10 +481,11 @@ $str = <<<TRANSFORMATION
     .
 
   # non-disclosed total pay
-  [ xl:uri "IF(STRING(P2) == 'N/D' && (C2 == 'SCS4' || C2 == 'SCS3' || C2 == 'SCS2'), '$fileURL#totalPayDisclosure' & ROW(A2))"^^xl:Expr ]
+  [ xl:uri "IF(UCASE(STRING(P2)) == 'N/D' && (UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2'), '$fileURL#totalPayDisclosure' & ROW(A2))"^^xl:Expr ]
     a gov:NonDisclosure , rdf:Statement ;
     rdfs:label "'Non-Disclosure of total pay of ' & B2 & ' as ' & D2"^^xl:Expr ;
-    rdf:subject [ xl:uri "'$fileURL#tenure' & ROW(A2)"^^xl:Expr ] ;
+    rdf:subject [ xl:uri "'$fileURL#tenure
+' & ROW(A2)"^^xl:Expr ] ;
     rdf:predicate gov:salary ;
     foaf:page <$fileURL> ;
     .
@@ -586,7 +587,7 @@ $str = <<<TRANSFORMATION
   [ xl:uri "'$fileURL#juniorPosts' & ROW(A2)"^^xl:Expr ]
     a qb:Observation ;
     ## NOTE: construct from "{grade} {job title} ({profession}) in {unit} reporting to post {reports to} at $dateSlash"
-    rdfs:label "E2 & ' ' & H2 & ' (' & J2 & ') in ' & C2 & ' reporting to post ' & D2 & ' FTE at $dateSlash'"^^xl:Expr ;
+    rdfs:label "E2 & ' ' & H2 & ' (' & J2 & ') in ' & UCASE(C2) & ' reporting to post ' & D2 & ' FTE at $dateSlash'"^^xl:Expr ;
     qb:dataSet <$fileURL#juniorPosts> ;
     organogram:date <http://reference.data.gov.uk/id/day/$date> ;
     organogram:unit [ xl:uri "NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/', C2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf')"^^xl:Expr ; ] ;
