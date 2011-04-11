@@ -34,7 +34,7 @@ var Orgvis = {
 			'#FFFF84',			// yellow
 			'#BBEBFF',			// light blue
 			'#A27AFE',			// purple
-			'#8FFEDD', 			// cyan
+			'#8FFEDD',			// cyan
 			'#E4C6A7',			// brown
 			'#FFBBDD',			// pink
 			'#E9E9C0',			// faded green
@@ -64,13 +64,16 @@ var Orgvis = {
 		debug:true				// Output to console or not
 	},
 	init:function(deptSlug,pubbodSlug,postSlug,reload,pMode){
-
+						
 		if(pMode == "clear"){
 			$.cookie("organogram-preview-mode", null);
 			$.cookie("organogram-username", null);
 			$.cookie("organogram-password", null);
 		}
-		
+
+		log('$.cookie("organogram-preview-mode"):'+$.cookie("organogram-preview-mode"));
+		log(pMode);
+			
 		if(deptSlug.length > 0){
 			Orgvis.vars.global_typeOfOrg = "department";	
 			Orgvis.vars.global_orgSlug = "dept";
@@ -88,7 +91,8 @@ var Orgvis = {
 		}
 			
 		// Check for preview parameter
-		if(pMode){
+		if(pMode == "true"){
+			log("Param: In preview mode");
 			// In preview mode
 			
 			/*
@@ -105,18 +109,17 @@ var Orgvis = {
 			
 			Orgvis.vars.apiBase = "organogram.data.gov.uk";
 			$("h1.title span#previewModeSign").show();
+			
 			Orgvis.initSpaceTree(reload);
 
-		} // Check for user & pass in cookie
-		/*
-		else if($.cookie("organogram-preview-mode") == "true") {
+		} else if($.cookie("organogram-preview-mode")) {
+			log("Cookie: In preview mode");
 			// In preview mode
-			Orgvis.vars.previewMode = pMode;
 			Orgvis.vars.apiBase = "organogram.data.gov.uk";
 			$("h1.title span#previewModeSign").show();		
-		} 
-		*/
-		else {
+			Orgvis.initSpaceTree(reload);
+		} else {
+			log("Not in preview mode");
 			// Not in preview mode
 			Orgvis.vars.apiBase = "reference.data.gov.uk";
 			Orgvis.initSpaceTree(reload);
@@ -374,9 +377,13 @@ var Orgvis = {
 											
 					label.innerHTML = node.name;
 					if(node.data.nodeType == 'JP_child'){
-						label.innerHTML = label.innerHTML + '<span class="JP_grade">'+addCommas(node.data.grade.payband.salaryRange)+'</span>' + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+node.data.fullTimeEquivalent+'</span>';
+					
+						var fteTotal = Math.round(node.data.fullTimeEquivalent*100)/100;
+						
+						label.innerHTML = label.innerHTML + '<span class="JP_grade">'+addCommas(node.data.grade.payband.salaryRange)+'</span>' + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+fteTotal+'</span>';
 					} else {
-						label.innerHTML = label.innerHTML + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+node.data.fteTotal+'</span>';			}
+						label.innerHTML = label.innerHTML + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+node.data.fteTotal+'</span>';			
+						}
 						
 					//log(node.data.colour);
 					$(label).css('color',node.data.colour);	
@@ -454,6 +461,7 @@ var Orgvis = {
 		if(Orgvis.vars.previewMode){
 			log(Orgvis.vars.apiCallInfo);
 			log(Orgvis.vars.apiResponses);
+			Orgvis.getRootPostData();
 			Orgvis.getReportsFullData();
 			Orgvis.getJuniorStaffFullData();			
 		} else if(!reload){	
@@ -486,7 +494,7 @@ var Orgvis = {
 				log(xhr.status);
 				log(ajaxOptions);
 				log(thrownError);
-				
+				$.cookie("organogram-preview-mode", null);
 				if(Orgvis.vars.previewMode){
 					Orgvis.changeLog("Error loading post data", false);
 					Orgvis.showLogin();					
@@ -495,6 +503,7 @@ var Orgvis = {
 				}
 			},
 			success: function(json){
+				$.cookie("organogram-preview-mode", true);
 				Orgvis.vars.previewMode = true;			
 				// Display the breadcrumbs at the top of the vis
 				Orgvis.loadRootPost(json);
@@ -950,6 +959,8 @@ var Orgvis = {
 								log("Added a junior post");
 								log(Orgvis.vars.postList[postID]);
 							}
+							
+							postChildren[k].data.fteTotal = Math.round(postChildren[k].data.fteTotal*100)/100;
 						}
 					}
 				});	 // end each loop			
@@ -1506,9 +1517,10 @@ var Orgvis = {
 								var date = stats[w].date.split("/");
 	                            date = '['+date[date.length-1]+']';
 								node.data.heldBy[v].salaryCostOfReportsDate = date;
-								if(node.data.heldBy[v].salaryCostOfReports > -1){							
-									$("div.panel div.content").each(function(){									
-										if($(this).children("p.id").children("a.postID").attr("href") == node.data.heldBy[v].holdsPostURI.toString()) {
+								if(node.data.heldBy[v].salaryCostOfReports > -1){	
+									$("div.panel div.content").each(function(){		
+	
+										if($(this).children("p.id").children("a.postID").attr("href") == node.data.heldBy[v].holdsPostURI.toString().replace("reference.data.gov.uk",Orgvis.vars.apiBase)) {
 											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><span class="value">£'+addCommas(node.data.heldBy[v].salaryCostOfReports)+'</span><a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics" value="'+node.data.heldBy[v].salaryCostOfReports+'">Data</a><span class="date">'+node.data.heldBy[v].salaryCostOfReportsDate+'</span>');
 										}
 									});					
@@ -1551,8 +1563,8 @@ var Orgvis = {
 					//}			
 					for(var v=0;v<node.data.heldBy.length; v++) {					
 						$("div.expander div.content").each(function(){
-							if($(this).children("p.id").children("a.postID").attr("href") == node.data.heldBy[v].holdsPostURI) {
-								$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><span class="value">N/A</span><a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">Data</a>');
+										if($(this).children("p.id").children("a.postID").attr("href") == node.data.heldBy[v].holdsPostURI.toString().replace("reference.data.gov.uk",Orgvis.vars.apiBase)) {
+											$(this).children("p.salaryReports").html('<span>Combined salary of reporting posts</span><span class="value">N/A</span><a class="data" target="_blank" href="'+node.data.heldBy[v].holdsPostURI+'/statistics">Data</a>');
 							}
 						});	
 					}
@@ -1655,6 +1667,14 @@ var Orgvis = {
 		if($.browser.msie){
 			$("div#infobox").corner();
 		}
+		
+		/*
+		$("#infobox a").each(function(){
+			try{
+			//$(this).attr("href",$(this).attr("href").replace(/reference.data.gov.uk\/id/g,Orgvis.vars.apiBase+"/doc"));
+			}catch(e){}
+		});
+		*/
 		
 		return false;
 	},
