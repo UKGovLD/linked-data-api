@@ -104,7 +104,7 @@ var PostList = {
 			dataType: "jsonp",
 			async:true,
 			success: function(json){	
-				previewMode = true;
+				PostList.vars.previewMode = true;
 				PostList.loadDepts(json);
 			},
 			error: function(){
