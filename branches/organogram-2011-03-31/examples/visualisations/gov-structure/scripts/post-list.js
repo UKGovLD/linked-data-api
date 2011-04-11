@@ -76,8 +76,8 @@ var PostList = {
 			$("select#loadBy").val(PostList.vars.grade.replace("+"," "));
 			PostList.getPostsByGrade();
 		} else {
-			PostList.vars.postType = $("select#loadBy").val();
-			PostList.getPostsByType();
+			PostList.vars.grade = $("select#loadBy").val();
+			PostList.getPostsByGrade();
 		}
 
 
@@ -451,23 +451,24 @@ $(document).ready(function() {
 	
 	$( "a.aboutToggle").button().click(function() { $('div.about-tip').dialog('open'); return false;});
 	
-
 	$('.ui-state-default').mouseout(function(){$(this).removeClass('ui-state-focus')});
 	
 	$('div#right').children().css('visibility','visible');
 	
-	$("select#loadBy").val("Permanent Secretary");
+	$("select#loadBy").val("SCS1");
 	
 	$("select#loadBy").change(function(e){
 	
 	var loadType = e.originalEvent.explicitOriginalTarget.parentNode.label;
-	
+		
+		log(loadType);
+		
 		$("div.postHolder").html("");
 		//$("div.postHolder").css("height","auto");
 		if(loadType == "Post type"){
-			PostList.init(PostList.vars.dept,PostList.vars.unit,$(this).val(),'');		
+			PostList.init(PostList.vars.dept,PostList.vars.unit,$(this).val(),'',PostList.vars.previewMode);		
 		} else if(loadType == "Grade"){
-			PostList.init(PostList.vars.dept,PostList.vars.unit,'',$(this).val());
+			PostList.init(PostList.vars.dept,PostList.vars.unit,'',$(this).val(),PostList.vars.previewMode);
 		}
 		//$('#infovis').quicksand( $('#infovis').find("div."+postType), { adjustHeight: 'dynamic' } );
 	});
