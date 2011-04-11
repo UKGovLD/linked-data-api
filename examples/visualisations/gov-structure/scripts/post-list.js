@@ -278,7 +278,7 @@ var PostList = {
 		$("div.postHolder").html(html);
 		
 		$("div.post").click(function(){
-			window.location = "../organogram?dept="+PostList.vars.dept+"&post="+$(this).attr("rel");
+			window.location = "../organogram?dept="+PostList.vars.dept+"&post="+$(this).attr("rel")+(Postlist.vars.previewMode?'&preview=true':'');
 		});
 		
 		//$("div.post").dropShadow();

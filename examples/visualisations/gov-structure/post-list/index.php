@@ -37,12 +37,14 @@
 	<button id="gov" rel="government">HM Government</button><button id="dept">Department</button><button id="unit">Unit</button>
 
 	<select id="loadBy">
+	<!--
 		<optgroup label="Post type">
 			<option value="Permanent Secretary">Permanent Secretary</option>
 			<option value="Director General">Director General</option>
 			<option value="Director">Director</option>
 			<option value="Deputy Director">Deputy Director</option>
 		</optgroup>
+	-->
 		<optgroup label="Grade">
 			<option value="SCS1">SCS1</option>
 			<option value="SCS1A">SCS1A</option>
