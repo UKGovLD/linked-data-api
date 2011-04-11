@@ -49,11 +49,13 @@ var PostList = {
 				Orgvis.showLogin();
 			}
 			*/
+			PostList.vars.previewMode = true;
 			PostList.vars.apiBase = "organogram.data.gov.uk";
 			$("h1.title span#previewModeSign").show();		
 		} else if($.cookie("organogram-preview-mode")) {
 			log("Cookie: In preview mode");
 			// In preview mode
+			PostList.vars.previewMode = true;
 			PostList.vars.apiBase = "organogram.data.gov.uk";
 			$("h1.title span#previewModeSign").show();		
 		} else {
@@ -104,7 +106,6 @@ var PostList = {
 			dataType: "jsonp",
 			async:true,
 			success: function(json){	
-				PostList.vars.previewMode = true;
 				PostList.loadDepts(json);
 			},
 			error: function(){
