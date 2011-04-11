@@ -14,37 +14,87 @@ var PostList = {
 		dept:"",
 		unit:"",
 		postType:"",
+		grade:"",
+		previewMode:false,		// Used to initialise authentication and to swap API locations
 		apiCallInfo:{
-			postTypeList:{}
-		}
+			postTypeList:{},
+			gradeList:{}
+		},
+		debug:true,
+		apiBase:"http://reference.data.gov.uk"
 	},
-	init:function(pDept,pUnit,pType){
+	init:function(pDept,pUnit,pType,pGrade,pMode){
 	
+		if(pMode == "clear"){
+			$.cookie("organogram-preview-mode", null);
+			$.cookie("organogram-username", null);
+			$.cookie("organogram-password", null);
+		}
+
+		log('$.cookie("organogram-preview-mode"):'+$.cookie("organogram-preview-mode"));
+		log(pMode);
+
+		// Check for preview parameter
+		if(pMode == "true"){
+			log("Param: In preview mode");
+			// In preview mode
+			
+			/*
+			if($.cookie("organogram-preview-mode") == "true") {
+				// Already authenticated
+				Orgvis.vars.previewMode = pMode;
+				Orgvis.vars.apiBase = "organogram.data.gov.uk";
+			} else {
+				// Ask for username and pass
+				Orgvis.showLogin();
+			}
+			*/
+			PostList.vars.apiBase = "organogram.data.gov.uk";
+			$("h1.title span#previewModeSign").show();		
+		} else if($.cookie("organogram-preview-mode")) {
+			log("Cookie: In preview mode");
+			// In preview mode
+			PostList.vars.apiBase = "organogram.data.gov.uk";
+			$("h1.title span#previewModeSign").show();		
+		} else {
+			log("Not in preview mode");
+			// Not in preview mode
+			PostList.vars.apiBase = "reference.data.gov.uk";
+		}
+				
 		PostList.vars.dept = pDept;
 		PostList.vars.unit = pUnit;
 		PostList.vars.postType = pType;
+		PostList.vars.grade = pGrade;
 		
-		if(PostList.vars.postType < 1){
-			PostList.vars.postType = $("select#postType").val();
+		if(PostList.vars.postType.length > 0){
+			$("select#loadBy").val(PostList.vars.postType.replace("+"," "));
+			PostList.getPostsByType();
+		} else if (PostList.vars.grade.length > 0) {
+			$("select#loadBy").val(PostList.vars.grade.replace("+"," "));
+			PostList.getPostsByGrade();
 		} else {
-			$("select#postType").val(PostList.vars.postType.replace("+"," "));
+			PostList.vars.postType = $("select#loadBy").val();
+			PostList.getPostsByType();
 		}
+
+
+
+
 
 		$('div#apiCalls').hide();
 		$("a.source").remove();
 		$('div.apiCall').remove();
-		
-		PostList.getPostListData();
-		
+				
 	},
-	getPostListData:function(){
+	getPostsByType:function(){
 
 		PostList.showLog("Loading data ...");
 
 		PostList.vars.apiCallInfo.postTypeList = {
-			title:"Retrieve Permanent Secretary posts within department",
-			description:"Asks for a list of all Permanent Secretary posts within a department.",
-			url:"http://reference.data.gov.uk/doc/department/"+PostList.vars.dept+"/post",
+			title:"Posts by type",
+			description:"Retrieves posts within department by their type.",
+			url:"http://"+PostList.vars.apiBase+"/doc/department/"+PostList.vars.dept+"/post",
 			parameters:"?_pageSize=100&type.label="+PostList.vars.postType.replace(" ","+")
 		};
 		
@@ -54,6 +104,7 @@ var PostList = {
 			dataType: "jsonp",
 			async:true,
 			success: function(json){	
+				previewMode = true;
 				PostList.loadDepts(json);
 			},
 			error: function(){
@@ -61,11 +112,36 @@ var PostList = {
 			}
 		});	
 	},
+	getPostsByGrade:function(){
+
+		PostList.showLog("Loading data ...");
+
+		PostList.vars.apiCallInfo.gradeList = {
+			title:"Posts by grade",
+			description:"Retrieve posts within a department by a specific grade.",
+			url:"http://"+PostList.vars.apiBase+"/doc/department/"+PostList.vars.dept+"/post",
+			parameters:"?_pageSize=100&grade.label="+PostList.vars.grade.replace(" ","+")
+		};
+		
+		$.ajax({
+			url: PostList.vars.apiCallInfo.gradeList.url+".json"+PostList.vars.apiCallInfo.gradeList.parameters+"&callback=?",
+			type: "GET",
+			dataType: "jsonp",
+			async:true,
+			success: function(json){	
+				previewMode=true;
+				PostList.loadDepts(json);
+			},
+			error: function(){
+				PostList.changeLog("Error loading data",false);
+			}
+		});	
+	},	
 	loadDepts:function(json){
 	
 		//var postList = new Array();
 			
-		var html='', slug, label, name, comment, email, phone, unit, dept, type, reportsTo;
+		var html='', slug, label, name, comment, email, phone, unit, dept, type, reportsTo, grade, salaryRange;
 					
 		for(var i=0,itemLength=json.result.items.length;i<itemLength;i++){
 		
@@ -151,7 +227,24 @@ var PostList = {
 				html += '<tr class="type odd"><td class="label">Type</td><td>?</td></tr>';
 			}	
 			*/
-			html += '<tr class="type odd"><td class="label">Type</td><td>'+PostList.vars.postType+'</td></tr>';
+			
+			try{
+				type = json.result.items[i].type[0].label[0];
+			}catch(e){}
+			if(typeof type != 'undefined'){
+				html += '<tr class="type even"><td class="label">Type</td><td data-type="type">'+type+'</td></tr>';
+			}else {
+				html += '<tr class="type even"><td class="label">Type</td><td data-type="type">?</td></tr>';			
+			}
+			
+			try{
+				grade = json.result.items[i].grade[0].label[0];
+			}catch(e){}			
+			if(typeof grade != 'undefined'){
+				html += '<tr class="type odd"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
+			}else {
+				html += '<tr class="type odd"><td class="label">Grade</td><td data-type="grade">?</td></tr>';		
+			}			
 		
 			try{
 				reportsTo = json.result.items[i].reportsTo[0].heldBy[0].name;
@@ -208,16 +301,22 @@ var PostList = {
 		  		return $(a).find('p[data-type=name]').text().toLowerCase() > $(b).find('p[data-type=name]').text().toLowerCase() ? 1 : -1;
 	  		});
 	    } else if ($(this).val() == "title") {
-	
 	    	$sortedData = $data.find("div.post").sort(function(a, b){
 		  		return $(a).find('h3[data-type=title]').text().toLowerCase() > $(b).find('h3[data-type=title]').text().toLowerCase() ? 1 : -1;
 	  		});
-	      
 	    } else if ($(this).val() == "unit") {
 	    	$sortedData = $data.find("div.post").sort(function(a, b){
 		  		return $(a).find('td[data-type=unit]').text().toLowerCase() > $(b).find('td[data-type=unit]').text().toLowerCase() ? 1 : -1;
 	  		});
-	    }   
+	    }  else if ($(this).val() == "type") {
+	    	$sortedData = $data.find("div.post").sort(function(a, b){
+		  		return $(a).find('td[data-type=type]').text().toLowerCase() > $(b).find('td[data-type=type]').text().toLowerCase() ? 1 : -1;
+	  		});
+	    }  else if ($(this).val() == "grade") {
+	    	$sortedData = $data.find("div.post").sort(function(a, b){
+		  		return $(a).find('td[data-type=grade]').text().toLowerCase() > $(b).find('td[data-type=grade]').text().toLowerCase() ? 1 : -1;
+	  		});
+	    }     
 		
 	    // finally, call quicksand
 	    $posts.quicksand($sortedData,{
@@ -321,6 +420,9 @@ var PostList = {
 	}		
 }; // end PostList
 
+function log(info){
+	PostList.vars.debug && window.console && console.log && console.log(info);
+}
 
 $(document).ready(function() {
 
@@ -342,16 +444,23 @@ $(document).ready(function() {
 	
 	$('div#right').children().css('visibility','visible');
 	
-	$("select#postType").val("Permanent Secretary");
+	$("select#loadBy").val("Permanent Secretary");
 	
-	$("select#postType").change(function(){
+	$("select#loadBy").change(function(e){
+	
+	var loadType = e.originalEvent.explicitOriginalTarget.parentNode.label;
+	
 		$("div.postHolder").html("");
 		//$("div.postHolder").css("height","auto");
-		PostList.init(PostList.vars.dept,PostList.vars.unit,$(this).val());
+		if(loadType == "Post type"){
+			PostList.init(PostList.vars.dept,PostList.vars.unit,$(this).val(),'');		
+		} else if(loadType == "Grade"){
+			PostList.init(PostList.vars.dept,PostList.vars.unit,'',$(this).val());
+		}
 		//$('#infovis').quicksand( $('#infovis').find("div."+postType), { adjustHeight: 'dynamic' } );
 	});
 	
-	//$("select#sortBy").val("name");
+	$("select#sortBy").val("--");
 		
 	$("div#right").show();
 	
