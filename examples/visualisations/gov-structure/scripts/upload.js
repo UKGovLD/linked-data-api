@@ -8,6 +8,16 @@ $(document).ready(function(){
   	$("div.upload, div.preview").hide();
   }
 	
+	$('#upload_spreadsheet').submit(function() {
+	  $(this).hide();
+	  $('div.uploading').fadeIn();
+	});
+	
+	$('#download_data').submit(function() {
+	  $(this).hide();
+	  $('div.downloading').fadeIn();
+	});
+	
 	// Upload your data
 	$("a.step1").click(function(){
 		if(!$(this).hasClass("disabled")){
