@@ -518,6 +518,6 @@ span#previewModeSign span {
     margin: 0 auto;
     padding: 2px 20px 3px;
     position: relative;
-    width: 100px;
     text-transform: uppercase;
+    width: 135px;
 }
