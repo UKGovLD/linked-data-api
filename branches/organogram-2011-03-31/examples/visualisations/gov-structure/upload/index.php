@@ -7,8 +7,8 @@
 require_once 'Excel/reader.php';
 include 'functions.php';
 
-$xlwrapMappingsDir = 'C:/xlwrap/mappings';
-#$xlwrapMappingsDir = 'xlwrap/mappings';
+#$xlwrapMappingsDir = 'C:/xlwrap/mappings';
+$xlwrapMappingsDir = 'xlwrap/mappings';
 
 $action = '';
 $email = '';
@@ -284,24 +284,43 @@ if (file_exists($dir)) {
                 <div id="preview" class="preview panel">
                   <?php if ($validEmail && $validDate && $validFilename && $action != 'delete-preview' && $action != 'delete-download') { ?>
                     <?php
-                      $components = organogramUrl($dept, $isoDate, $filenameNoExt);
-                      $deptOrPubBod = $components['deptOrPubBod'];
-                      $deptOrPubBodId = $components['deptOrPubBodId'];
-                      $postId = $components['postId'];
+                      $orgInfo = organogramInfo($dept, $isoDate, $filenameNoExt);
                     ?>
                     <div class="links">
                       <p>You can now preview the organogram generated from the spreadsheet that you have provided or <a href="/?email=<?php echo $email; ?>&date=<?php echo $date; ?>&action=preview">preview other spreadsheets</a>.</p>
                       <p>Posts by type:</p>
                       <ul class="post_list">
-                        <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS4&preview=true" target="_blank">SCS4 (Permanent Secretaries)</a></li>
-                        <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS3&preview=true" target="_blank">SCS3 (Director Generals)</a></li>
-                        <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS2&preview=true" target="_blank">SCS2 (Directors)</a></li>
-                        <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS1A&preview=true" target="_blank">SCS1A (Deputy Directors)</a></li>
-                        <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS1&preview=true" target="_blank">SCS1 (Deputy Directors)</a></li>
+                        <?php foreach($orgInfo as $bodyUri => $body) { 
+                          $bodyType = $body['type'];
+                          $bodyId = $body['id'];
+                          $bodyLabel = $body['label'];
+                          $grades = $body['grades']; ?>
+                          <li>
+                            <?php echo $bodyLabel; ?>
+                            <?php foreach ($grades as $grade => $present) { ?>
+                              -
+                              <a href="http://labs.data.gov.uk/gov-structure/post-list?<?php echo $bodyType; ?>=<?php echo $bodyId; ?>&grade=<?php echo $grade; ?>&preview=true" target="_blank">
+                                <?php echo "{$grade}s"; ?>
+                              </a>
+                            <?php } ?>
+                          </li>
+                        <?php } ?>
                       </ul>
-                      <p>Example organogram:</p>
+                      <p>Example organograms:</p>
                       <ul class="organogram">
-                        <li><a href="http://labs.data.gov.uk/gov-structure/organogram/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&post=<?php echo $postId ?>&preview=true" target="_blank">Top Post</a></li>
+                        <?php foreach ($orgInfo as $bodyUri => $body) {
+                          $bodyType = $body['type'];
+                          $bodyId = $body['id'];
+                          $bodyLabel = $body['label'];
+                          $posts = $body['posts'];
+                          if (count($posts) > 0) {
+                            foreach ($posts as $post) {
+                              $postId = $post['id'];
+                              $postLabel = $post['label'];
+                              echo "<li><a href=\"http://labs.data.gov.uk/gov-structure/organogram/?$bodyType=$bodyId&post=$postId&preview=true\" target=\"_blank\">$postLabel</a></li>";
+                            }
+                          }
+                        } ?>
                       </ul>
                     </div>
                   <?php } else if (count($files) > 0) { ?>

@@ -1,75 +1,128 @@
 <?php
 
-function organogramUrl ($dept, $isodate, $filenoext) {
+function query ($endpoint, $query) {
+  $params = array(
+    'http' => array(
+      'method' => 'GET',
+      'header' => "Host: " . $_SERVER["HTTP_HOST"],
+      'max_redirects' => 1,
+      'ignore_errors' => true
+    )
+  );
+  $ctx = stream_context_create($params);
+  $query = array(
+    'query' => $query,
+    'output' => 'json'
+  );
+  $queryString = http_build_query($query);
+  try {
+    $fp = fopen($endpoint . '?' . $queryString, 'rb', false, $ctx);
+    if (!$fp) {
+      header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal Server Error");
+      echo "<html><head><title>Error Accessing SPARQL Endpoint</title></head><body><p>Problem accessing $endpoint</p></body></html>";
+      return array();
+    } else {
+      $response = stream_get_contents($fp);
+      if ($response === false) {
+        header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal Server Error");
+        echo "<html><head><title>Error Getting Data</title></head><body><p>Problem reading data from $endpoint</p></body></html>";
+        return array();
+      } else {
+        $results = json_decode($response);
+        $bindings = $results->results->bindings;
+        return $bindings;
+      }
+    }
+  } catch (Exception $e) {
+    header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal Server Error");
+    echo "<html><head><title>Error Getting Data</title></head><body><p>Exception " . $e->getMessage() . ".</p></body></html>";
+    return array();
+  }
+  
+}
+
+function organogramInfo ($dept, $isodate, $filenoext) {
 
   $graph = "http://organogram.data.gov.uk/data/$dept/$isodate/$filenoext";
 
   $endpoint = 'http://localhost:8900/sparql';
-  $sparql = <<<LOCATION
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX org: <http://www.w3.org/ns/org#>
+  $gradeSparql = <<<GRADES
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX gov: <http://reference.data.gov.uk/def/central-government/>
+PREFIX grade: <http://reference.data.gov.uk/def/civil-service-grade/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT DISTINCT ?body ?bodyLabel ?grade
+WHERE {
+  ?body a gov:PublicBody ;
+    foaf:page <$graph> ;
+    rdfs:label ?bodyLabel .
+  ?post gov:postIn ?body ;
+    grade:grade ?grade .
+}
+ORDER BY ?body DESC(?grade)
+GRADES;
+
+  $postSparql = <<<LOCATION
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX gov: <http://reference.data.gov.uk/def/central-government/>
  
-SELECT DISTINCT ?post
+SELECT DISTINCT ?body ?post ?postLabel
 WHERE { 
-?post foaf:page <$graph>; 
-a gov:CivilServicePost . 
-OPTIONAL { ?post org:reportsTo ?manager } 
-FILTER (! BOUND(?manager)) 
+  ?post foaf:page <$graph> ; 
+    a gov:CivilServicePost ;
+    rdfs:label ?postLabel ;
+    gov:postIn ?body .
+  ?body a gov:PublicBody .
+#  OPTIONAL { ?post org:reportsTo ?manager } 
+#  FILTER (!BOUND(?manager))
 }
 ORDER BY ?post
-LIMIT 1
+LIMIT 3
 LOCATION;
 
-    $query = array(
-      'query' => $sparql
-    );
-    $queryString = http_build_query($query);
-
-    $params = array(
-      'http' => array(
-        'method' => 'GET',
-        'header' => "Host: " . $_SERVER["HTTP_HOST"],
-        'max_redirects' => 1,
-        'ignore_errors' => true
-      )
-    );
-    $ctx = stream_context_create($params);
-    try {
-      $fp = fopen($endpoint . '?' . $queryString, 'rb', false, $ctx);
-      if (!$fp) {
-        header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal Server Error");
-        echo "<html><head><title>Error Accessing SPARQL Endpoint</title></head><body><p>Problem accessing $endpoint</p></body></html>";
-        return false;
+    $bodies = array();
+    
+    $bindings = query($endpoint, $gradeSparql);
+    foreach($bindings as $binding) {
+      $bodyUri = $binding->body->value;
+      $bodyLabel = $binding->bodyLabel->value;
+      $gradeUri = $binding->grade->value;
+      
+      $bodyUriParts = explode('/', substr($bodyUri, strpos($bodyUri, '/id/') + 4));
+      $grade = substr($gradeUri, strlen('http://reference.data.gov.uk/def/civil-service-grade/'));
+      if ($bodies[$bodyUri]) {
+        $bodies[$bodyUri]['grades'][$grade] = true;
       } else {
-        $response = stream_get_contents($fp);
-        if ($response === false) {
-          header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal Server Error");
-          echo "<html><head><title>Error Getting Data</title></head><body><p>Problem reading data from $endpoint</p></body></html>";
-          return false;
-        } else {
-
-	$xml = simplexml_load_string($response);
-	$uri = $xml->results->result->binding->uri;
-
-	$parts = explode('/', substr($uri,strpos($uri,'/id/')+4));
-     $deptOrPubBod = $parts[0] == 'department' ? 'dept' : 'pubbod';
-     $deptOrPubBodId = $parts[1];
-     $postId = $parts[3];
-
-        return array(
-          'deptOrPubBod' => $deptOrPubBod,
-          'deptOrPubBodId' => $deptOrPubBodId,
-          'postId' => $postId
+        $bodies[$bodyUri] = array(
+          'type' => $bodyUriParts[0] == 'department' ? 'dept' : 'pubbod',
+          'id' => $bodyUriParts[1],
+          'label' => $bodyLabel,
+          'grades' => array($grade => true)
         );
-	}
       }
-    } catch (Exception $e) {
-      header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal Server Error");
-      echo "<html><head><title>Error Getting Data</title></head><body><p>Exception " . $e->getMessage() . ".</p></body></html>";
-      return false;
     }
+    
+    $bindings = query($endpoint, $postSparql);
+    foreach($bindings as $binding) {
+      $bodyUri = $binding->body->value;
+      $postUri = $binding->post->value;
+      $postLabel = $binding->postLabel->value;
+      
+      $postUriParts = explode('/', substr($postUri, strpos($postUri, '/id/') + 4));
+      if ($bodies[$bodyUri]) {
+        if (!$bodies[$bodyUri]['posts']) {
+          $bodies[$bodyUri]['posts'] = array();
+        }
+        $bodies[$bodyUri]['posts'][] = array(
+          'id' => $postUriParts[3],
+          'label' => $postLabel
+        );
+      }
+    }
+    
+    return $bodies;
 }
 
 function createSeniorCSV($filename) {
