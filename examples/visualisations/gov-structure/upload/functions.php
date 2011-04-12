@@ -89,6 +89,9 @@ function createSeniorCSV($filename) {
 
      	while($y<=17) {
          	$cell = isset($excel->sheets[4]['cells'][$x][$y]) ? $excel->sheets[4]['cells'][$x][$y] : '';
+         	$cell = preg_replace('/\s+/', ' ', trim($cell));
+         	// strip leading $ signs, seem to come from formatting numbers as currency
+         	$cell = preg_replace('/^\$/', '', $cell);
          	$row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
          	$y++;
      	} 
@@ -128,6 +131,9 @@ function createJuniorCSV($filename) {
 
      	while($y<=10) {
          	$cell = isset($excel->sheets[6]['cells'][$x][$y]) ? $excel->sheets[6]['cells'][$x][$y] : '';
+         	$cell = preg_replace('/\s+/', ' ', trim($cell));
+         	// strip leading $ signs, seem to come from formatting numbers as currency
+         	$cell = preg_replace('/^\$/', '', $cell);
          	$row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
          	$y++;
      	} 
@@ -248,7 +254,7 @@ function file_upload_error_message($error_code) {
 	}
 }
 
-function writeTransformation($dept, $date, $filename, $xlwrapMappingsDir) {
+function writeTransformation($dept, $date, $filename, $email, $xlwrapMappingsDir) {
 
 	// set department and file extension
 	$deptName = $dept;
@@ -305,8 +311,8 @@ $str = <<<TRANSFORMATION
   
   # datasets
   xl:template [
-    xl:fileName "$fileURL.$ext" ;
-    xl:sheetNumber "4" ;
+    xl:fileName "$fileURL-senior-data.csv" ;
+#   xl:sheetNumber "1" ;
     xl:templateGraph :datasets ;
     xl:transform [
       a xl:RowShift ;
@@ -316,8 +322,8 @@ $str = <<<TRANSFORMATION
   
   # senior staff posts
   xl:template [
-    xl:fileName "$fileURL.$ext" ;
-    xl:sheetNumber "4" ;
+    xl:fileName "$fileURL-senior-data.csv" ;
+#   xl:sheetNumber "4" ;
     xl:templateGraph :seniorPosts ;
     xl:transform [ 
       a xl:RowShift ;
@@ -327,8 +333,8 @@ $str = <<<TRANSFORMATION
 
   # junior staff data
   xl:template [
-    xl:fileName "$fileURL.$ext" ;
-    xl:sheetNumber "6" ;
+    xl:fileName "$fileURL-junior-data.csv" ;
+#   xl:sheetNumber "6" ;
     xl:templateGraph :juniorStaff ;
     xl:transform [ 
       a xl:RowShift ;
@@ -402,8 +408,8 @@ $str = <<<TRANSFORMATION
         rdfs:label "B2 & ' as ' & D2"^^xl:Expr ;
         gov:postholder [ xl:uri "'$fileURL#person' & ROW(A2)"^^xl:Expr ] ;
         gov:post [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & A2"^^xl:Expr ] ;
-        gov:salary "IF(UCASE(STRING(P2)) != 'N/D' && UCASE(STRING(P2)) != 'N/A', P2)"^^xl:Expr ;
-        gov:fullTimeEquivalent "M2"^^xl:Expr ;
+        gov:salary "IF(UCASE(STRING(P2)) != 'N/D' && UCASE(STRING(P2)) != 'N/A', LONG(P2))"^^xl:Expr ;
+        gov:fullTimeEquivalent "DOUBLE(M2)"^^xl:Expr ;
         foaf:page <$fileURL> ;
       ] ;
       foaf:page <$fileURL> ;
@@ -413,8 +419,8 @@ $str = <<<TRANSFORMATION
       a gov:SalaryRange ;
       ## NOTE: derive from salaries
       rdfs:label "'£' & N2 & ' - £' & O2"^^xl:Expr ;
-      gov:lowerBound "N2"^^xl:Expr ;
-      gov:upperBound "O2"^^xl:Expr ;
+      gov:lowerBound "LONG(N2)"^^xl:Expr ;
+      gov:upperBound "LONG(O2)"^^xl:Expr ;
       dgu:uriSet <http://reference.data.gov.uk/id/salary-range> ;
       foaf:page <$fileURL> ;
     ] ;
@@ -424,7 +430,10 @@ $str = <<<TRANSFORMATION
   # people without posts
   [ xl:uri "IF(LCASE(B2) != 'vacant' && LCASE(B2) != 'eliminated' && STRING(A2) == '0', '$fileURL#person' & ROW(A2))"^^xl:Expr ]
     a foaf:Person ;
-    grade:grade [ xl:uri "'http://reference.data.gov.uk/def/civil-service-grade/' & UCASE(C2)"^^xl:Expr ] ;
+    grade:grade [ 
+      xl:uri "'http://reference.data.gov.uk/def/civil-service-grade/' & UCASE(C2)"^^xl:Expr ;
+      rdfs:label "UCASE(C2)"^^xl:Expr ;
+    ] ;
     org:reportsTo [ xl:uri "IF(UCASE(STRING(K2)) != 'XX', NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & K2)"^^xl:Expr ] ;
     org:memberOf [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf')"^^xl:Expr ] ;
     org:hasMembership [ 
@@ -439,12 +448,12 @@ $str = <<<TRANSFORMATION
         a gov:SalaryRange ;
         ## NOTE: derive from salaries
         rdfs:label "'£' & N2 & ' - £' & O2"^^xl:Expr ;
-        gov:lowerBound "N2"^^xl:Expr ;
-        gov:upperBound "O2"^^xl:Expr ;
+        gov:lowerBound "LONG(N2)"^^xl:Expr ;
+        gov:upperBound "LONG(O2)"^^xl:Expr ;
         dgu:uriSet <http://reference.data.gov.uk/id/salary-range> ;
         foaf:page <$fileURL> ;
       ] ;
-      gov:fullTimeEquivalent "M2"^^xl:Expr ;
+      gov:fullTimeEquivalent "DOUBLE(M2)"^^xl:Expr ;
       foaf:page <$fileURL> ;
     ] ;
     foaf:page <$fileURL> ;
@@ -457,7 +466,7 @@ $str = <<<TRANSFORMATION
     qb:dataSet <$fileURL#salaryCostOfReports> ;
     organogram:date <http://reference.data.gov.uk/id/day/2011-03-31> ;
     organogram:post [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & A2"^^xl:Expr ] ;
-    organogram:salaryCostOfReports "L2"^^xl:Expr ;
+    organogram:salaryCostOfReports "LONG(L2)"^^xl:Expr ;
     .
 
   # totalPay observation
@@ -467,7 +476,7 @@ $str = <<<TRANSFORMATION
     qb:dataSet <$fileURL#totalPay> ;
     organogram:date <http://reference.data.gov.uk/id/day/2011-03-31> ;
     organogram:tenure [ xl:uri "'$fileURL#tenure' & ROW(A2)"^^xl:Expr ; ] ;
-    organogram:totalPay "IF(UCASE(STRING(P2)) != 'N/D', P2)"^^xl:Expr ;
+    organogram:totalPay "IF(UCASE(STRING(P2)) != 'N/D' && UCASE(STRING(P2)) != 'N/A', LONG(P2))"^^xl:Expr ;
     sdmxa:obsStatus [ xl:uri "IF(UCASE(STRING(P2)) == 'N/D', 'http://purl.org/linked-data/sdmx/2009/code#obsStatus-M')"^^xl:Expr ] ;
     .
 
@@ -499,6 +508,12 @@ $str = <<<TRANSFORMATION
     dct:title "G2 & ' Organogram at $dateSlash Dataset'"^^xl:Expr ;
     dct:license <http://reference.data.gov.uk/id/open-government-licence> ;
     dct:source <$fileURL.$ext> ;
+    dct:contributor [
+      a foaf:Person ;
+      rdf:label "$email" ;
+      foaf:mbox <mailto:$email> ;
+      foaf:page <$fileURL> ;
+    ] ;
     dct:temporal <http://reference.data.gov.uk/id/day/$date> ;
     void:exampleResource
       <http://reference.data.gov.uk/id/department/co> ,
@@ -522,6 +537,12 @@ $str = <<<TRANSFORMATION
         # junior grade concept scheme
         xl:uri "SUBSTITUTE(NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/payband', '/id/', '/def/')"^^xl:Expr
       ] ;
+    .
+
+  <mailto:$email>
+    a vcard:Email ;
+    rdfs:label "$email" ;
+    foaf:page <$fileURL> ;
     .
 
   ## NOTE: static across dataset
@@ -594,7 +615,7 @@ $str = <<<TRANSFORMATION
     organogram:grade [
       xl:uri "NAME2URI(SUBSTITUTE(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/grade/', '/id/', '/def/'), E2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/grade.rdf')"^^xl:Expr ;
       a grade:Grade ;
-      skos:prefLabel "'Grade ' & E2"^^xl:Expr ;
+      skos:prefLabel "E2"^^xl:Expr ;
       skos:topConceptOf [
         # grade concept scheme
         xl:uri "SUBSTITUTE(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/grade', '/id/', '/def/')"^^xl:Expr ;
@@ -624,8 +645,8 @@ $str = <<<TRANSFORMATION
           a gov:SalaryRange ;
           ## NOTE: derive from salaries
           rdfs:label "'£' & F2 & ' - £' & G2"^^xl:Expr ;
-          gov:lowerBound "F2"^^xl:Expr ;
-          gov:upperBound "G2"^^xl:Expr ;
+          gov:lowerBound "LONG(F2)"^^xl:Expr ;
+          gov:upperBound "LONG(G2)"^^xl:Expr ;
           dgu:uriSet <http://reference.data.gov.uk/id/salary-range> ;
           foaf:page <$fileURL> ;
         ] ;
@@ -640,7 +661,7 @@ $str = <<<TRANSFORMATION
       xl:uri "NAME2URI('http://reference.data.gov.uk/def/civil-service-profession/', J2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/profession.rdf')"^^xl:Expr ;
       skos:prefLabel "J2"^^xl:Expr ;
     ] ;
-    organogram:fullTimeEquivalent "I2"^^xl:Expr ;
+    organogram:fullTimeEquivalent "DOUBLE(I2)"^^xl:Expr ;
     .
   
 }

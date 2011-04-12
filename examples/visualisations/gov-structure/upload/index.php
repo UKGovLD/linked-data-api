@@ -8,6 +8,7 @@ require_once 'Excel/reader.php';
 include 'functions.php';
 
 $xlwrapMappingsDir = 'C:/xlwrap/mappings';
+#$xlwrapMappingsDir = 'xlwrap/mappings';
 
 $action = '';
 $email = '';
@@ -124,12 +125,12 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
     $success = false;
     $errors[] = 'Unable to create directory for spreadsheet.';
   } else if (move_uploaded_file($_FILES['file']['tmp_name'], $fileLocation)) {
-    // write the trig file
-    writeTransformation($dept, $isoDate, $filename, $xlwrapMappingsDir);
     // create senior posts CSV
     createSeniorCSV($fileLocation);        
     // create junior posts CSV
     createJuniorCSV($fileLocation);
+    // write the trig file
+    writeTransformation($dept, $isoDate, $filename, $email, $xlwrapMappingsDir);
     $success = true;
     
     // remove existing RDF version
@@ -182,12 +183,12 @@ if (file_exists($dir)) {
   // populate $files
   $dirResource = opendir($dir);
   if ($dirResource) {
-    while (false !== ($filename = readdir($dirResource))) {
-      $ext = substr($filename, strrpos($filename, '.') + 1);
+    while (false !== ($name = readdir($dirResource))) {
+      $ext = substr($name, strrpos($name, '.') + 1);
       if ($ext == 'xls') {
         $files[] = array(
-          'filename' => $filename,
-          'modified' => filemtime($dir . '/' . $filename)
+          'filename' => $name,
+          'modified' => filemtime($dir . '/' . $name)
         );
       }
     }
@@ -294,13 +295,13 @@ if (file_exists($dir)) {
                       <ul class="post_list">
                         <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS4&preview=true" target="_blank">SCS4 (Permanent Secretaries)</a></li>
                         <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS3&preview=true" target="_blank">SCS3 (Director Generals)</a></li>
-                        <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS&preview=true2" target="_blank">SCS2 (Directors)</a></li>
+                        <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS2&preview=true" target="_blank">SCS2 (Directors)</a></li>
                         <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS1A&preview=true" target="_blank">SCS1A (Deputy Directors)</a></li>
                         <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS1&preview=true" target="_blank">SCS1 (Deputy Directors)</a></li>
                       </ul>
                       <p>Example organogram:</p>
                       <ul class="organogram">
-                        <li><a href="http://labs.data.gov.uk/gov-structure/organogram/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&post=<?php echo $postId ?>&preview=true">Top Post</a></li>
+                        <li><a href="http://labs.data.gov.uk/gov-structure/organogram/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&post=<?php echo $postId ?>&preview=true" target="_blank">Top Post</a></li>
                       </ul>
                     </div>
                   <?php } else if (count($files) > 0) { ?>
