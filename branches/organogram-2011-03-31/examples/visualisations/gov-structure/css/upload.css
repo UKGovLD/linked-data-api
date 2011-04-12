@@ -122,6 +122,14 @@ div.panel form, div.panel div.links, div#errors {
     padding: 20px 20px 10px;
     width: 50%;
 }
+div.panel table form {
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: auto;
+}
 div.panel fieldset {
 	border:none;
 	text-align: left;
@@ -151,7 +159,7 @@ div.panel form input:focus {
     background-color:#FEFDCB;
     color:#333333;
 }
-div.panel form input#upload {
+div.panel form input#upload, div.panel form input#download {
 	font:300 16px/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
 }
 div.panel form input#submit, div.panel form input#download {
@@ -178,6 +186,19 @@ div.panel form input#submit:active, div.panel form input#download:active  {
 div.panel form input.error {
     background-color: #FFCBCE;
     border: 1px solid #9C2F2F;
+}
+div.panel table {
+  width: 100%;
+  color: #79678F;
+}
+div.panel table td.modified {
+  font-size: 0.66em;
+}
+div.panel table form input {
+  padding-left: 1em;
+  padding-right: 1em;
+  width: auto;
+  cursor: pointer;
 }
 div.links {
 	text-align: left;
@@ -267,16 +288,16 @@ height:310px;
 overflow-y: auto;
 }
 #content .content {
-    height: 335px;
+  min-height: 335px;
 	overflow-y: auto;
 }
-div.preview div.links {
+div.preview div.links, div.panel div.listing {
 	width:500px;
 }
-body.IE7 div.preview div.links {
+body.IE7 div.preview div.links, body.IE7 div.panel div.listing {
 	width:500px;
 }
-body.IE8 div.preview div.links {
+body.IE8 div.preview div.links, body.IE8 div.panel div.listing {
 	width:500px;
 }
 div.uploading, div.downloading {
