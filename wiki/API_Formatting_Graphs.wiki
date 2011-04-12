@@ -1,5 +1,7 @@
 #summary Selecting an outout format and serialising results to the client
 
+[Specification Go to Summary and Contents]
+
 <wiki:toc max_depth="3" />
 
 =Formatting Graphs=
