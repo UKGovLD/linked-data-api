@@ -60,14 +60,10 @@
 		<option value="name">Name</option>
 		<option value="title">Title</option>
 		<option value="unit">Unit</option>
-		<option value="type">Type</option>
 		<option value="grade">Grade</option>
+		<option value="salaryRange">Salary Range</option>
 	</select>
 	<label for="sortBy" class="sortBy">Sort by</label>
-
-	<span id="previewModeSign">
-		Preview Mode
-	</span>	
 </h1>
 
 <div id="infovis">
@@ -106,6 +102,11 @@
 <!-- -->
 </div>
 
+
+<span id="previewModeSign">
+	<span>Preview Mode</span>
+</span>	
+	
 <noscript>
 <div class="noscript">
 <p>It looks like you have JavaScript disabled.</p>

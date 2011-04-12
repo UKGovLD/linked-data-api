@@ -27,7 +27,7 @@
 <!--[if IE]><p>You are using Internet Explorer.</p><![endif]-->
 <p>You are not using Internet Explorer.</p><![endif]>
 
-<title>Her Majesty's Government | Organogram Viewer</title>
+<title>Organogram Data | Organogram Viewer</title>
 </head>
 
 <!--[if IE 7]>
@@ -44,9 +44,6 @@
 
 <h1 class="title breadcrumbs">
 	<button id="dept">Department</button><button id="unit">Unit</button><button id="post">Post</button>
-	<span id="previewModeSign">
-		Preview Mode
-	</span>
 </h1>
 
 <div id="infovis"></div>
@@ -129,7 +126,9 @@
 	<p class="delHistory login-message">Login details forgotten!</p>
 </div>
 
-
+<span id="previewModeSign">
+	<span>Preview Mode</span>
+</span>	
 
 <noscript>
 <div class="noscript">

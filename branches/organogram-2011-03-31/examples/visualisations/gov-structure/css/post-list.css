@@ -68,7 +68,9 @@ body.IE7 h1.title label.loadBy {
     top: 35px;
 }
 #infovis div.postHolder {
-height:auto !important;
+    float: left;
+    height: auto !important;
+    padding-bottom: 50px;
 }
 #infovis div.post {
 	border-radius: 8px 8px 8px 8px;
@@ -188,13 +190,13 @@ div.noPosts {
     background-image: url("../images/warning.png");
     background-position: 20px center;
     background-repeat: no-repeat;
-    border:5px solid #BFBF97;
+    border: 5px solid #BFBF97;
     color: #000000;
     display: none;
-    left: -70px;
-    margin: 200px auto auto;
+    left: 33%;
     padding: 10px 10px 10px 70px;
-    position: relative;
+    position: fixed;
     text-align: left;
-    width: 300px;
+    top: 35%;
+    width: 20%;
 }

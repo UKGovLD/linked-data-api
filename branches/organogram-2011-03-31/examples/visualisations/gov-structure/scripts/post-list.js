@@ -58,13 +58,13 @@ var PostList = {
 			*/
 			PostList.vars.previewMode = true;
 			PostList.vars.apiBase = "organogram.data.gov.uk";
-			$("h1.title span#previewModeSign").show();		
+			$("span#previewModeSign").show();		
 		} else if($.cookie("organogram-preview-mode")) {
 			log("Cookie: In preview mode");
 			// In preview mode
 			PostList.vars.previewMode = true;
 			PostList.vars.apiBase = "organogram.data.gov.uk";
-			$("h1.title span#previewModeSign").show();		
+			$("span#previewModeSign").show();		
 		} else {
 			log("Not in preview mode");
 			// Not in preview mode
@@ -288,9 +288,9 @@ var PostList = {
 				salaryRange = json.result.items[i].salaryRange.label[0];
 			}catch(e){}
 			if(typeof salaryRange != 'undefined'){
-				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="type">'+salaryRange+'</td></tr>';
+				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">'+salaryRange+'</td></tr>';
 			}else {
-				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="type">?</td></tr>';			
+				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">?</td></tr>';			
 			}
 		
 			try{
@@ -362,6 +362,10 @@ var PostList = {
 	    }  else if ($(this).val() == "grade") {
 	    	$sortedData = $data.find("div.post").sort(function(a, b){
 		  		return $(a).find('td[data-type=grade]').text().toLowerCase() > $(b).find('td[data-type=grade]').text().toLowerCase() ? 1 : -1;
+	  		});
+	    }  else if ($(this).val() == "salaryRange") {
+	    	$sortedData = $data.find("div.post").sort(function(a, b){
+		  		return $(a).find('td[data-type=salaryRange]').text().toLowerCase() > $(b).find('td[data-type=salaryRange]').text().toLowerCase() ? 1 : -1;
 	  		});
 	    }     
 		
