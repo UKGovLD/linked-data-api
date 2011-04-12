@@ -1,5 +1,7 @@
 #summary Paths over predicates
 
+[Specification Go to Summary and Contents]
+
 =Property Paths=
 
 Throughout the API specification and within URIs, *property paths* can be used to point to values within the data. The syntax of a property path is:
