@@ -1,5 +1,7 @@
 #summary Summary of processing model
 
+[Specification Go to Summary and Contents]
+
 =Processing Model=
 
 The API layer is intended to associate URLs with processing logic that will extract data from a SPARQL endpoint using one or more SPARQL queries and then serialize the results using the format requested by the client.
