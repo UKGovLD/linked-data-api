@@ -108,7 +108,7 @@ var Orgvis = {
 			*/
 			
 			Orgvis.vars.apiBase = "organogram.data.gov.uk";
-			$("h1.title span#previewModeSign").show();
+			$("span#previewModeSign").show();
 			
 			Orgvis.initSpaceTree(reload);
 
@@ -116,7 +116,7 @@ var Orgvis = {
 			log("Cookie: In preview mode");
 			// In preview mode
 			Orgvis.vars.apiBase = "organogram.data.gov.uk";
-			$("h1.title span#previewModeSign").show();		
+			$("span#previewModeSign").show();		
 			Orgvis.initSpaceTree(reload);
 		} else {
 			log("Not in preview mode");
@@ -171,7 +171,7 @@ var Orgvis = {
 								
 								Orgvis.vars.apiBase = "organogram.data.gov.uk";
 								Orgvis.vars.previewMode = true;
-								$("h1.title span#previewModeSign").show();
+								$("span#previewModeSign").show();
 															
 								// Display the breadcrumbs at the top of the vis
 								Orgvis.loadRootPost(json);

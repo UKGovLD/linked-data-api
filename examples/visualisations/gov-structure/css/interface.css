@@ -486,18 +486,38 @@ div#formats a:hover
 .ui-widget-overlay { background: #333333; opacity: .80;filter:Alpha(Opacity=80); }
 
 span#previewModeSign {
-    background-image: url("../images/preview_sign.png");
-    background-position: center center;
-    background-repeat: no-repeat;
-    bottom: 7px;
+    background-color: yellow;
+    background-image: url("../images/previewMode.png");
+    background-position: left bottom;
+    background-repeat: repeat-x;
+    border-top: 1px solid #333333;
+    bottom: 0;
     display: none;
     font-size: 12px;
     font-weight: bold;
-    height: 36px;
-    left: 10px;
-    line-height: 100px;
+    height: 20px;
+    left: 0;
+    line-height: 0;
     margin: 0;
-    padding: 0 10px;
+    padding: 0;
     position: fixed;
-    width: 134px;
+    right: 0;
+    text-align: center;
+    z-index: 0;
+    box-shadow: 10px 10px 25px #000000;
+    -moz-box-shadow: 10px 10px 25px #000000;
+    -webkit-box-shadow: 10px 10px 25px #000000;
+}
+span#previewModeSign span {
+    background-color: black;
+    color: #FFFFFF;
+    display: block;
+    height: 20px;
+    left: -59px;
+    line-height: 16px;
+    margin: 0 auto;
+    padding: 2px 20px 3px;
+    position: relative;
+    width: 100px;
+    text-transform: uppercase;
 }
