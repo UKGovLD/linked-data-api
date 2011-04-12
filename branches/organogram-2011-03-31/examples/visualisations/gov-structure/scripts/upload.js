@@ -28,12 +28,6 @@ $(document).ready(function(){
 	  $('div.downloading').fadeIn();
 	});
 	
-	$('a.generating').click(function () {
-	  $(this).closest('div.links').hide();
-	  $('#errors').hide();
-	  $('div.downloading').fadeIn();
-	});
-	
 	$('td.delete form').submit(function () {
 	  return confirm('Are you sure you want to delete this spreadsheet?');
 	});
