@@ -1,6 +1,6 @@
 #summary binding variables to values during a request
 
-[Specification Return to Specification]
+[Specification Go to Summary and Contents]
 
 =Binding Variables=
 
