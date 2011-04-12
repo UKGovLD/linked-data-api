@@ -14,23 +14,30 @@ $email = '';
 $dept = '';
 $date = '';
 $isoDate = '';
+$dir = '';
 $filename = '';
 $filenameNoExt = '';
+$fileLocation = '';
 $redirect = false;
 $validEmail = false;
 $validDate = false;
 $validFile = false;
 $validFilename = false;
+$files = array();
 $success = false;
 $errors = array();
+
+if (isset($_POST['action'])) {
+  $action = strtolower($_POST['action']);
+} else if (isset($_GET['action'])) {
+  $action = strtolower($_GET['action']);
+}
 
 if (isset($_POST['email']) || isset($_GET['email'])) {
   $validEmail = true;
   if (isset($_POST['email'])) {
-    $action = 'upload';
     $email = $_POST['email'];
   } else {
-    $action = 'download';
     $email = $_GET['email'];
   }
   if (validEmail($email)) {
@@ -57,6 +64,10 @@ if (isset($_POST['date']) || isset($_GET['date'])) {
   }
 }
 
+if ($validEmail && $validDate) {
+  $dir = "data/$dept/$isoDate";
+}
+
 if (isset($_FILES['file'])) {
   $validFile = true;
   $validFilename = true;
@@ -77,18 +88,26 @@ if (isset($_FILES['file'])) {
       $validFilename = false;
     }
     $errors[] = 'That doesn\'t look like a valid Excel spreadsheet.';
+  } else {
+    $fileLocation = "$dir/$filename";
   }
-} else if (isset($_GET['filename'])) {
+} else if (isset($_POST['filename']) || isset($_GET['filename'])) {
   $validFilename = true;
-  $filename = str_replace(' ', '-', $_GET['filename']);
+  if (isset($_POST['filename'])) {
+    $filename = str_replace(' ', '-', $_POST['filename']);
+  } else {
+    $filename = str_replace(' ', '-', $_GET['filename']);
+  }
   $ext = substr($filename, strrpos($filename, '.') + 1);
   $filenameNoExt = substr($filename, 0, strrpos($filename, '.'));
-  if ($ext != 'xls') {
+  if ($filename == '') {
+    $validFilename = false;
+  } else if ($ext != 'xls') {
     $validFilename = false;
     $errors[] = 'That doesn\'t look like a valid filename for an Excel spreadsheet.';
   } else {
-    $localCopy = "data/$dept/$isoDate/$filename";
-    if (!file_exists($localCopy)) {
+    $fileLocation = "$dir/$filename";
+    if (!file_exists($fileLocation)) {
       $validFilename = false;
       $errors[] = 'There is no record of that spreadsheet.';
     }
@@ -100,7 +119,6 @@ if (isset($_GET['redirect']) && $_GET['redirect'] == 'true') {
 }
 
 if ($action == 'upload' && $validFile && $validEmail && $validDate) {
-  $fileLocation = "data/$dept/$isoDate/$filename";
   $make = make_dir_for_file($fileLocation);
   if (!$make) {
     $success = false;
@@ -119,39 +137,6 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
     if (file_exists($rdfDumpLocation)) {
       unlink($rdfDumpLocation);
     }
-    // refresh XLWrap
-    /*
-    $query = array(
-      'reload' => "file:$xlwrapMappingsDir/$dept-$isoDate-$filenameNoExt.trig"
-    );
-    $queryString = http_build_query($query);
-    $params = array(
-      'http' => array(
-        'method' => 'GET',
-        'header' => "Host: " . $_SERVER["HTTP_HOST"],
-        'max_redirects' => 1,
-        'ignore_errors' => true
-      )
-    );
-    $ctx = stream_context_create($params);
-    $url = 'http://localhost:8900/status/sparql';
-    try {
-      $fp = fopen($url . '?' . $queryString, 'rb', false, $ctx);
-      if (!$fp) {
-        $success = false;
-        $errors[] = 'Error accessing XLWrap';
-      } else {
-        $response = stream_get_contents($fp);
-        if ($response === false) {
-          $success = false;
-          $errors[] = 'Error getting response from XLWrap.';
-        }
-      }
-    } catch (Exception $e) {
-      $success = false;
-      $errors[] = 'Error getting data from XLWrap.';
-    }
-    */
   } else {
     $success = false;
     $errors[] = 'Unable to save spreadsheet.';
@@ -162,9 +147,53 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
     $errors[] = 'Unable to generate RDF.';
   } else if ($redirect) {
     header($_SERVER["SERVER_PROTOCOL"] . " 307 Temporary Redirect");
-    header("Location: /data/$dept/$isoDate/$filenameNoExt.rdf");
+    header("Location: /$dir/$filenameNoExt.rdf");
     echo "<html><head><title>Redirecting to RDF Data</title></head><body><p>You are being redirected to the RDF data.</p></body></html>";
     return;
+  }
+} else if (($action == 'delete-preview' || $action == 'delete-download') && $validEmail && $validDate && $validFilename) {
+  $rdfFile = "$dir/$filenameNoExt.rdf";
+  $seniorCSV = "$dir/$filenameNoExt-senior-data.csv";
+  $juniorCSV = "$dir/$filenameNoExt-junior-data.csv";
+  $localMapping = "$dir/$filenameNoExt-mapping.trig";
+  $xlwrapMapping = "$xlwrapMappingsDir/$dept-$isoDate-$filenameNoExt.trig";
+  if (file_exists($fileLocation)) {
+    unlink($fileLocation);
+  }
+  if (file_exists($rdfFile)) {
+    unlink($rdfFile);
+  }
+  if (file_exists($seniorCSV)) {
+    unlink($seniorCSV);
+  }
+  if (file_exists($juniorCSV)) {
+    unlink($juniorCSV);
+  }
+  if (file_exists($localMapping)) {
+    unlink($localMapping);
+  }
+  if (file_exists($xlwrapMapping)) {
+    unlink($xlwrapMapping);
+  }
+  $success = true;
+}
+
+if (file_exists($dir)) {
+  // populate $files
+  $dirResource = opendir($dir);
+  if ($dirResource) {
+    while (false !== ($filename = readdir($dirResource))) {
+      $ext = substr($filename, strrpos($filename, '.') + 1);
+      if ($ext == 'xls') {
+        $files[] = array(
+          'filename' => $filename,
+          'modified' => filemtime($dir . '/' . $filename)
+        );
+      }
+    }
+  } else {
+    $success = false;
+    $errors[] = 'Couldn\'t open the directory of data to list spreadsheets.';
   }
 }
 
@@ -202,11 +231,11 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
               <span class="image"><img src="../images/upload_file.png" width="60" height="60" /></span>
               <span class="text"><span>Upload your spreadsheet</span></span>
             </a>
-            <a class="step2 <?php if (!$validEmail || !$validDate || !$validFilename) { echo 'disabled'; } else if ($action == 'upload') { echo 'current'; } ?>" href="#preview">
+            <a class="step2 <?php if ($action == 'preview' || $action == 'delete-preview' || ($action == 'upload' && $success)) { echo 'current'; } ?>" href="#preview">
               <span class="image"><img src="../images/preview.png" width="60" height="60"  /></span>
               <span class="text"><span>Preview organogram</span></span>       
             </a>
-            <a class="step3 <?php if ($action == 'download') { echo 'current'; } ?>" href="#download">
+            <a class="step3 <?php if ($action == 'download' || $action == 'delete-download') { echo 'current'; } ?>" href="#download">
               <span class="image"><img src="../images/download_data.png" width="60" height="60"  /></span>
               <span class="text"><span>Download data</span></span>       
             </a>
@@ -217,7 +246,19 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
               <div id="errors">
                 <p><?php echo join(' ', $errors); ?></p>
               </div>
+            <?php } else if (($action == 'delete-download' || $action == 'delete-preview') && $success) { ?>
+              <div id="errors">
+                <p>Successfully deleted <?php echo $filename; ?></p>
+              </div>
             <?php } ?>
+            <!--
+            <div id="errors">
+              <p>$action: <?php echo $action; ?></p>
+              <p>$email: <?php echo $email; ?></p>
+              <p>$date: <?php echo $date; ?></p>
+              <p>$filename: <?php echo $filename; ?></p>
+            </div>
+            -->
             <div class="node-inner">
               <div class="content">
                 <div id="upload" class="upload panel">
@@ -229,7 +270,7 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
                         <input id="upload-file" name="file" type="file" <?php if ($action != '' && !$validFile) { echo 'class="error"'; } ?> />
                         <label for="upload-date">Snapshot date (dd/mm/yyyy)</label>
                         <input id="upload-date" type="text" name="date" maxlength="10" value="<?php if ($date == '') { echo '31/03/2011'; } else { echo $date; } ?>" <?php if ($action != '' && !$validDate) { echo 'class="error"'; } ?> />
-                        <input type="submit" value="Upload" title="The organogram spreadsheets are large and can take some time to upload. Please be patient." />
+                        <input name="action" type="submit" value="Upload" title="The organogram spreadsheets are large and can take some time to upload. Please be patient." />
                       </fieldset>
                     </form>
                     <div class="uploading links">
@@ -240,15 +281,15 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
                     </div>
                 </div> <!-- end upload panel -->
                 <div id="preview" class="preview panel">
-                  <div class="links">
-                    <?php if ($success) { ?>
-                      <?php
-                        $components = organogramUrl($dept, $isoDate, $filenameNoExt);
-                        $deptOrPubBod = $components['deptOrPubBod'];
-                        $deptOrPubBodId = $components['deptOrPubBodId'];
-                        $postId = $components['postId'];
-                      ?>
-                      <p>You can now preview the organogram generated from the spreadsheet that you have provided.</p>
+                  <?php if ($validEmail && $validDate && $validFilename && $action != 'delete-preview' && $action != 'delete-download') { ?>
+                    <?php
+                      $components = organogramUrl($dept, $isoDate, $filenameNoExt);
+                      $deptOrPubBod = $components['deptOrPubBod'];
+                      $deptOrPubBodId = $components['deptOrPubBodId'];
+                      $postId = $components['postId'];
+                    ?>
+                    <div class="links">
+                      <p>You can now preview the organogram generated from the spreadsheet that you have provided or <a href="/?email=<?php echo $email; ?>&date=<?php echo $date; ?>&action=preview">preview other spreadsheets</a>.</p>
                       <p>Posts by type:</p>
                       <ul class="post_list">
                         <li><a href="http://labs.data.gov.uk/gov-structure/post-list/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&grade=SCS4&preview=true" target="_blank">SCS4 (Permanent Secretaries)</a></li>
@@ -261,43 +302,120 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
                       <ul class="organogram">
                         <li><a href="http://labs.data.gov.uk/gov-structure/organogram/?<?php echo $deptOrPubBod; ?>=<?php echo $deptOrPubBodId; ?>&post=<?php echo $postId ?>&preview=true">Top Post</a></li>
                       </ul>
-                    <?php } else { ?>
-                      <p>You cannot preview an organogram until you upload a spreadsheet.</p>
-                    <?php } ?>
-                  </div>
-                </div> <!-- end preview panel -->
-                <div id="download" class="download panel">
-                  <?php if (!$validEmail || !$validDate || !$validFilename) { ?>
+                    </div>
+                  <?php } else if (count($files) > 0) { ?>
+                    <div class="links listing">
+                      <p>Select a spreadsheet to preview.</p>
+                      <table>
+                        <?php foreach ($files as $i => $file) { ?>
+                          <tr>
+                            <td class="filename"><?php echo $file['filename']; ?></td>
+                            <td class="modified"><?php echo date('d M Y H:i', $file['modified']); ?></td>
+                            <td class="preview">
+                              <form action="/" method="get">
+                                <input name="email" type="hidden" value="<?php echo $email; ?>" />
+                                <input name="date" type="hidden" value="<?php echo $date; ?>" />
+                                <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
+                                <input name="action" type="submit" value="Preview" />
+                              </form>
+                            </td>
+                            <td class="delete">
+                              <form action="/" method="post">
+                                <input name="email" type="hidden" value="<?php echo $email; ?>" />
+                                <input name="date" type="hidden" value="<?php echo $date; ?>" />
+                                <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
+                                <input name="action" type="hidden" value="delete-preview" />
+                                <input type="submit" value="Delete" />
+                              </form>
+                            </td>
+                          </tr>
+                        <?php } ?>
+                      </table>
+                    </div>
+                  <?php } else if ($validEmail && $validDate) { ?>
+                    <div class="links">
+                      <p>You do not currently have any spreadsheets to preview. Upload a new spreadsheet first.</p>
+                    </div>
+                  <?php } else { ?>
                     <form id="download_data" method="get" action="/">
                       <fieldset>
                         <label for="download-email">Your email address</label>
                         <input id="download-email" name="email" type="text" value="<?php echo $email; ?>" <?php if ($action != '' && !$validEmail) { echo 'class="error"'; } ?> />
-                        <label for="download-filename">Filename of spreadsheet file</label>
+                        <label for="download-filename">Spreadsheet filename (leave blank to list spreadsheets)</label>
                         <input id="download-filename" name="filename" type="text" value="<?php echo $filename; ?>" <?php if ($action != '' && !$validFilename) { echo 'class="error"'; } ?> />
                         <label for="download-date">Snapshot date (dd/mm/yyyy)</label>
                         <input id="download-date" type="text" name="date" maxlength="10" value="<?php if ($date == '') { echo '31/03/2011'; } else { echo $date; } ?>" <?php if ($action != '' && !$validDate) { echo 'class="error"'; } ?> />
-                        <input type="submit" value="Download" title="It can take some time to generate the RDF. Please be patient." />
+                        <input name="action" type="submit" value="Preview" />
                       </fieldset>
                     </form>
-                  <?php } else { ?>
+                  <?php } ?>
+                </div> <!-- end preview panel -->
+                <div id="download" class="download panel">
+                  <?php if ($validEmail && $validDate && $validFilename && $action != 'delete-preview' && $action != 'delete-download') { ?>
                     <?php 
-                      $directory = "/data/$dept/$isoDate";
                       if ($action == 'download') {
-                        $rdfUri = "$directory/$filenameNoExt.rdf";
+                        // in this case the data has been generated through the processing earlier in the PHP
+                        $rdfUri = "$dir/$filenameNoExt.rdf";
                       } else {
-                        $rdfUri = "/?email=$email&date=$date&filename=$filename&redirect=true";
+                        // in this case, we've just uploaded a file and it still needs to be generated
+                        $rdfUri = "/?email=$email&date=$date&filename=$filename&redirect=true&action=download";
                       }
-                      $seniorCSVUri = "$directory/$filenameNoExt-senior-data.csv";
-                      $juniorCSVUri = "$directory/$filenameNoExt-junior-data.csv";
+                      $seniorCSVUri = "$dir/$filenameNoExt-senior-data.csv";
+                      $juniorCSVUri = "$dir/$filenameNoExt-junior-data.csv";
                     ?>
                     <div class="links">
-                      <p>You can now download your data through the following links.<?php if ($action != 'download') { echo ' Note that it can take some time for the RDF to be generated. Please be patient.'; } ?></p>
+                      <p>You can now download your data through the following links or <a href="/?email=<?php echo $email; ?>&date=<?php echo $date; ?>&action=download">download data from other spreadsheets</a>.<?php if ($action != 'download') { echo ' Note that it can take some time for the RDF to be generated. Please be patient.'; } ?></p>
                       <ul>
                         <li><a class="rdf <?php if ($action != 'download') { echo 'generating'; } ?>" href="<?php echo $rdfUri ?>">Download RDF</a></li>
                         <li><a class="csv" href="<?php echo $seniorCSVUri ?>">Download Senior Post CSV</a></li>
                         <li><a class="csv" href="<?php echo $juniorCSVUri ?>">Download Junior Post CSV</a></li>
                       </ul>
                     </div>
+                  <?php } else if (count($files) > 0) { ?>
+                    <div class="links listing">
+                      <p>Select a spreadsheet whose data you want to download.</p>
+                      <table>
+                        <?php foreach ($files as $i => $file) { ?>
+                          <tr>
+                            <td class="filename"><?php echo $file['filename']; ?></td>
+                            <td class="modified"><?php echo date('d M Y H:i', $file['modified']); ?></td>
+                            <td class="preview">
+                              <form class="download_data" action="/" method="get">
+                                <input name="email" type="hidden" value="<?php echo $email; ?>" />
+                                <input name="date" type="hidden" value="<?php echo $date; ?>" />
+                                <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
+                                <input name="action" type="submit" value="Download" />
+                              </form>
+                            </td>
+                            <td class="delete">
+                              <form action="/" method="post">
+                                <input name="email" type="hidden" value="<?php echo $email; ?>" />
+                                <input name="date" type="hidden" value="<?php echo $date; ?>" />
+                                <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
+                                <input name="action" type="hidden" value="delete-download" />
+                                <input type="submit" value="Delete" />
+                              </form>
+                            </td>
+                          </tr>
+                        <?php } ?>
+                      </table>
+                    </div>
+                  <?php } else if ($validEmail && $validDate) { ?>
+                    <div class="links">
+                      <p>You do not currently have any spreadsheets to download. Upload a new spreadsheet first.</p>
+                    </div>
+                  <?php } else { ?>
+                    <form id="download_data" method="get" action="/">
+                      <fieldset>
+                        <label for="download-email">Your email address</label>
+                        <input id="download-email" name="email" type="text" value="<?php echo $email; ?>" <?php if ($action != '' && !$validEmail) { echo 'class="error"'; } ?> />
+                        <label for="download-filename">Spreadsheet filename (leave blank to list spreadsheets)</label>
+                        <input id="download-filename" name="filename" type="text" value="<?php echo $filename; ?>" <?php if ($action != '' && !$validFilename) { echo 'class="error"'; } ?> />
+                        <label for="download-date">Snapshot date (dd/mm/yyyy)</label>
+                        <input id="download-date" type="text" name="date" maxlength="10" value="<?php if ($date == '') { echo '31/03/2011'; } else { echo $date; } ?>" <?php if ($action != '' && !$validDate) { echo 'class="error"'; } ?> />
+                        <input name="action" type="submit" value="Download" title="It can take some time to generate the RDF. Please be patient." />
+                      </fieldset>
+                    </form>
                   <?php } ?>
                   <div class="downloading links">
                     <img src="../images/uploading.gif" />
