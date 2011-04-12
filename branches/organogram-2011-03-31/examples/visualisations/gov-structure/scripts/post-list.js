@@ -365,7 +365,11 @@ var PostList = {
 	  		});
 	    }  else if ($(this).val() == "salaryRange") {
 	    	$sortedData = $data.find("div.post").sort(function(a, b){
-		  		return $(a).find('td[data-type=salaryRange]').text().toLowerCase() > $(b).find('td[data-type=salaryRange]').text().toLowerCase() ? 1 : -1;
+		    	var sal1 = $(a).find('td[data-type=salaryRange]').text().split(" ");
+		    	sal1 = sal1[0].match(/\d/g).join("");
+		    	var sal2 = $(b).find('td[data-type=salaryRange]').text().split(" ");
+		    	sal2 = sal2[0].match(/\d/g).join("");	    	
+		  		return parseInt(sal1) > parseInt(sal2) ? 1 : -1;
 	  		});
 	    }     
 		

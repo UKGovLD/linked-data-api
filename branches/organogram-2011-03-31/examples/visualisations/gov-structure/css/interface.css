@@ -48,7 +48,7 @@ h1.title
     -moz-box-shadow: 0 5px 24px #888888;
     box-shadow: 0 5px 24px #888888;
     -webkit-box-shadow: 0 5px 24px #888888;
-    background-color: #111111;
+    background-color: #000000;
     background-image: url("../images/hmg-banner.png");
     background-position: left center;
     background-repeat: no-repeat;
@@ -189,7 +189,7 @@ div#log
     -moz-box-shadow: 0 5px 24px #888888;
     box-shadow: 0 5px 24px #888888;
     -webkit-box-shadow: 0 5px 24px #888888;	
-    background-color: #111111;
+    background-color: #000000;
     /*border: 3px solid #DDDDDD;*/
     color: #EEEEEE;
     display: none;
@@ -241,7 +241,7 @@ div#right
     -moz-box-shadow: 0 5px 24px #888888;
     box-shadow: 0 5px 24px #888888;
     -webkit-box-shadow: 0 5px 24px #888888;
-    background-color: #111111;
+    background-color: #000000;
     bottom: 15px !important;
     color: #EEEEEE;
     font-size: 10px;

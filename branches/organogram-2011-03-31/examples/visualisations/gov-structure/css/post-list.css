@@ -68,9 +68,7 @@ body.IE7 h1.title label.loadBy {
     top: 35px;
 }
 #infovis div.postHolder {
-    float: left;
     height: auto !important;
-    padding-bottom: 50px;
 }
 #infovis div.post {
 	border-radius: 8px 8px 8px 8px;
@@ -199,4 +197,8 @@ div.noPosts {
     text-align: left;
     top: 35%;
     width: 20%;
+}
+div.padder {
+	display: block;
+	margin-bottom:50px;
 }
