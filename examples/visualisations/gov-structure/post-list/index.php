@@ -70,6 +70,7 @@
 <div class="postHolder">
 <!-- -->
 </div>
+<div class="clear padder"><!-- --></div>
 </div>
 
 <div id="log">
