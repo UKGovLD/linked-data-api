@@ -1,5 +1,7 @@
 #summary How an endpoint is selected to respond to a request
 
+[Specification Go to Summary and Contents]
+
 =Identifying an Endpoint=
 
 Incoming requests to the API layer must be mapped through to an *Endpoint* that describes further processing of the request. 
