@@ -349,7 +349,7 @@ $str = <<<TRANSFORMATION
       # department or public body
       xl:uri "IF(STRING(A2) != '0', NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf'))"^^xl:Expr ;
       a gov:PublicBody, org:Organization ;
-      a [ xl:uri "IF(F2 == G2, 'gov:Department')"^^xl:Expr ] ;
+      a [ xl:uri "IF(F2 == G2, 'http://reference.data.gov.uk/def/central-government/Department')"^^xl:Expr ] ;
       rdfs:label "G2"^^xl:Expr ;
       dgu:uriSet [ xl:uri "'http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body')"^^xl:Expr ] ;
       org:hasUnit [ xl:uri "NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/unit/', H2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf')"^^xl:Expr ] ;
