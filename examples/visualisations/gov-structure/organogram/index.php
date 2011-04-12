@@ -24,9 +24,6 @@
 <script language="javascript" type="text/javascript" src="../scripts/jquery.corner.js"></script>
 <![endif]-->
 
-<!--[if IE]><p>You are using Internet Explorer.</p><![endif]-->
-<p>You are not using Internet Explorer.</p><![endif]>
-
 <title>Organogram Data | Organogram Viewer</title>
 </head>
 
@@ -112,8 +109,8 @@
 
 <div id="login">
 	<form>
-	<legend>Login</legend>	
 		<fieldset>
+			<legend>Login</legend>	
 			<label for="username">Username</label>
 			<input type="text" name="username" id="username" class="text" maxlength="30" />
 			<label for="password">Password</label>

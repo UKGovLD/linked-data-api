@@ -400,6 +400,9 @@ div.panel div.content p span.value {
 	padding:0px;
 	word-wrap: break-word;
 }
+div.panel div.content p.unit span.value {
+	width:230px;	
+}
 div.panel div.content p span.date {
     background: none repeat scroll 0 0 transparent;
     border: medium none;
