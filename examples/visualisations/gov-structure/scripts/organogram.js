@@ -982,7 +982,9 @@ var Orgvis = {
 				postID = postID[postID.length-1];
 				// Use the postID slug from the reportsTo value as a pointer in the associative array
 				// to connect the post to it's parent. 
-				Orgvis.vars.postList[postID].children.push(el);
+				if (Orgvis.vars.postList[postID]) {
+  				Orgvis.vars.postList[postID].children.push(el);
+				}
 			} else {
 				visJSON = el;
 			}
