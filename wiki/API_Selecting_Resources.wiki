@@ -1,5 +1,7 @@
 #summary How resources are selected
 
+[Specification Go to Summary and Contents]
+
 ==Selecting Resources==
 
 Having identified an Endpoint and having identified and bound all the in-scope variables, the next processing step is to select zero or more resources from the SPARQL endpoint. These resources will act as input to further processing steps (Viewing and Formatting).
