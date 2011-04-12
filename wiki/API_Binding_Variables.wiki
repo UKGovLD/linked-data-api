@@ -1,5 +1,7 @@
 #summary binding variables to values during a request
 
+[Specifciation Return to Specification]
+
 =Binding Variables=
 
 Variables are used to alter the behaviour of specific components, e.g. to support paging and sorting, as well as to inject values into SPARQL queries. The API supports binding of variables from a number of different places including the API configuration and the request parameters.
