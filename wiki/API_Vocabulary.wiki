@@ -1,5 +1,7 @@
 #summary RDF Configuration vocabulary
 
+[Specification Go to Summary and Contents]
+
 =Vocabulary & Configuration=
 
 The linked data API middleware will work "out of the box", but it will usually need to be configured to get it to provide the API that the publisher requires. The configuration is expressed as RDF. This section defines the classes and properties that are used in that RDF and their effect on the behaviour of the implementation.
