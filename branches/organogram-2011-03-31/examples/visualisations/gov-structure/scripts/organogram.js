@@ -895,73 +895,76 @@ var Orgvis = {
 						postID = postID[postID.length-1];
 						log("postID: "+postID);
 
-						log("Orgvis.vars.postList[postID].children.length:");
-						log(Orgvis.vars.postList[postID].children.length);
+            // might not be a post to connect it to
+            if (Orgvis.vars.postList[postID]) {
+  						log("Orgvis.vars.postList[postID].children.length:");
+  						log(Orgvis.vars.postList[postID].children.length);
 												
-						// Remove the empty junior staff node from the post that now has junior staff
-						var postChildren = Orgvis.vars.postList[postID].children;
+  						// Remove the empty junior staff node from the post that now has junior staff
+  						var postChildren = Orgvis.vars.postList[postID].children;
 						
-						for(var j in postChildren){
-							if(postChildren[j].name == "No Junior Posts"){
-								log("Removing node: "+postChildren[j].name);
-								postChildren.splice(j,1);
-							}
-						}
+  						for(var j in postChildren){
+  							if(postChildren[j].name == "No Junior Posts"){
+  								log("Removing node: "+postChildren[j].name);
+  								postChildren.splice(j,1);
+  							}
+  						}
 
-						log("Orgvis.vars.postList[postID].children.length:");
-						log(Orgvis.vars.postList[postID].children.length);						
+  						log("Orgvis.vars.postList[postID].children.length:");
+  						log(Orgvis.vars.postList[postID].children.length);						
 						
-						var addJPNode = true;
+  						var addJPNode = true;
 						
-						for(var m in postChildren){
-							log("searching postChildren fo JPNode:");
-							log(postChildren[m]);
-							if(postChildren[m].name == "Junior Posts"){
-								log("Post already has Junior Post connected");
-								addJPNode = false;
-							}
-						}
+  						for(var m in postChildren){
+  							log("searching postChildren fo JPNode:");
+  							log(postChildren[m]);
+  							if(postChildren[m].name == "Junior Posts"){
+  								log("Post already has Junior Post connected");
+  								addJPNode = false;
+  							}
+  						}
 						
-						if(addJPNode){
-							// Add the 'Junior Posts' node to the post that holds the junior staff
-							postChildren.push(Orgvis.makeJuniorPostNode());
-							log("Added juniorPostsNode");
-						}
+  						if(addJPNode){
+  							// Add the 'Junior Posts' node to the post that holds the junior staff
+  							postChildren.push(Orgvis.makeJuniorPostNode());
+  							log("Added juniorPostsNode");
+  						}
 						
-						log("Orgvis.vars.postList[postID].children.length:");
-						log(Orgvis.vars.postList[postID].children.length);
+  						log("Orgvis.vars.postList[postID].children.length:");
+  						log(Orgvis.vars.postList[postID].children.length);
 						
-						log(postChildren);
+  						log(postChildren);
 						
-						// Loop through the posts children
-						for(var k in postChildren){
+  						// Loop through the posts children
+  						for(var k in postChildren){
 							
-							log("postChildren[k].name:");
-							log(postChildren[k].name);
+  							log("postChildren[k].name:");
+  							log(postChildren[k].name);
 							
-							// If one of the posts's children is named "Junior Posts'
-							if(postChildren[k].name == "Junior Posts"){
+  							// If one of the posts's children is named "Junior Posts'
+  							if(postChildren[k].name == "Junior Posts"){
 								
-								log("Found the post's Junior Posts node:")
-								log(postChildren[k]);
+  								log("Found the post's Junior Posts node:")
+  								log(postChildren[k]);
 								
-								// Add the actual junior staff item to the Junior Posts node
-								postChildren[k].children.push(Orgvis.makeJuniorNode(el));
+  								// Add the actual junior staff item to the Junior Posts node
+  								postChildren[k].children.push(Orgvis.makeJuniorNode(el));
 								
-								log("el.fullTimeEquivalent:");
-								log(el.fullTimeEquivalent);
+  								log("el.fullTimeEquivalent:");
+  								log(el.fullTimeEquivalent);
 								
-								postChildren[k].data.fteTotal += el.fullTimeEquivalent;
+  								postChildren[k].data.fteTotal += el.fullTimeEquivalent;
 								
-								log("postChildren[k].data.fteTotal:");
-								log(postChildren[k].data.fteTotal);
+  								log("postChildren[k].data.fteTotal:");
+  								log(postChildren[k].data.fteTotal);
 								
-								log("Added a junior post");
-								log(Orgvis.vars.postList[postID]);
-							}
+  								log("Added a junior post");
+  								log(Orgvis.vars.postList[postID]);
+  							}
 							
-							postChildren[k].data.fteTotal = Math.round(postChildren[k].data.fteTotal*100)/100;
-						}
+  							postChildren[k].data.fteTotal = Math.round(postChildren[k].data.fteTotal*100)/100;
+  						}
+  					}
 					}
 				});	 // end each loop			
 			} 
