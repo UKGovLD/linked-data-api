@@ -1,6 +1,6 @@
 #summary Summary of requirements.
 
-Return to [Specification]
+[Specification Go to Summary and Contents]
 
 =Rationale and Requirements=
 
