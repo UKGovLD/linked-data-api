@@ -1,5 +1,7 @@
 #summary example of simple deployment
 
+[Specification Go to Summary and Contents]
+
 =Deployment Example =
 
 The following examples provide an illustration of the range of access patterns that the API is intended to support. The example URIs are taken from the Edubase data published by the data.gov.uk project at `http://education.data.gov.uk/`:
