@@ -20,10 +20,7 @@ var PostList = {
 		postType:"",
 		grade:"",
 		previewMode:false,		// Used to initialise authentication and to swap API locations
-		apiCallInfo:{
-			postTypeList:{},
-			gradeList:{}
-		},
+		apiCallInfo:{},
 		debug:true,
 		apiBase:"http://reference.data.gov.uk"
 	},
@@ -386,42 +383,57 @@ var PostList = {
 	
 	},	
 	displayDataSources:function() {
-		/*
+		
+		// Need to use a foreach loop to identify the correct key's and values in the
+		// new apiCallInfo object.
+		
+		log("displaying data sources");
+		
+		//$('div#apiCalls').fadeOut();
+		
 		var html='<p class="label">Data sources</p>';
 		
-		for(var i=0;i<api_call_info.length;i++){
+		var i=0;
+
+		$.each(PostList.vars.apiCallInfo,function(k,v){
+			
+			log(k);
+			log(v);
 			
 			html += '<a class="source">'+(i+1)+'</a>';
 			
 			html += '<div class="apiCall shadowBox">';
 			
-			html += '<p class="title"><span>API call '+(i+1)+':</span>'+api_call_info[i].title+'</p>';
-			html += '<p class="description"><span>Description:</span>'+api_call_info[i].description+'</p>';
-			html += '<p class="url"><span>URL:</span><a href="'+api_call_info[i].url+'.html" target="_blank">'+api_call_info[i].url+'</a></p>';	
-			
-			html += '<p class="params"><span>Parameters:</span></p>';
-			
-			var tempParams = api_call_info[i].parameters.replace("?","").split("&");
-			
-			html += '<ul class="paramlist">';
-			for(var j=0;j<tempParams.length;j++){
-				html+= '<li>'+tempParams[j]+'</li>';
+			html += '<p class="title"><span>API call '+(i+1)+':</span>'+v.title+'</p>';
+			html += '<p class="description"><span>Description:</span>'+v.description+'</p>';
+			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'.html">'+v.url+'.html</a></p>';	
+	
+			if(v.parameters != ""){
+				html += '<p class="params"><span>Parameters:</span></p>';
+				
+				var tempParams = v.parameters.replace("?","").split("&");
+						
+				html += '<ul class="paramlist">';
+				for(var j=0;j<tempParams.length;j++){
+					html+= '<li>'+tempParams[j]+'</li>';
+				}
+				html += '</ul>';
 			}
-			html += '</ul>';
 			
 			html += '<p class="formats"><span>Formats:</span>';
-			html += '<a href="'+api_call_info[i].url+'.rdf'+api_call_info[i].parameters+'" target="_blank">RDF</a>';
-			html += '<a href="'+api_call_info[i].url+'.ttl'+api_call_info[i].parameters+'" target="_blank">TTL</a>';
-			html += '<a href="'+api_call_info[i].url+'.xml'+api_call_info[i].parameters+'" target="_blank">XML</a>';
-			html += '<a href="'+api_call_info[i].url+'.json'+api_call_info[i].parameters+'" target="_blank">JSON</a>';
-			html += '<a href="'+api_call_info[i].url+'.html'+api_call_info[i].parameters+'" target="_blank">HTML</a>';
+			html += '<a href="'+v.url+'.rdf'+v.parameters+'" target="_blank">RDF</a>';
+			html += '<a href="'+v.url+'.ttl'+v.parameters+'" target="_blank">TTL</a>';
+			html += '<a href="'+v.url+'.xml'+v.parameters+'" target="_blank">XML</a>';
+			html += '<a href="'+v.url+'.json'+v.parameters+'" target="_blank">JSON</a>';
+			html += '<a href="'+v.url+'.html'+v.parameters+'" target="_blank">HTML</a>';
 			html += '</p>';
 			html += '<a class="close">x</a>';
 			html += '</div><!-- end apiCall -->';
 			
-		}
+			i++;
+			
+		});	
 		
-		//$('div#apiCalls').html($('div#apiCalls').html()+html);
 		$('div#apiCalls').html(html);
 		
 		$('div#apiCalls a.source').each(function(){
@@ -432,13 +444,12 @@ var PostList = {
 			$(this).button({text:true});
 		});
 		
-		resetSourceLinks();
+		PostList.resetSourceLinks();
 		
 		$('div#apiCalls').fadeIn();
-			
+		
 		return false;
-		*/
-	},
+	},	
 	resetSourceLinks:function() {
 		
 		$("div#apiCalls a.source").click(function(){

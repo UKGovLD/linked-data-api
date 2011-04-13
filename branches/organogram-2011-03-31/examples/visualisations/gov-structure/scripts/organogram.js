@@ -53,12 +53,8 @@ var Orgvis = {
 		visOffsetY:0,			// vertical positioning
 		JPcount:0,				// Junior post count
 	 	apiBase:"",
-	 	apiCallInfo: {			// Stores information about each API call to be made
-			rootPost:{},		
-			postReports:{},
-			juniorStaff:{},
-			unitStats:{}
-		},
+	 	apiCallInfo: {},		// Stores information about each API call to be made}
+		firstLoad_expectedApiResponses:3, // Used to make the app wait until the correct number of API responses have been gathered
 		apiResponses:[],		// Stores JSON responses from the API
 		cacheObj:{},			// An object to store API responses
 		debug:true				// Output to console or not
@@ -72,7 +68,7 @@ var Orgvis = {
 		}
 
 		log('$.cookie("organogram-preview-mode"):'+$.cookie("organogram-preview-mode"));
-		log(pMode);
+		log("pMode: "+pMode);
 			
 		if(deptSlug.length > 0){
 			Orgvis.vars.global_typeOfOrg = "department";	
@@ -108,15 +104,14 @@ var Orgvis = {
 			*/
 			
 			Orgvis.vars.apiBase = "organogram.data.gov.uk";
-			$("span#previewModeSign").show();
-			
+			Orgvis.vars.previewParam = true;			
 			Orgvis.initSpaceTree(reload);
 
 		} else if($.cookie("organogram-preview-mode")) {
 			log("Cookie: In preview mode");
 			// In preview mode
+			Orgvis.vars.previewMode = true;
 			Orgvis.vars.apiBase = "organogram.data.gov.uk";
-			$("span#previewModeSign").show();		
 			Orgvis.initSpaceTree(reload);
 		} else {
 			log("Not in preview mode");
@@ -483,35 +478,48 @@ var Orgvis = {
 			complete:false
 		};	
 
-		$.ajax({	
+		$.ajax();
+		
+		var s = {	
 			url: Orgvis.vars.apiCallInfo.rootPost.url+".json"+"?"+Orgvis.vars.apiCallInfo.rootPost.parameters+"&callback=?",
 			type: "GET",
 			dataType: "jsonp",
 			async:true,
-			cache:true,
-			error:function (xhr, ajaxOptions, thrownError){
-				log("xhr.status:");				
-				log(xhr.status);
-				log(ajaxOptions);
-				log(thrownError);
+			error:function (e){
+				log(e);
 				$.cookie("organogram-preview-mode", null);
 				if(Orgvis.vars.previewMode){
-					Orgvis.changeLog("Error loading post data", false);
+					Orgvis.changeLog("Error loading post's data", false);
 					Orgvis.showLogin();					
 				}else{
-					Orgvis.changeLog("Error loading post data", false);
+					Orgvis.changeLog("Error loading post's data", false);
 				}
 			},
 			success: function(json){
-				$.cookie("organogram-preview-mode", true);
-				Orgvis.vars.previewMode = true;			
-				// Display the breadcrumbs at the top of the vis
-				Orgvis.loadRootPost(json);
-				// Pass data to the regData function
-				Orgvis.regData(json);
-				Orgvis.vars.apiCallInfo.rootPost.complete = true;							
+				if(Orgvis.vars.previewParam){
+					$("span#previewModeSign").show();
+					$.cookie("organogram-preview-mode", true);
+					Orgvis.vars.previewMode = true;
+				}
+				
+				if(typeof json.result.primaryTopic.label != 'undefined'){
+					// Display the breadcrumbs at the top of the vis
+					Orgvis.loadRootPost(json);
+					// Pass data to the regData function
+					Orgvis.regData(json);
+					Orgvis.vars.apiCallInfo.rootPost.complete = true;		
+				} else {
+					Orgvis.changeLog("Could not retrieve the main post's data",false);
+				}					
 			}
-		});
+		};
+
+		if(Orgvis.vars.previewMode || Orgvis.vars.previewParam){
+			s.username = $.cookie('organogram-username');
+			s.password = $.cookie('organogram-password');
+		}
+				
+		$.myJSONP(s,"Post's data")
 	},
 	getReportsFullData:function() {
 		
@@ -520,23 +528,19 @@ var Orgvis = {
 		Orgvis.vars.apiCallInfo.postReports = {
 				title:"Retrieval of posts that report to the root post",
 				description:"This call retrieves information about the posts that report to the root post, such as their unit, grade and contact details.",
-				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post+"/reports-full",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post+"/reportsFull",
 				parameters:"?_pageSize=300",
 				complete:false
 		};		
 
-
-		if(Orgvis.vars.previewMode){
-			$.ajax({
+		var s = {
 				url: Orgvis.vars.apiCallInfo.postReports.url+".json"+Orgvis.vars.apiCallInfo.postReports.parameters+"&callback=?",
 				type: "GET",
 				dataType: "jsonp",
-				async:true,
-				cache:true,
-				username:$.cookie('organogram-username'),
-				password:$.cookie('organogram-password'),				
+				async:true,				
 				error: function(){
-					Orgvis.changeLog("Error loading organogram data", false);
+					log("API - postReports - error");
+					Orgvis.changeLog("Error loading post's organogram data", false);
 				},
 				success: function(json){
 					// Pass data to the regData function
@@ -544,26 +548,17 @@ var Orgvis = {
 					Orgvis.regData(json);
 					Orgvis.vars.apiCallInfo.postReports.complete = true;
 				}
-			});						
-		} else {
-			$.ajax({
-				url: Orgvis.vars.apiCallInfo.postReports.url+".json"+Orgvis.vars.apiCallInfo.postReports.parameters+"&callback=?",
-				type: "GET",
-				dataType: "jsonp",
-				async:true,
-				cache:true,
-				error: function(){
-					Orgvis.changeLog("Error loading organogram data", false);
-				},
-				success: function(json){
-					// Pass data to the regData function
-					log("passing data to regData");
-					Orgvis.regData(json);
-					Orgvis.vars.apiCallInfo.postReports.complete = true;
-				}
-			});			
+			};
+		
+		
+		if(Orgvis.vars.previewMode || Orgvis.vars.previewParam){
+			s.username = $.cookie('organogram-username');
+			s.password = $.cookie('organogram-password');
+			s.url = s.url.replace("reportsFull","reports-full");
 		}
 		
+		$.myJSONP(s,"Reporting posts' data");
+				
 			
 	},
 	getJuniorStaffFullData:function() {
@@ -578,45 +573,28 @@ var Orgvis = {
 				complete:false
 		};		
 
-
-		if(Orgvis.vars.previewMode){
-			$.ajax({
-				url: Orgvis.vars.apiCallInfo.juniorStaff.url+".json"+Orgvis.vars.apiCallInfo.juniorStaff.parameters+"&callback=?",
-				type: "GET",
-				dataType: "jsonp",
-				async:true,
-				cache:true,
-				username:$.cookie('organogram-username'),
-				password:$.cookie('organogram-password'),				
-				error: function(){
-					Orgvis.changeLog("Error loading organogram data", false);
-				},
-				success: function(json){
-					// Pass data to the regData function
-					log("passing data to regData");
-					Orgvis.regData(json);
-					Orgvis.vars.apiCallInfo.juniorStaff.complete = true;							
-				}
-			});						
-		} else {
-			$.ajax({
-				url: Orgvis.vars.apiCallInfo.juniorStaff.url+".json"+Orgvis.vars.apiCallInfo.juniorStaff.parameters+"&callback=?",
-				type: "GET",
-				dataType: "jsonp",
-				async:true,
-				cache:true,
-				error: function(){
-					Orgvis.changeLog("Error loading organogram data", false);
-				},
-				success: function(json){
-					// Pass data to the regData function
-					log("passing data to regData");
-					Orgvis.regData(json);
-					Orgvis.vars.apiCallInfo.juniorStaff.complete = true;							
-				}
-			});			
-		}
+		var s = {
+			url: Orgvis.vars.apiCallInfo.juniorStaff.url+".json"+Orgvis.vars.apiCallInfo.juniorStaff.parameters+"&callback=?",
+			type: "GET",
+			dataType: "jsonp",
+			async:true,
+		    error:function (){
+				Orgvis.changeLog("Error loading junior staff data", false);
+			},
+			success: function(json,textStatus,XMLHttpRequest){
+				// Pass data to the regData function
+				log("passing data to regData");
+				Orgvis.regData(json);
+				Orgvis.vars.apiCallInfo.juniorStaff.complete = true;							
+			}
+		};
+			
+		if(Orgvis.vars.previewMode || Orgvis.vars.previewParam){
+			s.username = $.cookie('organogram-username');
+			s.password = $.cookie('organogram-password');
+		}	
 		
+		$.myJSONP(s, "Junior staff data");		
 			
 	},
 	regData:function(data) {
@@ -627,15 +605,25 @@ var Orgvis = {
 		log("Orgvis.vars.apiResponses:");
 		log(Orgvis.vars.apiResponses);
 		// If both API calls have been made then load the organogram
-		if(Orgvis.vars.apiResponses.length == 3){
-		log("length is 3");
+		if(Orgvis.vars.apiResponses.length == Orgvis.vars.firstLoad_expectedApiResponses){
+		log("length is "+Orgvis.vars.firstLoad_expectedApiResponses);
 			for(var i in Orgvis.vars.apiResponses){
-				log('Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full"):');
-				log(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full"));
-				
-				if(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full") > 0){
-					log("found reports-full data");
-					Orgvis.loadOrganogram(Orgvis.vars.apiResponses[i]);
+				if(Orgvis.vars.previewMode){
+					log('Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full"):');
+					log(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full"));
+					
+					if(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full") > 0){
+						log("found reports-full data");
+						Orgvis.loadOrganogram(Orgvis.vars.apiResponses[i]);
+					}
+				} else {
+					log('Orgvis.vars.apiResponses[i].result._about.indexOf("reportsFull"):');
+					log(Orgvis.vars.apiResponses[i].result._about.indexOf("reportsFull"));
+					
+					if(Orgvis.vars.apiResponses[i].result._about.indexOf("reportsFull") > 0){
+						log("found reportsFull data");
+						Orgvis.loadOrganogram(Orgvis.vars.apiResponses[i]);
+					}				
 				}
 			}
 		} else {
@@ -1585,25 +1573,31 @@ var Orgvis = {
 		// Need to use a foreach loop to identify the correct key's and values in the
 		// new apiCallInfo object.
 		
-		/*
-		$('div#apiCalls').fadeOut();
+		log("displaying data sources");
+		
+		//$('div#apiCalls').fadeOut();
 		
 		var html='<p class="label">Data sources</p>';
 		
-		for(var i=0;i<Orgvis.vars.apiCallInfo.length;i++){
+		var i=0;
+
+		$.each(Orgvis.vars.apiCallInfo,function(k,v){
+			
+			log(k);
+			log(v);
 			
 			html += '<a class="source">'+(i+1)+'</a>';
 			
 			html += '<div class="apiCall shadowBox">';
 			
-			html += '<p class="title"><span>API call '+(i+1)+':</span>'+Orgvis.vars.apiCallInfo[i].title+'</p>';
-			html += '<p class="description"><span>Description:</span>'+Orgvis.vars.apiCallInfo[i].description+'</p>';
-			html += '<p class="url"><span>Endpoint URL:</span><a href="'+Orgvis.vars.apiCallInfo[i].url+'.html">'+Orgvis.vars.apiCallInfo[i].url+'.html</a></p>';	
+			html += '<p class="title"><span>API call '+(i+1)+':</span>'+v.title+'</p>';
+			html += '<p class="description"><span>Description:</span>'+v.description+'</p>';
+			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'.html">'+v.url+'.html</a></p>';	
 	
-			if(Orgvis.vars.apiCallInfo[i].parameters != ""){
+			if(v.parameters != ""){
 				html += '<p class="params"><span>Parameters:</span></p>';
 				
-				var tempParams = Orgvis.vars.apiCallInfo[i].parameters.replace("?","").split("&");
+				var tempParams = v.parameters.replace("?","").split("&");
 						
 				html += '<ul class="paramlist">';
 				for(var j=0;j<tempParams.length;j++){
@@ -1613,18 +1607,18 @@ var Orgvis = {
 			}
 			
 			html += '<p class="formats"><span>Formats:</span>';
-			html += '<a href="'+Orgvis.vars.apiCallInfo[i].url+'.rdf'+Orgvis.vars.apiCallInfo[i].parameters+'" target="_blank">RDF</a>';
-			html += '<a href="'+Orgvis.vars.apiCallInfo[i].url+'.ttl'+Orgvis.vars.apiCallInfo[i].parameters+'" target="_blank">TTL</a>';
-			html += '<a href="'+Orgvis.vars.apiCallInfo[i].url+'.xml'+Orgvis.vars.apiCallInfo[i].parameters+'" target="_blank">XML</a>';
-			html += '<a href="'+Orgvis.vars.apiCallInfo[i].url+'.json'+Orgvis.vars.apiCallInfo[i].parameters+'" target="_blank">JSON</a>';
-			html += '<a href="'+Orgvis.vars.apiCallInfo[i].url+'.html'+Orgvis.vars.apiCallInfo[i].parameters+'" target="_blank">HTML</a>';
+			html += '<a href="'+v.url+'.rdf'+v.parameters+'" target="_blank">RDF</a>';
+			html += '<a href="'+v.url+'.ttl'+v.parameters+'" target="_blank">TTL</a>';
+			html += '<a href="'+v.url+'.xml'+v.parameters+'" target="_blank">XML</a>';
+			html += '<a href="'+v.url+'.json'+v.parameters+'" target="_blank">JSON</a>';
+			html += '<a href="'+v.url+'.html'+v.parameters+'" target="_blank">HTML</a>';
 			html += '</p>';
 			html += '<a class="close">x</a>';
 			html += '</div><!-- end apiCall -->';
 			
-		}
-		
-		
+			i++;
+			
+		});	
 		
 		$('div#apiCalls').html(html);
 		
@@ -1636,11 +1630,9 @@ var Orgvis = {
 			$(this).button({text:true});
 		});
 		
-		resetSourceLinks();
+		Orgvis.resetSourceLinks();
 		
 		$('div#apiCalls').fadeIn();
-			
-		*/
 		
 		return false;
 	},	
@@ -1788,6 +1780,67 @@ function addCommas(nStr) {
     }
     return x1 + x2;
 }
+
+// fn to handle jsonp with timeouts and errors
+// hat tip to Ricardo Tomasi for the timeout logic
+$.myJSONP = function(s,callName) {
+    s.dataType = 'jsonp';
+    $.ajax(s);
+
+    // figure out what the callback fn is
+    var $script = $(document.getElementsByTagName('head')[0].firstChild);
+    var url = $script.attr('src') || '';
+    var cb = (url.match(/callback=(\w+)/)||[])[1];
+    if (!cb)
+        return; // bail
+    var t = 0, cbFn = window[cb];
+
+    $script[0].onerror = function(e) {
+        $script.remove();
+        handleError(s, {}, "error", e);
+        clearTimeout(t);
+    };
+
+    if (!s.timeout)
+        return;
+
+    window[cb] = function(json) {
+        clearTimeout(t);
+        cbFn(json);
+        cbFn = null;
+    };
+
+    t = setTimeout(function() {
+        $script.remove();
+        handleError(s, {}, "timeout");
+        if (cbFn)
+            window[cb] = function(){};
+    }, s.timeout);
+    
+    function handleError(s, o, msg, e) {
+
+    	log("Error retrieving "+s.url);
+
+    	Orgvis.changeLog("Error requesting data for "+callName,false);
+
+		var json = {
+				result:{
+					_about:s.url,
+					items:[]
+				}
+    		};
+	    		    	
+    	if(s.url.indexOf("junior-staff-full") > 0){    			
+			Orgvis.vars.apiCallInfo.juniorStaff.complete = true;    		
+    	}
+
+
+		Orgvis.regData(json);					
+    	
+        // support jquery versions before and after 1.4.3
+        //($.ajax.handleError || $.handleError)(s, o, msg, e);
+    }
+};
 
 function log(info){
 	Orgvis.vars.debug && window.console && console.log && console.log(info);
