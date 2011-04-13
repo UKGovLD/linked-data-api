@@ -145,6 +145,7 @@ function createSeniorCSV($filename) {
          	$cell = preg_replace('/\s+/', ' ', trim($cell));
          	// strip leading $ signs, seem to come from formatting numbers as currency
          	$cell = preg_replace('/^\$/', '', $cell);
+         	$cell = str_replace('"', '""', $cell);
          	$row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
          	$y++;
      	} 
@@ -187,6 +188,7 @@ function createJuniorCSV($filename) {
          	$cell = preg_replace('/\s+/', ' ', trim($cell));
          	// strip leading $ signs, seem to come from formatting numbers as currency
          	$cell = preg_replace('/^\$/', '', $cell);
+         	$cell = str_replace('"', '""', $cell);
          	$row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
          	$y++;
      	} 
