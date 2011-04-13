@@ -59,6 +59,9 @@ WHERE {
     rdfs:label ?bodyLabel .
   ?post gov:postIn ?body ;
     grade:grade ?grade .
+  { ?post postStatus:postStatus postStatus:vacant . } 
+  UNION 
+  { ?post postStatus:postStatus postStatus:current . } 
 }
 ORDER BY ?body DESC(?grade)
 GRADES;
@@ -75,6 +78,9 @@ WHERE {
     rdfs:label ?postLabel ;
     gov:postIn ?body .
   ?body a gov:PublicBody .
+  { ?post postStatus:postStatus postStatus:vacant . } 
+  UNION 
+  { ?post postStatus:postStatus postStatus:current . } 
 #  OPTIONAL { ?post org:reportsTo ?manager } 
 #  FILTER (!BOUND(?manager))
 }
