@@ -51,6 +51,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX gov: <http://reference.data.gov.uk/def/central-government/>
 PREFIX grade: <http://reference.data.gov.uk/def/civil-service-grade/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/>
 
 SELECT DISTINCT ?body ?bodyLabel ?grade
 WHERE {
@@ -70,6 +71,7 @@ GRADES;
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX gov: <http://reference.data.gov.uk/def/central-government/>
+PREFIX postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/>
  
 SELECT DISTINCT ?body ?post ?postLabel
 WHERE { 
@@ -151,7 +153,7 @@ function createSeniorCSV($filename) {
          	$cell = preg_replace('/\s+/', ' ', trim($cell));
          	// strip leading $ signs, seem to come from formatting numbers as currency
          	$cell = preg_replace('/^\$/', '', $cell);
-         	$cell = str_replace('"', '""', $cell);
+         	$cell = str_replace('"', '\'', $cell);
          	$row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
          	$y++;
      	} 
@@ -194,7 +196,7 @@ function createJuniorCSV($filename) {
          	$cell = preg_replace('/\s+/', ' ', trim($cell));
          	// strip leading $ signs, seem to come from formatting numbers as currency
          	$cell = preg_replace('/^\$/', '', $cell);
-         	$cell = str_replace('"', '""', $cell);
+         	$cell = str_replace('"', '\'', $cell);
          	$row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
          	$y++;
      	} 
