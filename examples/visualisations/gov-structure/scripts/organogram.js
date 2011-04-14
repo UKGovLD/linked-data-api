@@ -486,7 +486,7 @@ var Orgvis = {
 			dataType: "jsonp",
 			async:true,
 			error:function (e){
-				log(e);
+				log("API - rootPost - error");
 				$.cookie("organogram-preview-mode", null);
 				if(Orgvis.vars.previewMode){
 					Orgvis.changeLog("Error loading post's data", false);
@@ -579,9 +579,10 @@ var Orgvis = {
 			dataType: "jsonp",
 			async:true,
 		    error:function (){
+		    	log("API - junior staff - error");
 				Orgvis.changeLog("Error loading junior staff data", false);
 			},
-			success: function(json,textStatus,XMLHttpRequest){
+			success: function(json){
 				// Pass data to the regData function
 				log("passing data to regData");
 				Orgvis.regData(json);
@@ -596,6 +597,66 @@ var Orgvis = {
 		
 		$.myJSONP(s, "Junior staff data");		
 			
+	},
+	getStatsData:function(){
+		
+		// Collated for the API call info box
+		Orgvis.vars.apiCallInfo.postStats = {
+				title:"Retrieval of each post's statistics data",
+				description:"An API call to retrieve the statistical data present for an individual post such as the salary cost of their junior staff.",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post",
+				parameters:"?_pageSize=300",
+				complete:false
+		};	
+		
+		// Make an API call for each post within the organogram
+		$.each(Orgvis.vars.postList,function(k,v){
+		
+			var postID = v.data.uri.split("/");
+			postID=postID[postID.length-1];
+			
+			var s = {
+				url: Orgvis.vars.apiCallInfo.postStats.url+"/"+postID+"/statistics.json"+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
+				type: "GET",
+				dataType: "jsonp",
+				async:true,
+			    error:function (){
+			    	log("API - stats data: "+v.name[0]+" - error");
+					Orgvis.changeLog("Error loading post: \""+v.name[0]+"\" statistics data", false);
+				},
+				success: function(json){
+					v.data.stats = {
+						salaryCostOfReports:{
+							value:json.result.items[0].salaryCostOfReports
+						},
+						date:{
+							value:json.result.items[0].date
+						}
+					};	
+					v.data.stats.date.formatted = v.data.stats.date.value.split("/");
+	                v.data.stats.date.formatted = '['+v.data.stats.date.formatted[v.data.stats.date.formatted.length-1]+']';
+	                
+	                if(typeof v.data.stats.salaryCostOfReports.value != 'undefined') {
+	                	v.data.stats.salaryCostOfReports.formatted = '£'+addCommas(v.data.stats.salaryCostOfReports.value);
+	                } else {
+	                	v.data.stats.salaryCostOfReports.value = 'N/A';
+	                	v.data.stats.salaryCostOfReports.formatted = 'N/A';
+	                }
+	                
+	                if($("#infobox p.id span.value").html() == postID) {
+						$('p.salaryReports').html('<span>Combined salary of reporting posts</span><span class="value">'+v.data.stats.salaryCostOfReports.formatted+'</span><a class="data" target="_blank" href="'+Orgvis.vars.apiCallInfo.postStats.url+'/'+postID+'/statistics" value="'+v.data.stats.salaryCostOfReports.value+'">Data</a><span class="date">'+v.data.stats.date.formatted+'</span>');	                
+	                }           
+					
+				}
+			};
+				
+			if(Orgvis.vars.previewMode || Orgvis.vars.previewParam){
+				s.username = $.cookie('organogram-username');
+				s.password = $.cookie('organogram-password');
+			}
+			
+			$.myJSONP(s,'Statistics data for "'+v.name[0]+'"');
+		});
 	},
 	regData:function(data) {
 		
@@ -737,6 +798,9 @@ var Orgvis = {
 		log(Orgvis.vars.firstNode);
 
 		Orgvis.buildPostList(json.result.items);
+		// Once post list has been built, fire off the API calls to 
+		// retrieve each post's statistics data
+		Orgvis.getStatsData();
 		Orgvis.connectJuniorPosts();
 		Orgvis.vars.global_postJSON = Orgvis.connectPosts();
 		
@@ -1346,9 +1410,18 @@ var Orgvis = {
 			
 			html += '<p class="salary"><span>Salary</span><span class="value">'+node.data.salaryRange+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
 			//'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'
+
+			// If stats data has been retrieved then show data
+			// otherwise show the loading sign
 			
-			html += '<p class="salaryReports"><span>Combined salary of reporting posts </span><span class="value">Checking...</span><img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
-							
+			var postObj = Orgvis.vars.postList[tempID];
+						
+			if(typeof postObj.data.stats != 'undefined') {
+				html += '<p class="salaryReports"><span>Combined salary of reporting posts</span><span class="value">'+postObj.data.stats.salaryCostOfReports.formatted+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'/statistics" value="'+postObj.data.stats.salaryCostOfReports.value+'">Data</a><span class="date">'+postObj.data.stats.date.formatted+'</span>';	
+			} else {
+				html += '<p class="salaryReports"><span>Combined salary of reporting posts </span><span class="value">Checking...</span><img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
+			}				
+			
 			if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
 				html+='<p class="comment"><span>Comment</span><span class="text">'+node.data.heldBy[i].comment+'</span></p>';
 			}
@@ -1408,7 +1481,7 @@ var Orgvis = {
 			Orgvis.vars.reOpen=true;
 		}
 		
-		Orgvis.displaySalaryReports(node,postUnit);
+		//Orgvis.displaySalaryReports(node,postUnit);
 			
 	},
 	loadJuniorPostInfoBox:function(node){
@@ -1474,7 +1547,7 @@ var Orgvis = {
 		
 	},
 	displaySalaryReports:function(node,postUnit) {
-	
+	/*
 		postUnit = postUnit.split("/");
 		postUnit = postUnit[postUnit.length-1];
 		var postLabel = node.name.toString().replace(/ /g,"+");
@@ -1567,6 +1640,7 @@ var Orgvis = {
 		}); // end ajax call
 			
 		return false;
+		*/
 	},
 	displayDataSources:function() {
 		
@@ -1592,7 +1666,7 @@ var Orgvis = {
 			
 			html += '<p class="title"><span>API call '+(i+1)+':</span>'+v.title+'</p>';
 			html += '<p class="description"><span>Description:</span>'+v.description+'</p>';
-			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'.html">'+v.url+'.html</a></p>';	
+			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'.html">'+v.url+'</a></p>';	
 	
 			if(v.parameters != ""){
 				html += '<p class="params"><span>Parameters:</span></p>';
