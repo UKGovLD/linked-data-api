@@ -243,10 +243,11 @@ if ($isAdmin) {
     while (false !== ($name = readdir($dirResource))) {
       $ext = substr($name, strrpos($name, '.') + 1);
       if ($ext == 'xls') {
+        $baseFilename = substr($name, 0, strrpos($name, '.'));
         $files[] = array(
           'filename' => $name,
           'modified' => filemtime($dir . '/' . $name),
-          'enabled' => file_exists("$xlwrapMappingsDir/$dept-$isoDate-$filenameNoExt.trig")
+          'enabled' => file_exists("$xlwrapMappingsDir/$dept-$isoDate-$baseFilename.trig")
         );
       }
     }
