@@ -291,6 +291,9 @@ overflow-y: auto;
   min-height: 335px;
 	overflow-y: auto;
 }
+div.admin div.panel div.listing {
+  width:770px;
+}
 div.preview div.links, div.panel div.listing {
 	width:500px;
 }
