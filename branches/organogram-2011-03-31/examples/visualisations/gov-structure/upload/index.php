@@ -388,9 +388,17 @@ if ($isAdmin) {
                         <?php foreach ($files as $i => $file) { ?>
                           <tr<?php if ($isAdmin && !$file['enabled']) { echo ' class="disabled"'; } ?>>
                             <?php if ($isAdmin) { ?>
-                              <td class="submitter"><?php echo $file['submitter']; ?></td>
+                              <td class="submitter">
+                                <a href="mailto:<?php echo $file['submitter']; ?>?subject=Organogram">
+                                  <?php echo $file['submitter']; ?>
+                                </a>
+                              </td>
                             <?php } ?>
-                            <td class="filename"><?php echo $file['filename']; ?></td>
+                            <td class="filename">
+                              <a href="<?php echo $dir; ?>/<?php echo $file['filename']; ?>">
+                                <?php echo $file['filename']; ?>
+                              </a>
+                            </td>
                             <td class="modified"><?php echo date('d M Y H:i', $file['modified']); ?></td>
                             <?php if ($isAdmin) { ?>
                               <td class="disable">
@@ -479,9 +487,17 @@ if ($isAdmin) {
                         <?php foreach ($files as $i => $file) { ?>
                           <tr<?php if ($isAdmin && !$file['enabled']) { echo ' class="disabled"'; } ?>>
                             <?php if ($isAdmin) { ?>
-                              <td class="submitter"><?php echo $file['submitter']; ?></td>
+                              <td class="submitter">
+                                <a href="mailto:<?php echo $file['submitter']; ?>?subject=Organogram">
+                                  <?php echo $file['submitter']; ?>
+                                </a>
+                              </td>
                             <?php } ?>
-                            <td class="filename"><?php echo $file['filename']; ?></td>
+                            <td class="filename">
+                              <a href="<?php echo $dir; ?>/<?php echo $file['filename']; ?>">
+                                <?php echo $file['filename']; ?>
+                              </a>
+                            </td>
                             <td class="modified"><?php echo date('d M Y H:i', $file['modified']); ?></td>
                             <?php if ($isAdmin) { ?>
                               <td class="disable">
