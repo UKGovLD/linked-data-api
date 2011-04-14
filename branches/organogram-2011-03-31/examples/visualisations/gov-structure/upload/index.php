@@ -13,8 +13,8 @@ $xlwrapMappingsDir = 'C:/xlwrap/mappings';
 $adminEmails = array(
   'jeni@jenitennison.com',
   'john.sheridan@nationalarchives.gsi.gov.uk',
-  'Clemence.Cleave-Doyard@nationalarchives.gsi.gov.uk',
-  'Simon.Demissie@nationalarchives.gsi.gov.uk'
+  'clemence.cleave-doyard@nationalarchives.gsi.gov.uk',
+  'simon.demissie@nationalarchives.gsi.gov.uk'
 );
 
 $action = '';
@@ -59,7 +59,7 @@ if (isset($_POST['email']) || isset($_GET['email'])) {
 
 if (isset($_POST['admin']) || isset($_GET['admin'])) {
   $isAdmin = true;
-} else if (in_array($email, $adminEmails)) {
+} else if (in_array(strtolower($email), $adminEmails)) {
   $isAdmin = true;
 }
 
