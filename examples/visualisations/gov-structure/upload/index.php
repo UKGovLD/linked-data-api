@@ -7,8 +7,15 @@
 require_once 'Excel/reader.php';
 include 'functions.php';
 
-#$xlwrapMappingsDir = 'C:/xlwrap/mappings';
-$xlwrapMappingsDir = 'xlwrap/mappings';
+$xlwrapMappingsDir = 'C:/xlwrap/mappings';
+#$xlwrapMappingsDir = 'xlwrap/mappings';
+
+$adminEmails = array(
+  'jeni@jenitennison.com',
+  'john.sheridan@nationalarchives.gsi.gov.uk',
+  'Clemence.Cleave-Doyard@nationalarchives.gsi.gov.uk',
+  'Simon.Demissie@nationalarchives.gsi.gov.uk'
+);
 
 $action = '';
 $email = '';
@@ -19,6 +26,7 @@ $dir = '';
 $filename = '';
 $filenameNoExt = '';
 $fileLocation = '';
+$isAdmin = false;
 $redirect = false;
 $validEmail = false;
 $validDate = false;
@@ -47,6 +55,12 @@ if (isset($_POST['email']) || isset($_GET['email'])) {
     $validEmail = false;
     $errors[] = 'That doesn\'t look like a valid email address.';
   }
+}
+
+if (isset($_POST['admin']) || isset($_GET['admin'])) {
+  $isAdmin = true;
+} else if (in_array($email, $adminEmails)) {
+  $isAdmin = true;
 }
 
 if (isset($_POST['date']) || isset($_GET['date'])) {
@@ -177,9 +191,52 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
     unlink($xlwrapMapping);
   }
   $success = true;
+} else if (($action == 'disable-preview' || $action == 'disable-download') && $validEmail && $validDate && $validFilename) {
+  $xlwrapMapping = "$xlwrapMappingsDir/$dept-$isoDate-$filenameNoExt.trig";
+  if (file_exists($xlwrapMapping)) {
+    unlink($xlwrapMapping);
+  }
+  $success = true;
+} else if (($action == 'enable-preview' || $action == 'enable-download') && $validEmail && $validDate && $validFilename) {
+  $localMapping = "$dir/$filenameNoExt-mapping.trig";
+  $xlwrapMapping = "$xlwrapMappingsDir/$dept-$isoDate-$filenameNoExt.trig";
+  if (file_exists($localMapping)) {
+    copy($localMapping, $xlwrapMapping);
+  }
+  $success = true;
 }
 
-if (file_exists($dir)) {
+if ($isAdmin) {
+  $dataDirResource = opendir('data');
+  if ($dataDirResource) {
+    while (false != ($deptName = readdir($dataDirResource))) {
+      $deptDir = "data/$deptName/$isoDate";
+      if (file_exists($deptDir)) {
+        $deptDirResource = opendir($deptDir);
+        if ($deptDirResource) {
+          while (false != ($excelFile = readdir($deptDirResource))) {
+            $ext = substr($excelFile, strrpos($excelFile, '.') + 1);
+            if ($ext == 'xls') {
+              $baseFilename = substr($excelFile, 0, strrpos($excelFile, '.'));
+              $mappingFilename = "$deptDir/$baseFilename-mapping.trig";
+              $mappingFileContents = file_get_contents($mappingFilename);
+              preg_match('/foaf:mbox \<mailto:([^>]+)\>/', $mappingFileContents, $matches);
+              $files[] = array(
+                'filename' => $excelFile,
+                'modified' => filemtime("$deptDir/$excelFile"),
+                'submitter' => $matches[1],
+                'enabled' => file_exists("$xlwrapMappingsDir/$deptName-$isoDate-$baseFilename.trig")
+              );
+            }
+          }
+        }
+      }
+    }
+  } else {
+    $success = false;
+    $errors[] = 'Couldn\'t open the directory of data to list spreadsheets.';
+  }
+} else if (file_exists($dir)) {
   // populate $files
   $dirResource = opendir($dir);
   if ($dirResource) {
@@ -188,7 +245,8 @@ if (file_exists($dir)) {
       if ($ext == 'xls') {
         $files[] = array(
           'filename' => $name,
-          'modified' => filemtime($dir . '/' . $name)
+          'modified' => filemtime($dir . '/' . $name),
+          'enabled' => file_exists("$xlwrapMappingsDir/$dept-$isoDate-$filenameNoExt.trig")
         );
       }
     }
@@ -232,11 +290,11 @@ if (file_exists($dir)) {
               <span class="image"><img src="../images/upload_file.png" width="60" height="60" /></span>
               <span class="text"><span>Upload your spreadsheet</span></span>
             </a>
-            <a class="step2 <?php if ($action == 'preview' || $action == 'delete-preview' || ($action == 'upload' && $success)) { echo 'current'; } ?>" href="#preview">
+            <a class="step2 <?php if ($action == 'preview' || $action == 'delete-preview' || $action == 'enable-preview' || $action == 'disable-preview' || ($action == 'upload' && $success)) { echo 'current'; } ?>" href="#preview">
               <span class="image"><img src="../images/preview.png" width="60" height="60"  /></span>
               <span class="text"><span>Preview organogram</span></span>       
             </a>
-            <a class="step3 <?php if ($action == 'download' || $action == 'delete-download') { echo 'current'; } ?>" href="#download">
+            <a class="step3 <?php if ($action == 'download' || $action == 'delete-download' || $action == 'enable-download' || $action == 'disable-download') { echo 'current'; } ?>" href="#download">
               <span class="image"><img src="../images/download_data.png" width="60" height="60"  /></span>
               <span class="text"><span>Download data</span></span>       
             </a>
@@ -261,7 +319,7 @@ if (file_exists($dir)) {
             </div>
             -->
             <div class="node-inner">
-              <div class="content">
+              <div class="content <?php if ($isAdmin) { echo 'admin'; } ?>">
                 <div id="upload" class="upload panel">
                     <form id="upload_spreadsheet" enctype="multipart/form-data" action="/" method="post">
                       <fieldset>
@@ -282,7 +340,7 @@ if (file_exists($dir)) {
                     </div>
                 </div> <!-- end upload panel -->
                 <div id="preview" class="preview panel">
-                  <?php if ($validEmail && $validDate && $validFilename && $action != 'delete-preview' && $action != 'delete-download') { ?>
+                  <?php if ($validEmail && $validDate && $validFilename && $action != 'delete-preview' && $action != 'delete-download' && $action != 'enable-preview' && $action != 'enable-download' && $action != 'disable-preview' && $action != 'disable-download') { ?>
                     <?php
                       $orgInfo = organogramInfo($dept, $isoDate, $filenameNoExt);
                     ?>
@@ -328,20 +386,43 @@ if (file_exists($dir)) {
                       <p>Select a spreadsheet to preview.</p>
                       <table>
                         <?php foreach ($files as $i => $file) { ?>
-                          <tr>
+                          <tr<?php if ($isAdmin && !$file['enabled']) { echo ' class="disabled"'; } ?>>
+                            <?php if ($isAdmin) { ?>
+                              <td class="submitter"><?php echo $file['submitter']; ?></td>
+                            <?php } ?>
                             <td class="filename"><?php echo $file['filename']; ?></td>
                             <td class="modified"><?php echo date('d M Y H:i', $file['modified']); ?></td>
+                            <?php if ($isAdmin) { ?>
+                              <td class="disable">
+                                <form action="/" method="post">
+                                  <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
+                                  <?php if ($isAdmin) { ?>
+                                    <input name="admin" type="hidden" value="true" />
+                                  <?php } ?>
+                                  <input name="date" type="hidden" value="<?php echo $date; ?>" />
+                                  <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
+                                  <input name="action" type="hidden" value="<?php echo $file['enabled'] ? 'disable' : 'enable'; ?>-preview" />
+                                  <input type="submit" value="<?php echo $file['enabled'] ? 'Disable' : 'Enable'; ?>" />
+                                </form>
+                              </td>
+                            <?php } ?>
                             <td class="preview">
                               <form action="/" method="get">
-                                <input name="email" type="hidden" value="<?php echo $email; ?>" />
+                                <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
+                                <?php if ($isAdmin) { ?>
+                                  <input name="admin" type="hidden" value="true" />
+                                <?php } ?>
                                 <input name="date" type="hidden" value="<?php echo $date; ?>" />
                                 <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
-                                <input name="action" type="submit" value="Preview" />
+                                <input name="action" <?php if (!$file['enabled']) { echo 'disabled="disabled"'; } ?> type="submit" value="Preview" />
                               </form>
                             </td>
                             <td class="delete">
                               <form action="/" method="post">
-                                <input name="email" type="hidden" value="<?php echo $email; ?>" />
+                                <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
+                                <?php if ($isAdmin) { ?>
+                                  <input name="admin" type="hidden" value="true" />
+                                <?php } ?>
                                 <input name="date" type="hidden" value="<?php echo $date; ?>" />
                                 <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
                                 <input name="action" type="hidden" value="delete-preview" />
@@ -371,7 +452,7 @@ if (file_exists($dir)) {
                   <?php } ?>
                 </div> <!-- end preview panel -->
                 <div id="download" class="download panel">
-                  <?php if ($validEmail && $validDate && $validFilename && $action != 'delete-preview' && $action != 'delete-download') { ?>
+                  <?php if ($validEmail && $validDate && $validFilename && $action != 'delete-preview' && $action != 'delete-download' && $action != 'enable-preview' && $action != 'enable-download' && $action != 'disable-preview' && $action != 'disable-download') { ?>
                     <?php 
                       if ($action == 'download') {
                         // in this case the data has been generated through the processing earlier in the PHP
@@ -396,20 +477,43 @@ if (file_exists($dir)) {
                       <p>Select a spreadsheet whose data you want to download.</p>
                       <table>
                         <?php foreach ($files as $i => $file) { ?>
-                          <tr>
+                          <tr<?php if ($isAdmin && !$file['enabled']) { echo ' class="disabled"'; } ?>>
+                            <?php if ($isAdmin) { ?>
+                              <td class="submitter"><?php echo $file['submitter']; ?></td>
+                            <?php } ?>
                             <td class="filename"><?php echo $file['filename']; ?></td>
                             <td class="modified"><?php echo date('d M Y H:i', $file['modified']); ?></td>
+                            <?php if ($isAdmin) { ?>
+                              <td class="disable">
+                                <form action="/" method="post">
+                                  <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
+                                  <?php if ($isAdmin) { ?>
+                                    <input name="admin" type="hidden" value="true" />
+                                  <?php } ?>
+                                  <input name="date" type="hidden" value="<?php echo $date; ?>" />
+                                  <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
+                                  <input name="action" type="hidden" value="<?php echo $file['enabled'] ? 'disable' : 'enable'; ?>-download" />
+                                  <input type="submit" value="<?php echo $file['enabled'] ? 'Disable' : 'Enable'; ?>" />
+                                </form>
+                              </td>
+                            <?php } ?>
                             <td class="preview">
-                              <form class="download_data" action="/" method="get">
-                                <input name="email" type="hidden" value="<?php echo $email; ?>" />
+                              <form action="/" method="get">
+                                <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
+                                <?php if ($isAdmin) { ?>
+                                  <input name="admin" type="hidden" value="true" />
+                                <?php } ?>
                                 <input name="date" type="hidden" value="<?php echo $date; ?>" />
                                 <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
-                                <input name="action" type="submit" value="Download" />
+                                <input name="action" <?php if (!$file['enabled']) { echo 'disabled="disabled"'; } ?> type="submit" value="Download" />
                               </form>
                             </td>
                             <td class="delete">
                               <form action="/" method="post">
-                                <input name="email" type="hidden" value="<?php echo $email; ?>" />
+                                <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
+                                <?php if ($isAdmin) { ?>
+                                  <input name="admin" type="hidden" value="true" />
+                                <?php } ?>
                                 <input name="date" type="hidden" value="<?php echo $date; ?>" />
                                 <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
                                 <input name="action" type="hidden" value="delete-download" />
