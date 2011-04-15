@@ -358,7 +358,7 @@ if ($isAdmin) {
                             <?php echo $bodyLabel; ?>
                             <?php foreach ($grades as $grade => $present) { ?>
                               -
-                              <a href="http://labs.data.gov.uk/gov-structure/post-list?<?php echo $bodyType; ?>=<?php echo $bodyId; ?>&grade=<?php echo $grade; ?>&preview=true" target="_blank">
+                              <a href="http://organogram.data.gov.uk/gov-structure/post-list?<?php echo $bodyType; ?>=<?php echo $bodyId; ?>&grade=<?php echo $grade; ?>&preview=true" target="_blank">
                                 <?php echo "{$grade}s"; ?>
                               </a>
                             <?php } ?>
@@ -376,7 +376,7 @@ if ($isAdmin) {
                             foreach ($posts as $post) {
                               $postId = $post['id'];
                               $postLabel = $post['label'];
-                              echo "<li><a href=\"http://labs.data.gov.uk/gov-structure/organogram/?$bodyType=$bodyId&post=$postId&preview=true\" target=\"_blank\">$postLabel</a></li>";
+                              echo "<li><a href=\"http://organogram.data.gov.uk/gov-structure/organogram/?$bodyType=$bodyId&post=$postId&preview=true\" target=\"_blank\">$postLabel</a></li>";
                             }
                           }
                         } ?>
