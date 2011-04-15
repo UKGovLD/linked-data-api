@@ -346,7 +346,7 @@ if ($isAdmin) {
                       $orgInfo = organogramInfo($dept, $isoDate, $filenameNoExt);
                     ?>
                     <div class="links">
-                      <p>You can now preview the organogram generated from the spreadsheet that you have provided or <a href="/?email=<?php echo $email; ?>&date=<?php echo $date; ?>&action=preview">preview other spreadsheets</a>.</p>
+                      <p>You can now preview the organogram generated from the spreadsheet that you have provided or <a href="/?email=<?php echo $email; ?>&date=<?php echo $date; ?>&action=preview<?php if ($isAdmin) { echo '&admin=true'; } ?>">preview other spreadsheets</a>.</p>
                       <p>Posts by type:</p>
                       <ul class="post_list">
                         <?php foreach($orgInfo as $bodyUri => $body) { 
@@ -474,7 +474,7 @@ if ($isAdmin) {
                       $juniorCSVUri = "$dir/$filenameNoExt-junior-data.csv";
                     ?>
                     <div class="links">
-                      <p>You can now download your data through the following links or <a href="/?email=<?php echo $email; ?>&date=<?php echo $date; ?>&action=download">download data from other spreadsheets</a>.<?php if ($action != 'download') { echo ' Note that it can take some time for the RDF to be generated. Please be patient.'; } ?></p>
+                      <p>You can now download your data through the following links or <a href="/?email=<?php echo $email; ?>&date=<?php echo $date; ?>&action=download<?php if ($isAdmin) { echo '&admin=true'; } ?>">download data from other spreadsheets</a>.<?php if ($action != 'download') { echo ' Note that it can take some time for the RDF to be generated. Please be patient.'; } ?></p>
                       <ul>
                         <li><a class="rdf <?php if ($action != 'download') { echo 'generating'; } ?>" href="<?php echo $rdfUri ?>">Download RDF</a></li>
                         <li><a class="csv" href="<?php echo $seniorCSVUri ?>">Download Senior Post CSV</a></li>
