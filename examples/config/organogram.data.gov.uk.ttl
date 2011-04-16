@@ -18,6 +18,7 @@
 @prefix postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/> .
 @prefix grade: <http://reference.data.gov.uk/def/civil-service-grade/> .
 @prefix payband: <http://reference.data.gov.uk/def/civil-service-payband/> .
+@prefix profession: <http://reference.data.gov.uk/def/civil-service-profession/> .
 @prefix organogram: <http://reference.data.gov.uk/def/organogram/> .
 
 ############################################################################################
@@ -770,13 +771,13 @@ spec:postsInDepartmentUnit
 spec:postListViewer
   a api:Viewer ;
   api:name "post list" ;
-  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,reportsTo.label,heldBy.name,heldBy.email.label,heldBy.phone.label,heldBy.tenure.workingTime,salaryRange.label,postStatus,grade.label" ;
+  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,reportsTo.label,heldBy.name,heldBy.email.label,heldBy.phone.label,heldBy.profession.prefLabel,heldBy.tenure.workingTime,salaryRange.label,postStatus.prefLabel,grade.label" ;
   .
 
 spec:postViewer
   a api:Viewer ;
   api:name "post details" ;
-  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,heldBy.name,heldBy.phone.label,heldBy.email.label,heldBy.tenure.workingTime,reportsTo.label,reportsTo.heldBy.name,reportsTo.reportsTo.label,reportsTo.reportsTo.heldBy.name,reportsTo.reportsTo.reportsTo.label,reportsTo.reportsTo.reportsTo.heldBy.name,salaryRange.label,postStatus,grade.label" ;
+  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,heldBy.name,heldBy.phone.label,heldBy.email.label,heldBy.profession.prefLabel,heldBy.tenure.workingTime,reportsTo.label,reportsTo.heldBy.name,reportsTo.reportsTo.label,reportsTo.reportsTo.heldBy.name,reportsTo.reportsTo.reportsTo.label,reportsTo.reportsTo.reportsTo.heldBy.name,salaryRange.label,postStatus.prefLabel,grade.label" ;
   .
 
 spec:postInDepartmentStatistics
@@ -1188,6 +1189,7 @@ gov:lowerBound api:label "lowerBound" .
 postStatus:postStatus api:label "postStatus" .
 grade:grade api:label "grade" .
 payband:payBand api:label "payband" .
+profession:profession api:label "profession" .
 
 parl:PoliticalParty api:label "PoliticalParty" .
 parl:Seat api:label "Seat" .
