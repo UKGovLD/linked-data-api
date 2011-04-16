@@ -7,8 +7,8 @@
 require_once 'Excel/reader.php';
 include 'functions.php';
 
-$xlwrapMappingsDir = 'C:/xlwrap/mappings';
-#$xlwrapMappingsDir = 'xlwrap/mappings';
+#$xlwrapMappingsDir = 'C:/xlwrap/mappings';
+$xlwrapMappingsDir = 'xlwrap/mappings';
 
 $adminEmails = array(
   'jeni@jenitennison.com',
@@ -140,17 +140,32 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
     $errors[] = 'Unable to create directory for spreadsheet.';
   } else if (move_uploaded_file($_FILES['file']['tmp_name'], $fileLocation)) {
     // create senior posts CSV
-    createSeniorCSV($fileLocation);        
+    $validSenior = createSeniorCSV($fileLocation);
     // create junior posts CSV
-    createJuniorCSV($fileLocation);
-    // write the trig file
-    writeTransformation($dept, $isoDate, $filename, $email, $xlwrapMappingsDir);
-    $success = true;
+    $validJunior = createJuniorCSV($fileLocation);
     
-    // remove existing RDF version
-    $rdfDumpLocation = "data/$dept/$isoDate/$filenameNoExt.rdf";
-    if (file_exists($rdfDumpLocation)) {
-      unlink($rdfDumpLocation);
+    if (!filesize("$dir/$filenameNoExt-senior-data.csv") || !filesize("$dir/$filenameNoExt-junior-data.csv")) {
+      $success = false;
+      $errors[] = 'The Excel file you uploaded is invalid. Please ensure that it uses the template and has no invalid rows, and try again.';
+    } else if (!$validSenior || !$validJunior) {
+      $success = false;
+      if (!$validSenior) {
+        $errors[] = 'Some of the rows in the senior spreadsheet are invalid.';
+      }
+      if (!$validJunior) {
+        $errors[] = 'Some of the rows in the junior spreadsheet are invalid.';
+      }
+      $errors[] = 'Please check your data and try again.';
+    } else {
+      // write the trig file
+      writeTransformation($dept, $isoDate, $filename, $email, $xlwrapMappingsDir);
+      $success = true;
+
+      // remove existing RDF version
+      $rdfDumpLocation = "data/$dept/$isoDate/$filenameNoExt.rdf";
+      if (file_exists($rdfDumpLocation)) {
+        unlink($rdfDumpLocation);
+      }
     }
   } else {
     $success = false;
@@ -166,7 +181,9 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
     echo "<html><head><title>Redirecting to RDF Data</title></head><body><p>You are being redirected to the RDF data.</p></body></html>";
     return;
   }
-} else if (($action == 'delete-preview' || $action == 'delete-download') && $validEmail && $validDate && $validFilename) {
+}
+
+if ((($action == 'upload' && !$success) || $action == 'delete-preview' || $action == 'delete-download') && $validEmail && $validDate && $validFilename) {
   $rdfFile = "$dir/$filenameNoExt.rdf";
   $seniorCSV = "$dir/$filenameNoExt-senior-data.csv";
   $juniorCSV = "$dir/$filenameNoExt-junior-data.csv";
@@ -178,19 +195,26 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
   if (file_exists($rdfFile)) {
     unlink($rdfFile);
   }
+  /*
   if (file_exists($seniorCSV)) {
     unlink($seniorCSV);
   }
   if (file_exists($juniorCSV)) {
     unlink($juniorCSV);
   }
+  */
   if (file_exists($localMapping)) {
     unlink($localMapping);
   }
   if (file_exists($xlwrapMapping)) {
     unlink($xlwrapMapping);
   }
-  $success = true;
+  $filename = '';
+  $filenameNoExt = '';
+  $validFilename = false;
+  if ($action == 'delete-preview' || $action == 'delete-download') {
+    $success = true;
+  }
 } else if (($action == 'disable-preview' || $action == 'disable-download') && $validEmail && $validDate && $validFilename) {
   $xlwrapMapping = "$xlwrapMappingsDir/$dept-$isoDate-$filenameNoExt.trig";
   if (file_exists($xlwrapMapping)) {

@@ -140,29 +140,32 @@ function createSeniorCSV($filename) {
     $excel->read($filename);
 
     $x=1;
+    $valid = true;
     $sep = ",";
 
     ob_start();
 
-    while($x<=$excel->sheets[4]['numRows']) {
-     	$y=1;
-     	$row="";
+    while($x<=$excel->sheets[4]['numRows'] && isset($excel->sheets[4]['cells'][$x][1]) && $excel->sheets[4]['cells'][$x][1] != '') {
+       $y=1;
+       $row="";
 
-     	while($y<=17) {
-         	$cell = isset($excel->sheets[4]['cells'][$x][$y]) ? $excel->sheets[4]['cells'][$x][$y] : '';
-         	$cell = preg_replace('/\s+/', ' ', trim($cell));
-         	// strip leading $ signs, seem to come from formatting numbers as currency
-         	$cell = preg_replace('/^\$/', '', $cell);
-         	$cell = str_replace('"', '\'', $cell);
-         	$row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
-         	$y++;
-     	} 
+       while($y<=19) {
+           $cell = isset($excel->sheets[4]['cells'][$x][$y]) ? $excel->sheets[4]['cells'][$x][$y] : '';
+           $cell = preg_replace('/\s+/', ' ', trim($cell));
+           // strip leading $ signs, seem to come from formatting numbers as currency
+           $cell = preg_replace('/^\$/', '', $cell);
+           $cell = str_replace('"', '\'', $cell);
+           $row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
+           $y++;
+       } 
 
-	if(strlen($row)>50) {     	
-		echo $row."\n"; 
-	}
+       if ($x > 1 && strval($excel->sheets[4]['cells'][$x][19]) != '1') {
+         $valid = false;
+       }
 
-    	$x++;
+      echo $row."\n"; 
+      
+      $x++;
 
     }
 
@@ -174,6 +177,7 @@ function createSeniorCSV($filename) {
     fclose($fp);
     ob_end_clean();
 
+    return $valid;
 }
 
 function createJuniorCSV($filename) {
@@ -183,28 +187,32 @@ function createJuniorCSV($filename) {
     $excel->read($filename);
 
     $x=1;
+    $valid = true;
     $sep = ",";
 
     ob_start();
 
-    while($x<=$excel->sheets[6]['numRows']) {
-     	$y=1;
-     	$row="";
+    while($x<=$excel->sheets[6]['numRows'] && isset($excel->sheets[6]['cells'][$x][1]) && $excel->sheets[6]['cells'][$x][1] != '') {
+       $y=1;
+       $row="";
 
-     	while($y<=10) {
-         	$cell = isset($excel->sheets[6]['cells'][$x][$y]) ? $excel->sheets[6]['cells'][$x][$y] : '';
-         	$cell = preg_replace('/\s+/', ' ', trim($cell));
-         	// strip leading $ signs, seem to come from formatting numbers as currency
-         	$cell = preg_replace('/^\$/', '', $cell);
-         	$cell = str_replace('"', '\'', $cell);
-         	$row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
-         	$y++;
-     	} 
+       while($y<=10) {
+           $cell = isset($excel->sheets[6]['cells'][$x][$y]) ? $excel->sheets[6]['cells'][$x][$y] : '';
+           $cell = preg_replace('/\s+/', ' ', trim($cell));
+           // strip leading $ signs, seem to come from formatting numbers as currency
+           $cell = preg_replace('/^\$/', '', $cell);
+           $cell = str_replace('"', '\'', $cell);
+           $row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
+           $y++;
+       } 
 
-	if(strlen($row)>30) {     	
-		echo $row."\n"; 
-	}
-    	$x++;
+      echo $row."\n";
+      /*
+      if ($excel->sheets[6]['cells'][$x][11] != '1') {
+        $valid = false;
+      }
+      */
+      $x++;
 
     }
 
@@ -216,6 +224,7 @@ function createJuniorCSV($filename) {
     fclose($fp);
     ob_end_clean();
 
+    return $valid;
 }
 
 
@@ -284,56 +293,56 @@ function isoFormatDate($date) {
 }
 
 function make_dir_for_file($filesystemLoc) {
-	$filesystemDir = dirname($filesystemLoc);
-	$dirExists = file_exists($filesystemDir);
-	if (!$dirExists) {
-		$dirExists = mkdir($filesystemDir, 0755, true);
-	}
-	if (!is_writable($filesystemDir)) {
-		$dirExists = chmod($filesystemDir, 755);
-	}
-	return $dirExists;
+  $filesystemDir = dirname($filesystemLoc);
+  $dirExists = file_exists($filesystemDir);
+  if (!$dirExists) {
+    $dirExists = mkdir($filesystemDir, 0755, true);
+  }
+  if (!is_writable($filesystemDir)) {
+    $dirExists = chmod($filesystemDir, 755);
+  }
+  return $dirExists;
 }
 
 
 function file_upload_error_message($error_code) {
-	switch ($error_code) {
-		case UPLOAD_ERR_INI_SIZE:
-			return 'The uploaded file exceeds the upload_max_filesize directive in php.ini';
-		case UPLOAD_ERR_FORM_SIZE:
-			return 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
-		case UPLOAD_ERR_PARTIAL:
-			return 'The uploaded file was only partially uploaded';
-		case UPLOAD_ERR_NO_FILE:
-			return 'No file was uploaded';
-		case UPLOAD_ERR_NO_TMP_DIR:
-			return 'Missing a temporary folder';
-		case UPLOAD_ERR_CANT_WRITE:
-			return 'Failed to write file to disk';
-		case UPLOAD_ERR_EXTENSION:
-			return 'File upload stopped by extension';
-		default:
-			return 'Unknown upload error';
-	}
+  switch ($error_code) {
+    case UPLOAD_ERR_INI_SIZE:
+      return 'The uploaded file exceeds the upload_max_filesize directive in php.ini';
+    case UPLOAD_ERR_FORM_SIZE:
+      return 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
+    case UPLOAD_ERR_PARTIAL:
+      return 'The uploaded file was only partially uploaded';
+    case UPLOAD_ERR_NO_FILE:
+      return 'No file was uploaded';
+    case UPLOAD_ERR_NO_TMP_DIR:
+      return 'Missing a temporary folder';
+    case UPLOAD_ERR_CANT_WRITE:
+      return 'Failed to write file to disk';
+    case UPLOAD_ERR_EXTENSION:
+      return 'File upload stopped by extension';
+    default:
+      return 'Unknown upload error';
+  }
 }
 
 function writeTransformation($dept, $date, $filename, $email, $xlwrapMappingsDir) {
 
-	// set department and file extension
-	$deptName = $dept;
-	$ext="xls";
+  // set department and file extension
+  $deptName = $dept;
+  $ext="xls";
 
-	// format the date	
-	$parts = explode('-', $date);
-	$dateSlash = "{$parts[2]}/{$parts[1]}/{$parts[0]}";
+  // format the date  
+  $parts = explode('-', $date);
+  $dateSlash = "{$parts[2]}/{$parts[1]}/{$parts[0]}";
 
-	// remove the .xls extension from filename
-	$extIndex = strrpos($filename, ".xls");
-	$path = substr($filename, 0, $extIndex);
-	$saveAs = "data/$dept/$date/$path-mapping.trig";
-	$xlwrapCopy = "$xlwrapMappingsDir/$dept-$date-$path.trig";
+  // remove the .xls extension from filename
+  $extIndex = strrpos($filename, ".xls");
+  $path = substr($filename, 0, $extIndex);
+  $saveAs = "data/$dept/$date/$path-mapping.trig";
+  $xlwrapCopy = "$xlwrapMappingsDir/$dept-$date-$path.trig";
 
-	$fileURL = "http://organogram.data.gov.uk/data/$dept/$date/$path";
+  $fileURL = "http://organogram.data.gov.uk/data/$dept/$date/$path";
 
 // using heredoc syntax
 
@@ -363,6 +372,7 @@ $str = <<<TRANSFORMATION
 @prefix grade: <http://reference.data.gov.uk/def/civil-service-grade/> .
 @prefix payband: <http://reference.data.gov.uk/def/civil-service-payband/> .
 @prefix postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/> .
+@prefix profession: <http://reference.data.gov.uk/def/civil-service-profession/> .
 
 @prefix xl: <http://purl.org/NET/xlwrap#> .
 @prefix debug: <http://debug.example.org/> .
@@ -475,6 +485,11 @@ $str = <<<TRANSFORMATION
         gov:fullTimeEquivalent "DOUBLE(M2)"^^xl:Expr ;
         foaf:page <$fileURL> ;
       ] ;
+      profession:profession [
+        # profession
+        xl:uri "IF(Q2 != '', NAME2URI('http://reference.data.gov.uk/def/civil-service-profession/', Q2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/profession.rdf'))"^^xl:Expr ;
+        skos:prefLabel "Q2"^^xl:Expr ;
+      ] ;
       foaf:page <$fileURL> ;
     ] ;
     gov:salaryRange [ 
@@ -487,6 +502,7 @@ $str = <<<TRANSFORMATION
       dgu:uriSet <http://reference.data.gov.uk/id/salary-range> ;
       foaf:page <$fileURL> ;
     ] ;
+    skos:note "IF(R2 != '', R2)"^^xl:Expr ;
     foaf:page <$fileURL> ;
     .
   
@@ -529,7 +545,8 @@ $str = <<<TRANSFORMATION
     qb:dataSet <$fileURL#salaryCostOfReports> ;
     organogram:date <http://reference.data.gov.uk/id/day/2011-03-31> ;
     organogram:post [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & A2"^^xl:Expr ] ;
-    organogram:salaryCostOfReports "LONG(L2)"^^xl:Expr ;
+    organogram:salaryCostOfReports "IF (UCASE(STRING(L2)) != 'N/D', LONG(L2))"^^xl:Expr ;
+    sdmxa:obsStatus [ xl:uri "IF(UCASE(STRING(L2)) == 'N/D', 'http://purl.org/linked-data/sdmx/2009/code#obsStatus-M')"^^xl:Expr ] ;
     .
 
   # totalPay observation
