@@ -27,8 +27,9 @@ t:api
 
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
-##	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
-	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
+	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
+##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
+	api:sparqlEndpoint <http://10.254.65.24/environment/sparql>;
 	api:defaultFormatter t:HtmlFormatter ;
 	api:formatter t:CsvFormatter ;
 	api:endpoint
@@ -66,8 +67,8 @@ t:CsvFormatter
 ##############################################################################################
 t:scheme
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/ef/{concept}" ;
-  api:itemTemplate "http://location.data.gov.uk/def/ef/{concept}" ;
+  api:uriTemplate "/def/ef/SamplingPoint";
+  api:itemTemplate "http://location.data.gov.uk/def/ef/SamplingPoint" ;
   api:defaultViewer	api:describeViewer;
 #  api:defaultViewer t:schemeViewer ;
   .
@@ -80,8 +81,8 @@ t:schemeViewer
 
 t:definition
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/ef/{concept}/{term}" ;
-  api:itemTemplate "http://location.data.gov.uk/def/ef/{concept}/{term}" ;
+  api:uriTemplate "/def/ef/SamplingPoint/{term}" ;
+  api:itemTemplate "http://location.data.gov.uk/def/ef/SamplingPoint/{term}" ;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -93,10 +94,10 @@ t:definitionViewer
 
 t:subclasses
   a api:ListEndpoint ;
-  api:uriTemplate "/def/ef/{concept}/{term}/subclass" ;
+  api:uriTemplate "/def/ef/SamplingPoint/{term}/subclass" ;
   api:variable [
     api:name "superclass" ;
-    api:value "http://location.data.gov.uk/def/{concept}/{term}" ;
+    api:value "http://location.data.gov.uk/def/SamplingPoint/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -107,10 +108,10 @@ t:subclasses
 
 t:instances
   a api:ListEndpoint ;
-  api:uriTemplate "/def/ef/{concept}/{term}/instance" ;
+  api:uriTemplate "/def/ef/SamplingPoint/{term}/instance" ;
   api:variable [
     api:name "class" ;
-    api:value "http://location.data.gov.uk/def/ef/{concept}/{term}" ;
+    api:value "http://location.data.gov.uk/def/ef/SamplingPoint/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -121,10 +122,10 @@ t:instances
 
 t:properties
   a api:ListEndpoint ;
-  api:uriTemplate "/def/ef/{concept}/{term}/property" ;
+  api:uriTemplate "/def/ef/SamplingPoint/{term}/property" ;
   api:variable [
     api:name "class" ;
-    api:value "http://location.data.gov.uk/def/ef/{concept}/{term}" ;
+    api:value "http://location.data.gov.uk/def/ef/SamplingPoint/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [

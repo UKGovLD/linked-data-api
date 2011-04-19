@@ -25,19 +25,26 @@
 t:api
 	a api:API ;
 	rdfs:label "Bathing Water Environment API"@en ;
-
+##	api:base "http://environment.data.gov.uk/";
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
-##  api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
-	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
+##   api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
+##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
+	api:sparqlEndpoint <http://10.254.65.24/environment/sparql>;
 	api:defaultFormatter t:HtmlFormatter ;
 	api:formatter t:CsvFormatter ;
 	api:endpoint
-		t:scheme ,
-		t:definition ,
-		t:subclasses , 
-		t:instances , 
-		t:properties ,
+#		t:scheme ,
+		t:scheme-bw ,
+		t:scheme-bwq ,
+		t:definition-bw ,
+		t:definition-bwq ,
+		t:subclasses-bw , 
+		t:subclasses-bwq , 
+		t:instances-bw , 
+		t:instances-bwq , 
+		t:properties-bw ,
+		t:properties-bwq ,
 		t:bathingWater,
 		t:bathingWaters,
 		t:latestInSeasonAssessments,
@@ -90,25 +97,43 @@ t:CsvFormatter
 ##############################################################################################
 ## Definitions
 ##############################################################################################
-t:scheme
+t:scheme-bw
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}" ;
-  api:itemTemplate "http://environment.data.gov.uk/def/{scheme}" ;
+#  api:uriTemplate "/def/{scheme}" ;
+  api:uriTemplate "/def/bathing-water" ;
+#  api:itemTemplate "http://environment.data.gov.uk/def/{scheme}" ;
+  api:itemTemplate "http://environment.data.gov.uk/def/bathing-water" ;
 #  api:defaultViewer t:schemeViewer ;
   api:defaultViewer	api:describeViewer;
+  .
 
+t:scheme-bwq
+  a api:ItemEndpoint ;
+#  api:uriTemplate "/def/{scheme}" ;
+  api:uriTemplate "/def/bathing-water-quality" ;
+#  api:itemTemplate "http://environment.data.gov.uk/def/{scheme}" ;
+  api:itemTemplate "http://environment.data.gov.uk/def/bathing-water-quality" ;
+#  api:defaultViewer t:schemeViewer ;
+  api:defaultViewer	api:describeViewer;
   .
 
 t:schemeViewer
   a api:Viewer ;
   api:name "scheme" ;
-  api:properties "name,type,alias,label,note,scopeNote,topConcept.name,comment" ;
+  api:properties "name,type,alias,label,note,scopeNote,contributor.who,contributor.mbox,topConcept.name,comment" ;
   .
 
-t:definition
+t:definition-bw
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}" ;
-  api:itemTemplate "http://environment.data.gov.uk/def/{scheme}/{term}" ;
+  api:uriTemplate "/def/bathing-water/{term}" ;
+  api:itemTemplate "http://environment.data.gov.uk/def/bathing-water/{term}" ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:definition-bwq
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/bathing-water-quality/{term}" ;
+  api:itemTemplate "http://environment.data.gov.uk/def/bathing-water-quality/{term}" ;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -118,12 +143,12 @@ t:definitionViewer
   api:properties "name,type,definition,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
   .
 
-t:subclasses
+t:subclasses-bw
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:uriTemplate "/def/bathing-water/{term}/subclass" ;
   api:variable [
     api:name "superclass" ;
-    api:value "http://environment.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://environment.data.gov.uk/def/bathing-water/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -132,12 +157,26 @@ t:subclasses
   api:defaultViewer t:definitionViewer ;
   .
 
-t:instances
+t:subclasses-bwq
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:uriTemplate "/def/bathing-water-quality/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://environment.data.gov.uk/def/bathing-water-quality/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item rdfs:subClassOf ?superclass . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:instances-bw
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/bathing-water/{term}/instance" ;
   api:variable [
     api:name "class" ;
-    api:value "http://environment.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://environment.data.gov.uk/def/bathing-water/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -146,12 +185,40 @@ t:instances
   api:defaultViewer t:definitionViewer ;
   .
 
-t:properties
+t:instances-bwq
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:uriTemplate "/def/bathing-water-quality/{term}/instance" ;
   api:variable [
     api:name "class" ;
-    api:value "http://environment.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://environment.data.gov.uk/def/bathing-water-quality/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " ?item a ?class . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:properties-bw
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/bathing-water/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://environment.data.gov.uk/def/bathing-water/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where " [] a ?class ; ?item [] . " ;
+  ] ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:properties-bwq
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/bathing-water-quality/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://environment.data.gov.uk/def/bathing-water-quality/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -978,6 +1045,10 @@ bwq:salmonellaPresent			api:label	"salmonellaPresent" .
 bwq:presenceNotation			a			owl:DatatypeProperty;
 								api:label	"presenceNotation";
 								rdfs:range	bwq:presenceCode .
+
+dct:contributor			     api:label   "contributor" .
+foaf:name					api:label  "who". 
+foaf:mbox					api:label	"mbox" .
 								
 bwq:abnormalWeatherException	api:label	"abnormalWeatherException" .
 
