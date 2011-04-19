@@ -195,14 +195,12 @@ if ((($action == 'upload' && !$success) || $action == 'delete-preview' || $actio
   if (file_exists($rdfFile)) {
     unlink($rdfFile);
   }
-  /*
   if (file_exists($seniorCSV)) {
     unlink($seniorCSV);
   }
   if (file_exists($juniorCSV)) {
     unlink($juniorCSV);
   }
-  */
   if (file_exists($localMapping)) {
     unlink($localMapping);
   }
@@ -420,7 +418,7 @@ if ($isAdmin) {
                               </td>
                             <?php } ?>
                             <td class="filename">
-                              <a href="<?php echo $dir; ?>/<?php echo $file['filename']; ?>">
+                              <a href="/data/<?php echo departmentFromEmail($file['submitter']); ?>/<?php echo $isoDate; ?>/<?php echo $file['filename']; ?>">
                                 <?php echo $file['filename']; ?>
                               </a>
                             </td>
@@ -519,7 +517,7 @@ if ($isAdmin) {
                               </td>
                             <?php } ?>
                             <td class="filename">
-                              <a href="<?php echo $dir; ?>/<?php echo $file['filename']; ?>">
+                              <a href="/data/<?php echo departmentFromEmail($file['submitter']); ?>/<?php echo $isoDate; ?>/<?php echo $file['filename']; ?>">
                                 <?php echo $file['filename']; ?>
                               </a>
                             </td>
