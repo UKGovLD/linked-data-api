@@ -413,9 +413,13 @@ if ($isAdmin) {
                           <tr<?php if ($isAdmin && !$file['enabled']) { echo ' class="disabled"'; } ?>>
                             <?php if ($isAdmin) { ?>
                               <td class="submitter">
-                                <a href="mailto:<?php echo $file['submitter']; ?>?subject=Organogram">
-                                  <?php echo $file['submitter']; ?>
-                                </a>
+                                <?php if ($file['submitter']) { ?>
+                                  <a href="mailto:<?php echo $file['submitter']; ?>?subject=Organogram">
+                                    <?php echo $file['submitter']; ?>
+                                  </a>
+                                <?php } else { ?>
+                                  <?php echo $file['dept']; ?>
+                                <?php } ?>
                               </td>
                             <?php } ?>
                             <td class="filename">
@@ -512,9 +516,13 @@ if ($isAdmin) {
                           <tr<?php if ($isAdmin && !$file['enabled']) { echo ' class="disabled"'; } ?>>
                             <?php if ($isAdmin) { ?>
                               <td class="submitter">
-                                <a href="mailto:<?php echo $file['submitter']; ?>?subject=Organogram">
-                                  <?php echo $file['submitter']; ?>
-                                </a>
+                                <?php if ($file['submitter']) { ?>
+                                  <a href="mailto:<?php echo $file['submitter']; ?>?subject=Organogram">
+                                    <?php echo $file['submitter']; ?>
+                                  </a>
+                                <?php } else { ?>
+                                  <?php echo $file['dept']; ?>
+                                <?php } ?>
                               </td>
                             <?php } ?>
                             <td class="filename">
