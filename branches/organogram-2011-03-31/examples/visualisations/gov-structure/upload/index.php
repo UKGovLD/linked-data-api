@@ -140,22 +140,22 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
     $errors[] = 'Unable to create directory for spreadsheet.';
   } else if (move_uploaded_file($_FILES['file']['tmp_name'], $fileLocation)) {
     // create senior posts CSV
-    $validSenior = createSeniorCSV($fileLocation);
+    $invalidSenior = createSeniorCSV($fileLocation);
     // create junior posts CSV
-    $validJunior = createJuniorCSV($fileLocation);
+    $invalidJunior = createJuniorCSV($fileLocation);
     
-    if (!filesize("$dir/$filenameNoExt-senior-data.csv") || !filesize("$dir/$filenameNoExt-junior-data.csv")) {
+    if ($invalidSenior || $invalidJunior) {
       $success = false;
-      $errors[] = 'The Excel file you uploaded is invalid. Please ensure that it uses the template and has no invalid rows, and try again.';
-    } else if (!$validSenior || !$validJunior) {
-      $success = false;
-      if (!$validSenior) {
-        $errors[] = 'Some of the rows in the senior spreadsheet are invalid.';
+      if ($invalidSenior) {
+        $errors[] = $invalidSenior;
       }
-      if (!$validJunior) {
-        $errors[] = 'Some of the rows in the junior spreadsheet are invalid.';
+      if ($invalidJunior) {
+        $errors[] = $invalidJunior;
       }
       $errors[] = 'Please check your data and try again.';
+    } else if (!filesize("$dir/$filenameNoExt-senior-data.csv") || !filesize("$dir/$filenameNoExt-junior-data.csv")) {
+      $success = false;
+      $errors[] = 'The Excel file you uploaded is invalid. Please ensure that it uses the template and has no invalid rows, and try again.';
     } else {
       // write the trig file
       writeTransformation($dept, $isoDate, $filename, $email, $xlwrapMappingsDir);
