@@ -418,7 +418,7 @@ if ($isAdmin) {
                               </td>
                             <?php } ?>
                             <td class="filename">
-                              <a href="/data/<?php echo departmentFromEmail($file['submitter']); ?>/<?php echo $isoDate; ?>/<?php echo $file['filename']; ?>">
+                              <a href="<?php if ($isAdmin) { echo '/data/'.departmentFromEmail($file['submitter']).'/'.$isoDate.'/'.$file['filename']; } else { echo $dir.'/'.$file['filename']; } ?>">
                                 <?php echo $file['filename']; ?>
                               </a>
                             </td>
@@ -517,7 +517,7 @@ if ($isAdmin) {
                               </td>
                             <?php } ?>
                             <td class="filename">
-                              <a href="/data/<?php echo departmentFromEmail($file['submitter']); ?>/<?php echo $isoDate; ?>/<?php echo $file['filename']; ?>">
+                              <a href="<?php if ($isAdmin) { echo '/data/'.departmentFromEmail($file['submitter']).'/'.$isoDate.'/'.$file['filename']; } else { echo $dir.'/'.$file['filename']; } ?>">
                                 <?php echo $file['filename']; ?>
                               </a>
                             </td>
