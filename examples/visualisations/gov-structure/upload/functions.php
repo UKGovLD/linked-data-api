@@ -166,7 +166,6 @@ function createSeniorCSV($filename) {
       echo $row."\n"; 
       
       $x++;
-
     }
 
     $extIndex = strrpos($filename, ".xls");
@@ -177,7 +176,13 @@ function createSeniorCSV($filename) {
     fclose($fp);
     ob_end_clean();
 
-    return $valid;
+    if (!$valid) {
+      return 'Some of the rows in the (final data) senior-staff worksheet are invalid.';
+    } else if ($x <= 2) {
+      return 'There is no data in the (final data) senior-staff worksheet.';
+    }
+
+    return false;
 }
 
 function createJuniorCSV($filename) {
@@ -224,7 +229,13 @@ function createJuniorCSV($filename) {
     fclose($fp);
     ob_end_clean();
 
-    return $valid;
+    if (!$valid) {
+      return 'Some of the rows in the (final data) junior-staff worksheet are invalid.';
+    } else if ($x <= 2) {
+      return 'There is no data in the (final data) junior-staff worksheet.';
+    }
+
+    return false;
 }
 
 
