@@ -122,8 +122,8 @@ spec:api
 
 spec:scheme
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}" ;
-  api:itemTemplate "http://education.data.gov.uk/def/{scheme}" ;
+  api:uriTemplate "/def/school" ;
+  api:itemTemplate "http://education.data.gov.uk/def/school" ;
   api:defaultViewer spec:schemeViewer ;
   .
 
@@ -135,8 +135,8 @@ spec:schemeViewer
 
 spec:definition
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}" ;
-  api:itemTemplate "http://education.data.gov.uk/def/{scheme}/{term}" ;
+  api:uriTemplate "/def/school/{term}" ;
+  api:itemTemplate "http://education.data.gov.uk/def/school/{term}" ;
   api:defaultViewer spec:definitionViewer ;
   .
 
@@ -148,10 +148,10 @@ spec:definitionViewer
 
 spec:subclasses
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:uriTemplate "/def/school/{term}/subclass" ;
   api:variable [
     api:name "superclass" ;
-    api:value "http://education.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://education.data.gov.uk/def/school/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -162,7 +162,7 @@ spec:subclasses
 
 spec:instances
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:uriTemplate "/def/school/{term}/instance" ;
   api:variable [
     api:name "class" ;
     api:value "http://education.data.gov.uk/def/{scheme}/{term}" ;
@@ -176,10 +176,10 @@ spec:instances
 
 spec:properties
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:uriTemplate "/def/school/{term}/property" ;
   api:variable [
     api:name "class" ;
-    api:value "http://education.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://education.data.gov.uk/def/school/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [

@@ -32,9 +32,21 @@ t:api
   api:defaultFormatter t:HtmlFormatter ;
   api:formatter t:csvFormatter ;
 	api:endpoint
-	  t:scheme ,
-	  t:definition ,
-	  t:subclasses , t:instances , t:properties ,
+	  t:schemeNaptan ,
+	  t:schemeTraffic ,
+	  t:schemeVehicle ,
+	  t:definitionNaptan ,
+	  t:definitionTraffic ,
+	  t:definitionVehicle ,
+	  t:subclassesNaptan , 
+	  t:subclassesTraffic ,
+	  t:subclassesVehicle ,
+	  t:instancesNaptan , 
+	  t:instancesTraffic , 
+	  t:instancesVehicle , 
+	  t:propertiesNaptan ,
+	  t:propertiesTraffic ,
+	  t:propertiesVehicle ,
 	  # Traffic Flow #
 	  t:localAuthorities , t:localAuthority ,
 	  t:localAuthorityDistricts , t:localAuthorityDistrict ,
@@ -102,10 +114,24 @@ t:csvFormatter
 
 ## Definitions ##
 
-t:scheme
+t:schemeNaptan
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}" ;
-  api:itemTemplate "http://transport.data.gov.uk/def/{scheme}" ;
+  api:uriTemplate "/def/naptan" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/naptan" ;
+  api:defaultViewer t:schemeViewer ;
+  .
+
+t:schemeTraffic
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/traffic" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/traffic" ;
+  api:defaultViewer t:schemeViewer ;
+  .
+
+t:schemeVehicle
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/vehicle" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/vehicle" ;
   api:defaultViewer t:schemeViewer ;
   .
 
@@ -115,10 +141,24 @@ t:schemeViewer
   api:properties "name,alias,label,note,scopeNote,topConcept.name,comment" ;
   .
 
-t:definition
+t:definitionNaptan
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}" ;
-  api:itemTemplate "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+  api:uriTemplate "/def/naptan/{term}" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/naptan/{term}" ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:definitionTraffic
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/traffic/{term}" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/traffic/{term}" ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:definitionVehicle
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/vehicle/{term}" ;
+  api:itemTemplate "http://transport.data.gov.uk/def/vehicle/{term}" ;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -128,32 +168,86 @@ t:definitionViewer
   api:properties "name,alias,label,note,scopeNote,topConceptOf,broader.name,narrower.name,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
   .
 
-t:subclasses
+t:subclassesNaptan
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:uriTemplate "/def/naptan/{term}/subclass" ;
   api:variable [
     api:name "superclass" ;
-    api:value "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://transport.data.gov.uk/def/naptan/{term}" ;
     api:type rdfs:Resource ;
   ] ;
-  api:selector [
-    api:where " ?item rdfs:subClassOf ?superclass . " ;
-  ] ;
+  api:selector t:subclassSelector ;
   api:defaultViewer t:definitionViewer ;
   .
 
-t:instances
+t:subclassesTraffic
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:uriTemplate "/def/traffic/{term}/subclass" ;
   api:variable [
-    api:name "class" ;
-    api:value "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+    api:name "superclass" ;
+    api:value "http://transport.data.gov.uk/def/traffic/{term}" ;
     api:type rdfs:Resource ;
   ] ;
-  api:selector [
-    api:where " ?item a ?class . " ;
+  api:selector t:subclassSelector ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:subclassesVehicle
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/vehicle/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://transport.data.gov.uk/def/vehicle/{term}" ;
+    api:type rdfs:Resource ;
   ] ;
+  api:selector t:subclassSelector ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:subclassSelector
+  a api:Selector ;
+  api:where " ?item rdfs:subClassOf ?superclass . " ;
+  .
+
+t:instancesNaptan
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/naptan/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://transport.data.gov.uk/def/naptan/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector t:instancesSelector ;
   api:defaultViewer t:instanceViewer ;
+  .
+
+t:instancesTraffic
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/traffic/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://transport.data.gov.uk/def/traffic/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector t:instancesSelector ;
+  api:defaultViewer t:instanceViewer ;
+  .
+
+t:instancesVehicle
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/vehicle/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://transport.data.gov.uk/def/vehicle/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector t:instancesSelector ;
+  api:defaultViewer t:instanceViewer ;
+  .
+
+t:instancesSelector
+  a api:Selector ;
+  api:where " ?item a ?class . " ;
   .
 
 t:instanceViewer
@@ -162,18 +256,45 @@ t:instanceViewer
   api:properties "name,alias,label,easting,northing,lat,long" ;
   .
 
-t:properties
+t:propertiesNaptan
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:uriTemplate "/def/naptan/{term}/property" ;
   api:variable [
     api:name "class" ;
-    api:value "http://transport.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://transport.data.gov.uk/def/naptan/{term}" ;
     api:type rdfs:Resource ;
   ] ;
-  api:selector [
-    api:where " [] a ?class ; ?item [] . " ;
-  ] ;
+  api:selector t:propertiesSelector ;
   api:defaultViewer t:definitionViewer ;
+  .
+
+t:propertiesTraffic
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/traffic/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://transport.data.gov.uk/def/traffic/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector t:propertiesSelector ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:propertiesVehicle
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/vehicle/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://transport.data.gov.uk/def/vehicle/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector t:propertiesSelector ;
+  api:defaultViewer t:definitionViewer ;
+  .
+
+t:propertiesSelector
+  a api:Selector ;
+  api:where " [] a ?class ; ?item [] . " ;
   .
 
 ## Traffic Flow ##
