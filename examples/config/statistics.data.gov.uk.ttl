@@ -38,9 +38,11 @@ spec:api
 	  spec:minimalViewer ;
   api:defaultFormatter spec:htmlFormatter ;
 	api:endpoint 
-    spec:scheme , spec:schemeSlash ,
-    spec:definition ,
-    spec:subclasses , spec:instances , spec:properties ,
+    spec:schemeGeo , spec:schemeAgeo , spec:schemeEgeo ,
+    spec:definitionGeo , spec:definitionAgeo , spec:definitionEgeo ,
+    spec:subclassesGeo , spec:subclassesAgeo , spec:subclassesEgeo ,
+    spec:instancesGeo , spec:instancesAgeo , spec:instancesEgeo ,
+    spec:propertiesGeo , spec:propertiesAgeo , spec:propertiesEgeo ,
     spec:eers , spec:eer ,
     spec:gors , spec:gor ,
     spec:counties , spec:county ,
@@ -70,17 +72,24 @@ spec:htmlFormatter
 
 ## Definitions ##
 
-spec:schemeSlash
+spec:schemeGeo
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}/" ;
-  api:itemTemplate "http://statistics.data.gov.uk/def/{scheme}/" ;
+  api:uriTemplate "/def/geography" ;
+  api:itemTemplate "http://statistics.data.gov.uk/def/geography" ;
   api:defaultViewer spec:schemeViewer ;
   .
 
-spec:scheme
+spec:schemeAgeo
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}" ;
-  api:itemTemplate "http://statistics.data.gov.uk/def/{scheme}" ;
+  api:uriTemplate "/def/administrative-geography" ;
+  api:itemTemplate "http://statistics.data.gov.uk/def/administrative-geography" ;
+  api:defaultViewer spec:schemeViewer ;
+  .
+
+spec:schemeEgeo
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/electoral-geography" ;
+  api:itemTemplate "http://statistics.data.gov.uk/def/electoral-geography" ;
   api:defaultViewer spec:schemeViewer ;
   .
 
@@ -90,10 +99,24 @@ spec:schemeViewer
   api:properties "prefLabel,altLabel,label,note,scopeNote,topConcept.prefLabel,comment" ;
   .
 
-spec:definition
+spec:definitionGeo
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}" ;
-  api:itemTemplate "http://statistics.data.gov.uk/def/{scheme}/{term}" ;
+  api:uriTemplate "/def/geography/{term}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/def/geography/{term}" ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:definitionAgeo
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/administrative-geography/{term}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/def/administrative-geography/{term}" ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:definitionEgeo
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/electoral-geography/{term}" ;
+  api:itemTemplate "http://statistics.data.gov.uk/def/electoral-geography/{term}" ;
   api:defaultViewer spec:definitionViewer ;
   .
 
@@ -103,46 +126,127 @@ spec:definitionViewer
   api:properties "prefLabel,altLabel,label,note,scopeNote,topConceptOf,broader.prefLabel,narrower.prefLabel,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
   .
 
-spec:subclasses
+spec:subclassesGeo
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:uriTemplate "/def/geography/{term}/subclass" ;
   api:variable [
     api:name "superclass" ;
-    api:value "http://statistics.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://statistics.data.gov.uk/def/geography/{term}" ;
     api:type rdfs:Resource ;
   ] ;
-  api:selector [
-    api:where " ?item rdfs:subClassOf ?superclass . " ;
-  ] ;
+  api:selector spec:subclassSelector ;
   api:defaultViewer spec:definitionViewer ;
   .
 
-spec:instances
+spec:subclassesAgeo
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:uriTemplate "/def/administrative-geography/{term}/subclass" ;
   api:variable [
-    api:name "class" ;
-    api:value "http://statistics.data.gov.uk/def/{scheme}/{term}" ;
+    api:name "superclass" ;
+    api:value "http://statistics.data.gov.uk/def/administrative-geography/{term}" ;
     api:type rdfs:Resource ;
   ] ;
-  api:selector [
-    api:where " ?item a ?class . " ;
+  api:selector spec:subclassSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:subclassesEgeo
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/electoral-geography/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://statistics.data.gov.uk/def/electoral-geography/{term}" ;
+    api:type rdfs:Resource ;
   ] ;
+  api:selector spec:subclassSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:subclassSelector
+  a api:Selector ;
+  api:where " ?item rdfs:subClassOf ?superclass . " ;
+  .
+
+spec:instancesGeo
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/geography/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://statistics.data.gov.uk/def/geography/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:instancesSelector ;
   api:defaultViewer spec:viewerShort ;
   .
 
-spec:properties
+spec:instancesAgeo
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:uriTemplate "/def/administrative-geography/{term}/instance" ;
   api:variable [
     api:name "class" ;
-    api:value "http://statistics.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://statistics.data.gov.uk/def/administrative-geography/{term}" ;
     api:type rdfs:Resource ;
   ] ;
-  api:selector [
-    api:where " [] a ?class ; ?item [] . " ;
+  api:selector spec:instancesSelector ;
+  api:defaultViewer spec:viewerShort ;
+  .
+
+spec:instancesEgeo
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/electoral-geography/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://statistics.data.gov.uk/def/electoral-geography/{term}" ;
+    api:type rdfs:Resource ;
   ] ;
+  api:selector spec:instancesSelector ;
+  api:defaultViewer spec:viewerShort ;
+  .
+
+spec:instancesSelector
+  a api:Selector ;
+  api:where " ?item a ?class . " ;
+  .
+
+spec:propertiesGeo
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/geography/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://statistics.data.gov.uk/def/geography/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:propertiesSelector ;
   api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:propertiesAgeo
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/administrative-geography/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://statistics.data.gov.uk/def/administrative-geography/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:propertiesSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:propertiesEgeo
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/electoral-geography/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://statistics.data.gov.uk/def/electoral-geography/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:propertiesSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:propertiesSelector
+  a api:Selector ;
+  api:where " [] a ?class ; ?item [] . " ;
   .
 
 # EERs #

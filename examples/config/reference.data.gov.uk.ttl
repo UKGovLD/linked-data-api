@@ -38,9 +38,31 @@ spec:api
   api:defaultFormatter spec:htmlFormatter ;
   api:formatter spec:csvFormatter ;
 	api:endpoint 
-    spec:scheme ,
-    spec:definition ,
-    spec:subclasses , spec:instances , spec:properties ,
+    spec:schemeReference ,
+    spec:schemeParliament ,
+    spec:schemeCentralGovernment ,
+    spec:schemePublicBody ,
+    spec:schemeOrganogram ,
+    spec:definitionReference ,
+    spec:definitionParliament ,
+    spec:definitionCentralGovernment ,
+    spec:definitionPublicBody ,
+    spec:definitionOrganogram ,
+    spec:subclassesReference ,
+    spec:subclassesParliament ,
+    spec:subclassesCentralGovernment ,
+    spec:subclassesPublicBody ,
+    spec:subclassesOrganogram ,
+    spec:instancesReference ,
+    spec:instancesParliament ,
+    spec:instancesCentralGovernment ,
+    spec:instancesPublicBody ,
+    spec:instancesOrganogram ,
+    spec:propertiesReference ,
+    spec:propertiesParliament ,
+    spec:propertiesCentralGovernment ,
+    spec:propertiesPublicBody ,
+    spec:propertiesOrganogram ,
 	  spec:cabinetCommittees ,
 	  spec:publicBodies ,
 	  spec:publicBody ,
@@ -105,10 +127,38 @@ spec:csvFormatter
 
 ## Definitions ##
 
-spec:scheme
+spec:schemeReference
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}" ;
-  api:itemTemplate "http://reference.data.gov.uk/def/{scheme}" ;
+  api:uriTemplate "/def/reference" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/reference" ;
+  api:defaultViewer spec:schemeViewer ;
+  .
+
+spec:schemeParliament
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/parliament" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/parliament" ;
+  api:defaultViewer spec:schemeViewer ;
+  .
+
+spec:schemeCentralGovernment
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/central-government" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/central-government" ;
+  api:defaultViewer spec:schemeViewer ;
+  .
+
+spec:schemePublicBody
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/public-body" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/public-body" ;
+  api:defaultViewer spec:schemeViewer ;
+  .
+
+spec:schemeOrganogram
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/organogram" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/organogram" ;
   api:defaultViewer spec:schemeViewer ;
   .
 
@@ -118,10 +168,38 @@ spec:schemeViewer
   api:properties "prefLabel,altLabel,label,note,scopeNote,topConcept.prefLabel,comment" ;
   .
 
-spec:definition
+spec:definitionReference
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}" ;
-  api:itemTemplate "http://reference.data.gov.uk/def/{scheme}/{term}" ;
+  api:uriTemplate "/def/reference/{term}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/reference/{term}" ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:definitionParliament
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/parliament/{term}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/parliament/{term}" ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:definitionCentralGovernment
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/central-government/{term}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/central-government/{term}" ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:definitionPublicBody
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/public-body/{term}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/public-body/{term}" ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:definitionOrganogram
+  a api:ItemEndpoint ;
+  api:uriTemplate "/def/organogram/{term}" ;
+  api:itemTemplate "http://reference.data.gov.uk/def/organogram/{term}" ;
   api:defaultViewer spec:definitionViewer ;
   .
 
@@ -131,46 +209,199 @@ spec:definitionViewer
   api:properties "prefLabel,altLabel,label,note,scopeNote,topConceptOf,broader.prefLabel,narrower.prefLabel,comment,range,domain,type.label,isDefinedBy.label,subClassOf.label,subPropertyOf.label" ;
   .
 
-spec:subclasses
+spec:subclassesReference
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/subclass" ;
+  api:uriTemplate "/def/reference/{term}/subclass" ;
   api:variable [
     api:name "superclass" ;
-    api:value "http://reference.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://reference.data.gov.uk/def/reference/{term}" ;
     api:type rdfs:Resource ;
   ] ;
-  api:selector [
-    api:where " ?item rdfs:subClassOf ?superclass . " ;
-  ] ;
+  api:selector spec:subclassSelector ;
   api:defaultViewer spec:definitionViewer ;
   .
 
-spec:instances
+spec:subclassesParliament
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/instance" ;
+  api:uriTemplate "/def/parliament/{term}/subclass" ;
   api:variable [
-    api:name "class" ;
-    api:value "http://reference.data.gov.uk/def/{scheme}/{term}" ;
+    api:name "superclass" ;
+    api:value "http://reference.data.gov.uk/def/parliament/{term}" ;
     api:type rdfs:Resource ;
   ] ;
-  api:selector [
-    api:where " ?item a ?class . " ;
+  api:selector spec:subclassSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:subclassesCentralGovernment
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/central-government/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://reference.data.gov.uk/def/central-government/{term}" ;
+    api:type rdfs:Resource ;
   ] ;
+  api:selector spec:subclassSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:subclassesPublicBody
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/public-body/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://reference.data.gov.uk/def/public-body/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:subclassSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:subclassesOrganogram
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/organogram/{term}/subclass" ;
+  api:variable [
+    api:name "superclass" ;
+    api:value "http://reference.data.gov.uk/def/organogram/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:subclassSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:subclassSelector
+  a api:Selector ;
+  api:where " ?item rdfs:subClassOf ?superclass . " ;
+  .
+
+spec:instancesReference
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/reference/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/reference/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:instancesSelector ;
   api:defaultViewer spec:viewerShort ;
   .
 
-spec:properties
+spec:instancesParliament
   a api:ListEndpoint ;
-  api:uriTemplate "/def/{scheme}/{term}/property" ;
+  api:uriTemplate "/def/parliament/{term}/instance" ;
   api:variable [
     api:name "class" ;
-    api:value "http://reference.data.gov.uk/def/{scheme}/{term}" ;
+    api:value "http://reference.data.gov.uk/def/parliament/{term}" ;
     api:type rdfs:Resource ;
   ] ;
-  api:selector [
-    api:where " [] a ?class ; ?item [] . " ;
+  api:selector spec:instancesSelector ;
+  api:defaultViewer spec:viewerShort ;
+  .
+
+spec:instancesCentralGovernment
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/central-government/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/central-government/{term}" ;
+    api:type rdfs:Resource ;
   ] ;
+  api:selector spec:instancesSelector ;
+  api:defaultViewer spec:viewerShort ;
+  .
+
+spec:instancesPublicBody
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/public-body/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/public-body/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:instancesSelector ;
+  api:defaultViewer spec:viewerShort ;
+  .
+
+spec:instancesOrganogram
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/organogram/{term}/instance" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/organogram/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:instancesSelector ;
+  api:defaultViewer spec:viewerShort ;
+  .
+
+spec:instancesSelector
+  a api:Selector ;
+  api:where " ?item a ?class . " ;
+  .
+
+spec:propertiesReference
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/reference/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/reference/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:propertiesSelector ;
   api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:propertiesParliament
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/parliament/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/parliament/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:propertiesSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:propertiesCentralGovernment
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/central-government/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/central-government/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:propertiesSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:propertiesPublicBody
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/public-body/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/public-body/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:propertiesSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:propertiesOrganogram
+  a api:ListEndpoint ;
+  api:uriTemplate "/def/organogram/{term}/property" ;
+  api:variable [
+    api:name "class" ;
+    api:value "http://reference.data.gov.uk/def/organogram/{term}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector spec:propertiesSelector ;
+  api:defaultViewer spec:definitionViewer ;
+  .
+
+spec:propertiesSelector
+  a api:Selector ;
+  api:where " [] a ?class ; ?item [] . " ;
   .
 
 #List all Cabinet Committees
