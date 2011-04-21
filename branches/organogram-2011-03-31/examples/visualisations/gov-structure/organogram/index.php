@@ -12,9 +12,12 @@
 <!-- Scripts -->
 <script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
-<script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
+<!--script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script-->
+<script language="javascript" type="text/javascript" src="../scripts/Jit/jit.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.cookie.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery.color.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/organogram.js"></script>
+
 
 <!--[if lt IE 9]>
 <script language="javascript" type="text/javascript" src="../scripts/json2.js"></script>

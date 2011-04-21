@@ -502,7 +502,8 @@ div.JP_parent {
 }
 div.JP_child {
 	font-size:9px !important;
-	line-height: 18px !important;
+	line-height: 16px !important;
+	height:auto !important;
 	/*cursor: default !important;*/
 }
 div.JP_none {
@@ -528,6 +529,27 @@ div.JP_child span.JP_grade {
     font-weight: normal;
     margin-left:-3px;
    	width:176px;
+}
+div.node span.childLoader {
+    border-radius: 3px 3px 3px 3px;
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-color: #AAAAAA #AAAAAA #AAAAAA #FFFFFF;
+    border-style: solid solid solid none;
+    border-width: 1px 1px 1px 0px;
+    display: none;
+    height: 16px;
+    padding: 0 0 0;
+    position: inherit;
+    right: -15px;
+    top: 2px;
+    vertical-align: middle;
+    width: 16px;
+    z-index: 0;
+}
+div.node span.childLoader img {
+    margin-top: 4px;
+    position: static;
+    width: 8px;
 }
 div#login {
 	display: none;

@@ -5467,7 +5467,7 @@ Graph.Op = {
                 //set alpha to 0 for nodes to add.
                 var fadeEdges = this.preprocessSum(graph);
                 var modes = !fadeEdges? ['node-property:alpha'] : ['node-property:alpha', 'edge-property:alpha'];
-                viz.reposition();
+                //viz.reposition();
                 if(options.type != 'fade:con') {
                     viz.fx.animate($.merge(options, {
                         modes: ['linear'],
@@ -8619,9 +8619,9 @@ $jit.ST= (function() {
         */
         addSubtree: function(subtree, method, onComplete) {
             if(method == 'replot') {
-                this.op.sum(subtree, $.extend({ type: 'replot' }, onComplete || {}));
+                this.op.sum(subtree, $.extend({ type: 'replot', Move: { enable: false } }, onComplete || {}));
             } else if (method == 'animate') {
-                this.op.sum(subtree, $.extend({ type: 'fade:seq' }, onComplete || {}));
+                this.op.sum(subtree, $.extend({ type: 'fade:seq', Move: { enable: false } }, onComplete || {}));
             }
         },
     
@@ -8738,10 +8738,15 @@ $jit.ST= (function() {
     
         */    
       onClick: function (id, options) {
+      
+      log("core: onClick, Orgvis.vars.ST_move:"+Orgvis.vars.ST_move);
+      log(id);
+      log(options);
+      
         var canvas = this.canvas, that = this, Geom = this.geom, config = this.config;
         var innerController = {
             Move: {
-        	    enable: true,
+        	  enable: Orgvis.vars.ST_move,
               offsetX: config.offsetX || 0,
               offsetY: config.offsetY || 0  
             },
