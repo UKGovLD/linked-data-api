@@ -4,7 +4,7 @@ function query ($endpoint, $query) {
   $params = array(
     'http' => array(
       'method' => 'GET',
-      'header' => "Host: " . $_SERVER["HTTP_HOST"],
+      'header' => 'Accept: application/sparql-results+json',
       'max_redirects' => 1,
       'ignore_errors' => true
     )
@@ -45,7 +45,7 @@ function organogramInfo ($dept, $isodate, $filenoext) {
 
   $graph = "http://organogram.data.gov.uk/data/$dept/$isodate/$filenoext";
 
-  $endpoint = 'http://localhost:8900/sparql';
+  $endpoint = 'http://localhost:8080/openrdf-sesame/repositories/organogram';
   $gradeSparql = <<<GRADES
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX gov: <http://reference.data.gov.uk/def/central-government/>
@@ -67,10 +67,11 @@ WHERE {
 ORDER BY ?body DESC(?grade)
 GRADES;
 
-  $postSparql = <<<LOCATION
+  $topPostsSparql = <<<LOCATION
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX gov: <http://reference.data.gov.uk/def/central-government/>
+PREFIX org: <http://www.w3.org/ns/org#>
 PREFIX postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/>
  
 SELECT DISTINCT ?body ?post ?postLabel
@@ -83,8 +84,30 @@ WHERE {
   { ?post postStatus:postStatus postStatus:vacant . } 
   UNION 
   { ?post postStatus:postStatus postStatus:current . } 
-#  OPTIONAL { ?post org:reportsTo ?manager } 
-#  FILTER (!BOUND(?manager))
+  OPTIONAL { ?post org:reportsTo ?manager } 
+  FILTER (!BOUND(?manager))
+}
+ORDER BY ?post
+LOCATION;
+
+  $otherPostsSparql = <<<LOCATION
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX gov: <http://reference.data.gov.uk/def/central-government/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/>
+ 
+SELECT DISTINCT ?body ?post ?postLabel
+WHERE { 
+  ?post foaf:page <$graph> ; 
+    a gov:CivilServicePost ;
+    rdfs:label ?postLabel ;
+    gov:postIn ?body ;
+    org:reportsTo [].
+  ?body a gov:PublicBody .
+  { ?post postStatus:postStatus postStatus:vacant . } 
+  UNION 
+  { ?post postStatus:postStatus postStatus:current . }
 }
 ORDER BY ?post
 LIMIT 3
@@ -93,40 +116,65 @@ LOCATION;
     $bodies = array();
     
     $bindings = query($endpoint, $gradeSparql);
-    foreach($bindings as $binding) {
-      $bodyUri = $binding->body->value;
-      $bodyLabel = $binding->bodyLabel->value;
-      $gradeUri = $binding->grade->value;
-      
-      $bodyUriParts = explode('/', substr($bodyUri, strpos($bodyUri, '/id/') + 4));
-      $grade = substr($gradeUri, strlen('http://reference.data.gov.uk/def/civil-service-grade/'));
-      if ($bodies[$bodyUri]) {
-        $bodies[$bodyUri]['grades'][$grade] = true;
-      } else {
-        $bodies[$bodyUri] = array(
-          'type' => $bodyUriParts[0] == 'department' ? 'dept' : 'pubbod',
-          'id' => $bodyUriParts[1],
-          'label' => $bodyLabel,
-          'grades' => array($grade => true)
-        );
+    if ($bindings) {
+      foreach($bindings as $binding) {
+        $bodyUri = $binding->body->value;
+        $bodyLabel = $binding->bodyLabel->value;
+        $gradeUri = $binding->grade->value;
+
+        $bodyUriParts = explode('/', substr($bodyUri, strpos($bodyUri, '/id/') + 4));
+        $grade = substr($gradeUri, strlen('http://reference.data.gov.uk/def/civil-service-grade/'));
+        if ($bodies[$bodyUri]) {
+          $bodies[$bodyUri]['grades'][$grade] = true;
+        } else {
+          $bodies[$bodyUri] = array(
+            'type' => $bodyUriParts[0] == 'department' ? 'dept' : 'pubbod',
+            'id' => $bodyUriParts[1],
+            'label' => $bodyLabel,
+            'grades' => array($grade => true)
+          );
+        }
       }
     }
     
-    $bindings = query($endpoint, $postSparql);
-    foreach($bindings as $binding) {
-      $bodyUri = $binding->body->value;
-      $postUri = $binding->post->value;
-      $postLabel = $binding->postLabel->value;
-      
-      $postUriParts = explode('/', substr($postUri, strpos($postUri, '/id/') + 4));
-      if ($bodies[$bodyUri]) {
-        if (!$bodies[$bodyUri]['posts']) {
-          $bodies[$bodyUri]['posts'] = array();
+    $bindings = query($endpoint, $topPostsSparql);
+    if ($bindings) {
+      foreach($bindings as $binding) {
+        $bodyUri = $binding->body->value;
+        $postUri = $binding->post->value;
+        $postLabel = $binding->postLabel->value;
+
+        $postUriParts = explode('/', substr($postUri, strpos($postUri, '/id/') + 4));
+        if ($bodies[$bodyUri]) {
+          if (!$bodies[$bodyUri]['posts']) {
+            $bodies[$bodyUri]['posts'] = array();
+          }
+          $bodies[$bodyUri]['posts'][] = array(
+            'id' => $postUriParts[3],
+            'label' => $postLabel
+          );
         }
-        $bodies[$bodyUri]['posts'][] = array(
-          'id' => $postUriParts[3],
-          'label' => $postLabel
-        );
+      }
+    }
+    if (count($bindings) < 3) {
+      $bindings = query($endpoint, $otherPostsSparql);
+      if ($bindings) {
+        foreach($bindings as $binding) {
+          $bodyUri = $binding->body->value;
+          $postUri = $binding->post->value;
+          $postLabel = $binding->postLabel->value;
+
+          $postUriParts = explode('/', substr($postUri, strpos($postUri, '/id/') + 4));
+          if ($bodies[$bodyUri]) {
+            if (!$bodies[$bodyUri]['posts']) {
+              $bodies[$bodyUri]['posts'] = array();
+            }
+            $bodies[$bodyUri]['posts'][] = array(
+              'id' => $postUriParts[3],
+              'label' => $postLabel
+            );
+          }
+        }
       }
     }
     
@@ -778,6 +826,12 @@ function createRDF ($dept, $date, $filename) {
     $graph = "http://organogram.data.gov.uk/data/$dept/$date/$filename";
     $endpoint = 'http://localhost:8900/sparql';
 
+    $check = <<<EOD
+ASK {
+  <$graph> ?p ?o .
+}
+EOD;
+
     $sparql = <<<EOD
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -809,11 +863,6 @@ WHERE {
 EOD;
     $sparql = str_replace('?graph', '<' . $graph . '>', $sparql);
 
-    $query = array(
-      'query' => $sparql
-    );
-    $queryString = http_build_query($query);
-
     $params = array(
       'http' => array(
         'method' => 'GET',
@@ -824,19 +873,37 @@ EOD;
     );
     $ctx = stream_context_create($params);
     try {
+      $query = array(
+        'query' => $check
+      );
+      $queryString = http_build_query($query);
       $fp = fopen($endpoint . '?' . $queryString, 'rb', false, $ctx);
       if (!$fp) {
         return false;
       } else {
         $response = stream_get_contents($fp);
-        if ($response === false) {
+        if ($response === false || $response === 'FALSE') {
           return false;
         } else {
-          // save the file
-          try {
-            $written = file_put_contents($fileLocation, $response, LOCK_EX);
-          } catch (Exception $e) {
+          $query = array(
+            'query' => $sparql
+          );
+          $queryString = http_build_query($query);
+          $fp = fopen($endpoint . '?' . $queryString, 'rb', false, $ctx);
+          if (!$fp) {
             return false;
+          } else {
+            $response = stream_get_contents($fp);
+            if ($response === false) {
+              return false;
+            } else {
+              // save the file
+              try {
+                $written = file_put_contents($fileLocation, $response, LOCK_EX);
+              } catch (Exception $e) {
+                return false;
+              }
+            }
           }
         }
       }
@@ -847,5 +914,71 @@ EOD;
   return true;
 }
 
+function loadRDF ($rdfLocation) {
+  $rdfUrl = "http://organogram.data.gov.uk/$rdfLocation";
+  
+  if (!file_exists($rdfLocation)) {
+    return false;
+  }
+  
+  $rdf = file_get_contents($rdfUrl);
+  
+  $endpoint = 'http://localhost:8080/openrdf-sesame/repositories/organogram/statements';
+  $params = array(
+    'http' => array(
+      'method' => 'PUT',
+      'header' => 'Content-Type: application/rdf+xml',
+      'max_redirects' => 1,
+      'ignore_errors' => true,
+      'content' => $rdf
+    )
+  );
+  $query = array(
+    'context' => "<$rdfUrl>"
+  );
+  $queryString = http_build_query($query);
+  $ctx = stream_context_create($params);
+  try {
+    $fp = fopen($endpoint . '?' . $queryString, 'rb', false, $ctx);
+    if (!$fp) {
+      return false;
+    } else {
+      $status = $http_response_header[0];
+      return $status === 'HTTP/1.1 204 No Content';
+    }
+  } catch (Exception $e) {
+    return false;
+  }
+  return true;
+}
+
+function deleteRDF ($rdfLocation) {
+  $rdfUrl = "http://organogram.data.gov.uk/$rdfLocation";  
+  $endpoint = 'http://localhost:8080/openrdf-sesame/repositories/organogram/statements';
+  $params = array(
+    'http' => array(
+      'method' => 'DELETE',
+      'max_redirects' => 1,
+      'ignore_errors' => true,
+    )
+  );
+  $query = array(
+    'context' => "<$rdfUrl>"
+  );
+  $queryString = http_build_query($query);
+  $ctx = stream_context_create($params);
+  try {
+    $fp = fopen($endpoint . '?' . $queryString, 'rb', false, $ctx);
+    if (!$fp) {
+      return false;
+    } else {
+      $status = $http_response_header[0];
+      return $status === 'HTTP/1.1 204 No Content';
+    }
+  } catch (Exception $e) {
+    return false;
+  }
+  return true;
+}
 
 ?>
