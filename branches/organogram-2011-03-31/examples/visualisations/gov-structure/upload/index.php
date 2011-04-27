@@ -159,12 +159,31 @@ if ($action == 'upload' && $validFile && $validEmail && $validDate) {
     } else {
       // write the trig file
       writeTransformation($dept, $isoDate, $filename, $email, $xlwrapMappingsDir);
-      $success = true;
 
       // remove existing RDF version
       $rdfDumpLocation = "data/$dept/$isoDate/$filenameNoExt.rdf";
       if (file_exists($rdfDumpLocation)) {
         unlink($rdfDumpLocation);
+      }
+      
+      // create the new RDF
+      $success = createRDF($dept, $isoDate, $filenameNoExt);
+      
+      if (!$success || !filesize($rdfDumpLocation)) {
+        $success = false;
+      } else {
+        // load the RDF into Sesame
+        $success = loadRDF($rdfDumpLocation);
+      }
+      
+      if (!$success) {
+        $errors[] = 'Unable to create a preview of your data at the moment. Please check your spreadsheet and try again later.';
+      }
+      
+      // remove the Trig from the mappings directory
+      $mappingLocation = "$xlwrapMappingsDir/$dept-$isoDate-$filenameNoExt.trig";
+      if (file_exists($mappingLocation)) {
+        unlink($mappingLocation);
       }
     }
   } else {
@@ -207,11 +226,12 @@ if ((($action == 'upload' && !$success) || $action == 'delete-preview' || $actio
   if (file_exists($xlwrapMapping)) {
     unlink($xlwrapMapping);
   }
+  $deletedRDF = deleteRDF($rdfFile);
   $filename = '';
   $filenameNoExt = '';
   $validFilename = false;
   if ($action == 'delete-preview' || $action == 'delete-download') {
-    $success = true;
+    $success = $deletedRDF;
   }
 } else if (($action == 'disable-preview' || $action == 'disable-download') && $validEmail && $validDate && $validFilename) {
   $xlwrapMapping = "$xlwrapMappingsDir/$dept-$isoDate-$filenameNoExt.trig";
@@ -428,20 +448,6 @@ if ($isAdmin) {
                               </a>
                             </td>
                             <td class="modified"><?php echo date('d M Y H:i', $file['modified']); ?></td>
-                            <?php if ($isAdmin) { ?>
-                              <td class="disable">
-                                <form action="/" method="post">
-                                  <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
-                                  <?php if ($isAdmin) { ?>
-                                    <input name="admin" type="hidden" value="true" />
-                                  <?php } ?>
-                                  <input name="date" type="hidden" value="<?php echo $date; ?>" />
-                                  <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
-                                  <input name="action" type="hidden" value="<?php echo $file['enabled'] ? 'disable' : 'enable'; ?>-preview" />
-                                  <input type="submit" value="<?php echo $file['enabled'] ? 'Disable' : 'Enable'; ?>" />
-                                </form>
-                              </td>
-                            <?php } ?>
                             <td class="preview">
                               <form action="/" method="get">
                                 <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
@@ -450,7 +456,7 @@ if ($isAdmin) {
                                 <?php } ?>
                                 <input name="date" type="hidden" value="<?php echo $date; ?>" />
                                 <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
-                                <input name="action" <?php if (!$file['enabled']) { echo 'disabled="disabled"'; } ?> type="submit" value="Preview" />
+                                <input name="action" type="submit" value="Preview" />
                               </form>
                             </td>
                             <td class="delete">
@@ -531,20 +537,6 @@ if ($isAdmin) {
                               </a>
                             </td>
                             <td class="modified"><?php echo date('d M Y H:i', $file['modified']); ?></td>
-                            <?php if ($isAdmin) { ?>
-                              <td class="disable">
-                                <form action="/" method="post">
-                                  <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
-                                  <?php if ($isAdmin) { ?>
-                                    <input name="admin" type="hidden" value="true" />
-                                  <?php } ?>
-                                  <input name="date" type="hidden" value="<?php echo $date; ?>" />
-                                  <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
-                                  <input name="action" type="hidden" value="<?php echo $file['enabled'] ? 'disable' : 'enable'; ?>-download" />
-                                  <input type="submit" value="<?php echo $file['enabled'] ? 'Disable' : 'Enable'; ?>" />
-                                </form>
-                              </td>
-                            <?php } ?>
                             <td class="preview">
                               <form action="/" method="get">
                                 <input name="email" type="hidden" value="<?php echo $isAdmin ? $file['submitter'] : $email; ?>" />
@@ -553,7 +545,7 @@ if ($isAdmin) {
                                 <?php } ?>
                                 <input name="date" type="hidden" value="<?php echo $date; ?>" />
                                 <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
-                                <input name="action" <?php if (!$file['enabled']) { echo 'disabled="disabled"'; } ?> type="submit" value="Download" />
+                                <input name="action" type="submit" value="Download" />
                               </form>
                             </td>
                             <td class="delete">
