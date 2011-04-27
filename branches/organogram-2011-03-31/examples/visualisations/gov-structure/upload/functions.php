@@ -855,12 +855,32 @@ PREFIX grade: <http://reference.data.gov.uk/def/civil-service-grade/>
 PREFIX payband: <http://reference.data.gov.uk/def/civil-service-payband/>
 PREFIX postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/>
 
-CONSTRUCT { ?s ?p ?o . }
+CONSTRUCT { 
+  ?s ?p ?o . 
+  ?o rdfs:label ?label .
+  ?o skos:prefLabel ?prefLabel .
+}
 WHERE { 
-  { ?s foaf:page ?graph } UNION { ?s qb:dataSet ?graph }
+  { ?s foaf:page ?graph } 
+  UNION
+  {
+   ?graph void:subset ?subset .
+   { ?s foaf:page ?subset }
+   UNION
+   { ?s qb:dataSet ?subset }
+   UNION
+   { ?s skos:topConceptOf ?subset }
+  }
   ?s ?p ?o .
+  OPTIONAL {
+    ?o rdfs:label ?label
+  }
+  OPTIONAL {
+    ?o skos:prefLabel ?prefLabel
+  }
 }
 EOD;
+
     $sparql = str_replace('?graph', '<' . $graph . '>', $sparql);
 
     $params = array(
