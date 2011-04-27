@@ -82,7 +82,8 @@ var Orgvis = {
 		}
 
 		if(postSlug.length < 1){
-			showLog("No post selected!");
+			//showLog("No post selected!");
+			Orgvis.notify("Error","Cannot load organogram, no post selected!", true);
 		} else{
 			Orgvis.vars.global_post = postSlug;		
 		}
@@ -223,8 +224,6 @@ var Orgvis = {
 	    	width: 500, 
 	    	zIndex: 9999
 	    });		
-
-
 		
 	},
 	initSpaceTree:function(reload){
@@ -412,6 +411,7 @@ var Orgvis = {
 							postID = postID[postID.length-1];	
 							
 							if(postID != Orgvis.vars.global_post && !node.data.childrenAdded && !node.data.onDemandInAction){
+								Orgvis.notify("Loading","Loading children posts and junior staff for "+node.name+"...",false);
 								node.data.onDemandInAction = true;
 								$("div#"+node.id+" span.childLoader").show();
 								Orgvis.getPostReportsOnDemand(node);
@@ -478,19 +478,22 @@ var Orgvis = {
 		Orgvis.vars.global_ST = st;
 		
 		if(Orgvis.vars.previewMode){
-			Orgvis.showLog("Loading data ...");	
+			//Orgvis.showLog("Loading data ...");
+			Orgvis.notify("Loading","Calling API...",false);	
 			log(Orgvis.vars.apiCallInfo);
 			log(Orgvis.vars.apiResponses);
 			Orgvis.getRootPostData();
 			Orgvis.getReportsFullData();
 			Orgvis.getJuniorStaffFullData();			
 		} else if(!reload){	
-			Orgvis.showLog("Loading data ...");	
+			//Orgvis.showLog("Loading data ...");	
+			Orgvis.notify("Loading","Calling API...",false);				
 			Orgvis.getRootPostData();
 			Orgvis.getReportsFullData();
 			Orgvis.getJuniorStaffFullData();
 		} else{
-			Orgvis.showLog("Reloading organogram ...");			
+			//Orgvis.showLog("Reloading organogram ...");		
+			Orgvis.notify("Loading","Reloading organogram data...",true);					
 			Orgvis.reloadPost();
 		}
 	},
@@ -502,9 +505,7 @@ var Orgvis = {
 			url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post,
 			parameters:"",
 			complete:false
-		};	
-
-		$.ajax();
+		};
 		
 		var s = {	
 			url: Orgvis.vars.apiCallInfo.rootPost.url+".json"+"?"+Orgvis.vars.apiCallInfo.rootPost.parameters+"&callback=?",
@@ -514,12 +515,11 @@ var Orgvis = {
 			error:function (e){
 				log("API - rootPost - error");
 				$.cookie("organogram-preview-mode", null);
-				if(Orgvis.vars.previewMode){
-					Orgvis.changeLog("Error loading post's data", false);
+				if(Orgvis.vars.previewMode){	
 					Orgvis.showLogin();					
-				}else{
-					Orgvis.changeLog("Error loading post's data", false);
 				}
+				//Orgvis.changeLog("Error loading post's data", false);
+				Orgvis.notify("Error","Could not retrieve the main post's data",true);
 			},
 			success: function(json){
 				if(Orgvis.vars.previewParam){
@@ -535,7 +535,8 @@ var Orgvis = {
 					Orgvis.regData(json);
 					Orgvis.vars.apiCallInfo.rootPost.complete = true;		
 				} else {
-					Orgvis.changeLog("Could not retrieve the main post's data",false);
+					//Orgvis.changeLog("Could not retrieve the main post's data",false);
+					Orgvis.notify("Error","Could not retrieve the main post's data",true);
 				}					
 			}
 		};
@@ -545,7 +546,7 @@ var Orgvis = {
 			s.password = $.cookie('organogram-password');
 		}
 				
-		$.myJSONP(s,"Post's data")
+		$.myJSONP(s,"data",Orgvis.vars.postInQuestion)
 	},
 	getReportsFullData:function() {
 		
@@ -566,13 +567,15 @@ var Orgvis = {
 				async:true,				
 				error: function(){
 					log("API - postReports - error");
-					Orgvis.changeLog("Error loading post's organogram data", false);
+					//Orgvis.changeLog("Error loading post's organogram data", false);
+					Orgvis.notify("Error","Could not load reporting posts", true);					
 				},
 				success: function(json){
 					// Pass data to the regData function
 					log("passing data to regData");
 					Orgvis.regData(json);
 					Orgvis.vars.apiCallInfo.postReports.complete = true;
+					Orgvis.notify("Success","Loaded reporting posts",false);
 				}
 			};
 		
@@ -583,7 +586,7 @@ var Orgvis = {
 			s.url = s.url.replace("reportsFull","reports-full");
 		}
 		
-		$.myJSONP(s,"Reporting posts' data");
+		$.myJSONP(s,"reporting posts' data",Orgvis.vars.postInQuestion);
 				
 			
 	},
@@ -611,14 +614,14 @@ var Orgvis = {
 				async:true,				
 				error: function(){
 					log("API - postReportsOnDemand - error");
-					Orgvis.changeLog("Error loading clicked post's reporting posts data", false);
+					//Orgvis.changeLog("Error loading clicked post's reporting posts data", false);
+					Orgvis.notify("Error","Could not load children posts for "+node.name, true);					
 					// Stops another API call being made
 					node.data.childrenAdded = true;
-				    $("div#"+node.id+" span.childLoader img").attr("src","../images/error.png");
+				    $("div#"+node.id+" span.childLoader img").attr("src","../images/onDemandError.png");
 				},
 				success: function(json){
 					
-					// If both API calls have been returned then
 					var postID = json.result._about.split("post/");
 					postID = postID[1].split("/");
 					postID = postID[0];
@@ -636,15 +639,20 @@ var Orgvis = {
 						// If the junior staff data has definitely been received, then it's
 						// safe to build the whole structure
 						if(typeof Orgvis.vars.apiResponses["onDemand_"+postID].juniorStaffOnDemand == "object"){
-							Orgvis.buildPostList(json.result.items,options);
-							Orgvis.connectPosts();
-							Orgvis.connectJuniorPosts(json);
+							
+							
 							// Build the reporting posts JSON structure
 							// and connect to the clicked post by setting the JSON
 							// structure's root post as the clicked post
 							var options = {
 								childrenAdded:true
 							};
+							
+							Orgvis.buildPostList(json.result.items,options);
+							Orgvis.connectPosts();
+							Orgvis.connectJuniorPosts(json);
+								
+							log("adding subtree in getPostReportsOnDemand");
 							Orgvis.vars.global_ST.addSubtree(Orgvis.vars.postList[postID], 'animate', {  
 						        hideLabels: false,  
 						        onAfterCompute: function() {  
@@ -660,13 +668,14 @@ var Orgvis = {
 								    	$("div#"+node.id).animate({ backgroundColor: "#FFE8E8" }, 5000);
 						           		$("div#"+node.id+" span.childLoader img").attr("src","../images/noChildrenPresent.png");
 								    }
+								    log("onAfterCompute: addSubTree: getPostReportsOnDemand ");
 								    Orgvis.vars.global_ST.refresh();
 						            node.data.childrenAdded = true; 
 						            node.data.onDemandInAction = false;
 						        }
 						    });
 		
-						    
+						    Orgvis.notify("Success","Loaded children and junior staff for "+node.name,false);						    
 							Orgvis.vars.apiCallInfo.postReportsOnDemand.complete = true;
 							
 						}
@@ -686,7 +695,7 @@ var Orgvis = {
 			s.url = s.url.replace("reportsFull","reports-full");
 		}
 		
-		$.myJSONP(s,"Clicked post's reporting posts' data");
+		$.myJSONP(s,"children posts",node);
 				
 			
 	},
@@ -714,10 +723,12 @@ var Orgvis = {
 				async:true,				
 				error: function(){
 					log("API - juniorStaffOnDemand - error");
-					Orgvis.changeLog("Error loading clicked post's junior staff data", false);
+					//Orgvis.changeLog("Error loading clicked post's junior staff data", false);
+					Orgvis.notify("Error","Could not load junior staff for "+node.name, true);					
+
 					// Stops another API call being made
 					node.data.juniorStaffAdded = true;
-				    $("div#"+node.id+" span.childLoader img").attr("src","../images/error.png");
+				    $("div#"+node.id+" span.childLoader img").attr("src","../images/onDemandError.png");
 				},
 				success: function(json){
 					
@@ -739,15 +750,17 @@ var Orgvis = {
 						// If the reports to data has definitely been received, then it's
 						// safe to build the whole structure including the junior posts
 						if(typeof Orgvis.vars.apiResponses["onDemand_"+postID].postReportsOnDemand == "object"){
-							Orgvis.buildPostList(json.result.items,options);
-							Orgvis.connectPosts();
-							Orgvis.connectJuniorPosts(json);					
 							// Build the reporting posts JSON structure
 							// and connect to the clicked post by setting the JSON
 							// structure's root post as the clicked post
 							var options = {
 								childrenAdded:true
 							};
+							
+							Orgvis.buildPostList(json.result.items,options);
+							Orgvis.connectPosts();
+							Orgvis.connectJuniorPosts(json);					
+
 							Orgvis.vars.global_ST.addSubtree(Orgvis.vars.postList[postID], 'animate', {  
 						        hideLabels: false,  
 						        onAfterCompute: function() {  
@@ -769,7 +782,7 @@ var Orgvis = {
 						        }
 						    });
 		
-						    
+						    Orgvis.notify("Success","Loaded children and junior staff for "+node.name,false);						    
 							Orgvis.vars.apiCallInfo.juniorStaffOnDemand.complete = true;
 							
 						}
@@ -789,7 +802,7 @@ var Orgvis = {
 			s.url = s.url.replace("juniorStaffFull","junior-staff-full");
 		}
 		
-		$.myJSONP(s,"Clicked post's junior staff data");
+		$.myJSONP(s,"junior staff",node);
 				
 			
 	},	
@@ -812,12 +825,14 @@ var Orgvis = {
 			async:true,
 		    error:function (){
 		    	log("API - junior staff - error");
-				Orgvis.changeLog("Error loading junior staff data", false);
+				//Orgvis.changeLog("Error loading junior staff data", false);
+				Orgvis.notify("Error","Could not load junior staff",true);
 			},
 			success: function(json){
 				// Pass data to the regData function
 				log("passing data to regData");
 				Orgvis.regData(json);
+				Orgvis.notify("Success","Loaded junior staff",false);
 				Orgvis.vars.apiCallInfo.juniorStaff.complete = true;							
 			}
 		};
@@ -827,7 +842,7 @@ var Orgvis = {
 			s.password = $.cookie('organogram-password');
 		}	
 		
-		$.myJSONP(s, "Junior staff data");		
+		$.myJSONP(s,"junior staff",Orgvis.vars.postInQuestion);		
 			
 	},
 	getStatsData:function(){
@@ -854,9 +869,11 @@ var Orgvis = {
 				async:true,
 			    error:function (){
 			    	log("API - stats data: "+v.name[0]+" - error");
-					Orgvis.changeLog("Error loading post: \""+v.name[0]+"\" statistics data", false);
+					//Orgvis.changeLog("Error loading post: \""+v.name[0]+"\" statistics data", false);
+					Orgvis.notify("Error","Could not load statistics data for \""+v.name[0]+"\"", true);
 				},
 				success: function(json){
+					Orgvis.notify("Success","Loaded statistics data for \""+v.name[0]+"\"", true);
 					v.data.stats = {
 						salaryCostOfReports:{
 							value:json.result.items[0].salaryCostOfReports
@@ -887,7 +904,7 @@ var Orgvis = {
 				s.password = $.cookie('organogram-password');
 			}
 			
-			$.myJSONP(s,'Statistics data for "'+v.name[0]+'"');
+			$.myJSONP(s,'statistics data for "'+v.name[0]+'"');
 		});
 	},
 	regData:function(data) {
@@ -992,7 +1009,8 @@ var Orgvis = {
 		} catch(e){
 			// No success when retrieving information about the root post
 			log(e);
-			Orgvis.showLog("Error loading post data");
+			//Orgvis.showLog("Error loading post data");
+			Orgvis.notify("Error","Could not load post's data",true);
 		}			
 	},
 	loadOrganogram:function(json) {
@@ -1027,11 +1045,16 @@ var Orgvis = {
 		
 		log("Orgvis.vars.firstNode:");
 		log(Orgvis.vars.firstNode);
-
-		Orgvis.buildPostList(json.result.items);
-		// Once post list has been built, fire off the API calls to 
-		// retrieve each post's statistics data
-		//Orgvis.getStatsData();
+		
+		var options = {
+			//childrenAdded:true,
+			//firstBuild:true
+		};
+		Orgvis.buildPostList(json.result.items,options);
+		
+// Once post list has been built, fire off the API calls to 
+// retrieve each post's statistics data
+// Orgvis.getStatsData();
 		
 		for(var i in Orgvis.vars.apiResponses){			
 			if(Orgvis.vars.apiResponses[i].result._about.indexOf("junior-staff-full") > 0){
@@ -1041,6 +1064,7 @@ var Orgvis = {
 		}
 		
 		Orgvis.vars.global_postJSON = Orgvis.connectPosts();
+		Orgvis.setChildrenAdded(Orgvis.vars.postInQuestion);
 		
 		//groupSamePosts(Orgvis.vars.global_postJSON,false);
 		
@@ -1074,7 +1098,9 @@ var Orgvis = {
 	
 		Orgvis.vars.global_ST.onClick(Orgvis.vars.global_ST.root);
 		
-		Orgvis.changeLog("Aligning node ...",true);
+		//Orgvis.changeLog("Aligning node ...",true);
+		Orgvis.notify("Info","Aligning node...",false);	
+
 		
 		var t = 0;
 		var c = Orgvis.vars.postInQuestionReportsTo.length;
@@ -1086,7 +1112,7 @@ var Orgvis = {
 						clearInterval(t);
 						Orgvis.vars.global_ST.onClick($("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1].toString()).attr("id"));
 						$("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1].toString()).click();
-						Orgvis.hideLog(); 
+						//Orgvis.hideLog(); 
 						Orgvis.vars.ST_move = false;
 						log("Orgvis.vars.ST_move:"+Orgvis.vars.ST_move);
 						return false;
@@ -1289,6 +1315,33 @@ var Orgvis = {
 					}
 			}
 		});	 // end each loop			
+
+	},
+	setChildrenAdded:function(node){
+		// Find the post in the postList
+		// traverse through all of it's newly added children
+		// and set their "childrenAdded" flags to true.
+		//postID = node.data.uri.split("/");
+		//postID = postID[postID.length-1];
+		
+		log("setting childrenAdded for ");
+		log(node);
+		
+		
+			$.each(node, function(k,v){
+				log('k');
+				log(k);
+				log('v');
+				log(v);
+				
+				if(k == "data"){
+					v.childrenAdded = true;
+				}
+				if(k == "children"){
+					Orgvis.setChildrenAdded(v);
+				}
+				
+			});
 
 	},
 	makeJuniorNode:function(el){
@@ -1857,10 +1910,14 @@ var Orgvis = {
 		return false;
 	},
 	showLog:function(string){
+		/*
 		$("#log img").show();
 		$("#log span").html(string);
 		$("#log").fadeIn();
 		return false;
+		*/
+		
+		$.jGrowl(string);
 	},
 	changeLog:function(string, showImg){
 		$("#log span").html(string);
@@ -1876,6 +1933,16 @@ var Orgvis = {
 			$("#log").fadeOut();
 		},1000);
 		return false;	
+	},
+	notify:function(type,message,stick) {
+	
+		$.jGrowl(message,{
+			header:type,
+			theme:type,
+			sticky:stick,
+			life:7000
+		});
+
 	}
 }; // end Orgvis
 
@@ -1956,7 +2023,9 @@ function addCommas(nStr) {
 
 // fn to handle jsonp with timeouts and errors
 // hat tip to Ricardo Tomasi for the timeout logic
-$.myJSONP = function(s,callName) {
+$.myJSONP = function(s,callName,n) {
+	node = n || {name:"Unspecified"};
+	
     s.dataType = 'jsonp';
     $.ajax(s);
 
@@ -1992,10 +2061,11 @@ $.myJSONP = function(s,callName) {
     
     function handleError(s, o, msg, e) {
 
-    	log("Error retrieving "+s.url);
+    	log("Could not load "+s.url);
 
-    	Orgvis.showLog("Error requesting data for "+callName,false);
-
+    	//Orgvis.showLog("Error requesting data for "+callName,false);
+		Orgvis.notify("Error","Could not load "+node.name+"'s "+callName, true);
+		$("div#"+node.id+" span.childLoader img").attr("src","../images/onDemandError.png");
 		var json = {
 				result:{
 					_about:s.url,

@@ -546,6 +546,9 @@ div.node span.childLoader {
     width: 16px;
     z-index: 0;
 }
+body.IE7 div.node span.childLoader {
+	position:absolute;
+}
 div.node span.childLoader img {
     margin-top: 4px;
     position: static;
