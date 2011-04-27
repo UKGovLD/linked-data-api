@@ -689,7 +689,7 @@ $str = <<<TRANSFORMATION
     a void:Dataset , qb:DataSet ;
     dct:title "G2 & ' Salary Cost of Reports on $dateSlash Dataset'"^^xl:Expr ;
     dct:license <http://reference.data.gov.uk/id/open-government-licence> ;
-    dct:source <$dateSlash.$ext> ;
+    dct:source <$fileURL.$ext> ;
     dct:temporal <http://reference.data.gov.uk/id/day/$date> ;
     qb:structure <http://reference.data.gov.uk/def/organogram/salary-costs-of-reports> ;
     void:exampleResource
