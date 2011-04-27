@@ -600,9 +600,9 @@ $str = <<<TRANSFORMATION
   # salary cost of reports observation
   [ xl:uri "IF(LCASE(B2) != 'eliminated', '$fileURL#salaryCostOfReports' & ROW(A2))"^^xl:Expr ]
     a qb:Observation ;
-    rdfs:label "D2 & ' Salary Cost of Reports on 31/03/2011'"^^xl:Expr ;
+    rdfs:label "D2 & ' Salary Cost of Reports on $dateSlash'"^^xl:Expr ;
     qb:dataSet <$fileURL#salaryCostOfReports> ;
-    organogram:date <http://reference.data.gov.uk/id/day/2011-03-31> ;
+    organogram:date <http://reference.data.gov.uk/id/day/$date> ;
     organogram:post [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & A2"^^xl:Expr ] ;
     organogram:salaryCostOfReports "IF (UCASE(STRING(L2)) != 'N/D', LONG(L2))"^^xl:Expr ;
     sdmxa:obsStatus [ xl:uri "IF(UCASE(STRING(L2)) == 'N/D', 'http://purl.org/linked-data/sdmx/2009/code#obsStatus-M')"^^xl:Expr ] ;
@@ -611,9 +611,9 @@ $str = <<<TRANSFORMATION
   # totalPay observation
   [ xl:uri "IF((UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2') && LCASE(B2) != 'vacant' && LCASE(B2) != 'eliminated', '$fileURL#totalPay' & ROW(A2))"^^xl:Expr ]
     a qb:Observation ;
-    rdfs:label "B2 & ' as ' & D2 & ' Total Pay on 31/03/2011'"^^xl:Expr ;
+    rdfs:label "B2 & ' as ' & D2 & ' Total Pay on $dateSlash'"^^xl:Expr ;
     qb:dataSet <$fileURL#totalPay> ;
-    organogram:date <http://reference.data.gov.uk/id/day/2011-03-31> ;
+    organogram:date <http://reference.data.gov.uk/id/day/$date> ;
     organogram:tenure [ xl:uri "'$fileURL#tenure' & ROW(A2)"^^xl:Expr ; ] ;
     organogram:totalPay "IF(UCASE(STRING(P2)) != 'N/D' && UCASE(STRING(P2)) != 'N/A', LONG(P2))"^^xl:Expr ;
     sdmxa:obsStatus [ xl:uri "IF(UCASE(STRING(P2)) == 'N/D', 'http://purl.org/linked-data/sdmx/2009/code#obsStatus-M')"^^xl:Expr ] ;
@@ -705,7 +705,7 @@ $str = <<<TRANSFORMATION
     dct:title "G2 & ' Total Pay on $dateSlash Dataset'"^^xl:Expr ;
     dct:license <http://reference.data.gov.uk/id/open-government-licence> ;
     dct:source <$fileURL.$ext> ;
-    dct:temporal <http://reference.data.gov.uk/id/day/$dateSlash> ;
+    dct:temporal <http://reference.data.gov.uk/id/day/$date> ;
     qb:structure <http://reference.data.gov.uk/def/organogram/total-pay> ;
     void:exampleResource
       <$fileURL#totalPay1> ;
@@ -857,14 +857,20 @@ PREFIX postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/>
 
 CONSTRUCT { 
   ?s ?p ?o . 
+  ?graph ?gp ?go .
+  ?subset ?sp ?so .
   ?o rdfs:label ?label .
   ?o skos:prefLabel ?prefLabel .
 }
 WHERE { 
-  { ?s foaf:page ?graph } 
+  { 
+    ?s foaf:page ?graph .
+    ?graph ?gp ?go .
+  } 
   UNION
   {
    ?graph void:subset ?subset .
+   ?subset ?sp ?so .
    { ?s foaf:page ?subset }
    UNION
    { ?s qb:dataSet ?subset }
