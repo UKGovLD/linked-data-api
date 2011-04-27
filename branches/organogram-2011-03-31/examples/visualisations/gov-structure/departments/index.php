@@ -14,11 +14,12 @@
 var param_dept = '<?php print $_GET['dept'];?>';
 var param_unit = '<?php print $_GET['unit'];?>';
 </script>
-<script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery-latest.min.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
 <script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/departments.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.overlaps.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery.jgrowl.js"></script>
 <!--[if IE]><script language="javascript" type="text/javascript" src="../scripts/Jit/Extras/excanvas.js"></script><![endif]-->
 
 </head>

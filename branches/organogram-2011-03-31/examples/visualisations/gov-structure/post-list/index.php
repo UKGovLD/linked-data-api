@@ -13,9 +13,10 @@
 <script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
 <!--script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.8.custom.min.js"></script-->	
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
-<script language="javascript" type="text/javascript" src="../scripts/post-list.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.quicksand.js"></script>		
 <script language="javascript" type="text/javascript" src="../scripts/jquery.cookie.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery.jgrowl.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/post-list.js"></script>
 
 <!--[if IE]>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.corner.js"></script>		
