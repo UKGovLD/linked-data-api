@@ -606,7 +606,7 @@ var Orgvis = {
 		var postID = node.data.uri.split("/");
 		postID= postID[postID.length-1];
 		var originalChildren = Orgvis.vars.postList[postID].children.length;
-		log("originalChildren: "+originalChildren);
+		//log("originalChildren: "+originalChildren);
 								
 		Orgvis.vars.apiCallInfo.postReportsOnDemand = {
 				title:"Retrieval of posts that report to the clicked post",
@@ -635,12 +635,12 @@ var Orgvis = {
 					var postID = json.result._about.split("post/");
 					postID = postID[1].split("/");
 					postID = postID[0];
-					log("getPostReportsOnDemand, success, postID: "+postID);
+					//log("getPostReportsOnDemand, success, postID: "+postID);
 												
 					// If the post ID has had an ondemand call already
 					if(typeof Orgvis.vars.apiResponses["onDemand_"+postID] != 'undefined'){
 
-						log('Orgvis.vars.apiResponses["onDemand_"+postID].length : '+Orgvis.vars.apiResponses["onDemand_"+postID].length);
+						//log('Orgvis.vars.apiResponses["onDemand_"+postID].length : '+Orgvis.vars.apiResponses["onDemand_"+postID].length);
 
 						// If after adding this new response to the response var, then length 
 						// is 2, then add the subtree. Otherwise do nothing.
@@ -663,11 +663,11 @@ var Orgvis = {
 							Orgvis.connectJuniorPosts(json);
 							Orgvis.setChildrenAdded(Orgvis.vars.postList[postID]);
 								
-							log("adding subtree in getPostReportsOnDemand");
+							//log("adding subtree in getPostReportsOnDemand");
 							Orgvis.vars.global_ST.addSubtree(Orgvis.vars.postList[postID], 'animate', {  
 						        hideLabels: false,  
 						        onAfterCompute: function() {  
-						            log("Orgvis.vars.postList[postID].children.length: "+Orgvis.vars.postList[postID].children.length);
+						            //log("Orgvis.vars.postList[postID].children.length: "+Orgvis.vars.postList[postID].children.length);
 						            if(Orgvis.vars.postList[postID].children.length > originalChildren) {
 						            	log("children added");
 						            	$("div#"+node.id).css("background-color","#96FFA3");
@@ -679,7 +679,7 @@ var Orgvis = {
 								    	$("div#"+node.id).animate({ backgroundColor: "#FFE8E8" }, 5000);
 						           		$("div#"+node.id+" span.childLoader img").attr("src","../images/noChildrenPresent.png");
 								    }
-								    log("onAfterCompute: addSubTree: getPostReportsOnDemand ");
+								    //log("onAfterCompute: addSubTree: getPostReportsOnDemand ");
 								    Orgvis.vars.global_ST.refresh();
 						            node.data.childrenAdded = true; 
 						            node.data.onDemandInAction = false;
@@ -1066,7 +1066,7 @@ var Orgvis = {
 		Orgvis.vars.postInQuestion = originalPostInQuestion;
 		
 		var options = {
-			//childrenAdded:true,
+			childrenAdded:true
 			//firstBuild:true
 		};
 		Orgvis.buildPostList(json.result.items,options);
@@ -1208,6 +1208,19 @@ var Orgvis = {
 						Orgvis.vars.postList[postID] = Orgvis.makeNode(el);
 						if(typeof options.childrenAdded != 'undefined'){
 							Orgvis.vars.postList[postID].data.childrenAdded = options.childrenAdded;
+							/*
+							var addNoJuniorPosts = true;
+							$.each(Orgvis.vars.postList[postID].children, function(key,val){
+								if(key=="name" && val == "Junior Posts"){
+									addNoJuniorPosts=false;
+								}
+							});
+							if(addNoJuniorPosts){
+								log("buildPostList: Adding No Junior Posts to "+Orgvis.vars.postList[postID].name);
+								Orgvis.vars.postList[postID].children.push(Orgvis.makeNoJuniorPostNode());
+							}
+							*/							
+							
 						}
 						// Assume all posts do not have any junior posts and
 						// add an empty junior posts node to each post
@@ -1339,41 +1352,42 @@ var Orgvis = {
 		});	 // end each loop			
 
 	},
-	setChildrenAdded:function(node){
+	setChildrenAdded:function(nodes){
 		// Find the post in the postList,
 		// traverse through all of it's newly added children
 		// and set their "childrenAdded" flags to true.
 		
 		//postID = node.data.uri.split("/");
 		//postID = postID[postID.length-1];
+		if(nodes != 'undefined'){
+			log("setting childrenAdded for ");
+			log(nodes);	
 		
-		log("setting childrenAdded for ");
-		log(node);
-		
-		var addNoJuniorPosts = true;
-	
-		$.each(node, function(k,v){
-			
-			if(k == "data"){
-				v.childrenAdded = true;
-			}
-			if(k == "children"){
-				// Loop through the posts childen to check if there are any
-				// junior posts.
-				// If there are junior posts then don't add a No Junior Posts node
-				for(var i in v) {
-					if(v[i].name == "Junior Posts"){
-						addNoJuniorPosts=false;
+			$.each(nodes, function(k,v){
+				
+				if(k == "data"){
+					v.childrenAdded = true;
+				}
+				if(k == "children"){
+					// Loop through the posts childen to check if there are any
+					// junior posts.
+					// If there are junior posts then don't add a No Junior Posts node
+					var addNoJuniorPosts = true;
+					$.each(v, function(key,val){
+						if(key=="name" && val == "Junior Posts"){
+							addNoJuniorPosts=false;
+						}
+					});
+					if(addNoJuniorPosts){
+						log("setChildrenAdded: Adding No Junior Posts to "+node.name);
+						v.push(Orgvis.makeNoJuniorPostNode());
 					}
+					Orgvis.setChildrenAdded(v);
 				}
-				if(addNoJuniorPosts){
-					log("setChildrenAdded: Adding No Junior Posts to "+node.name);
-					v.push(Orgvis.makeNoJuniorPostNode());
-				}
-				Orgvis.setChildrenAdded(v);
-			}
-			
-		});
+				
+			});
+		}
+		return false;
 
 	},
 	makeJuniorNode:function(el){
