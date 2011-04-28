@@ -10,7 +10,7 @@
 <title>Organogram Data | Post Listing</title>
 
 <!-- Scripts -->
-<script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery-latest.min.js"></script>
 <!--script language="javascript" type="text/javascript" src="js/jquery-ui-1.8.8.custom.min.js"></script-->	
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
 <script language="javascript" type="text/javascript" src="../scripts/jquery.quicksand.js"></script>		
