@@ -52,7 +52,7 @@
 
 		/** Default JGrowl Settings **/
 		defaults: {
-			pool: 			6,
+			pool: 			8,
 			header: 		'',
 			group: 			'',
 			sticky: 		true,
@@ -60,6 +60,7 @@
 			glue: 			'before',
 			theme: 			'default',
 			themeState: 	'highlight',
+			growlID:		'',
 			corners: 		'10px',
 			check: 			250,
 			life: 			10000,
@@ -112,7 +113,7 @@
 			var o = notification.options;
 
 			var notification = $(
-				'<div class="jGrowl-notification ' + o.themeState + ' ui-corner-all' + 
+				'<div id="' + o.growlID + '" class="jGrowl-notification ' + o.themeState + ' ui-corner-all' + 
 				((o.group != undefined && o.group != '') ? ' ' + o.group : '') + '">' +
 				'<div class="jGrowl-close">' + o.closeTemplate + '</div>' +
 				'<div class="jGrowl-header">' + o.header + '</div>' +
