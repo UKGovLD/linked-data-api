@@ -45,7 +45,7 @@ function organogramInfo ($dept, $isodate, $filenoext) {
 
   $graph = "http://organogram.data.gov.uk/data/$dept/$isodate/$filenoext";
 
-  $endpoint = 'http://localhost:8080/openrdf-sesame/repositories/organogram';
+  $endpoint = 'http://organogram.data.gov.uk:8080/openrdf-sesame/repositories/organogram';
   $gradeSparql = <<<GRADES
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX gov: <http://reference.data.gov.uk/def/central-government/>
@@ -824,7 +824,7 @@ function createRDF ($dept, $date, $filename) {
 
   if (!file_exists($fileLocation)) {
     $graph = "http://organogram.data.gov.uk/data/$dept/$date/$filename";
-    $endpoint = 'http://localhost:8900/sparql';
+    $endpoint = 'http://organogram.data.gov.uk:8900/sparql';
 
     $check = <<<EOD
 ASK {
@@ -949,7 +949,7 @@ function loadRDF ($rdfLocation) {
   
   $rdf = file_get_contents($rdfUrl);
   
-  $endpoint = 'http://localhost:8080/openrdf-sesame/repositories/organogram/statements';
+  $endpoint = 'http://organogram.data.gov.uk:8080/openrdf-sesame/repositories/organogram/statements';
   $params = array(
     'http' => array(
       'method' => 'PUT',
@@ -980,7 +980,7 @@ function loadRDF ($rdfLocation) {
 
 function deleteRDF ($rdfLocation) {
   $rdfUrl = "http://organogram.data.gov.uk/$rdfLocation";  
-  $endpoint = 'http://localhost:8080/openrdf-sesame/repositories/organogram/statements';
+  $endpoint = 'http://organogram.data.gov.uk:8080/openrdf-sesame/repositories/organogram/statements';
   $params = array(
     'http' => array(
       'method' => 'DELETE',
