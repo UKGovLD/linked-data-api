@@ -659,7 +659,8 @@ var Orgvis = {
 							};
 							
 							Orgvis.buildPostList(json.result.items,options);
-							Orgvis.connectPosts();
+							Orgvis.vars.global_postJSON = Orgvis.connectPosts();
+							//Orgvis.connectPostsToNode(node);
 							Orgvis.connectJuniorPosts(json);
 							Orgvis.setChildrenAdded(Orgvis.vars.postList[postID]);
 								
@@ -770,7 +771,8 @@ var Orgvis = {
 							};
 							
 							Orgvis.buildPostList(json.result.items,options);
-							Orgvis.connectPosts();
+							Orgvis.vars.global_postJSON = Orgvis.connectPosts();
+							//Orgvis.connectPostsToNode(node);
 							Orgvis.connectJuniorPosts(json);					
 							Orgvis.setChildrenAdded(Orgvis.vars.postList[postID]);
 							
@@ -1066,14 +1068,14 @@ var Orgvis = {
 		Orgvis.vars.postInQuestion = originalPostInQuestion;
 		
 		var options = {
-			childrenAdded:true
+			//childrenAdded:true
 			//firstBuild:true
 		};
 		Orgvis.buildPostList(json.result.items,options);
 		
 // Once post list has been built, fire off the API calls to 
 // retrieve each post's statistics data
-//Orgvis.getStatsData();
+// Orgvis.getStatsData();
 		
 		for(var i in Orgvis.vars.apiResponses){			
 			if(Orgvis.vars.apiResponses[i].result._about.indexOf("junior-staff-full") > 0){
@@ -1249,7 +1251,20 @@ var Orgvis = {
 				// Use the postID slug from the reportsTo value as a pointer in the associative array
 				// to connect the post to it's parent. 
 				if (Orgvis.vars.postList[postID]) {
-  				Orgvis.vars.postList[postID].children.push(el);
+					//var elID = el.data.uri.split("/");
+					//elID = elID[elID.length-1];
+					var connectPost = true;
+					for(var i in Orgvis.vars.postList[postID].children){
+						if(el.id == Orgvis.vars.postList[postID].children[i].id){
+							log("not connecting posts:");
+							log(el.id);
+							log(Orgvis.vars.postList[postID].children[i].id);
+							connectPost = false;
+						}
+					}
+					if(connectPost){
+  						Orgvis.vars.postList[postID].children.push(el);
+  					}
 				}
 			} else {
 				visJSON = el;
@@ -1263,6 +1278,44 @@ var Orgvis = {
 		return visJSON;
 	
 	},
+	/*
+	connectPostsToNode:function(node){
+	
+		var visJSON;
+
+		$.each(Orgvis.vars.postList, function (index, el) {
+			
+			// Find the reportsTo values for each post
+			if(typeof el.data.reportsTo != 'undefined' && el.data.reportsTo.length > 0) {
+				if(el.data.reportsTo == node.data.uri){
+					var postID = node.data.uri.split("/");
+					postID = postID[postID.length-1];
+					var connectPost = true;
+					for(var i in Orgvis.vars.postList[postID].children){
+						if(el.id == Orgvis.vars.postList[postID].children[i].id){
+							log("not connecting posts:");
+							log(el.id);
+							log(Orgvis.vars.postList[postID].children[i].id);
+							connectPost = false;
+						}
+					}
+					if(connectPost){
+  						Orgvis.vars.postList[postID].children.push(el);
+  					}					
+				}
+			} else {
+				visJSON = el;
+			}
+			
+		});
+			
+		//log("visJSON:")
+		//log(visJSON);
+	
+		return visJSON;
+	
+	},
+	*/	
 	connectJuniorPosts:function(json){
 		
 		var items = json.result.items;
