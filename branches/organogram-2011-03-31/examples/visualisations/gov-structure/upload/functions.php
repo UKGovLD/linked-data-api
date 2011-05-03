@@ -749,7 +749,28 @@ $str = <<<TRANSFORMATION
     rdfs:label "E2 & ' ' & H2 & ' (' & J2 & ') in ' & UCASE(C2) & ' reporting to post ' & D2 & ' FTE at $dateSlash'"^^xl:Expr ;
     qb:dataSet <$fileURL#juniorPosts> ;
     organogram:date <http://reference.data.gov.uk/id/day/$date> ;
-    organogram:unit [ xl:uri "NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/', C2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf')"^^xl:Expr ; ] ;
+    organogram:unit [ 
+      xl:uri "NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/', C2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf')"^^xl:Expr ; 
+      a org:OrganizationalUnit ;
+      rdfs:label "C2"^^xl:Expr ;
+      org:unitOf [ 
+        xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf')"^^xl:Expr ;
+        a gov:PublicBody, org:Organization ;
+        a [ xl:uri "IF(A2 == B2, 'http://reference.data.gov.uk/def/central-government/Department')"^^xl:Expr ] ;
+        rdfs:label "B2"^^xl:Expr ;
+        dgu:uriSet [ xl:uri "'http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body')"^^xl:Expr ] ;
+        org:hasUnit [ xl:uri "NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/', C2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf')"^^xl:Expr ] ;
+        gov:parentDepartment [
+          xl:uri "IF(A2 != B2, NAME2URI('http://reference.data.gov.uk/id/department/', A2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/department.rdf'))"^^xl:Expr ;
+          a gov:Department, gov:PublicBody, org:Organization ;
+          rdfs:label "A2"^^xl:Expr ;
+          dgu:uriSet <http://reference.data.gov.uk/id/department> ;
+          foaf:page <$fileURL> ;
+        ] ;
+        foaf:page <$fileURL> ;
+      ] ;
+      foaf:page <$fileURL> ;
+    ] ;
     organogram:reportingTo [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/post/' & D2"^^xl:Expr ] ;
     organogram:grade [
       xl:uri "NAME2URI(SUBSTITUTE(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/grade/', '/id/', '/def/'), E2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/grade.rdf')"^^xl:Expr ;
