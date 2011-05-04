@@ -27,7 +27,7 @@ t:api
 
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
-	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
+##	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
 ##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
 	api:sparqlEndpoint <http://10.254.65.24/environment/sparql>;
 	api:defaultFormatter t:HtmlFormatter ;
