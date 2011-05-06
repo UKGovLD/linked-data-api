@@ -544,7 +544,7 @@ div.node span.childLoader {
     top: 2px;
     vertical-align: middle;
     width: 16px;
-    z-index: 0;
+    z-index: 999;
 }
 body.IE7 div.node span.childLoader {
 	position:absolute;

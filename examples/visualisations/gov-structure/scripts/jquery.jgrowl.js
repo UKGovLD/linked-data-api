@@ -61,9 +61,9 @@
 			theme: 			'default',
 			themeState: 	'highlight',
 			growlID:		'',
-			corners: 		'10px',
+			corners: 		'5px',
 			check: 			250,
-			life: 			10000,
+			life: 			8000,
 			closeDuration:  'normal',
 			openDuration:   'normal',
 			easing: 		'swing',
@@ -145,7 +145,7 @@
 						if ($.browser.msie && (parseInt($(this).css('opacity'), 10) === 1 || parseInt($(this).css('opacity'), 10) === 0))
 							this.style.removeAttribute('filter');
 
-						$(this).data("jGrowl").created = new Date();
+						try{$(this).data("jGrowl").created = new Date();}catch(e){log(e)};
 						
 						$(this).trigger('jGrowl.afterOpen');
 					});
