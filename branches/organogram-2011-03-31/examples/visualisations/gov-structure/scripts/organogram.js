@@ -735,6 +735,7 @@ var Orgvis = {
 						            node.data.childrenAdded = true; 
 						            $("div#"+node.id).css({ opacity: 1 });
 						            node.data.onDemandInAction = false;
+						            Orgvis.getStatsData();
 						        }
 						    });
 							$("div#loading_onDemand_" + postID).trigger("jGrowl.close").remove();
@@ -869,6 +870,7 @@ var Orgvis = {
 						            node.data.childrenAdded = true; 
 						            $("div#"+node.id).css({ opacity: 1 });
 						            node.data.onDemandInAction = false;
+						            Orgvis.getStatsData();
 						        }
 						    });
 		
@@ -951,56 +953,59 @@ var Orgvis = {
 		
 		// Make an API call for each post within the organogram
 		$.each(Orgvis.vars.postList,function(k,v){
-		
-			var postID = v.data.uri.split("/");
-			postID=postID[postID.length-1];
 			
-			var s = {
-				url: Orgvis.vars.apiCallInfo.postStats.url+"/"+postID+"/statistics.json"+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
-				type: "GET",
-				dataType: "jsonp",
-				async:true,
-			    error:function (){
-			    	log("API - stats data: "+v.name[0]+" - error");
-					//Orgvis.changeLog("Error loading post: \""+v.name[0]+"\" statistics data", false);
-					Orgvis.notify("Error","Could not load statistics data for \""+v.name[0]+"\"", true,"error_stats_"+postID);
-				},
-				success: function(json){
-					$("div#" + "loading_stats_"+postID).trigger("jGrowl.close").remove();
-					Orgvis.notify("Success","Loaded statistics data for \""+v.name[0]+"\"", false,"success_stats_"+postID);
-					
-					v.data.stats = {
-						salaryCostOfReports:{
-							value:json.result.items[0].salaryCostOfReports
-						},
-						date:{
-							value:json.result.items[0].date
-						}
-					};	
-					v.data.stats.date.formatted = v.data.stats.date.value.split("/");
-	                v.data.stats.date.formatted = '['+v.data.stats.date.formatted[v.data.stats.date.formatted.length-1]+']';
-	                
-	                if(typeof v.data.stats.salaryCostOfReports.value != 'undefined') {
-	                	v.data.stats.salaryCostOfReports.formatted = '£'+addCommas(v.data.stats.salaryCostOfReports.value);
-	                } else {
-	                	v.data.stats.salaryCostOfReports.value = 'N/A';
-	                	v.data.stats.salaryCostOfReports.formatted = 'N/A';
-	                }
-	                
-	                if($("#infobox p.id span.value").html() == postID) {
-						$('p.salaryReports').html('<span>Combined salary of reporting posts</span><span class="value">'+v.data.stats.salaryCostOfReports.formatted+'</span><a class="data" target="_blank" href="'+Orgvis.vars.apiCallInfo.postStats.url+'/'+postID+'/statistics" value="'+v.data.stats.salaryCostOfReports.value+'">Data</a><span class="date">'+v.data.stats.date.formatted+'</span>');	                
-	                }           
-					
-				}
-			};
+			if(!v.data.gotStats){
+				var postID = v.data.uri.split("/");
+				postID=postID[postID.length-1];
 				
-			if(Orgvis.vars.previewMode || Orgvis.vars.previewParam){
-				s.username = $.cookie('organogram-username');
-				s.password = $.cookie('organogram-password');
+				var s = {
+					url: Orgvis.vars.apiCallInfo.postStats.url+"/"+postID+"/statistics.json"+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
+					type: "GET",
+					dataType: "jsonp",
+					async:true,
+				    error:function (){
+				    	log("API - stats data: "+v.name[0]+" - error");
+						Orgvis.changeLog("Error loading post: \""+v.name[0]+"\" statistics data", false);
+						Orgvis.notify("Error","Could not load statistics data for \""+v.name[0]+"\"", true,"error_stats_"+postID);
+					},
+					success: function(json){
+						$("div#" + "loading_stats_"+postID).trigger("jGrowl.close").remove();
+						Orgvis.notify("Success","Loaded statistics data for \""+v.name[0]+"\"", false,"success_stats_"+postID);
+						
+						v.data.stats = {
+							salaryCostOfReports:{
+								value:json.result.items[0].salaryCostOfReports
+							},
+							date:{
+								value:json.result.items[0].date
+							}
+						};	
+						v.data.stats.date.formatted = v.data.stats.date.value.split("/");
+		                v.data.stats.date.formatted = '['+v.data.stats.date.formatted[v.data.stats.date.formatted.length-1]+']';
+		                
+		                if(typeof v.data.stats.salaryCostOfReports.value != 'undefined') {
+		                	v.data.stats.salaryCostOfReports.formatted = '£'+addCommas(v.data.stats.salaryCostOfReports.value);
+		                } else {
+		                	v.data.stats.salaryCostOfReports.value = 'N/A';
+		                	v.data.stats.salaryCostOfReports.formatted = 'N/A';
+		                }
+		                
+		                if($("#infobox p.id span.value").html() == postID) {
+							$('p.salaryReports').html('<span>Combined salary of reporting posts</span><span class="value">'+v.data.stats.salaryCostOfReports.formatted+'</span><a class="data" target="_blank" href="'+Orgvis.vars.apiCallInfo.postStats.url+'/'+postID+'/statistics" value="'+v.data.stats.salaryCostOfReports.value+'">Data</a><span class="date">'+v.data.stats.date.formatted+'</span>');	                
+		                }
+		                v.data.gotStats = true;           
+						
+					}
+				};
+					
+				if(Orgvis.vars.previewMode || Orgvis.vars.previewParam){
+					s.username = $.cookie('organogram-username');
+					s.password = $.cookie('organogram-password');
+				}
+			
+				Orgvis.notify("Loading","Loading statistics data for \""+v.name[0]+"\"", true,"loading_stats_"+postID);
+				$.myJSONP(s,'statistics data for "'+v.name[0]+'"');
 			}
-		
-			Orgvis.notify("Loading","Loading statistics data for \""+v.name[0]+"\"", true,"loading_stats_"+postID);
-			$.myJSONP(s,'statistics data for "'+v.name[0]+'"');
 		});
 	},
 	regData:function(data) {
@@ -1160,7 +1165,7 @@ var Orgvis = {
 		
 // Once post list has been built, fire off the API calls to 
 // retrieve each post's statistics data
-// Orgvis.getStatsData();
+		Orgvis.getStatsData();
 		
 		for(var i in Orgvis.vars.apiResponses){			
 			if(Orgvis.vars.apiResponses[i].result._about.indexOf("junior-staff-full") > 0){
@@ -1206,7 +1211,7 @@ var Orgvis = {
 		Orgvis.vars.global_ST.onClick(Orgvis.vars.global_ST.root);
 		
 		//Orgvis.changeLog("Aligning node ...",true);
-		Orgvis.notify("Info","Aligning node...",true,"aligning");	
+		Orgvis.notify("Info","Aligning node...",false,"aligning");	
 
 		
 		var t = 0;
@@ -1837,7 +1842,8 @@ var Orgvis = {
 					heldBy:[],
 					salaryRange:item.salaryRange ? item.salaryRange.label : 'not disclosed',
 					processed:false,
-					childrenAdded:false
+					childrenAdded:false,
+					gotStats:false
 				},
 				children:[]
 		};
