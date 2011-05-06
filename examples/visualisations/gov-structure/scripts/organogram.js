@@ -636,7 +636,7 @@ var Orgvis = {
 		Orgvis.vars.apiCallInfo.postReportsOnDemand = {
 				title:"Retrieval of posts that report to the clicked post",
 				description:"This call retrieves information about the posts that report to the post that has been clicked within the organogram.",
-				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/reports-full",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/reports",
 				parameters:"?_pageSize=300",
 				complete:false
 		};		
@@ -774,7 +774,7 @@ var Orgvis = {
 		Orgvis.vars.apiCallInfo.juniorStaffOnDemand = {
 				title:"Retrieval of junior staff that report to the clicked post",
 				description:"This call retrieves information about the posts that report to the post that has been clicked within the organogram.",
-				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/junior-staff-full",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/junior-staff",
 				parameters:"?_pageSize=300",
 				complete:false
 		};		
