@@ -52,7 +52,7 @@
 
 		/** Default JGrowl Settings **/
 		defaults: {
-			pool: 			8,
+			pool: 			6,
 			header: 		'',
 			group: 			'',
 			sticky: 		true,
