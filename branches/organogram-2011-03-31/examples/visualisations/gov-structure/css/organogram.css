@@ -487,6 +487,7 @@ div.juniorPost span.heldBy {
     border-radius: 3px 3px 3px 3px;
     -webkit-border-radius: 3px 3px 3px 3px;
     border: 1px solid #9A9A9A;
+    bottom: -13px;
     color: #000000;
     font-size: 12px;
     height: 14px;
@@ -494,7 +495,6 @@ div.juniorPost span.heldBy {
     padding: 0 5px 5px;
     position: absolute;
     text-align: center;
-    top: 65px;
     width: auto;
 }
 div.JP_parent {
@@ -545,6 +545,59 @@ div.node span.childLoader {
     vertical-align: middle;
     width: 16px;
     z-index: 999;
+}
+div.node div.jp_group_selector {
+    border-radius: 0 0 5px 5px;
+    -moz-border-radius: 0 0 5px 5px;
+    -webkit-border-radius: 0 0 5px 5px;
+    background-color: #343434;
+    display: none;
+    margin-left: 32px;
+    margin-top: 3px;
+    position: absolute;
+    width: 100px;
+    z-index: 99;
+}
+div.node div.jp_group_selector ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 1px;
+}
+div.node div.jp_group_selector ul li {
+    background-color: #FFFFFF;
+    border-radius: 3px 3px 3px 3px;
+    -moz-border-radius: 3px 3px 3px 3px;
+    -webkit-border-radius: 3px 3px 3px 3px;
+    color: #333333;
+    font-size: 9px;
+    height: 20px;
+    line-height: 23px;
+    margin: 2px;
+}
+div.node div.jp_group_selector ul li:hover {
+	cursor: pointer;
+	background-color: #333333;
+	color: #FFFFFF;
+}
+div.node div.jp_group_selector ul li.selected {
+	background-color: #999999;
+	color: #FFFFFF;
+}
+div.jp_group span.JP_grade {
+    background-color: #555555;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    color: #FFFFFF;
+    display: block;
+    font-size: 9px !important;
+    font-weight: normal;
+    margin-left: -3px;
+    width: 176px;
+}
+div.jp_group {
+    font-size: 9px !important;
+    height: auto !important;
+    line-height: 16px !important;
 }
 body.IE7 div.node span.childLoader {
 	position:absolute;

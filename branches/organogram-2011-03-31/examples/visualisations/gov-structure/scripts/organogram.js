@@ -282,7 +282,7 @@ var Orgvis = {
 				zooming: 40
 			}, 
 			duration: 300,
-			fps:60,
+			fps:30,
 			orientation: 'left',
 			offsetX: Orgvis.vars.visOffsetX,  
 			offsetY: Orgvis.vars.visOffsetY, 
@@ -339,7 +339,7 @@ var Orgvis = {
 					if(node.data.childrenAdded){
 						$(label).css({ opacity: 1 });
 					} else {
-						$(label).css({ opacity: 0.5 });
+						$(label).css({ opacity: 0.7 });
 					}
 					
 					for(var i=0;i<node.data.grade.length;i++){
@@ -348,13 +348,11 @@ var Orgvis = {
 					
 					if(node.data.heldBy.length > 1){
 						for(var i=0;i<node.data.heldBy.length;i++){
-							var heldBySlug = node.data.heldBy[i].holdsPostURI.split("/");
-							heldBySlug = heldBySlug[heldBySlug.length-1];
+							var heldBySlug = Orgvis.getSlug(node.data.heldBy[i].holdsPostURI);
 							$(label).addClass("post_"+heldBySlug);
 						}
 					} else {
-						var postSlug = node.data.uri.split("/");
-						postSlug = postSlug[postSlug.length-1];
+						var postSlug = Orgvis.getSlug(node.data.uri);
 						$(label).addClass("post_"+postSlug);
 					}
 					
@@ -385,20 +383,33 @@ var Orgvis = {
 						label.innerHTML = label.innerHTML + '<span class="heldBy">'+node.data.heldBy.length+'</span>';
 					}
 
-				// If the post is a junior post						
+				// If the node is associated with junior posts					
 				} else if(node.data.type == 'junior_posts'){
+				
 					$(label).addClass('juniorPost');
 					$(label).addClass(node.data.nodeType);
 											
 					label.innerHTML = node.name;
-					if(node.data.nodeType == 'JP_child'){
 					
-						var fteTotal = Math.round(node.data.fullTimeEquivalent*100)/100;
-						
+					if(node.data.nodeType == 'JP_child'){
+						// Node is a Junior Post					
+						var fteTotal = Math.round(node.data.fullTimeEquivalent*100)/100;						
 						label.innerHTML = label.innerHTML + '<span class="JP_grade">'+addCommas(node.data.grade.payband.salaryRange)+'</span>' + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+fteTotal+'</span>';
+					} else if (node.data.nodeType == 'jp_group') {
+						// Node is a Junior Post Group
+						var fteTotal = Math.round(node.data.fteTotal*100)/100;
+						label.innerHTML = label.innerHTML + '<span class="JP_grade">JUNIOR POSTS</span>' + '<span class="heldBy" style="background-color:#FFFFFF;">'+fteTotal+'</span>';
 					} else {
-						label.innerHTML = label.innerHTML + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+node.data.fteTotal+'</span>';			
-						}
+						// Node is a Junior Post parent
+						label.innerHTML = label.innerHTML + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+node.data.fteTotal+'</span>';
+						label.innerHTML += '<div class="jp_group_selector"><ul>' + 
+						'<li class="profession">Profession</li>' + 
+						'<li class="unit">Unit</li>' + 
+						'<li class="grade">Grade</li>' + 
+						'<li class="ungroup selected">Ungrouped</li>' + 
+						'</ul></div>';
+								
+					}
 						
 					//log(node.data.colour);
 					$(label).css('color',node.data.colour);	
@@ -412,24 +423,30 @@ var Orgvis = {
 						    enable: Orgvis.vars.autoalign
 						};
 														
-						$("#infobox").fadeOut('fast');
-							
+						
+						
+						if(node.data.nodeType != 'JP_parent'){
+							$("div.jp_group_selector").hide();
+						}
+						
 						if(node.data.nodeType == "JP_none") {
-							
+							// No Junior Posts node has been clicked
 						} else if(node.data.type != 'junior_posts'){	
-
+							// A post has been clicked			
 							$("div.node").css("border","1px solid #AAAAAA");
 							$("div#"+node.id).css("border","3px solid #333333");
 															
-							Orgvis.loadInfobox(node);
+							$("#infobox").fadeOut('fast',function(){
+								Orgvis.loadInfobox(node);
+							});
 							
-							var postID = node.data.uri.split("/");
-							postID = postID[postID.length-1];	
+							var postID = Orgvis.getSlug(node.data.uri);	
 							
-							log("### clicked, node.name="+node.name);
-							log("### clicked, node.data.childrenAdded="+node.data.childrenAdded);
-							log("### clicked, Orgvis.vars.postList[postID].data.childrenAdded="+Orgvis.vars.postList[postID].data.childrenAdded);
+							//log("### clicked, node.name="+node.name);
+							//log("### clicked, node.data.childrenAdded="+node.data.childrenAdded);
+							//log("### clicked, Orgvis.vars.postList[postID].data.childrenAdded="+Orgvis.vars.postList[postID].data.childrenAdded);
 							
+							// On-demand handling
 							if(postID != Orgvis.vars.global_post && !node.data.childrenAdded && !node.data.onDemandInAction){
 								Orgvis.notify("Loading","Loading children posts and junior staff for "+node.name+"...",true,"loading_onDemand_"+postID);
 								node.data.onDemandInAction = true;
@@ -442,24 +459,126 @@ var Orgvis = {
 								Move: m
 							});	
 							
+						} else if(node.data.nodeType == "JP_child"){
+							// A junior post has been clicked
+							$("div.node").css("border","1px solid #AAAAAA");
+							$("div#"+node.id).css("border","3px solid #333333");
+							Orgvis.loadJuniorPostInfoBox(node);								
+							st.onClick(node.id, { 
+								Move: m
+							});	
+						} else if(node.data.nodeType == "JP_parent") {
+							// A "JUNIOR POSTS" node has been clicked
+							$("div#"+node.id+" div.jp_group_selector").slideDown();
+							$("div.node").css("border","1px solid #AAAAAA");
+							$("div#"+node.id).css("border","3px solid #333333");
+							st.onClick(node.id, { 
+								//Move: m
+							});		
+							
+							$("div#"+node.id+" div.jp_group_selector ul li").unbind('click');
+							$("div#"+node.id+" div.jp_group_selector ul li").bind('click',function(){
+								log("JP_Parent clicked, class="+$(this).attr("class"));
+								$("div#"+node.id+" div.jp_group_selector ul li").removeClass("selected");
+								if($(this).hasClass("profession")){
+									$(this).addClass("selected");
+									// Load the junior staff grouped by profession
+									var tree = {
+										id:node.id,
+										name:node.name,
+										data:node.data,
+										children:node.data.byProfession
+									};
+									tree.children.sort(dynamicSort("name"));
+									
+									Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
+				                        hideLabels: false,  
+				                        onComplete: function() {}
+				                     });										
+
+		                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
+		                        		hideLabels: false,  
+			        					onAfterCompute: function() {}
+		                        	});
+		                        	
+									//Orgvis.vars.global_ST.refresh();
+						
+								} else if($(this).hasClass("unit")){
+									$(this).addClass("selected");
+									// Load the junior staff grouped by unit
+									var tree = {
+										id:node.id,
+										name:node.name,
+										data:node.data,
+										children:node.data.byUnit
+									};
+									tree.children.sort(dynamicSort("name"));
+									
+									Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
+				                        hideLabels: false,  
+				                        onComplete: function() {}
+				                     });										
+
+		                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
+		                        		hideLabels: false,  
+			        					onAfterCompute: function() {}
+		                        	});
+		                        	
+									//Orgvis.vars.global_ST.refresh();										
+								} else if($(this).hasClass("grade")){
+									$(this).addClass("selected");
+									// Load the junior staff grouped by grade
+									var tree = {
+										id:node.id,
+										name:node.name,
+										data:node.data,
+										children:node.data.byGrade
+									};
+									tree.children.sort(dynamicSort("name"));
+
+									Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
+				                        hideLabels: false,  
+				                        onComplete: function() {}
+				                     });										
+
+		                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
+		                        		hideLabels: false,  
+			        					onAfterCompute: function() {}
+		                        	});
+		                        	
+									//Orgvis.vars.global_ST.refresh();										
+								} else if($(this).hasClass("ungroup")){
+									$(this).addClass("selected");
+									// Load the junior staff ungrouped
+									var tree = {
+										id:node.id,
+										name:node.name,
+										data:node.data,
+										children:node.data.unGrouped
+									};
+									tree.children.sort(dynamicSort("name"));
+									
+									Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
+				                        hideLabels: false,  
+				                        onComplete: function() {}
+				                     });										
+
+		                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
+		                        		hideLabels: false,  
+			        					onAfterCompute: function() {}
+		                        	});
+		                        	
+									//Orgvis.vars.global_ST.refresh();										
+								}
+							});
 						} else {
-							if(node.data.nodeType == "JP_child"){
-								$("div.node").css("border","1px solid #AAAAAA");
-								$("div#"+node.id).css("border","3px solid #333333");
-								Orgvis.loadJuniorPostInfoBox(node);								
-								st.onClick(node.id, { 
-									Move: m
-								});	
-							} else {
-								$("div.node").css("border","1px solid #AAAAAA");
-								$("div#"+node.id).css("border","3px solid #333333");
-								st.onClick(node.id, { 
-									Move: m
-								});									
-							}
-						}
-										
-				};  
+							$("div.node").css("border","1px solid #AAAAAA");
+							$("div#"+node.id).css("border","3px solid #333333");
+							st.onClick(node.id, { 
+								Move: m
+							});									
+						}					
+				};  // end label.onClick
 				
 				var style = label.style;
 				style.width = 170 + 'px';
@@ -628,15 +747,14 @@ var Orgvis = {
 		
 		log("getPostReportsOnDemand");
 		
-		var postID = node.data.uri.split("/");
-		postID= postID[postID.length-1];
+		var postID = Orgvis.getSlug(node.data.uri);
 		var originalChildren = Orgvis.vars.postList[postID].children.length;
 		//log("originalChildren: "+originalChildren);
 								
 		Orgvis.vars.apiCallInfo.postReportsOnDemand = {
 				title:"Retrieval of posts that report to the clicked post",
 				description:"This call retrieves information about the posts that report to the post that has been clicked within the organogram.",
-				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/reports",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/immediate-reports",
 				parameters:"?_pageSize=300",
 				complete:false
 		};		
@@ -683,7 +801,7 @@ var Orgvis = {
 							 * structure's root post as the clicked post
 							 */
 							var options = {
-								childrenAdded:true
+								//childrenAdded:true
 							};
 							
 							/* Connect the children posts returned by the API to
@@ -691,7 +809,7 @@ var Orgvis = {
 							 * set to true, to prevent onDemand loading for those
 							 * nodes.
 							*/
-							Orgvis.buildPostList(json.result.items,options);
+							Orgvis.buildPostList(Orgvis.vars.apiResponses["onDemand_"+postID].postReportsOnDemand,options);
 
 							/* Assign the newly generated postList (which contains
 							 * the root post that connects all other posts) as the
@@ -701,8 +819,8 @@ var Orgvis = {
 														
 							/* Connect the junior posts returned by the API to 
 							 * the postList.
-							*/
-							Orgvis.connectJuniorPosts(json);
+							*/						
+							Orgvis.connectJuniorPosts(Orgvis.vars.apiResponses["onDemand_"+postID].juniorStaffOnDemand);
 							
 							/* Set the childrenAdded flags and add the "No Junior 
 							 * posts" node to the new children nodes.
@@ -727,15 +845,15 @@ var Orgvis = {
 								    	$("div#"+node.id).css("background-color","#FF9696");
 								    	//$("div#"+node.id).animate({ backgroundColor: "#FFE8E8" }, 5000);
 								    	$("div#"+node.id).animate({ backgroundColor: "#FFFFFF" }, 5000);
-						           		$("div#"+node.id+" span.childLoader img").attr("src","../images/noChildrenPresent.png");
-						           		//$("div#"+node.id+" span.childLoader").hide();
+						           		//$("div#"+node.id+" span.childLoader img").attr("src","../images/noChildrenPresent.png");
+						           		$("div#"+node.id+" span.childLoader").hide();
 								    }
 								    //log("onAfterCompute: addSubTree: getPostReportsOnDemand ");
 								    Orgvis.vars.global_ST.refresh();
 						            node.data.childrenAdded = true; 
 						            $("div#"+node.id).css({ opacity: 1 });
 						            node.data.onDemandInAction = false;
-						            Orgvis.getStatsData();
+						            //Orgvis.getStatsData();
 						        }
 						    });
 							$("div#loading_onDemand_" + postID).trigger("jGrowl.close").remove();
@@ -767,15 +885,14 @@ var Orgvis = {
 		
 		log("getJuniorStaffOnDemand");
 		
-		var postID = node.data.uri.split("/");
-		postID= postID[postID.length-1];
+		var postID = Orgvis.getSlug(node.data.uri);
 		var originalChildren = Orgvis.vars.postList[postID].children.length;
 		log("originalChildren: "+originalChildren);
 								
 		Orgvis.vars.apiCallInfo.juniorStaffOnDemand = {
 				title:"Retrieval of junior staff that report to the clicked post",
 				description:"This call retrieves information about the posts that report to the post that has been clicked within the organogram.",
-				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/junior-staff",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/immediate-junior-staff",
 				parameters:"?_pageSize=300",
 				complete:false
 		};		
@@ -821,7 +938,7 @@ var Orgvis = {
 							 * structure's root post as the clicked post
 							 */
 							var options = {
-								childrenAdded:true
+								//childrenAdded:true
 							};
 							
 							/* Connect the children posts returned by the API to
@@ -829,7 +946,7 @@ var Orgvis = {
 							 * set to true, to prevent onDemand loading for those
 							 * nodes.
 							*/
-							Orgvis.buildPostList(json.result.items,options);
+							Orgvis.buildPostList(Orgvis.vars.apiResponses["onDemand_"+postID].postReportsOnDemand,options);
 
 							/* Assign the newly generated postList (which contains
 							 * the root post that connects all other posts) as the
@@ -839,8 +956,8 @@ var Orgvis = {
 														
 							/* Connect the junior posts returned by the API to 
 							 * the postList.
-							*/
-							Orgvis.connectJuniorPosts(json);
+							*/						
+							Orgvis.connectJuniorPosts(Orgvis.vars.apiResponses["onDemand_"+postID].juniorStaffOnDemand);
 							
 							/* Set the childrenAdded flags and add the "No Junior 
 							 * posts" node to the new children nodes.
@@ -863,14 +980,14 @@ var Orgvis = {
 								    	$("div#"+node.id).css("background-color","#FF9696");
 								    	//$("div#"+node.id).animate({ backgroundColor: "#FFE8E8" }, 5000);
 								    	$("div#"+node.id).animate({ backgroundColor: "#FFFFFF" }, 5000);
-						           		$("div#"+node.id+" span.childLoader img").attr("src","../images/noChildrenPresent.png");
-						           		//$("div#"+node.id+" span.childLoader").hide();
+						           		//$("div#"+node.id+" span.childLoader img").attr("src","../images/noChildrenPresent.png");
+						           		$("div#"+node.id+" span.childLoader").hide();
 								    }
 								    Orgvis.vars.global_ST.refresh();
 						            node.data.childrenAdded = true; 
 						            $("div#"+node.id).css({ opacity: 1 });
 						            node.data.onDemandInAction = false;
-						            Orgvis.getStatsData();
+						            //Orgvis.getStatsData();
 						        }
 						    });
 		
@@ -955,8 +1072,7 @@ var Orgvis = {
 		$.each(Orgvis.vars.postList,function(k,v){
 			
 			if(!v.data.gotStats){
-				var postID = v.data.uri.split("/");
-				postID=postID[postID.length-1];
+				var postID = Orgvis.getSlug(v.data.uri);
 				
 				var s = {
 					url: Orgvis.vars.apiCallInfo.postStats.url+"/"+postID+"/statistics.json"+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
@@ -980,8 +1096,7 @@ var Orgvis = {
 								value:json.result.items[0].date
 							}
 						};	
-						v.data.stats.date.formatted = v.data.stats.date.value.split("/");
-		                v.data.stats.date.formatted = '['+v.data.stats.date.formatted[v.data.stats.date.formatted.length-1]+']';
+						v.data.stats.date.formatted = '['+Orgvis.getSlug(v.data.stats.date.value)+']';
 		                
 		                if(typeof v.data.stats.salaryCostOfReports.value != 'undefined') {
 		                	v.data.stats.salaryCostOfReports.formatted = '£'+addCommas(v.data.stats.salaryCostOfReports.value);
@@ -1073,12 +1188,10 @@ var Orgvis = {
 			for(var a in json.result.primaryTopic.postIn){
 				if(json.result.primaryTopic.postIn[a]._about.indexOf("/unit/") > 0){
 					$("h1.title button#unit").html(json.result.primaryTopic.postIn[a].label[0]);
-					uSlug = json.result.primaryTopic.postIn[a]._about.toString().split("/");
-					uSlug = uSlug[uSlug.length-1];				
+					uSlug = Orgvis.getSlug(json.result.primaryTopic.postIn[a]._about);
 				} else {
 					$("h1.title button#dept").html(json.result.primaryTopic.postIn[a].label[0]);
-					dSlug = json.result.primaryTopic.postIn[a]._about.toString().split("/");
-					dSlug = dSlug[dSlug.length-1];		
+					dSlug = Orgvis.getSlug(json.result.primaryTopic.postIn[a]._about.toString());		
 				}
 			}
 			
@@ -1095,15 +1208,13 @@ var Orgvis = {
 			var tempPostEl = json.result.primaryTopic;
 			
 			// Store the post ID's that the Orgvis.vars.postInQuestion reports to
-			var piqrtSlug = tempPostEl._about.toString().split("/");
-			piqrtSlug = piqrtSlug[piqrtSlug.length-1];
+			var piqrtSlug = Orgvis.getSlug(tempPostEl._about.toString());
 			Orgvis.vars.postInQuestionReportsTo.push(piqrtSlug);
 			
 			if(typeof tempPostEl.reportsTo != 'undefined') {
 				for(var a=0;a<tempPostEl.reportsTo.length;a++){
 						
-					piqrtSlug = tempPostEl.reportsTo[a]._about.toString().split("/");
-					piqrtSlug = piqrtSlug[piqrtSlug.length-1];
+					piqrtSlug = Orgvis.getSlug(tempPostEl.reportsTo[a]._about.toString());
 					Orgvis.vars.postInQuestionReportsTo.push(piqrtSlug);
 											
 					if(typeof tempPostEl.reportsTo[a].reportsTo != 'undefined'){
@@ -1161,12 +1272,16 @@ var Orgvis = {
 			//firstBuild:true
 		};
 		
-		Orgvis.buildPostList(json.result.items,options);
+		Orgvis.buildPostList(json,options);
 		
 // Once post list has been built, fire off the API calls to 
 // retrieve each post's statistics data
-		Orgvis.getStatsData();
+//		Orgvis.getStatsData();
 		
+		Orgvis.vars.global_postJSON = Orgvis.connectPosts();
+		
+		Orgvis.vars.postList[Orgvis.vars.global_post].data.childrenAdded = true;
+				
 		for(var i in Orgvis.vars.apiResponses){			
 			if(Orgvis.vars.apiResponses[i].result._about.indexOf("junior-staff-full") > 0){
 				log("connectJuniorPosts: found junior-staff-full data");
@@ -1174,8 +1289,8 @@ var Orgvis = {
 			}
 		}
 				
-		Orgvis.vars.global_postJSON = Orgvis.connectPosts();
-		Orgvis.setChildrenAdded(Orgvis.vars.postList[''+Orgvis.vars.global_post]);
+		
+		//Orgvis.setChildrenAdded(Orgvis.vars.postList[''+Orgvis.vars.global_post]);
 
 		
 		//groupSamePosts(Orgvis.vars.global_postJSON,false);
@@ -1205,9 +1320,9 @@ var Orgvis = {
 		
 		// load json data
 		Orgvis.vars.global_ST.loadJSON(Orgvis.vars.global_postJSON);
+		
 		// compute node positions and layout
 		Orgvis.vars.global_ST.compute();
-	
 		Orgvis.vars.global_ST.onClick(Orgvis.vars.global_ST.root);
 		
 		//Orgvis.changeLog("Aligning node ...",true);
@@ -1245,7 +1360,7 @@ var Orgvis = {
 		Orgvis.displayDataSources();
 
 	},
-	makeJuniorPostNode:function(){
+	makeJuniorPostNode:function(postID){
 		
 		// The 'Junior Post' node parent for junior staff
 		var node = {		
@@ -1256,7 +1371,8 @@ var Orgvis = {
 				fteTotal:0,
 				nodeType:'JP_parent',
 				type:'junior_posts',
-				colour:'#FFFFFF'
+				colour:'#FFFFFF',
+				listID:"JP_"+postID
 			},
 			children:[]
 		};		
@@ -1280,10 +1396,108 @@ var Orgvis = {
 		
 		return node;
 	},
-	buildPostList:function(api_items, options){
+	makeJuniorPostGroup:function(groupName){
+		var node = {			
+			id:$.generateId(),
+			name:groupName,
+			data:{
+				fteTotal:0,
+				nodeType:'jp_group',
+				type:'junior_posts',
+				colour:Orgvis.vars.colours[Orgvis.vars.jpColourCounter]
+			},
+			children:[]	            		
+		};	
+		
+		if(Orgvis.vars.jpColourCounter == Orgvis.vars.colours.length-1){
+			Orgvis.vars.jpColourCounter = 0;
+		} else {
+			Orgvis.vars.jpColourCounter++;		
+		}
 				
-		var fNodeID = Orgvis.vars.firstNode.data.uri.split("/");
-		fNodeID = fNodeID[fNodeID.length-1];
+		return node;	
+	},
+	makeJuniorNode:function(el){
+		
+		//log("makeJuniorNode: using item:");
+		//log(el);
+		
+		/*
+		el.label[0]		B1/BAND B1 Project Manager (Operational Delivery) in 
+						Civil Service Capabilities Group reporting to post 93 FTE at 31/03/2011
+					
+		el.fullTimeEquivalent 						1 or 2
+		el.atGrade.prefLabel 						Grade B1/BAND B1
+		el.atGrade.payband.prefLabel 				B1/BAND B1 Payband
+		el.atGrade.payband.salaryRange.label[0]		£44,000 - £53,999
+		el.atGrade.payband.salaryRange.prefLabel	B1/BAND B1 Payband
+		el.withJob.prefLabel						Project Manager
+		el.withProfession.prefLabel					Operational Delivery
+		el.reportingTo.label[0]						Deputy Director, Capability Review
+		el.inUnit.label[0]							Civil Service Capabilities Group
+		*/
+		var node;
+
+		try{
+			var salaryRangeValue = el.atGrade.payband.salaryRange.label[0].replace(/£/g,'');
+			salaryRangeValue = salaryRangeValue.split(" - ");
+			salaryRangeValue = salaryRangeValue[0];
+			log("oooooooooooooooooooooo "+salaryRangeValue);
+			
+			node = {
+				id:$.generateId(),
+				name:el.withJob.prefLabel,
+				data:{
+					type:'junior_posts',
+					nodeType:'JP_child',
+					total:0,						// Used for grouping junior staff
+					fullName:el.label[0],
+					grade:{
+						label:el.atGrade.prefLabel,
+						payband:{
+							label:el.atGrade.payband.prefLabel,
+							salaryRange:el.atGrade.payband.salaryRange.label[0]
+						}
+					},
+					salaryRangeVal:salaryRangeValue,
+					job:el.withJob.prefLabel,
+					profession:el.withProfession.prefLabel,
+					reportingTo:{
+						label:el.reportingTo.label[0],
+						uri:el.reportingTo._about
+					},
+					unit:{
+						label:el.inUnit.label[0],
+						uri:el.inUnit._about
+					},
+					fullTimeEquivalent:el.fullTimeEquivalent,
+					colour:Orgvis.vars.colours[Orgvis.vars.jpColourCounter]
+				},
+				children:[]
+			};
+		} catch(e) {
+			log("makeJuniorNode error");
+			log(e);
+		}
+		
+		//log('makeJuniorNode: node made:');
+		//log(node);
+		
+		if(Orgvis.vars.jpColourCounter == Orgvis.vars.colours.length-1){
+			Orgvis.vars.jpColourCounter = 0;
+		} else {
+			Orgvis.vars.jpColourCounter++;		
+		}
+		
+		Orgvis.vars.jpCounter++;
+		
+		return node;
+	},	
+	buildPostList:function(json, options){
+		
+		var items = json.result.items;		
+		
+		var fNodeID = Orgvis.getSlug(Orgvis.vars.firstNode.data.uri);
 		Orgvis.vars.postList[fNodeID] = Orgvis.vars.firstNode;
 		// Push an empty Junior Posts node to the first node.
 		// Orgvis.vars.postList[fNodeID].children.push(Orgvis.makeNoJuniorPostNode());
@@ -1291,10 +1505,9 @@ var Orgvis = {
 		var addNoJuniorPosts = true;
 		
 		// Build an associative array of posts using their post ID
-		$.each(api_items, function (index, el) {
+		$.each(items, function (index, el) {
 				try{
-					var postID = el._about.split("/");
-					postID = postID[postID.length-1];
+					var postID = Orgvis.getSlug(el._about);
 					// If the key doesn't exist already
 					if (!Orgvis.vars.postList[postID]) {
 						// Create the key and give it a value
@@ -1337,13 +1550,11 @@ var Orgvis = {
 			
 			// Find the reportsTo values for each post
 			if(typeof el.data.reportsTo != 'undefined' && el.data.reportsTo.length > 0) {
-				var postID = el.data.reportsTo[0].split("/");
-				postID = postID[postID.length-1];
+				var postID = Orgvis.getSlug(el.data.reportsTo[0]);
 				// Use the postID slug from the reportsTo value as a pointer in the associative array
 				// to connect the post to it's parent. 
 				if (Orgvis.vars.postList[postID]) {
-					//var elID = el.data.uri.split("/");
-					//elID = elID[elID.length-1];
+					//var elID = Orgvis.getSlug(el.data.uri);
 					var connectPost = true;
 					for(var i in Orgvis.vars.postList[postID].children){
 						if(el.id == Orgvis.vars.postList[postID].children[i].id){
@@ -1379,8 +1590,7 @@ var Orgvis = {
 			// Find the reportsTo values for each post
 			if(typeof el.data.reportsTo != 'undefined' && el.data.reportsTo.length > 0) {
 				if(el.data.reportsTo == node.data.uri){
-					var postID = node.data.uri.split("/");
-					postID = postID[postID.length-1];
+					var postID = Orgvis.getSlug(node.data.uri);
 					var connectPost = true;
 					for(var i in Orgvis.vars.postList[postID].children){
 						if(el.id == Orgvis.vars.postList[postID].children[i].id){
@@ -1409,8 +1619,76 @@ var Orgvis = {
 	*/	
 	connectJuniorPosts:function(json){
 		
+		log("Connecting junior posts:");
+		
 		var items = json.result.items;
-		//log(items);
+		log(items);
+		
+		var postChildren = [];
+		
+		var byUnit = {};
+		var byGrade = {};
+		var byProfession = {};
+		/*
+		el.label[0]		B1/BAND B1 Project Manager (Operational Delivery) in 
+						Civil Service Capabilities Group reporting to post 93 FTE at 31/03/2011
+					
+		el.fullTimeEquivalent 						1 or 2
+		el.atGrade.prefLabel 						Grade B1/BAND B1
+		el.atGrade.payband.prefLabel 				B1/BAND B1 Payband
+		el.atGrade.payband.salaryRange.label[0]		£44,000 - £53,999
+		el.atGrade.payband.salaryRange.prefLabel	B1/BAND B1 Payband
+		el.withJob.prefLabel						Project Manager
+		el.withProfession.prefLabel					Operational Delivery
+		el.reportingTo.label[0]						Deputy Director, Capability Review
+		el.inUnit.label[0]							Civil Service Capabilities Group
+		*/		
+		
+		if(items.length>1){
+			for(var i in items){
+				
+				var pSlug = Orgvis.getSlug(items[i].withProfession._about);
+				var gSlug = Orgvis.getSlug(items[i].atGrade._about);
+				var uSlug = Orgvis.getSlug(items[i].inUnit._about);
+				
+				// Group by profession	
+				if(typeof byProfession[pSlug] != 'undefined'){
+					byProfession[pSlug].children.push(Orgvis.makeJuniorNode(items[i]));
+					byProfession[pSlug].data.fteTotal += items[i].fullTimeEquivalent;
+				} else {
+					byProfession[pSlug] = Orgvis.makeJuniorPostGroup(items[i].withProfession.prefLabel);
+					byProfession[pSlug].children.push(Orgvis.makeJuniorNode(items[i]));
+					byProfession[pSlug].data.fteTotal = items[i].fullTimeEquivalent;
+				}
+				// Group by grade
+				if(typeof byGrade[gSlug] != 'undefined'){
+					byGrade[gSlug].children.push(Orgvis.makeJuniorNode(items[i]));
+					byGrade[gSlug].data.fteTotal += items[i].fullTimeEquivalent;
+				} else {
+					byGrade[gSlug] = Orgvis.makeJuniorPostGroup(items[i].atGrade.prefLabel);
+					byGrade[gSlug].children.push(Orgvis.makeJuniorNode(items[i]));
+					byGrade[gSlug].data.fteTotal = items[i].fullTimeEquivalent;
+				}				
+				// Group by unit
+				if(typeof byUnit[uSlug] != 'undefined'){
+					byUnit[uSlug].children.push(Orgvis.makeJuniorNode(items[i]));
+					byUnit[uSlug].data.fteTotal += items[i].fullTimeEquivalent;
+				} else {
+					byUnit[uSlug] = Orgvis.makeJuniorPostGroup(items[i].inUnit.label[0]);
+					byUnit[uSlug].children.push(Orgvis.makeJuniorNode(items[i]));
+					byGrade[gSlug].data.fteTotal = items[i].fullTimeEquivalent;
+				}						
+			}
+		} else {
+			postChildren.push(Orgvis.makeJuniorNode(items[0]));
+		}
+		
+		//log('byUnit');
+		//log(byUnit);
+		//log('byGrade');
+		//log(byGrade);
+		//log('byProfession');
+		//log(byProfession);
 		
 		// Loop through each of the junior post (JP)  items
 		$.each(items, function (index, el) {
@@ -1418,8 +1696,7 @@ var Orgvis = {
 			// If a JP reports to a post
 			if(typeof el.reportingTo != 'undefined') {
 				//log("connectJuniorPosts: found junior post");
-				var postID = el.reportingTo._about.split("/");
-				postID = postID[postID.length-1];
+				var postID = Orgvis.getSlug(el.reportingTo._about);
 				//log("postID: "+postID);
 		
 				// might not be a post to connect it to
@@ -1453,7 +1730,7 @@ var Orgvis = {
 					
 						if(addJPNode){
 							// Add the 'Junior Posts' node to the post that holds the junior staff
-							postChildren.push(Orgvis.makeJuniorPostNode());
+							postChildren.push(Orgvis.makeJuniorPostNode(postID));
 							//log("Added juniorPostsNode");
 						}
 					
@@ -1473,7 +1750,8 @@ var Orgvis = {
 							
 								//log("Found the post's Junior Posts node:")
 								//log(postChildren[k]);
-							
+								Orgvis.vars.postList["JP_"+postID] = postChildren[k];
+								//Orgvis.vars.postList["JP_"+postID] = {id:$.generateId(),name:"Test",data:{},children:[]};
 								// Add the actual junior staff item to the Junior Posts node
 								postChildren[k].children.push(Orgvis.makeJuniorNode(el));
 							
@@ -1487,13 +1765,37 @@ var Orgvis = {
 							
 								//log("Added a junior post");
 								//log(Orgvis.vars.postList[postID]);
+								
 							}
 						
 							postChildren[k].data.fteTotal = Math.round(postChildren[k].data.fteTotal*100)/100;
+							postChildren[k].data.byProfession = [];
+							for(var h in byProfession){
+								byProfession[h].children.sort(dynamicSort("salaryRangeVal"));
+								postChildren[k].data.byProfession.push(byProfession[h]);
+							}
+
+							postChildren[k].data.byUnit = [];
+							for(var h in byUnit){
+								postChildren[k].data.byUnit.push(byUnit[h]);
+							}
+							postChildren[k].data.byGrade = [];
+							for(var h in byGrade){
+								postChildren[k].data.byGrade.push(byGrade[h]);
+							}
+							
+							postChildren[k].data.unGrouped = postChildren[k].children;
+																												
+							//postChildren[k].data.byProfession = byProfession;
+							//postChildren[k].data.byUnit = byUnit;
+							//postChildren[k].data.byGrade = byGrade;
+							//postChildren[k].data.unGrouped = postChildren[k].children;			
+							//log("########## postChildren[k]:");
+							//log(postChildren[k]);					
 						}
 					}
 			}
-		});	 // end each loop			
+		});	 // end each loop	
 
 	},
 	setChildrenAdded:function(pNodes){
@@ -1501,8 +1803,7 @@ var Orgvis = {
 		// traverse through all of it's newly added children
 		// and set their "childrenAdded" flags to true.
 		
-		//postID = node.data.uri.split("/");
-		//postID = postID[postID.length-1];
+		//postID = Orgvis.getSlug(node.data.uri);
 		var nodes = [];
 		
 		if(pNodes != 'undefined'){
@@ -1523,9 +1824,9 @@ var Orgvis = {
 			for(var i in nodes){
 			
 				if(nodes[i].name != "No Junior Posts" && nodes[i].data.nodeType != "JP_child" && nodes[i].data.type != 'junior_posts'){
-					log("setting childrenAdded for ::::: "+nodes[i].name);
-					nodes[i].data.childrenAdded = true;
-					$("div#"+nodes[i].id).css({ opacity: 1 });
+					//log("setting childrenAdded for ::::: "+nodes[i].name);
+					//nodes[i].data.childrenAdded = true;
+					//$("div#"+nodes[i].id).css({ opacity: 1 });
 					
 					
 					try {
@@ -1569,8 +1870,8 @@ var Orgvis = {
 						nodes[i].children.push(Orgvis.makeNoJuniorPostNode());
 					}
 					
-					log("setChildrenAdded recursively passing:");
-					Orgvis.setChildrenAdded(nodes[i].children);			
+					//log("setChildrenAdded recursively passing:");
+					//Orgvis.setChildrenAdded(nodes[i].children);			
 				}
 			
 			/*
@@ -1624,82 +1925,12 @@ var Orgvis = {
 		//return false;
 
 	},
-	makeJuniorNode:function(el){
-		
-		log("makeJuniorNode: using item:");
-		log(el);
-		
-		/*
-		el.label[0]		B1/BAND B1 Project Manager (Operational Delivery) in 
-						Civil Service Capabilities Group reporting to post 93 FTE at 31/03/2011
-					
-		el.fullTimeEquivalent 						1 or 2
-		el.atGrade.prefLabel 						Grade B1/BAND B1
-		el.atGrade.payband.prefLabel 				B1/BAND B1 Payband
-		el.atGrade.payband.salaryRange.label[0]		£44,000 - £53,999
-		el.atGrade.payband.salaryRange.prefLabel	B1/BAND B1 Payband
-		el.withJob.prefLabel						Project Manager
-		el.withProfession.prefLabel					Operational Delivery
-		el.reportingTo.label[0]						Deputy Director, Capability Review
-		el.inUnit.label[0]							Civil Service Capabilities Group
-		*/
-		var node;
-		
-		try{
-			node = {
-				id:$.generateId(),
-				name:el.withJob.prefLabel,
-				data:{
-					type:'junior_posts',
-					nodeType:'JP_child',
-					total:0,						// Used for grouping junior staff
-					fullName:el.label[0],
-					grade:{
-						label:el.atGrade.prefLabel,
-						payband:{
-							label:el.atGrade.payband.prefLabel,
-							salaryRange:el.atGrade.payband.salaryRange.label[0]
-						}
-					},
-					job:el.withJob.prefLabel,
-					profession:el.withProfession.prefLabel,
-					reportingTo:{
-						label:el.reportingTo.label[0],
-						uri:el.reportingTo._about
-					},
-					unit:{
-						label:el.inUnit.label[0],
-						uri:el.inUnit._about
-					},
-					fullTimeEquivalent:el.fullTimeEquivalent,
-					colour:Orgvis.vars.colours[Orgvis.vars.jpColourCounter]
-				},
-				children:[]
-			};
-		} catch(e) {
-			log("makeJuniorNode error");
-			log(e);
-		}
-		
-		log('makeJuniorNode: node made:');
-		log(node);
-		
-		if(Orgvis.vars.jpColourCounter == Orgvis.vars.colours.length){
-			Orgvis.vars.jpColourCounter = 0;
-		} else {
-			Orgvis.vars.jpColourCounter++;		
-		}
-		
-		Orgvis.vars.jpCounter++;
-		
-		return node;
-	},
-	addJuniorPosts:function(jsonObj, jNames, jGrades, jColours) {
+	addJuniorPosts:function(json, jNames, jGrades, jColours) {
     
     	//log(jColours);
        
-	    if( typeof jsonObj == "object" ) {
-	        $.each(jsonObj, function(k,v) {
+	    if( typeof json == "object" ) {
+	        $.each(json, function(k,v) {
 	            // k is either an array index or object key
 	            //log(k+':'+v);
 	            if(typeof k == "number" && typeof v.id != 'undefined' && v.data.type != 'junior_posts'){
@@ -1776,11 +2007,11 @@ var Orgvis = {
 							
 		Orgvis.displayDataSources();
 	},
-	groupSamePosts:function(jsonObj,firstNodeFound) {
+	groupSamePosts:function(json,firstNodeFound) {
 			
-		if( typeof jsonObj == "object" ) {
+		if( typeof json == "object" ) {
 		
-			$.each(jsonObj, function(k,v) {
+			$.each(json, function(k,v) {
 			
 				if(k == "children" && !firstNodeFound) {
 						if(v.length > 1) {	
@@ -1947,8 +2178,7 @@ var Orgvis = {
 		
 		log("loadInfobox()");
 		
-		var postID = node.data.uri.split("/");
-		postID=postID[postID.length-1];
+		var postID = Orgvis.getSlug(node.data.uri);
 		var postUnit;
 		var tempUnitID;
 		var tempUnitLabel;
@@ -1957,8 +2187,7 @@ var Orgvis = {
 		
 		for(var j=0;j<node.data.postIn.length;j++){
 			if(node.data.postIn[j]._about.indexOf("/unit/") >= 0){
-				tempUnitID = node.data.postIn[j]._about.split("/");
-				tempUnitID = tempUnitID[tempUnitID.length-1];
+				tempUnitID = Orgvis.getSlug(node.data.postIn[j]._about);
 				tempUnitLabel = node.data.postIn[j].label[0];
 				postUnit = node.data.postIn[j]._about;
 			}
@@ -1972,9 +2201,7 @@ var Orgvis = {
 	
 		for(var i=0; i<node.data.heldBy.length; i++) {
 	
-			var tempID = node.data.heldBy[i].holdsPostURI.split("/");
-			tempID = tempID[tempID.length-1];
-					
+			var tempID = Orgvis.getSlug(node.data.heldBy[i].holdsPostURI);					
 			if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
 				html += '<h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-corner-all"><span class="ui-icon ui-icon-triangle-1-e"></span><a class="name infobox_'+tempID+'">'+node.data.heldBy[i].foafName+'</a></h3>';
 			}else {
@@ -2229,6 +2456,10 @@ var Orgvis = {
 			$("div#loading_data").trigger("jGrowl.close").remove();
 		}
 
+	},
+	getSlug:function(string){
+		var temp = string.split("/");
+		return temp[temp.length-1];
 	}
 }; // end Orgvis
 
@@ -2307,6 +2538,12 @@ function addCommas(nStr) {
     return x1 + x2;
 }
 
+function dynamicSort(property) {
+    return function (a,b) {
+        return (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+    }
+}
+
 // fn to handle jsonp with timeouts and errors
 // hat tip to Ricardo Tomasi for the timeout logic
 $.myJSONP = function(s,callName,n) {
@@ -2356,8 +2593,7 @@ $.myJSONP = function(s,callName,n) {
     	
     	var postID = "";
 		try{
-			postID = node.data.uri.split("/");
-			postID = postID[postID.length-1];
+			postID = Orgvis.getSlug(node.data.uri);
 		}catch(e){
 			postID = "unknown";
 		}
