@@ -588,7 +588,7 @@ spec:postInPublicBodyReportsFull
     ?item a gov:CivilServicePost . 
     { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
     { ?item org:reportsTo ?postResource . } UNION 
-    { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  
+#    { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  
 #    { ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION 
 #    { ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] } UNION 
     { ?postResource org:reportsTo ?item . } UNION
@@ -648,7 +648,7 @@ spec:postInPublicBodyJuniorStaffFull
   api:selector [
     api:where """
     { ?item organogram:reportingTo ?postResource . } UNION 
-    { ?item organogram:reportingTo [ org:reportsTo ?postResource ] } UNION  
+#    { ?item organogram:reportingTo [ org:reportsTo ?postResource ] } UNION  
 #    { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION 
 #    { ?item organogram:reportingTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] } UNION 
     { ?postResource org:reportsTo ?superior . ?item organogram:reportingTo ?superior . } UNION
