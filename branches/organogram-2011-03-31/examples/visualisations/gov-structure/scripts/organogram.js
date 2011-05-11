@@ -1676,7 +1676,7 @@ var Orgvis = {
 				} else {
 					byUnit[uSlug] = Orgvis.makeJuniorPostGroup(items[i].inUnit.label[0]);
 					byUnit[uSlug].children.push(Orgvis.makeJuniorNode(items[i]));
-					byGrade[gSlug].data.fteTotal = items[i].fullTimeEquivalent;
+					byUnit[uSlug].data.fteTotal = items[i].fullTimeEquivalent;
 				}						
 			}
 		} else {
