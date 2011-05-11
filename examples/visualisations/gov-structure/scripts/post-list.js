@@ -174,7 +174,7 @@ var PostList = {
 	
 		//var postList = new Array();
 			
-		var html='', slug, label, name, comment, email, phone, unit, dept, type, reportsTo, grade, salaryRange;
+		var html='', slug = postStatus = label = name = comment = email = phone = unit = dept = type = reportsTo = grade = salaryRange = null;
 					
 		for(var i=0,itemLength=json.result.items.length;i<itemLength;i++){
 		
@@ -182,11 +182,15 @@ var PostList = {
 			slug = slug[slug.length-1];
 			
 			html += '<div class="post" rel="'+slug+'" data-id="id-'+slug+'">';
-						
+			
+			postStatus = json.result.items[i].postStatus;
+			
 			try{
 				label = json.result.items[i].label[0];
-			}catch(e){}
-			if(typeof label != 'undefined'){
+			}catch(e){
+			  label = null;
+			}
+			if (label){
 				html += '<h3 class="label" data-type="title">'+label+'</h3>';
 			} else {
 				html += '<h3 class="label" data-type="title">?</h3>';						
@@ -196,8 +200,12 @@ var PostList = {
 			
 			try{
 				name = json.result.items[i].heldBy[0].name;
-			}catch(e){}
-			if(typeof name != 'undefined'){
+			}catch(e){
+			  name = null;
+			}
+			if(postStatus == 'http://reference.data.gov.uk/def/civil-service-post-status/vacant') {
+				html += '<p class="name ui-state-hover" data-type="name">Vacant</p>';
+			} else if (name){
 				html += '<p class="name ui-state-hover" data-type="name">'+name+'</p>';
 			} else {
 				html += '<p class="name ui-state-hover" data-type="name">?</p>';
@@ -205,8 +213,10 @@ var PostList = {
 
 			try{
 				comment = json.result.items[i].comment;		
-			}catch(e){}
-			if(typeof comment != 'undefined'){
+			}catch(e){
+			  comment = null;
+			}
+			if(comment){
 				//html += '<p class="comment">'+comment+'</p>';
 			} else {
 			}
@@ -216,8 +226,10 @@ var PostList = {
 
 			try{
 				email = json.result.items[i].heldBy[0].email.label[0];
-			}catch(e){}
-			if(typeof email != 'undefined'){
+			}catch(e){
+			  email = null;
+			}
+			if(email){
 				//html += '<tr class="email odd"><td class="label">Email</td><td>'+email+'</td></tr>';
 			} else {
 				//html += '<tr class="email odd"><td class="label">Email</td><td>'+email+'</td></tr>';
@@ -225,8 +237,10 @@ var PostList = {
 
 			try{
 				phone = json.result.items[i].heldBy[0].phone.label[0];
-			}catch(e){}
-			if(typeof phone != 'undefined'){
+			}catch(e){
+			  phone = null;
+			}
+			if(phone){
 				//html += '<tr class="phone even"><td class="label">Phone</td><td>'+phone+'</td></tr>';
 			} else {
 				//html += '<tr class="phone even"><td class="label">Phone</td><td>'+phone+'</td></tr>';
@@ -235,8 +249,10 @@ var PostList = {
 
 			try{
 				unit = json.result.items[i].postIn[0].label[0];
-			}catch(e){}
-			if(typeof unit != 'undefined'){
+			}catch(e){
+			  unit = null;
+			}
+			if(unit){
 				html += '<tr class="unit odd"><td class="label">Unit</td><td data-type="unit">'+unit+'</td></tr>';
 			} else {
 				html += '<tr class="unit odd"><td class="label">Unit</td><td data-type="unit">?</td></tr>';
@@ -244,8 +260,10 @@ var PostList = {
 			
 			try{
 				dept = json.result.items[i].postIn[1].label[0];
-			}catch(e){}
-			if(typeof dept != 'undefined'){
+			}catch(e){
+			  dept = null;
+			}
+			if(dept){
 				//html += '<tr class="dept even"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
 			} else {
 				//html += '<tr class="dept even"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
@@ -274,8 +292,10 @@ var PostList = {
 			
 			try{
 				grade = json.result.items[i].grade.label[0];
-			}catch(e){}			
-			if(typeof grade != 'undefined'){
+			}catch(e){
+			  grade = null;
+			}			
+			if(grade){
 				html += '<tr class="grade even"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
 			}else {
 				html += '<tr class="grade even"><td class="label">Grade</td><td data-type="grade">?</td></tr>';		
@@ -283,8 +303,10 @@ var PostList = {
 			
 			try{
 				salaryRange = json.result.items[i].salaryRange.label[0];
-			}catch(e){}
-			if(typeof salaryRange != 'undefined'){
+			}catch(e){
+			  salaryRange = null;
+			}
+			if(salaryRange){
 				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">'+salaryRange+'</td></tr>';
 			}else {
 				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">?</td></tr>';			
@@ -292,8 +314,10 @@ var PostList = {
 		
 			try{
 				reportsTo = json.result.items[i].reportsTo[0].heldBy[0].name;
-			}catch(e){}
-			if(typeof reportsTo != 'undefined'){
+			}catch(e){
+			  reportsTo = null;
+			}
+			if(reportsTo){
 				html += '<tr class="reportsTo even end"><td class="label">Reports to</td><td>'+reportsTo+'</td></tr>';
 			} else {
 			}	
