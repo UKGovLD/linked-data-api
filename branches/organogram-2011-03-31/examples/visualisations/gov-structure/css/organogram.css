@@ -274,16 +274,18 @@ div.node
 
 div.node span.heldBy
 {
-	background-color:#819C9B;
-	border:1px solid #333333;
-	color:#FFFFFF;
-	display:block;
-	font-size:11px;
-	font-weight:bold;
-	margin-top:-38px;
-	padding:0 3px;
-	position:absolute;
-	right:-9px;
+    background-color: #819C9B;
+    border: 1px solid #333333;
+   	-moz-border-radius:3px 3px 3px 3px;
+	-webkit-border-radius:3px 3px 3px 3px;
+	border-radius: 3px 3px 3px 3px;
+    bottom: -11px;
+    color: #FFFFFF;
+    display: inline-block;
+    margin-top: -38px;
+    padding: 2px 4px;
+    position: absolute;
+    right: -10px;
 }
 
 div.node span.postIn
@@ -475,12 +477,12 @@ div.panel h3 a.name
 }
 div.juniorPost {
     background-color: #888888;
-    font-family: Helvetica;
-    font-size: 11px !important;
-    font-weight: bold;
+    /*font-family: Helvetica;
+    font-size: 11px !important;*/
+    /*font-weight: bold;*/
     height: 35px !important;
     line-height: 32px;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
 }
 div.juniorPost span.heldBy {
     -moz-border-radius: 3px 3px 3px 3px;
@@ -489,7 +491,7 @@ div.juniorPost span.heldBy {
     border: 1px solid #9A9A9A;
     bottom: -13px;
     color: #000000;
-    font-size: 12px;
+    font-size: 10px;
     height: 14px;
     line-height: 20px;
     padding: 0 5px 5px;
@@ -497,25 +499,25 @@ div.juniorPost span.heldBy {
     text-align: center;
     width: auto;
 }
-div.JP_parent {
+div.jp_parent {
 	color:#FFFFFF !important;
 }
-div.JP_child {
-	font-size:9px !important;
+div.jp_child {
+	/*font-size:10px !important;*/
 	line-height: 16px !important;
 	height:auto !important;
 	/*cursor: default !important;*/
 }
-div.JP_none {
+div.jp_none {
 	border:1px dashed #333333 !important;
 	background-color: #CCCCCC;
 	font-weight: normal;
 	cursor: default !important;
 }
-div.JP_none span.heldBy {
+div.jp_none span.heldBy {
 	display: none;
 }
-div.JP_child span.JP_grade {
+div.jp_child span.jp_grade {
     -moz-border-radius-bottomleft: 5px;
     -moz-border-radius-bottomright: 5px;
     border-bottom-left-radius: 5px;
@@ -525,8 +527,8 @@ div.JP_child span.JP_grade {
     background-color: #555555;
     color: #FFFFFF;
     display: block;
-    font-size: 12px !important;
-    font-weight: normal;
+    /*font-size: 12px !important;
+    font-weight: normal;*/
     margin-left:-3px;
    	width:176px;
 }
@@ -558,6 +560,10 @@ div.node div.jp_group_selector {
     width: 100px;
     z-index: 99;
 }
+body.IE7 div.node div.jp_group_selector {
+	left:0px;
+	top:35px;
+}
 div.node div.jp_group_selector ul {
     list-style-type: none;
     margin: 0;
@@ -569,9 +575,9 @@ div.node div.jp_group_selector ul li {
     -moz-border-radius: 3px 3px 3px 3px;
     -webkit-border-radius: 3px 3px 3px 3px;
     color: #333333;
-    font-size: 9px;
+    /*font-size: 9px;*/
     height: 20px;
-    line-height: 23px;
+    line-height: 20px;
     margin: 2px;
 }
 div.node div.jp_group_selector ul li:hover {
@@ -583,19 +589,19 @@ div.node div.jp_group_selector ul li.selected {
 	background-color: #999999;
 	color: #FFFFFF;
 }
-div.jp_group span.JP_grade {
+div.jp_group span.jp_grade {
     background-color: #555555;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     color: #FFFFFF;
     display: block;
-    font-size: 9px !important;
+    font-size: 10px !important;
     font-weight: normal;
     margin-left: -3px;
     width: 176px;
 }
 div.jp_group {
-    font-size: 9px !important;
+    /*font-size: 10px !important;*/
     height: auto !important;
     line-height: 16px !important;
 }
