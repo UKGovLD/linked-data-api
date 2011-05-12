@@ -174,7 +174,20 @@ var PostList = {
 	
 		//var postList = new Array();
 			
-		var html='', slug = postStatus = label = name = comment = email = phone = unit = dept = type = reportsTo = grade = salaryRange = null;
+		var html='';
+		var slug = null;
+		var postStatus = null;
+		var label = null;
+		var name = null;
+		var comment = null;
+		var email = null;
+		var phone = null;
+		var unit = null;
+		var dept = null;
+		var type = null;
+		var reportsTo = null;
+		var grade = null;
+		var salaryRange = null;
 					
 		for(var i=0,itemLength=json.result.items.length;i<itemLength;i++){
 		
