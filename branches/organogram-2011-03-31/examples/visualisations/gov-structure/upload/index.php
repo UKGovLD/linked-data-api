@@ -220,9 +220,11 @@ if ((($action == 'upload' && !$success) || $action == 'delete-preview' || $actio
   if (file_exists($juniorCSV)) {
     unlink($juniorCSV);
   }
+  /*
   if (file_exists($localMapping)) {
     unlink($localMapping);
   }
+  */
   if (file_exists($xlwrapMapping)) {
     unlink($xlwrapMapping);
   }
@@ -420,6 +422,35 @@ if ($isAdmin) {
                               $postId = $post['id'];
                               $postLabel = $post['label'];
                               echo "<li><a href=\"http://organogram.data.gov.uk/gov-structure/organogram/?$bodyType=$bodyId&post=$postId&preview=true\" target=\"_blank\">$postLabel</a></li>";
+                            }
+                          }
+                        } ?>
+                      </ul>
+                      <p>Browse:</p>
+                      <ul>
+                        <?php foreach($orgInfo as $bodyUri => $body) { 
+                          $bodyType = $body['type'];
+                          $bodyId = $body['id'];
+                          $bodyLabel = $body['label'];
+                          $bodyApiUri = 'http://organogram.data.gov.uk/doc/'.($bodyType == 'pubbod' ? 'public-body' : 'department').'/'.$bodyId; ?>
+                          <li>
+                            <a href="<?php echo $bodyApiUri; ?>"><?php echo $bodyLabel; ?></a>
+                            -
+                            <a href="<?php echo $bodyApiUri; ?>/unit">Units</a>
+                            -
+                            <a href="<?php echo $bodyApiUri; ?>/post">Posts</a>
+                          </li>
+                        <?php } ?>
+                        <?php foreach ($orgInfo as $bodyUri => $body) {
+                          $bodyType = $body['type'] == 'pubbod' ? 'public-body' : 'department';
+                          $bodyId = $body['id'];
+                          $bodyLabel = $body['label'];
+                          $posts = $body['posts'];
+                          if (count($posts) > 0) {
+                            foreach ($posts as $post) {
+                              $postId = $post['id'];
+                              $postLabel = $post['label'];
+                              echo "<li><a href=\"http://organogram.data.gov.uk/doc/$bodyType/$bodyId/post/$postId\">$postLabel</a></li>";
                             }
                           }
                         } ?>
