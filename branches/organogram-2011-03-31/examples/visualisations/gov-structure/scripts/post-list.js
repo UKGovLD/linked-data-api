@@ -138,7 +138,7 @@ var PostList = {
 			title:"Posts by grade",
 			description:"Retrieve posts within a department by a specific grade.",
 			url:"http://"+PostList.vars.apiBase+"/doc/"+PostList.vars.orgType+"/"+PostList.vars.org+"/post",
-			parameters:"?_pageSize=100&grade="+PostList.vars.grade.replace(" ","+")
+			parameters:"?_properties=postIn.type&_pageSize=100&grade="+PostList.vars.grade.replace(" ","+")
 		};
 		
 		$.ajax({
@@ -261,7 +261,13 @@ var PostList = {
 						
 
 			try{
-				unit = json.result.items[i].postIn[0].label[0];
+			  postIn = json.result.items[i].postIn;
+			  unit = null;
+			  for (var j=0; j<postIn.length; j++) {
+			    if (postIn[j].type[0] == 'http://www.w3.org/ns/org#OrganizationalUnit') {
+			      unit = postIn[j].label[0];
+			    }
+			  }
 			}catch(e){
 			  unit = null;
 			}
