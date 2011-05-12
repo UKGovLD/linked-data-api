@@ -12,8 +12,8 @@
 <!-- Scripts -->
 <script language="javascript" type="text/javascript" src="../scripts/jquery-latest.min.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
-<script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script>
-<!--script language="javascript" type="text/javascript" src="../scripts/Jit/jit.js"></script-->
+<!--script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script-->
+<script language="javascript" type="text/javascript" src="../scripts/Jit/jit.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.cookie.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.color.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.jgrowl.js"></script>
@@ -111,7 +111,8 @@
 	<img src="../images/loading.gif" />
 </div>
 
-<div id="login">
+<!--
+div id="login">
 	<form>
 		<fieldset>
 			<legend>Login</legend>	
@@ -125,7 +126,8 @@
 	<p class="login-success login-message">Login successful!</p>
 	<p class="login-failed login-message">Login failed, try again.</p>
 	<p class="delHistory login-message">Login details forgotten!</p>
-</div>
+</div
+-->
 
 <span id="previewModeSign">
 	<span>Preview Mode</span>

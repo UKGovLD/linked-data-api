@@ -5262,7 +5262,7 @@ Graph.Op = {
                     onComplete: function() {
                         that.removeNode(n, { type: 'nothing' });
                         viz.labels.clearLabels();
-                        viz.reposition();
+                        //viz.reposition();
                         viz.fx.animate($.merge(options, {
                             modes: ['linear']
                         }));
@@ -5278,7 +5278,7 @@ Graph.Op = {
                     nodeObj.setData('alpha', 0, 'end');
                     nodeObj.ignore = true;
                 }
-                viz.reposition();
+                //viz.reposition();
                 viz.fx.animate($.merge(options, {
                     modes: ['node-property:alpha', 'linear'],
                     onComplete: function() {
@@ -5362,7 +5362,7 @@ Graph.Op = {
                     modes: ['edge-property:alpha'],
                     onComplete: function() {
                         that.removeEdge(v, { type: 'nothing' });
-                        viz.reposition();
+                        //viz.reposition();
                         viz.fx.animate($.merge(options, {
                             modes: ['linear']
                         }));
@@ -5380,7 +5380,7 @@ Graph.Op = {
                         adj.ignore = true;
                     }
                 }
-                viz.reposition();
+                //viz.reposition();
                 viz.fx.animate($.merge(options, {
                     modes: ['edge-property:alpha', 'linear'],
                     onComplete: function() {
@@ -5652,7 +5652,7 @@ Graph.Op = {
                 if(extraModes && ('label-property' in extraModes)) {
                   modes.push('label-property:' + $.splat(extraModes['label-property']).join(':'))
                 }
-                viz.reposition();
+                //viz.reposition();
                 viz.graph.eachNode(function(elem) {
                     if (elem.id != root && elem.pos.getp().equals(Polar.KER)) {
                       elem.pos.set(elem.endPos); elem.startPos.set(elem.endPos);
@@ -8439,11 +8439,18 @@ $jit.ST= (function() {
 
        reposition: function() {
             this.graph.computeLevels(this.root, 0, "ignore");
-             this.geom.setRightLevelToShow(this.clickedNode, this.canvas);
+            this.geom.setRightLevelToShow(this.clickedNode, this.canvas);
             this.graph.eachNode(function(n) {
                 if(n.exist) n.drawn = true;
             });
             this.compute('end');
+            if (this.clickedNode) {
+              var offset = {
+                  x: this.config.offsetX || 0,
+                  y: this.config.offsetY || 0
+              };
+              this.geom.translate(this.clickedNode.endPos.add(offset).$scale(-1), 'end');
+            }
         },
         
         requestNodes: function(node, onComplete) {
@@ -8481,10 +8488,12 @@ $jit.ST= (function() {
             };
             if(move.enable) {
                 this.geom.translate(node.endPos.add(offset).$scale(-1), "end");
+            } else {
+                this.geom.translate($C(offset.x, offset.y).$scale(-1), "end");
             }
             this.fx.animate($.merge(this.controller, { modes: ['linear'] }, onComplete));
          },
-      
+               
         expand: function (node, onComplete) {
             var nodeArray = getNodesToShow.call(this, node);
             this.group.expand(nodeArray, $.merge(this.controller, onComplete));
@@ -8619,9 +8628,9 @@ $jit.ST= (function() {
         */
         addSubtree: function(subtree, method, onComplete) {
             if(method == 'replot') {
-                this.op.sum(subtree, $.extend({ type: 'replot', Move: { enable: false } }, onComplete || {}));
+                this.op.sum(subtree, $.extend({ type: 'replot' }, onComplete || {}));
             } else if (method == 'animate') {
-                this.op.sum(subtree, $.extend({ type: 'fade:seq', Move: { enable: false } }, onComplete || {}));
+                this.op.sum(subtree, $.extend({ type: 'fade:seq' }, onComplete || {}));
             }
         },
     
@@ -8738,15 +8747,10 @@ $jit.ST= (function() {
     
         */    
       onClick: function (id, options) {
-      
-      log("core: onClick, Orgvis.vars.ST_move:"+Orgvis.vars.ST_move);
-      log(id);
-      log(options);
-      
         var canvas = this.canvas, that = this, Geom = this.geom, config = this.config;
         var innerController = {
             Move: {
-        	  enable: Orgvis.vars.ST_move,
+        	    enable: true,
               offsetX: config.offsetX || 0,
               offsetY: config.offsetY || 0  
             },
