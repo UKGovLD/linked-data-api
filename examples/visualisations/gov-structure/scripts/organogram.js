@@ -39,7 +39,7 @@ var Orgvis = {
 			'#E4C6A7',			// brown
 			'#FFBBDD',			// pink
 			'#E9E9C0',			// faded green
-			'#A8A8FF' 			// blue
+			'#CDCCFF' 			// blue
 		],
 		jpCounter:0,			// Number of junior posts
 		jpColourCounter:0,		// Used to colour the junior post nodes
@@ -407,7 +407,7 @@ var Orgvis = {
 						case 'jp_group' :
 							// Node is a Junior Post Group
 							var fteTotal = Math.round(node.data.fteTotal*100)/100;
-							label.innerHTML = label.innerHTML + '<span class="jp_grade">'+node.data.property+'</span>' + '<span class="heldBy" style="background-color:#FFFFFF;">'+fteTotal+'</span>';						
+							label.innerHTML = label.innerHTML + '<span class="jp_grade">'+node.data.property+'</span>' + '<span class="heldBy" style="background-color:'+node.data.colour+'">'+fteTotal+'</span>';						
 							break;
 						
 						case 'jp_parent' :
@@ -1213,11 +1213,11 @@ var Orgvis = {
 					
 					if(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full") > 0){
 						log("found reports-full data");
-						if(Orgvis.vars.apiResponses[i].result.items.length > 0){
+						//if(Orgvis.vars.apiResponses[i].result.items.length > 0){
 							Orgvis.loadOrganogram(Orgvis.vars.apiResponses[i]);
-						} else {
-							Orgvis.notify("Error","No reporting posts could be found.",true,"no_reporting_posts");
-						}
+						//} else {
+						//	Orgvis.notify("Error","No reporting posts could be found.",true,"no_reporting_posts");
+						//}
 					}
 				} else {
 					log('Orgvis.vars.apiResponses[i].result._about.indexOf("reportsFull"):');
@@ -1225,11 +1225,11 @@ var Orgvis = {
 					
 					if(Orgvis.vars.apiResponses[i].result._about.indexOf("reportsFull") > 0){
 						log("found reportsFull data");
-						if(Orgvis.vars.apiResponses[i].result.items.length > 0){
+						//if(Orgvis.vars.apiResponses[i].result.items.length > 0){
 							Orgvis.loadOrganogram(Orgvis.vars.apiResponses[i]);
-						} else {
-							Orgvis.notify("Error","No reporting posts could be found.",true,"no_reporting_posts");
-						}			
+						//} else {
+						//	Orgvis.notify("Error","No reporting posts could be found.",true,"no_reporting_posts");
+						//}			
 					}	
 				}
 			}
@@ -2838,5 +2838,11 @@ $(document).ready(function() {
 	}
 
 	$("div#right").show();
+	
+	$(window).resize(function(){
+		$("#infovis").width($(window).width()-0);
+		$("#infovis").height($(window).height()-30);	
+		Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height()); 
+	});
 		
 }); // end docready
