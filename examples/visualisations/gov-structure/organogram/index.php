@@ -97,6 +97,10 @@
                 <button id="nav_left">Left</button>
                 <button id="nav_right">Right</button>
             </div>
+            <p>Center</p>
+            <div id="center">
+            	<button id="center">Center</button>
+            </div>
 		</div>
 				
 	<div id="apiCalls">

@@ -2822,6 +2822,12 @@ $(document).ready(function() {
 	        Orgvis.vars.global_ST.canvas.translateOffsetX = Orgvis.vars.global_ST.canvas.translateOffsetX - 10;
 			Orgvis.vars.global_ST.canvas.canvases[0].translate(-10,0,false);	
 	    });
+	    $("button#center").button({
+	        icons: { primary: "ui-icon ui-icon-arrow-4-diag" },
+	        text: false
+	    }).click(function() {
+	        Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height());	
+	    });	    
 	});
 	
 	/*

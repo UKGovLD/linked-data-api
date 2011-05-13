@@ -12,7 +12,7 @@ canvas
 	position:fixed;
 	width:800px;
 }
-div#right div#nav
+div#right div#nav, div#right div#center
 {
 	height:78px;
 	margin-left:15px;
@@ -20,7 +20,7 @@ div#right div#nav
 	position:relative;
 	width:79px;
 }
-body.IE7 div#right div#nav
+body.IE7 div#right div#nav, body.IE7 div#right div#center
 {
 	height:78px;
 	margin-left:3px;
@@ -28,13 +28,15 @@ body.IE7 div#right div#nav
 	position:relative;
 	width:79px;
 }
-div#right div#nav button
+div#right div#nav button, div#right div#center button
 {
 	height:26px;
 	position:absolute;
 	width:26px;
 }
-
+div#right div#center button {
+	left: 26px;
+}
 div#right div#nav button#nav_down
 {
 	bottom:0;
@@ -63,6 +65,7 @@ div#right div.navigate
 {
 	position:relative;
 }
+
 div#right div#orientation label {
 	margin-right:-5px;
 }
