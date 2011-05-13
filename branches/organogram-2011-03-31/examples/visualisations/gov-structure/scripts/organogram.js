@@ -401,7 +401,7 @@ var Orgvis = {
 						case 'jp_child' : 
 							// Node is a Junior Post					
 							var fteTotal = Math.round(node.data.fullTimeEquivalent*100)/100;						
-							label.innerHTML = label.innerHTML + '<span class="jp_grade">'+addCommas(node.data.grade.payband.salaryRange)+'</span>' + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+fteTotal+'</span>';
+							label.innerHTML = label.innerHTML + '<span class="jp_grade">'+node.data.grade.payband.salaryRange+'</span>' + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+fteTotal+'</span>';
 							break;
 						
 						case 'jp_group' :
@@ -1513,9 +1513,15 @@ var Orgvis = {
 		var node;
 
 		try{
-			var salaryRangeValue = el.atGrade.payband.salaryRange.label[0].replace(/£/g,'');
-			salaryRangeValue = salaryRangeValue.split(" - ");
-			salaryRangeValue = salaryRangeValue[0];
+			var salaryRangeValue = null;
+			var salaryRangeLabel = 'Salary not disclosed';
+			if (el.atGrade.payband.salaryRange) {
+			  salaryRangeLabel = el.atGrade.payband.salaryRange.label[0];
+  			salaryRangeValue = salaryRangeLabel.replace(/£/g,'');
+  			salaryRangeValue = salaryRangeValue.split(" - ");
+  			salaryRangeValue = salaryRangeValue[0];
+  			salaryRangeLabel = addCommas(salaryRangeLabel);
+			}
 			//log("oooooooooooooooooooooo "+salaryRangeValue);
 			
 			node = {
@@ -1530,7 +1536,7 @@ var Orgvis = {
 						label:el.atGrade.prefLabel,
 						payband:{
 							label:el.atGrade.payband.prefLabel,
-							salaryRange:el.atGrade.payband.salaryRange.label[0]
+							salaryRange:salaryRangeLabel
 						}
 					},
 					salaryRangeVal:salaryRangeValue,
@@ -1739,7 +1745,8 @@ var Orgvis = {
 					byGrade[gSlug].children.push(Orgvis.makeJuniorNode(items[i]));
 					byGrade[gSlug].data.fteTotal += items[i].fullTimeEquivalent;
 				} else {
-					byGrade[gSlug] = Orgvis.makeJuniorPostGroup(items[i].atGrade.prefLabel, addCommas(items[i].atGrade.payband.salaryRange.label[0]));
+				  var salaryRange = items[i].atGrade.payband.salaryRange ? addCommas(items[i].atGrade.payband.salaryRange.label[0]) : 'Salary not disclosed';
+					byGrade[gSlug] = Orgvis.makeJuniorPostGroup(items[i].atGrade.prefLabel, salaryRange);
 					byGrade[gSlug].children.push(Orgvis.makeJuniorNode(items[i]));
 					byGrade[gSlug].data.fteTotal = items[i].fullTimeEquivalent;
 				}				
@@ -2376,7 +2383,7 @@ var Orgvis = {
 		html += '<p class="fte"><span>Full Time Equivalent</span><span class="value">'+node.data.fullTimeEquivalent+'</span></p>';
 		html += '<p class="grade"><span>Grade</span><span class="value">'+node.data.grade.label+'</span></p>';
 		html += '<p class="payband"><span>Payband</span><span class="value">'+node.data.grade.payband.label+'</span></p>';
-		html += '<p class="paybandRange"><span>Payband Salary Range</span><span class="value">'+addCommas(node.data.grade.payband.salaryRange)+'</span></p>';
+		html += '<p class="paybandRange"><span>Payband Salary Range</span><span class="value">'+node.data.grade.payband.salaryRange+'</span></p>';
 		html += '<p class="reportsTo"><span>Reports To</span><span class="value">'+node.data.reportingTo.label+'</span></p>';
 		html += '<p class="unit"><span>Unit</span><span class="value">'+node.data.unit.label+'</span></p>';
 		
