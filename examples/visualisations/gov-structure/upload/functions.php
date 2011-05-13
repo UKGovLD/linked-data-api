@@ -801,7 +801,7 @@ $str = <<<TRANSFORMATION
           ] ;
         ] ;
         gov:salaryRange [ 
-          xl:uri "IF(UCASE(STRING(F2)) != 'N/D','http://reference.data.gov.uk/id/salary-range/' & F2 & '-' & G2)"^^xl:Expr ;
+          xl:uri "IF(F2 && UCASE(STRING(F2)) != 'N/D','http://reference.data.gov.uk/id/salary-range/' & F2 & '-' & G2)"^^xl:Expr ;
           a gov:SalaryRange ;
           ## NOTE: derive from salaries
           rdfs:label "'£' & F2 & ' - £' & G2"^^xl:Expr ;
@@ -826,7 +826,7 @@ $str = <<<TRANSFORMATION
   
 
   # non-disclosed payband salary range
-  [ xl:uri "IF(UCASE(STRING(F2)) == 'N/D', '$fileURL#salaryRangeDisclosure' & ROW(A2))"^^xl:Expr ]
+  [ xl:uri "IF(!F2 || UCASE(STRING(F2)) == 'N/D', '$fileURL#salaryRangeDisclosure' & ROW(A2))"^^xl:Expr ]
     a gov:NonDisclosure , rdf:Statement ;
     rdfs:label "'Non-Disclosure of salary range for ' & E2 & ' Payband'"^^xl:Expr ;
     rdf:subject [ xl:uri "NAME2URI(SUBSTITUTE(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/payband/', '/id/', '/def/'), E2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/payband.rdf')"^^xl:Expr ] ;
