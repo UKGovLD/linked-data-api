@@ -476,7 +476,7 @@ div.panel h3 a.name
 	font-weight: bold;
 }
 div.juniorPost {
-    background-color: #888888;
+    background-color: #6A6A6A;
     /*font-family: Helvetica;
     font-size: 11px !important;*/
     /*font-weight: bold;*/
@@ -504,7 +504,7 @@ div.jp_parent {
 }
 div.jp_child {
 	/*font-size:10px !important;*/
-	line-height: 16px !important;
+	line-height: 18px !important;
 	height:auto !important;
 	/*cursor: default !important;*/
 }
@@ -554,7 +554,7 @@ div.node div.jp_group_selector {
     -webkit-border-radius: 0 0 5px 5px;
     background-color: #343434;
     display: none;
-    margin-left: 32px;
+    margin-left: 35px;
     margin-top: 3px;
     position: absolute;
     width: 100px;
@@ -603,7 +603,7 @@ div.jp_group span.jp_grade {
 div.jp_group {
     /*font-size: 10px !important;*/
     height: auto !important;
-    line-height: 16px !important;
+    line-height: 18px !important;
 }
 body.IE7 div.node span.childLoader {
 	position:absolute;
