@@ -94,12 +94,9 @@
             <div id="nav">
                 <button id="nav_up">Up</button>
                 <button id="nav_down">Down</button>
+                <button id="center">Center</button>
                 <button id="nav_left">Left</button>
                 <button id="nav_right">Right</button>
-            </div>
-            <p>Center</p>
-            <div id="center">
-            	<button id="center">Center</button>
             </div>
 		</div>
 				
