@@ -370,6 +370,7 @@ div.panel div.content p
 	font-family:Georgia;
 	font-weight:normal;
 	margin:0;
+	overflow: hidden;
 	padding:0 0 5px 5px;
 	text-align:left;
 	width:273px !important;
@@ -609,7 +610,10 @@ div.jp_group {
     line-height: 18px !important;
 }
 body.IE7 div.node span.childLoader {
-	position:absolute;
+	position:relative;
+	border:none;
+	right:0;
+	top:0;
 }
 div.node span.childLoader img {
     margin-top: 4px;
