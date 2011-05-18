@@ -202,6 +202,7 @@ function createSeniorCSV($filename) {
            $cell = preg_replace('/\s+/', ' ', trim($cell));
            // strip leading $ signs, seem to come from formatting numbers as currency
            $cell = preg_replace('/^\$/', '', $cell);
+           $cell = str_replace('’', '\'', $cell);
            $cell = str_replace('"', '\'', $cell);
            $row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
            $y++;
@@ -254,6 +255,7 @@ function createJuniorCSV($filename) {
            $cell = preg_replace('/\s+/', ' ', trim($cell));
            // strip leading $ signs, seem to come from formatting numbers as currency
            $cell = preg_replace('/^\$/', '', $cell);
+           $cell = str_replace('’', '\'', $cell);
            $cell = str_replace('"', '\'', $cell);
            $row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
            $y++;
@@ -540,7 +542,7 @@ $str = <<<TRANSFORMATION
         rdfs:label "B2 & ' as ' & D2"^^xl:Expr ;
         gov:postholder [ xl:uri "'$fileURL#person' & ROW(A2)"^^xl:Expr ] ;
         gov:post [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & A2"^^xl:Expr ] ;
-        gov:salary "IF(UCASE(STRING(P2)) != 'N/D' && UCASE(STRING(P2)) != 'N/A', LONG(P2))"^^xl:Expr ;
+        gov:salary "IF(!EMPTY(P2), IF(UCASE(STRING(P2)) != 'N/D' && UCASE(STRING(P2)) != 'N/A', LONG(P2)))"^^xl:Expr ;
         gov:fullTimeEquivalent "DOUBLE(M2)"^^xl:Expr ;
         foaf:page <$fileURL> ;
       ] ;
@@ -615,8 +617,8 @@ $str = <<<TRANSFORMATION
     qb:dataSet <$fileURL#totalPay> ;
     organogram:date <http://reference.data.gov.uk/id/day/$date> ;
     organogram:tenure [ xl:uri "'$fileURL#tenure' & ROW(A2)"^^xl:Expr ; ] ;
-    organogram:totalPay "IF(UCASE(STRING(P2)) != 'N/D' && UCASE(STRING(P2)) != 'N/A', LONG(P2))"^^xl:Expr ;
-    sdmxa:obsStatus [ xl:uri "IF(UCASE(STRING(P2)) == 'N/D', 'http://purl.org/linked-data/sdmx/2009/code#obsStatus-M')"^^xl:Expr ] ;
+    organogram:totalPay "IF(!EMPTY(P2), IF(UCASE(STRING(P2)) != 'N/D' && UCASE(STRING(P2)) != 'N/A', LONG(P2)))"^^xl:Expr ;
+    sdmxa:obsStatus [ xl:uri "IF(!EMPTY(P2), IF(UCASE(STRING(P2)) == 'N/D', 'http://purl.org/linked-data/sdmx/2009/code#obsStatus-M'))"^^xl:Expr ] ;
     .
 
   # non-disclosed names
@@ -629,7 +631,7 @@ $str = <<<TRANSFORMATION
     .
 
   # non-disclosed total pay
-  [ xl:uri "IF(UCASE(STRING(P2)) == 'N/D' && (UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2'), '$fileURL#totalPayDisclosure' & ROW(A2))"^^xl:Expr ]
+  [ xl:uri "IF(!EMPTY(P2), IF(UCASE(STRING(P2)) == 'N/D' && (UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2'), '$fileURL#totalPayDisclosure' & ROW(A2)))"^^xl:Expr ]
     a gov:NonDisclosure , rdf:Statement ;
     rdfs:label "'Non-Disclosure of total pay of ' & B2 & ' as ' & D2"^^xl:Expr ;
     rdf:subject [ xl:uri "'$fileURL#tenure' & ROW(A2)"^^xl:Expr ] ;
