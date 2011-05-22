@@ -98,6 +98,7 @@ div#right ul li#orientation span
 	right:135px;
 	top:55px;
 	width:290px;
+	z-index:999;
 }
 body.IE8 div#infobox {
 	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=225, Color='#777777')";

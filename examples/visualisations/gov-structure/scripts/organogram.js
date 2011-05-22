@@ -1172,7 +1172,7 @@ var Orgvis = {
 		 * Establish the first node of the organogram 
 		 * (the post that doesn't report to any other posts)
 		 */
-		 var originalPostInQuestion = Orgvis.vars.postInQuestion;
+		var originalPostInQuestion = Orgvis.vars.postInQuestion;
 		 
 		if(typeof Orgvis.vars.postInQuestion.reportsTo != 'undefined') {
 			for(var j=0;j<Orgvis.vars.postInQuestion.reportsTo.length;j++){
@@ -1529,6 +1529,10 @@ var Orgvis = {
 			log(e);
 		}
 		
+		if(typeof el.withJob.prefLabel != 'string'){
+			node.name = el.withJob.prefLabel[0];
+		}
+		
 		//log('makeJuniorNode: node made:');
 		//log(node);
 		
@@ -1670,10 +1674,10 @@ var Orgvis = {
 	*/	
 	connectJuniorPosts:function(json){
 		
-		//log("Connecting junior posts:");
+		log("Connecting junior posts:");
 		
 		var items = json.result.items;
-		//log(items);
+		log(items);
 		
 		var postChildren = [];
 		
@@ -1695,7 +1699,7 @@ var Orgvis = {
 		el.inUnit.label[0]							Civil Service Capabilities Group
 		*/		
 		
-		if(items.length>1){
+		//if(items.length>1){
 			for(var i in items){
 				
 				var pSlug = Orgvis.getSlug(items[i].withProfession._about);
@@ -1837,11 +1841,12 @@ var Orgvis = {
 				}	// end if items[i] reportsTo						
 			} // end for loop
 			
-		} else if (items.length == 1) {
-			postChildren.push(Orgvis.makeJuniorNode(items[0]));
-		} else {
-			return false;
-		}
+		//} else if (items.length == 1) {
+		//	log("Connecting one junior post");
+		//	postChildren.push(Orgvis.makeJuniorNode(items[0]));
+		//} else {
+		//	return false;
+		//}
 		
 		//log('byUnit');
 		//log(byUnit);
@@ -1862,15 +1867,15 @@ var Orgvis = {
 		
 		if(pNodes != 'undefined'){
 			log("--------------------------------------");
-			//log("setChildrenAdded pNodes ");
-			//log(pNodes);	
+			log("setChildrenAdded pNodes ");
+			log(pNodes);	
 			// check to see if pNodes is an object or an array
 			if(pNodes.constructor.toString().indexOf("Array") == -1){
-				//log("pNodes:");
-				//log(pNodes);
+				log("pNodes:");
+				log(pNodes);
 				nodes.push(pNodes);
-				//log("nodes:")
-				//log(nodes);
+				log("nodes:")
+				log(nodes);
 			} else {
 				nodes = pNodes;
 			}
@@ -1878,15 +1883,18 @@ var Orgvis = {
 			for(var i in nodes){
 			
 				if(nodes[i].name != "No Junior Posts" && nodes[i].data.nodeType != "jp_child" && nodes[i].data.type != 'junior_posts'){
-					//log("setting childrenAdded for ::::: "+nodes[i].name);
+					log("setting childrenAdded for ::::: "+nodes[i].name);
 					//nodes[i].data.childrenAdded = true;
 					//$("div#"+nodes[i].id).css({ opacity: 1 });
 					
 					
 					try {
+						
+						log(nodes[i].id);
+						
 						var visNode = Orgvis.vars.global_ST.graph.getNode(nodes[i].id);
 					
-						//log("<><><>");log(visNode);
+						log("<><><>");log(visNode);
 					
 						visNode.data.childrenAdded = true;
 					} catch(e){
@@ -2574,10 +2582,17 @@ $.myJSONP = function(s,callName,n) {
 
 function log(info){
 	Orgvis.vars.debug && window.console && console.log && console.log(info);
+	//if (Orgvis.vars.debug && $.browser.msie && $.browser.version.substr(0,1)<7) {
+	//	alert(info);
+	//}
 }
 
 $(document).ready(function() {
-
+	
+	//if (Orgvis.vars.debug && $.browser.msie && $.browser.version.substr(0,1)<7) {	
+	//	Orgvis.init('co','','10',false,'clear');
+	//}
+	
 	$("#infobox").hide();
 	$("#infovis").width($(window).width()-0);
 	$("#infovis").height($(window).height()-30);	
