@@ -48,7 +48,7 @@ The set of property chains is constructed by combining:
 
   * the property chains specified in the `_properties` request parameter
   * the property chains specified in the `api:properties` property of the viewer
-  * the property chains specified in the `api:property` property of the viewer
+  * the properties specified with the `api:property` properties of the viewer
 
 The `api:property` property should point to either individual instances of `rdf:Property` or `rdf:List`s whose items are all instances of `rdf:Property`.
 
