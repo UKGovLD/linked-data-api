@@ -299,18 +299,18 @@ var Orgvis = {
 						case 'jp_child' : 
 							// Node is a Junior Post					
 							var fteTotal = Math.round(node.data.fullTimeEquivalent*100)/100;						
-							label.innerHTML = label.innerHTML + '<span class="jp_grade">'+node.data.grade.payband.salaryRange+'</span>' + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+fteTotal+'</span>';
+							label.innerHTML = label.innerHTML + '<span class="jp_grade">'+node.data.grade.payband.salaryRange+'</span>' + '<span class="heldBy">'+fteTotal+'</span>';
 							break;
 						
 						case 'jp_group' :
 							// Node is a Junior Post Group
 							var fteTotal = Math.round(node.data.fteTotal*100)/100;
-							label.innerHTML = label.innerHTML + '<span class="jp_grade">'+node.data.property+'</span>' + '<span class="heldBy" style="background-color:'+node.data.colour+'">'+fteTotal+'</span>';						
+							label.innerHTML = label.innerHTML + '<span class="jp_grade">'+node.data.property+'</span>' + '<span class="heldBy">'+fteTotal+'</span>';						
 							break;
 						
 						case 'jp_parent' :
 							// Node is a Junior Post parent
-							label.innerHTML = label.innerHTML + '<span class="heldBy" style="background-color:'+node.data.colour+';">'+node.data.fteTotal+'</span>';
+							label.innerHTML = label.innerHTML + '<span class="heldBy">'+node.data.fteTotal+'</span>';
 							label.innerHTML += '<div class="jp_group_selector"><ul>' + 
 							'<li class="profession">Profession</li>' + 
 							'<li class="unit">Unit</li>' + 
@@ -323,7 +323,7 @@ var Orgvis = {
 					//log(node.data.colour);
 					$(label).css('color',node.data.colour);	
 				} else {
-					log("clicked something, but not sure what!");
+					//log("clicked something, but not sure what!");
 				}
 				
 				label.onclick = function(){ 										
@@ -334,9 +334,9 @@ var Orgvis = {
 						    enable: Orgvis.vars.autoalign
 						};
 						
-						log("label.onclick - ");
-						log("X: "+Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetX);
-						log("Y: "+Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetY);
+						//log("label.onclick - ");
+						//log("X: "+Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetX);
+						//log("Y: "+Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetY);
 
 						if(Orgvis.vars.transX != Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetX || Orgvis.vars.transY != Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetY){
 							log("Panning has occurred");
@@ -346,7 +346,7 @@ var Orgvis = {
 							//Orgvis.vars.transY = Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetY;
 	
 						} else {
-							log("Panning has not occurred");
+							//log("Panning has not occurred");
 						}
 
 
@@ -356,7 +356,7 @@ var Orgvis = {
 							
 							default :
 								// A post has been clicked
-								log('a post node has been clicked');	
+								//log('a post node has been clicked');	
 								$("div.jp_group_selector").hide();		
 								$("div.node").css("border","1px solid #AAAAAA");
 								$("div#"+node.id).css("border","3px solid #333333");
@@ -393,7 +393,7 @@ var Orgvis = {
 							
 							case 'junior_posts' :
 								
-								log('clicked junior_posts node');
+								//log('clicked junior_posts node');
 								
 								switch(node.data.nodeType){
 									
@@ -411,7 +411,7 @@ var Orgvis = {
 										
 										// A "JUNIOR POSTS" node has been clicked
 										
-										log('clicked junior_posts:jp_parent');
+										//log('clicked junior_posts:jp_parent');
 										
 										if(st.clickedNode !== node){
 											$("#infobox").fadeOut('fast');
@@ -425,7 +425,7 @@ var Orgvis = {
 										$("div#"+node.id+" div.jp_group_selector ul li").unbind('click');
 										$("div#"+node.id+" div.jp_group_selector ul li").bind('click',function(event){
 
-											log("jp_parent clicked, class="+$(this).attr("class"));
+											//log("jp_parent clicked, class="+$(this).attr("class"));
 											$("div#"+node.id+" div.jp_group_selector ul li").removeClass("selected");
 											
 											if($(this).hasClass("profession")){
@@ -1529,8 +1529,8 @@ var Orgvis = {
 						label:el.inUnit.label[0],
 						uri:el.inUnit._about
 					},
-					fullTimeEquivalent:el.fullTimeEquivalent,
-					colour:Orgvis.vars.colours[Orgvis.vars.jpColourCounter]
+					fullTimeEquivalent:el.fullTimeEquivalent
+					//colour:Orgvis.vars.colours[Orgvis.vars.jpColourCounter]
 				},
 				children:[]
 			};
@@ -1546,12 +1546,12 @@ var Orgvis = {
 		//log('makeJuniorNode: node made:');
 		//log(node);
 		
-		if(Orgvis.vars.jpColourCounter == Orgvis.vars.colours.length-1){
+		/*if(Orgvis.vars.jpColourCounter == Orgvis.vars.colours.length-1){
 			Orgvis.vars.jpColourCounter = 0;
 		} else {
 			Orgvis.vars.jpColourCounter++;		
 		}
-		
+		*/
 		Orgvis.vars.jpCounter++;
 		
 		return node;

@@ -482,6 +482,7 @@ div.panel h3 a.name
 }
 div.juniorPost {
     background-color: #6A6A6A;
+    color:#E6D9FF !important;
     /*font-family: Helvetica;
     font-size: 11px !important;*/
     /*font-weight: bold;*/
@@ -496,6 +497,7 @@ div.juniorPost span.heldBy {
     border: 1px solid #9A9A9A;
     bottom: -13px;
     color: #000000;
+    background-color:#FFFFCC !important;
     font-size: 10px;
     height: 14px;
     line-height: 20px;
