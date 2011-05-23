@@ -1457,7 +1457,11 @@ var Orgvis = {
 			},
 			children:[]	            		
 		};	
-		
+
+		if(typeof groupName != 'string'){
+			node.name = groupName[0];
+		}
+				
 		if(Orgvis.vars.jpColourCounter == Orgvis.vars.colours.length-1){
 			Orgvis.vars.jpColourCounter = 0;
 		} else {
@@ -2257,7 +2261,13 @@ var Orgvis = {
 		html += '<div class="content ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-corner-top">';
 		
 		html += '<p class="job"><span>Job</span><span class="value">'+node.data.job+'</span></p>';
-		html += '<p class="profession"><span>Profession</span><span class="value">'+node.data.profession+'</span></p>';
+		
+		if(typeof node.data.profession != 'string'){
+			html += '<p class="profession"><span>Profession</span><span class="value">'+node.data.profession[0]+'</span></p>';
+		} else {
+			html += '<p class="profession"><span>Profession</span><span class="value">'+node.data.profession+'</span></p>';
+		}		
+		
 		html += '<p class="fte"><span>Full Time Equivalent</span><span class="value">'+node.data.fullTimeEquivalent+'</span></p>';
 		html += '<p class="grade"><span>Grade</span><span class="value">'+node.data.grade.label+'</span></p>';
 		html += '<p class="payband"><span>Payband</span><span class="value">'+node.data.grade.payband.label+'</span></p>';
