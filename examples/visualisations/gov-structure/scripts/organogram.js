@@ -437,7 +437,12 @@ var Orgvis = {
 													data:node.data,
 													children:node.data.byProfession
 												};
-												tree.children.sort(dynamicSort("name"));
+												
+												//tree.children.sort(sort_name());
+												
+												//for(var i in tree.children){
+												//	tree.children[i].children.sort(sort_salaryRangeVal("data.salaryRangeVal"));
+												//}
 												
 												Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
 							                        hideLabels: false,  
@@ -458,7 +463,8 @@ var Orgvis = {
 													data:node.data,
 													children:node.data.byUnit
 												};
-												tree.children.sort(dynamicSort("name"));
+
+												//tree.children.sort(dynamicSort("name"));
 												
 												Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
 							                        hideLabels: false,  
@@ -479,7 +485,7 @@ var Orgvis = {
 													data:node.data,
 													children:node.data.byGrade
 												};
-												tree.children.sort(dynamicSort("name"));
+												//tree.children.sort(dynamicSort("name"));
 			
 												Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
 							                        hideLabels: false,  
@@ -500,7 +506,7 @@ var Orgvis = {
 													data:node.data,
 													children:node.data.unGrouped
 												};
-												tree.children.sort(dynamicSort("name"));
+												//tree.children.sort(dynamicSort("name"));
 												
 												Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
 							                        hideLabels: false,  
@@ -1814,20 +1820,27 @@ var Orgvis = {
 						
 							postChildren[k].data.fteTotal = Math.round(postChildren[k].data.fteTotal*100)/100;
 							postChildren[k].data.byProfession = [];
-							for(var h in byProfession){
-								byProfession[h].children.sort(dynamicSort("salaryRangeVal"));
-								postChildren[k].data.byProfession.push(byProfession[h]);
+							for(var p in byProfession){
+								byProfession[p].children.sort(sort_salaryRangeVal());
+								postChildren[k].data.byProfession.push(byProfession[p]);
 							}
+							postChildren[k].data.byProfession.sort(sort_name());
 
 							postChildren[k].data.byUnit = [];
-							for(var h in byUnit){
-								postChildren[k].data.byUnit.push(byUnit[h]);
+							for(var u in byUnit){
+								byUnit[u].children.sort(sort_salaryRangeVal());
+								postChildren[k].data.byUnit.push(byUnit[u]);
 							}
-							postChildren[k].data.byGrade = [];
-							for(var h in byGrade){
-								postChildren[k].data.byGrade.push(byGrade[h]);
-							}
+							postChildren[k].data.byUnit.sort(sort_name());
 							
+							postChildren[k].data.byGrade = [];
+							for(var g in byGrade){
+								byGrade[g].children.sort(sort_name());
+								postChildren[k].data.byGrade.push(byGrade[g]);
+							}
+							postChildren[k].data.byGrade.sort(sort_prop());
+							
+							postChildren[k].children.sort(sort_salaryRangeVal());
 							postChildren[k].data.unGrouped = postChildren[k].children;
 																												
 							//postChildren[k].data.byProfession = byProfession;
@@ -2486,7 +2499,28 @@ function addCommas(nStr) {
 
 function dynamicSort(property) {
     return function (a,b) {
+    	log('dynamicSort');
+    	log(a.property);
+    	log(b.property);
         return (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+    }
+}
+
+function sort_name() {
+    return function (a,b) {
+        return (a.name < b.name) ? -1 : (a.name > b.name) ? 1 : 0;
+    }
+}
+
+function sort_salaryRangeVal() {
+    return function (a,b) {
+        return (a.data.salaryRangeVal < b.data.salaryRangeVal) ? -1 : (a.data.salaryRangeVal > b.data.salaryRangeVal) ? 1 : 0;
+    }
+}
+
+function sort_prop() {
+    return function (a,b) {
+        return (a.data.property < b.data.property) ? -1 : (a.data.property > b.data.property) ? 1 : 0;
     }
 }
 
