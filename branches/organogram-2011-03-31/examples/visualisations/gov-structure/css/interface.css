@@ -504,7 +504,7 @@ span#previewModeSign {
     position: fixed;
     right: 0;
     text-align: center;
-    z-index: 0;
+    z-index: 999;
     box-shadow: 10px 10px 25px #000000;
     -moz-box-shadow: 10px 10px 25px #000000;
     -webkit-box-shadow: 10px 10px 25px #000000;
