@@ -587,11 +587,11 @@ div.node div.jp_group_selector ul li {
 }
 div.node div.jp_group_selector ul li:hover {
 	cursor: pointer;
-	background-color: #333333;
+	background-color: #999999;
 	color: #FFFFFF;
 }
 div.node div.jp_group_selector ul li.selected {
-	background-color: #999999;
+	background-color: #333333;
 	color: #FFFFFF;
 }
 div.jp_group span.jp_grade {
