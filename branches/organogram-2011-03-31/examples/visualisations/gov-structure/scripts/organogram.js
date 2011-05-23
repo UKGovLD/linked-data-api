@@ -399,6 +399,7 @@ var Orgvis = {
 									
 									default : 
 										log('clicked junior_posts:default');
+										$("#infobox").fadeOut('fast');
 										$("div.jp_group_selector").hide();
 										$("div.node").css("border","1px solid #AAAAAA");
 										$("div#"+node.id).css("border","3px solid #333333");
@@ -413,10 +414,10 @@ var Orgvis = {
 										
 										//log('clicked junior_posts:jp_parent');
 										
-										if(st.clickedNode !== node){
+										//if(st.clickedNode !== node){
 											$("#infobox").fadeOut('fast');
-											Orgvis.loadPostInfobox(node.getParents()[0]);
-										}
+											//Orgvis.loadPostInfobox(node.getParents()[0]);
+										//}
 										
 										$("div#"+node.id+" div.jp_group_selector").slideDown();
 										$("div.node").css("border","1px solid #AAAAAA");
@@ -537,6 +538,7 @@ var Orgvis = {
 									
 										// A junior post group has been clicked
 										log('clicked junior_posts:jp_group');
+										$("#infobox").fadeOut('fast');
 										$("div.jp_group_selector").hide();
 										$("div.node").css("border","1px solid #AAAAAA");
 										$("div#"+node.id).css("border","3px solid #333333");										
@@ -549,17 +551,20 @@ var Orgvis = {
 
 										// A junior post has been clicked									
 										log('clicked junior_posts:jp_child');
+										
 										$("div.jp_group_selector").hide();
 										$("div.node").css("border","1px solid #AAAAAA");
 										$("div#"+node.id).css("border","3px solid #333333");
-										Orgvis.loadJuniorPostInfoBox(node);								
+										$("#infobox").fadeOut('fast',function(){
+											Orgvis.loadJuniorPostInfoBox(node);	
+										});							
 										st.onClick(node.id, { 
 											Move: m
 										});	
 										break;
 									
 									case 'jp_none' :
-									
+										$("#infobox").fadeOut('fast');
 										log('clicked junior_posts:jp_none');
 										$("div.jp_group_selector").hide();
 										break;
