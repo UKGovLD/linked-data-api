@@ -2,7 +2,7 @@ canvas
 {
 	cursor:move;
 }
-#infovis
+div#infovis
 {
 	bottom:0;
 	height:800px;
@@ -12,6 +12,9 @@ canvas
 	position:fixed;
 	width:800px;
 }
+body.IE6 div#infovis {
+	display: none;
+}
 div#right div#nav
 {
 	height:78px;
@@ -19,6 +22,9 @@ div#right div#nav
 	padding:1px;
 	position:relative;
 	width:79px;
+}
+body.IE6 div#right {
+	display:none;
 }
 body.IE7 div#right div#nav
 {

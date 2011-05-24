@@ -262,6 +262,9 @@ body.IE8 div#right {
 body.IE7 div#right {
 	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=225, Color='#777777');
 }
+body.IE6 div#right {
+	display:none;
+}
 div#right p {
 	text-shadow:1px 1px #111111;
 	margin-top:25px;
@@ -521,4 +524,18 @@ span#previewModeSign span {
     position: relative;
     text-transform: uppercase;
     width: 155px;
+}
+body.IE6 {
+
+}
+div.ieBanner {
+clear: both; 
+height: 59px; 
+padding:15px; 
+position: relative;
+margin-top:15%;
+background-color: #000000;
+border:5px solid #444444;
+color:#FFFFFF;
+width:1000px;
 }

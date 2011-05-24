@@ -356,7 +356,7 @@ var Orgvis = {
 							
 							default :
 								// A post has been clicked
-								//log('a post node has been clicked');	
+								log('a post node has been clicked');	
 								$("div.jp_group_selector").hide();		
 								$("div.node").css("border","1px solid #AAAAAA");
 								$("div#"+node.id).css("border","3px solid #333333");
@@ -365,15 +365,17 @@ var Orgvis = {
 									Orgvis.loadPostInfobox(node);
 								});
 																
-								
-								if(!node.data.gotStats){
-									Orgvis.getStatisticsData(node);
-								}
-
-								//log("### clicked, node.name="+node.name);
+								log("### clicked, node.name="+node.name);
 								//log("### clicked, node.data.childrenAdded="+node.data.childrenAdded);
 								//log("### clicked, Orgvis.vars.postList[postID].data.childrenAdded="+Orgvis.vars.postList[postID].data.childrenAdded);
-								
+
+								log(node.data.gettingStats);
+								log(node.data.gotStats);
+								if(!node.data.gotStats && !node.data.gettingStats){
+									node.data.gettingStats = true;
+									Orgvis.getStatisticsData(node);
+								}								
+						
 								var postID = Orgvis.getSlug(node.data.uri);	
 								
 								// On-demand handling
@@ -382,7 +384,7 @@ var Orgvis = {
 									node.data.onDemandInAction = true;
 									$("div#"+node.id+" span.childLoader").show();
 									Orgvis.getPostReportsOnDemand(node);
-									Orgvis.getJuniorStaffOnDemand(node);
+									Orgvis.getJuniorStaffOnDemand(node);									
 								}					
 								
 								st.onClick(node.id, { 
@@ -1309,7 +1311,8 @@ var Orgvis = {
 					salaryRange:item.salaryRange ? item.salaryRange.label : 'not disclosed',
 					processed:false,
 					childrenAdded:false,
-					gotStats:false
+					gotStats:false,
+					gettingStats:false
 				},
 				children:[]
 		};
@@ -2264,8 +2267,13 @@ var Orgvis = {
 		var html = '<h1>'+node.name+'</h1>';
 		html += '<div class="panel ui-accordion ui-widget ui-helper-reset ui-accordion-icons">';
 		html += '<div class="content ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-corner-top">';
-		
-		html += '<p class="job"><span>Job</span><span class="value">'+node.data.job+'</span></p>';
+
+
+		if(typeof node.data.job != 'string'){
+			html += '<p class="profession"><span>Profession</span><span class="value">'+node.data.job[0]+'</span></p>';
+		} else {
+			html += '<p class="profession"><span>Profession</span><span class="value">'+node.data.job+'</span></p>';
+		}
 		
 		if(typeof node.data.profession != 'string'){
 			html += '<p class="profession"><span>Profession</span><span class="value">'+node.data.profession[0]+'</span></p>';
@@ -2770,8 +2778,13 @@ $(document).ready(function() {
 		$("div#log").corner();
 		$("div#right").corner("tl bl 10px");
 	}
-
-	$("div#right").show();
+	
+	if($.browser.msie && $.browser.version.substr(0,1)<7) {	
+		// If less than IE7
+	} else {
+		$("div#right").show();
+	}
+	
 	
 	$(window).resize(function(){
 		$("#infovis").width($(window).width()-0);

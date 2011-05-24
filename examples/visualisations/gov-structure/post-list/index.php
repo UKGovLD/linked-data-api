@@ -67,6 +67,16 @@
 	<label for="sortBy" class="sortBy">Sort by</label>
 </h1>
 
+
+<!--[if lt IE 7]>
+<div class="ieBanner">
+	<p>This application isn't going to work as it makes use of plugins and animation techniques that require a relatively modern browser.</p>
+	<a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+		<img src="http://www.theie6countdown.com/images/banners/warning_bar_0000_us.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." />
+	</a>
+</div>
+<![endif]--> 
+
 <div id="infovis">
 <div class="postHolder">
 <!-- -->
