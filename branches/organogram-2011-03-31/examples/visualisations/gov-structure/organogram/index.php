@@ -31,6 +31,10 @@
 <title>Organogram Data | Organogram Viewer</title>
 </head>
 
+<!--[if lt IE 7]>
+	<body class="IE6">
+<![endif]--> 
+
 <!--[if IE 7]>
 	<body class="IE7" onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');"> 
 <![endif]-->
@@ -43,9 +47,19 @@
   <body onload="Orgvis.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['post'];?>',false,'<?php print $_GET['preview'];?>');">
 <![endif]> 
 
+
 <h1 class="title breadcrumbs">
 	<button id="dept">Department</button><button id="unit">Unit</button><button id="post">Post</button>
 </h1>
+
+<!--[if lt IE 7]>
+<div class="ieBanner">
+	<p>This application isn't going to work as it makes use of plugins and animation techniques that require a relatively modern browser.</p>
+	<a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+		<img src="http://www.theie6countdown.com/images/banners/warning_bar_0000_us.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." />
+	</a>
+</div>
+<![endif]--> 
 
 <div id="infovis"></div>
 
@@ -107,10 +121,6 @@
 
 </div>
 
-<div id="log">
-	<span></span>
-	<img src="../images/loading.gif" />
-</div>
 
 <!--
 div id="login">

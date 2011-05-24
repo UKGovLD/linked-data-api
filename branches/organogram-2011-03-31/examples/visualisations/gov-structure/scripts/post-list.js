@@ -572,7 +572,12 @@ $(document).ready(function() {
 	
 	$("select#sortBy").val("--");
 		
-	$("div#right").show();
+	if($.browser.msie && $.browser.version.substr(0,1)<7) {	
+		// If less than IE7
+		$("h1 > *").hide();
+	} else {
+		$("div#right").show();
+	}
 	
 	if($.browser.msie) {
 		$("div#log").corner();
