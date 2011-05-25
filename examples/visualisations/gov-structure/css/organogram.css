@@ -488,7 +488,6 @@ div.panel h3 a.name
 }
 div.juniorPost {
     background-color: #6A6A6A;
-    color:#E6D9FF !important;
     /*font-family: Helvetica;
     font-size: 11px !important;*/
     /*font-weight: bold;*/
@@ -515,7 +514,14 @@ div.juniorPost span.heldBy {
 div.jp_parent {
 	color:#FFFFFF !important;
 }
+div.jp_group {
+	color:#CEF9D2 !important;
+    /*font-size: 10px !important;*/
+    height: auto !important;
+    line-height: 18px !important;
+}
 div.jp_child {
+	color:#E6D9FF !important;
 	/*font-size:10px !important;*/
 	line-height: 18px !important;
 	height:auto !important;
@@ -612,11 +618,6 @@ div.jp_group span.jp_grade {
     font-weight: normal;
     margin-left: -3px;
     width: 176px;
-}
-div.jp_group {
-    /*font-size: 10px !important;*/
-    height: auto !important;
-    line-height: 18px !important;
 }
 body.IE7 div.node span.childLoader {
 	position:relative;
