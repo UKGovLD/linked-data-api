@@ -59,6 +59,7 @@ WHERE {
     foaf:page <$graph> ;
     rdfs:label ?bodyLabel .
   ?post gov:postIn ?body ;
+    foaf:page <$graph> ;
     grade:grade ?grade .
   { ?post postStatus:postStatus postStatus:vacant . } 
   UNION 
