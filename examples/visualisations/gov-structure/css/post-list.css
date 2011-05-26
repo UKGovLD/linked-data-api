@@ -61,11 +61,13 @@ body.IE7 h1.title label.loadBy {
     margin-right: 168px;
 }
 #infovis {
+    bottom: 0;
     left: 10px;
     margin: auto;
+    overflow-y: auto;
     position: absolute;
-    right: 115px;
     top: 35px;
+    z-index: 9999;
 }
 #infovis div.postHolder {
     height: auto !important;
@@ -113,14 +115,15 @@ opacity:0.7;
     width: 130px;
 }
 #infovis div.post p.name {
-    background-position:50% 60% !important;
+    background-position: 50% 55% !important;
     color: #FFFFFF;
     font: 300 110.01%/1.5 "Helvetica Neue",Helvetica,"Arial Unicode MS",Arial,sans-serif;
-    margin: 0px;
+    height: 23px;
+    margin: 0;
+    overflow: hidden;
     padding-bottom: 3px;
     padding-top: 3px;
     text-shadow: -1px -1px #3A1B67;
-    /*width: 100%;*/
 }
 #infovis div.post p.comment {
     font-size: 10px;
