@@ -798,7 +798,7 @@ var Orgvis = {
 		Orgvis.vars.apiCallInfo.juniorStaff = {
 				title:"Retrieval of all junior staff",
 				description:"This call retrieves information about the junior staff that report to the posts within this organogram, such as their grade, title and profession.",
-				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post+"/junior-staff-full",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post+"/junior-staff",
 				parameters:"?_pageSize="+pageSize,
 				complete:false
 		};		
@@ -1123,7 +1123,6 @@ var Orgvis = {
 		if(Orgvis.vars.previewMode || Orgvis.vars.previewParam){
 			s.username = $.cookie('organogram-username');
 			s.password = $.cookie('organogram-password');
-			//s.url = s.url.replace("juniorStaffFull","junior-staff-full");
 		}
 
 		Orgvis.notify("Loading","Junior staff for "+node.name+"...",true,"loading_jp_onDemand_"+postID);		
@@ -1422,8 +1421,8 @@ var Orgvis = {
 		Orgvis.vars.postList[Orgvis.vars.global_post].data.childrenAdded = true;
 				
 		for(var i in Orgvis.vars.apiResponses){			
-			if(Orgvis.vars.apiResponses[i].result._about.indexOf("junior-staff-full") > 0){
-				log("connectJuniorPosts: found junior-staff-full data");
+			if(Orgvis.vars.apiResponses[i].result._about.indexOf("junior-staff") > 0){
+				log("connectJuniorPosts: found junior-staff data");
 				Orgvis.connectJuniorPosts(Orgvis.vars.apiResponses[i]);	
 			}
 		}
@@ -1519,9 +1518,9 @@ var Orgvis = {
 				children:[]
 		};
 		
-		if(typeof item.salaryRange == 'undefined'){
-			node.data.salaryRange = 'Not disclosed';
-		}
+		//if(typeof item.salaryRange == 'undefined'){
+		//	node.data.salaryRange = 'Not disclosed';
+		//}
 		
 		if(typeof item._about != 'undefined') {
 			node.data.uri = item._about;
@@ -1928,7 +1927,7 @@ var Orgvis = {
 		*/		
 		
 		//if(items.length>1){
-			for(var i in items){
+			for(var i in items) {
 				
 				var pSlug = Orgvis.getSlug(items[i].withProfession._about);
 				var gSlug = Orgvis.getSlug(items[i].atGrade._about);
@@ -2022,13 +2021,14 @@ var Orgvis = {
 							
 								//log("Found the post's Junior Posts node:")
 								//log(postChildren[k]);
+								
 								Orgvis.vars.postList["JP_"+postID] = postChildren[k];
 								//Orgvis.vars.postList["JP_"+postID] = {id:$.generateId(),name:"Test",data:{},children:[]};
 								// Add the actual junior staff item to the Junior Posts node
 								postChildren[k].children.push(Orgvis.makeJuniorNode(items[i]));
 							
-								//log("el.fullTimeEquivalent:");
-								//log(el.fullTimeEquivalent);
+								//log("items[i].fullTimeEquivalent:");
+								//log(items[i].fullTimeEquivalent);
 							
 								postChildren[k].data.fteTotal += items[i].fullTimeEquivalent;
 							
@@ -2041,6 +2041,7 @@ var Orgvis = {
 							}
 						
 							postChildren[k].data.fteTotal = Math.round(postChildren[k].data.fteTotal*100)/100;
+							
 							postChildren[k].data.byProfession = [];
 							for(var p in byProfession){
 								byProfession[p].children.sort(sort_salaryRangeVal());
@@ -2364,7 +2365,7 @@ var Orgvis = {
 		var tempUnitID;
 		var tempUnitLabel;
 	
-		//log(node);
+		log(node);
 		
 		for(var j=0;j<node.data.postIn.length;j++){
 			if(node.data.postIn[j]._about.indexOf("/unit/") >= 0){
@@ -2393,10 +2394,14 @@ var Orgvis = {
 			
 			html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+'&preview='+Orgvis.vars.previewMode+'">Load organogram</a></p>';
 			
-			if(node.data.heldBy.length > 1){
-				html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i].label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';				
+			if(node.data.salaryRange){
+				if(node.data.heldBy.length > 1){
+					html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i].label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';				
+				} else {
+					html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange.label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
+				}
 			} else {
-				html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange.label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
+				//html += '<p class="salary"><span>Salary</span><span class="value">Not disclosed</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';			
 			}
 			//'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'
 

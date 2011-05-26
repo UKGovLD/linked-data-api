@@ -376,7 +376,7 @@ var PostList = {
 			  salaryRange = null;
 			}
 			if(salaryRange){
-				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">'+salaryRange+'</td></tr>';
+				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">'+addCommas(salaryRange)+'</td></tr>';
 			}else {
 				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">?</td></tr>';			
 			}
