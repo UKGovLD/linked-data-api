@@ -1211,24 +1211,38 @@ var Orgvis = {
 	},
 	onDemandAddNodes:function(node,postID,originalChildren){
 
-		Orgvis.vars.global_ST.addSubtree(Orgvis.vars.postList[postID], 'animate', {  
-	        hideLabels: false,  
-	        onAfterCompute: function(){
-	        	Orgvis.onDemandAfterCompute(node,postID,originalChildren);
-	        }
-	    });		
-
-    	setTimeout(function(){
-    		if(node.data.onDemandInAction){
-    			Orgvis.onDemandAfterCompute(node,postID,originalChildren);
-    		}
-    	},3000);	
-        			
+		log("onDemandAddNodes()");
+		
+		if(!Orgvis.vars.addSubtreeBusy){
+			
+			Orgvis.vars.addSubtreeBusy = true;
+			
+			Orgvis.vars.global_ST.addSubtree(Orgvis.vars.postList[postID], 'animate', {  
+		        hideLabels: false,  
+		        onAfterCompute: function(){
+		        	Orgvis.onDemandAfterCompute(node,postID,originalChildren);
+		        }
+		    });		
+	
+	    	setTimeout(function(){
+	    		if(node.data.onDemandInAction){
+	    			Orgvis.onDemandAfterCompute(node,postID,originalChildren);
+	    		}
+	    		Orgvis.vars.addSubtreeBusy = false;
+	    	},1000);
+	    	
+	    		
+        
+        } else {
+        	setTimeout(function(){
+        		Orgvis.onDemandAddNodes(node,postID,originalChildren);
+        	},500);
+        }
 		return false;
 	},
 	onDemandAfterCompute:function(node,postID,originalChildren){
 		
-		log("onDemandAfterCompute:");
+		log("onDemandAfterCompute():");
 		log(node.name+"'s originalChildren: "+originalChildren);
 		log(node.name+"'s newChildren: "+Orgvis.vars.postList[postID].children.length);
 		
