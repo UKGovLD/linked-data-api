@@ -20,54 +20,22 @@ var PostList = {
 		postType:"",
 		grade:"",
 		previewMode:false,		// Used to initialise authentication and to swap API locations
+		previewParam:false,
 		apiCallInfo:{},
 		debug:true,
 		apiBase:"http://reference.data.gov.uk"
 	},
-	init:function(pDept,pBod,pUnit,pType,pGrade,pMode){
+	init:function(pDept,pBod,pUnit,property,value,pMode){
 	
-		if(pMode == "clear") {
+		if(pMode == "clear"){
 			$.cookie("organogram-preview-mode", null);
 			$.cookie("organogram-username", null);
 			$.cookie("organogram-password", null);
-			window.location = "?dept="+pDept+"&pubbod="+pBod+"&unit="+pUnit+"&type="+pType+"&grade="+pGrade;
 		}
 
 		log('$.cookie("organogram-preview-mode"):'+$.cookie("organogram-preview-mode"));
-		log(pMode);
-		
-		log(pDept+","+pBod+","+pUnit+","+pType+","+pGrade+","+pMode);
-
-		// Check for preview parameter
-		if(pMode == "true"){
-			log("Param: In preview mode");
-			// In preview mode
+		log("pMode: "+pMode);
 			
-			/*
-			if($.cookie("organogram-preview-mode") == "true") {
-				// Already authenticated
-				Orgvis.vars.previewMode = pMode;
-				Orgvis.vars.apiBase = "organogram.data.gov.uk";
-			} else {
-				// Ask for username and pass
-				Orgvis.showLogin();
-			}
-			*/
-			PostList.vars.previewMode = true;
-			PostList.vars.apiBase = "organogram.data.gov.uk";
-			$("span#previewModeSign").show();		
-		} else if($.cookie("organogram-preview-mode")) {
-			log("Cookie: In preview mode");
-			// In preview mode
-			PostList.vars.previewMode = true;
-			PostList.vars.apiBase = "organogram.data.gov.uk";
-			$("span#previewModeSign").show();		
-		} else {
-			log("Not in preview mode");
-			// Not in preview mode
-			PostList.vars.apiBase = "reference.data.gov.uk";
-		}
-
 		if(pDept.length>0){
 			log("department");
 			PostList.vars.org = pDept;
@@ -78,95 +46,177 @@ var PostList = {
 			PostList.vars.org = pBod;
 			PostList.vars.orgType = "public-body";
 			PostList.vars.orgTypeSlug = "pubbod";
-		}				
+		} else {
+			PostList.notify("Error","Cannot load post list, no organisation selected", true, "error_noOrg");		
+		}			
 		
 		PostList.vars.dept = pDept;
 		PostList.vars.pbod = pBod;
 		PostList.vars.unit = pUnit;
-		PostList.vars.postType = pType;
-		PostList.vars.grade = pGrade;
-		
+		PostList.vars.property = property;
+		PostList.vars.value = value;
+			
+		// Check for preview parameter
+		if(pMode == "true"){
+			log("Param: In preview mode");
+			// In preview mode
+			
+			PostList.vars.apiBase = "organogram.data.gov.uk";			
+			//PostList.vars.apiBase = "organogram.data.gov.uk/puelia5";
+			//PostList.vars.apiBase = "192.168.2.8/puelia5";
+			//PostList.vars.apiBase = "localhost/puelia5"
+			PostList.vars.previewParam = true;			
 
-		if(PostList.vars.postType.length > 0){
-			$("select#loadBy").val(PostList.vars.postType.replace("+"," "));
-			PostList.getPostsByType();
-		} else if (PostList.vars.grade.length > 0) {
-			$("select#loadBy").val(PostList.vars.grade.replace("+"," "));
-			PostList.getPostsByGrade();
+		} else if($.cookie("organogram-preview-mode")) {
+			log("Cookie: In preview mode");
+			// In preview mode
+			PostList.vars.previewMode = true;
+			$("span#previewModeSign").show();
+			PostList.vars.apiBase = "organogram.data.gov.uk";
+			//PostList.vars.apiBase = "organogram.data.gov.uk/puelia5";
+			//PostList.vars.apiBase = "192.168.2.8/puelia5";
+			//PostList.vars.apiBase = "localhost/puelia5"
 		} else {
-			PostList.vars.grade = $("select#loadBy").val();
-			PostList.getPostsByGrade();
-		}
+			log("Not in preview mode");
+			// Not in preview mode
+			PostList.vars.apiBase = "reference.data.gov.uk";
+		}	
+
+
+		switch(PostList.vars.property){
+		
+			case 'grade' :
+			
+				$("select#loadBy").val(PostList.vars.value.replace("+"," "));
+				PostList.getPostList(PostList.vars.property,PostList.vars.value);
+				break;			
+					
+			case 'type' :
+			
+				$("select#loadBy").val(PostList.vars.value.replace("+"," "));
+				PostList.getPostList(PostList.vars.property,PostList.vars.value);
+				break;
+				
+			default :
+			
+				PostList.vars.property = "grade";
+				PostList.vars.value = $("select#loadBy").val();
+				PostList.getPostList(PostList.vars.property,PostList.vars.value);
+				break;			
+		}	
 
 		$('div#apiCalls').hide();
 		$("a.source").remove();
 		$('div.apiCall').remove();
 				
 	},
-	getPostsByType:function(){
+	getPostList:function(property,value){
 		
-		$("div.noPosts").hide();
-		PostList.showLog("Loading data ...");
+		// (grade, Grade, SCS1)
+		// (type, Type, Deputy Director)
 
-		PostList.vars.apiCallInfo.postTypeList = {
-			title:"Posts by type",
-			description:"Retrieves posts within department by their type.",
-			url:"http://"+PostList.vars.apiBase+"/doc/department/"+PostList.vars.dept+"/post",
-			parameters:"?_pageSize=100&type.label="+PostList.vars.postType.replace(" ","+")
-		};
-		
-		$.ajax({
-			url: PostList.vars.apiCallInfo.postTypeList.url+".json"+PostList.vars.apiCallInfo.postTypeList.parameters+"&callback=?",
-			type: "GET",
-			dataType: "jsonp",
-			async:true,
-			success: function(json){	
-				PostList.vars.previewMode = "true";
-				PostList.loadPosts(json);
-			},
-			error: function(){
-				PostList.changeLog("Error loading data",false);
-			}
-		});	
-	},
-	getPostsByGrade:function(){
-		
 		$("div.noPosts").hide();
-		PostList.showLog("Loading data ...");
+		
+		var pageSize = 50;
+		var combinedJSON = {};
+		var pageNumber = 1;
 
-		PostList.vars.apiCallInfo.gradeList = {
-			title:"Posts by grade",
-			description:"Retrieve posts within a department by a specific grade.",
+		PostList.vars.apiCallInfo.postList = {
+			title:"Posts by "+property,
+			description:"Retrieves posts within department by their "+property,
 			url:"http://"+PostList.vars.apiBase+"/doc/"+PostList.vars.orgType+"/"+PostList.vars.org+"/post",
-			parameters:"?_properties=postIn.type&_pageSize=100&grade="+PostList.vars.grade.replace(" ","+")
+			parameters:"?_pageSize="+pageSize+"&"+property+"="+value.replace(" ","+"),
+			complete:false
 		};
 		
-		$.ajax({
-			url: PostList.vars.apiCallInfo.gradeList.url+".json"+PostList.vars.apiCallInfo.gradeList.parameters+"&callback=?",
+		var s = {
+			url: PostList.vars.apiCallInfo.postList.url+".json"+PostList.vars.apiCallInfo.postList.parameters+"&callback=?",
 			type: "GET",
 			dataType: "jsonp",
 			async:true,
-			success: function(json){
-				PostList.vars.previewMode = "true";	
-				if(json.result.items.length < 1){
-					PostList.displayNoPosts("grade",PostList.vars.grade);
-				} else {
-					PostList.loadPosts(json);				
-				}
-			},
+			cache:true,
 			error: function(){
-				PostList.changeLog("Error loading data",false);
-			}
-		});	
-	},	
+				$("div#loading_postsBy"+property).trigger("jGrowl.close").remove(); 					
+				PostList.notify("Error","Could not load posts by "+property, true, "error_postList");
+			},
+			success: function(json){	
+
+				if(json.result.items.length < 1){
+					$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
+					PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+					PostList.displayNoPosts(PostList.vars.property,PostList.vars.value);
+				} else {
+					
+					// Store results
+					if(typeof combinedJSON.result == 'undefined'){
+						combinedJSON = json;
+					} else {
+						combinedJSON.result.items = combinedJSON.result.items.concat(json.result.items);
+					}
+									
+					// Grab more pages	
+					if(typeof json.result.next != 'undefined'){
+						
+						log("Posts with "+property+": "+value+" ("+pageNumber+") - more pages...");
+						//log(this);
+						pageNumber++;
+						s.url = s.url+"&_page="+pageNumber;
+						s.url = s.url.replace("&_page="+(pageNumber-1),"");
+	
+						$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
+						if(pageNumber > 1){
+							PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+						} else {
+							PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber-1)+")",false,"success_postsBy"+property);
+						}
+						PostList.notify("Loading","Posts with "+property+": "+value+" ("+pageNumber+")",true,"loading_postsBy"+property);
+						
+						$.myJSONP(s,property,value);
+				
+					} else if(pageNumber > 1) {
+						// Pass data to the regData function
+						log("no more pages, loading posts");
+						log(combinedJSON);
+						
+						PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber-1)+")",false,"success_postsBy"+property);
+						$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
+						
+						PostList.vars.previewMode = "true";
+						PostList.loadPosts(combinedJSON);
+	
+						PostList.vars.apiCallInfo.postList.complete = true;
+					} else {
+						// Pass data to the regData function
+						log("no more pages, loading posts");
+						log(combinedJSON);
+						
+						PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+						$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
+						
+						PostList.vars.previewMode = "true";
+						PostList.loadPosts(combinedJSON);
+						PostList.vars.apiCallInfo.postList.complete = true;
+					}	
+				}
+			}		
+		}
+		
+		if(PostList.vars.previewMode || PostList.vars.previewParam){
+			s.username = $.cookie('organogram-username');
+			s.password = $.cookie('organogram-password');
+			//s.url = s.url.replace("reportsFull","reports-full");
+		}
+				
+		PostList.notify("Loading","Posts with "+property+": "+value, true, "loading_postsBy"+property);
+		$.myJSONP(s,property,value);
+						
+	},
 	displayNoPosts:function(filter,value){
 
 		$("div.noPosts").html('<p>No posts found for '+PostList.vars.orgType+' ID "'+PostList.vars.org+'", when filtering by '+filter+': '+value+'</p>');
 
 		PostList.displayDataSources();
-		
-		PostList.hideLog();
-		
+				
 		$("div.noPosts").show();
 		
 	},
@@ -365,8 +415,6 @@ var PostList = {
 								
 		PostList.displayDataSources();
 		
-		PostList.hideLog();
-
 	},
 	setQuickSand:function(){
 	
@@ -449,7 +497,7 @@ var PostList = {
 			
 			html += '<p class="title"><span>API call '+(i+1)+':</span>'+v.title+'</p>';
 			html += '<p class="description"><span>Description:</span>'+v.description+'</p>';
-			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'.html">'+v.url+'.html</a></p>';	
+			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'">'+v.url+'</a></p>';	
 	
 			if(v.parameters != ""){
 				html += '<p class="params"><span>Parameters:</span></p>';
@@ -506,28 +554,126 @@ var PostList = {
 			
 		return false;
 	},	
- 	showLog:function(string){
-		$("#log img").show();
-		$("#log span").html(string);
-		$("#log").fadeIn();
-		return false;
-	},
-	changeLog:function(string, showImg){
-		$("#log span").html(string);
-		if(showImg){
+	notify:function(type,message,stick,id) {
 	
-		}else {
-			$("#log img").hide();
+		$.jGrowl(message,{
+				header:type,
+				theme:type,
+				sticky:stick,
+				life:7000,
+				growlID:id
+		});
+		
+		if(type == "Success" || type == "Error"){
+			$("div#loading_data").trigger("jGrowl.close").remove();
 		}
-		return false;
+
 	},
-	hideLog:function() {
-		setTimeout(function() {
-			$("#log").fadeOut();
-		},1000);
-		return false;	
-	}		
+	getSlug:function(string){
+		var temp = string.split("/");
+		return temp[temp.length-1];
+	}	
 }; // end PostList
+
+// fn to handle jsonp with timeouts and errors
+// hat tip to Ricardo Tomasi for the timeout logic
+$.myJSONP = function(s,property,value) {
+	
+	log("myJSONP, property:"+property+", value:"+value);
+		
+    s.dataType = 'jsonp';
+    $.ajax(s);
+
+    // figure out what the callback fn is
+    var $script = $(document.getElementsByTagName('head')[0].firstChild);
+    var url = $script.attr('src') || '';
+    var cb = (url.match(/callback=(\w+)/)||[])[1];
+    if (!cb)
+        return; // bail
+    var t = 0, cbFn = window[cb];
+
+    $script[0].onerror = function(e) {
+        $script.remove();
+        handleError(s, {}, "error", e);
+        clearTimeout(t);
+    };
+
+    if (!s.timeout)
+        return;
+
+    window[cb] = function(json) {
+        clearTimeout(t);
+        cbFn(json);
+        cbFn = null;
+    };
+
+    t = setTimeout(function() {
+        $script.remove();
+        handleError(s, {}, "timeout");
+        if (cbFn)
+            window[cb] = function(){};
+    }, s.timeout);
+    
+    function handleError(s, o, msg, e) {
+
+    	log("Could not load "+s.url);
+    	
+    	// Check for initial loading notifications
+    	switch(property) {
+    	
+    		case "type" :
+    			log("myJSONP - error - closing type notification");
+    			$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
+    			break;
+    			
+    		case "grade" :
+    			log("myJSONP - error - closing grade notification");
+    			$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
+    			break;
+    			    			
+    		default :
+    			log("myJSONP - error - closing default notification");
+    			//$("div#loading_" + postID).trigger("jGrowl.close").remove();
+    			break;
+		}
+		
+		PostList.notify("Error","Could not load posts with "+property+": "+value, true,"error_handler_postsBy"+property);
+		
+		var json = {
+				result:{
+					_about:s.url,
+					items:[]
+				}
+    		};
+
+    	//if(s.url.indexOf("reports") > 0){    			
+			PostList.vars.apiCallInfo.postList.complete = true;    		
+    	//}	    		    	
+    	//if(s.url.indexOf("junior-staff") > 0){    			
+		//	PostList.vars.apiCallInfo.juniorStaff.complete = true;    		
+    	//}
+
+
+		//PostList.regData(json);					
+    	
+        // support jquery versions before and after 1.4.3
+        //($.ajax.handleError || $.handleError)(s, o, msg, e);
+    }
+};
+
+
+/* Currency formatting */
+function addCommas(nStr) {
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return x1 + x2;
+}
 
 function log(info){
 	PostList.vars.debug && window.console && console.log && console.log(info);

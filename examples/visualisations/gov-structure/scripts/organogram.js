@@ -20,6 +20,7 @@ var Orgvis = {
 		animate:false,			// var for theJIT
 		ST_move:true,			// custom var for use in core JIT code (controls tree moving on click)
 		previewMode:false,		// Used to initialise authentication and to swap API locations
+		previewParam:false,		// 
 		global_department:"",	// The department in questions ID
 		global_pubbod:"",		// The public body in questions ID
 		global_typeOfOrg:"",	// The type of organisation the post is in (used for URL slugs)
@@ -804,7 +805,7 @@ var Orgvis = {
 
 		var s = {
 			url: Orgvis.vars.apiCallInfo.juniorStaff.url+".json"+Orgvis.vars.apiCallInfo.juniorStaff.parameters+"&callback=?",
-			type: "GET",
+			type: "GET", 
 			dataType: "jsonp",
 			async:true,
 		    error:function (){
@@ -2537,7 +2538,7 @@ var Orgvis = {
 			
 			html += '<p class="title"><span>API call '+(i+1)+':</span>'+v.title+'</p>';
 			html += '<p class="description"><span>Description:</span>'+v.description+'</p>';
-			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'.html">'+v.url+'</a></p>';	
+			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'">'+v.url+'</a></p>';	
 	
 			if(v.parameters != ""){
 				html += '<p class="params"><span>Parameters:</span></p>';
@@ -2611,21 +2612,6 @@ var Orgvis = {
 		}
 		
 		return false;
-	},
-	changeLog:function(string, showImg){
-		$("#log span").html(string);
-		if(showImg){
-	
-		}else {
-			$("#log img").hide();
-		}
-		return false;
-	},
-	hideLog:function() {
-		setTimeout(function() {
-			$("#log").fadeOut();
-		},1000);
-		return false;	
 	},
 	notify:function(type,message,stick,id) {
 	
