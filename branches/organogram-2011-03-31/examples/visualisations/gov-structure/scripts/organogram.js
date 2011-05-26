@@ -434,96 +434,96 @@ var Orgvis = {
 											//log("jp_parent clicked, class="+$(this).attr("class"));
 											$("div#"+node.id+" div.jp_group_selector ul li").removeClass("selected");
 											
-											if($(this).hasClass("profession")){
-												$(this).addClass("selected");
-												// Load the junior staff grouped by profession
-												var tree = {
-													id:node.id,
-													name:node.name,
-													data:node.data,
-													children:node.data.byProfession
-												};
+											switch($(this).html()) {
+											
+												case "Profession":
 												
-												//tree.children.sort(sort_name());
+													$(this).addClass("selected");
+													var tree = {
+														id:node.id,
+														name:node.name,
+														data:node.data,
+														children:node.data.byProfession
+													};
+													
+													Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
+								                        hideLabels: false,  
+								                        onComplete: function() {}
+								                     });										
+				
+						                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
+						                        		hideLabels: false,  
+							        					onAfterCompute: function() {}
+						                        	});	
+						                        	break;
+						                        												
+												case "Unit":
 												
-												//for(var i in tree.children){
-												//	tree.children[i].children.sort(sort_salaryRangeVal("data.salaryRangeVal"));
-												//}
-												
-												Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
-							                        hideLabels: false,  
-							                        onComplete: function() {}
-							                     });										
-			
-					                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
-					                        		hideLabels: false,  
-						        					onAfterCompute: function() {}
-					                        	});
-					                        										
-											} else if($(this).hasClass("unit")){
-												$(this).addClass("selected");
-												// Load the junior staff grouped by unit
-												var tree = {
-													id:node.id,
-													name:node.name,
-													data:node.data,
-													children:node.data.byUnit
-												};
+													$(this).addClass("selected");
+													var tree = {
+														id:node.id,
+														name:node.name,
+														data:node.data,
+														children:node.data.byUnit
+													};
+													
+													Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
+								                        hideLabels: false,  
+								                        onComplete: function() {}
+								                     });										
+				
+						                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
+						                        		hideLabels: false,  
+							        					onAfterCompute: function() {}
+						                        	});
+													break;
+													
+												case "Grade":
 
-												//tree.children.sort(dynamicSort("name"));
+													$(this).addClass("selected");
+
+													var tree = {
+														id:node.id,
+														name:node.name,
+														data:node.data,
+														children:node.data.byGrade
+													};
+				
+													Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
+								                        hideLabels: false,  
+								                        onComplete: function() {}
+								                     });										
+				
+						                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
+						                        		hideLabels: false,  
+							        					onAfterCompute: function() {}
+						                        	});
+													break;
+													
+												case "Ungrouped":
+													
+													$(this).addClass("selected");
+													
+													var tree = {
+														id:node.id,
+														name:node.name,
+														data:node.data,
+														children:node.data.unGrouped
+													};
+													
+													Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
+								                        hideLabels: false,  
+								                        onComplete: function() {}
+								                     });										
+				
+						                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
+						                        		hideLabels: false,  
+							        					onAfterCompute: function() {}
+						                        	});
+													break;
+													
+												default:
 												
-												Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
-							                        hideLabels: false,  
-							                        onComplete: function() {}
-							                     });										
-			
-					                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
-					                        		hideLabels: false,  
-						        					onAfterCompute: function() {}
-					                        	});
-					                        	
-											} else if($(this).hasClass("grade")){
-												$(this).addClass("selected");
-												// Load the junior staff grouped by grade
-												var tree = {
-													id:node.id,
-													name:node.name,
-													data:node.data,
-													children:node.data.byGrade
-												};
-												//tree.children.sort(dynamicSort("name"));
-			
-												Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
-							                        hideLabels: false,  
-							                        onComplete: function() {}
-							                     });										
-			
-					                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
-					                        		hideLabels: false,  
-						        					onAfterCompute: function() {}
-					                        	});
-					                        	
-											} else if($(this).hasClass("ungroup")){
-												$(this).addClass("selected");
-												// Load the junior staff ungrouped
-												var tree = {
-													id:node.id,
-													name:node.name,
-													data:node.data,
-													children:node.data.unGrouped
-												};
-												//tree.children.sort(dynamicSort("name"));
-												
-												Orgvis.vars.global_ST.removeSubtree(node.id, false, 'replot', {  
-							                        hideLabels: false,  
-							                        onComplete: function() {}
-							                     });										
-			
-					                        	Orgvis.vars.global_ST.addSubtree(tree, 'replot', {  
-					                        		hideLabels: false,  
-						        					onAfterCompute: function() {}
-					                        	});
-					                        	
 											}
 										
 										}); // end bind click
@@ -622,14 +622,14 @@ var Orgvis = {
 			log(Orgvis.vars.apiCallInfo);
 			log(Orgvis.vars.apiResponses);
 			Orgvis.getRootPostData();
-			Orgvis.getReportsFullData();
-			Orgvis.getJuniorStaffFullData();			
+			Orgvis.getPostReportsData();
+			Orgvis.getJuniorStaffData();			
 		} else if(!reload){	
 			//Orgvis.showLog("Loading data ...");	
 			Orgvis.notify("Loading","Calling API...",true,"loading_data");				
 			Orgvis.getRootPostData();
-			Orgvis.getReportsFullData();
-			Orgvis.getJuniorStaffFullData();
+			Orgvis.getPostReportsData();
+			Orgvis.getJuniorStaffData();
 		} else {
 			//Orgvis.showLog("Reloading organogram ...");		
 			Orgvis.notify("Loading","Reloading organogram data...",true,"loading_reloading");					
@@ -651,15 +651,15 @@ var Orgvis = {
 			type: "GET",
 			dataType: "jsonp",
 			async:true,
-			error:function (e){
+			error:function (){
 				log("API - rootPost - error");
 				$.cookie("organogram-preview-mode", null);
 				if(Orgvis.vars.previewMode){	
 					Orgvis.showLogin();					
 				}
 				//Orgvis.changeLog("Error loading post's data", false);
-				Orgvis.notify("Error","Could not retrieve the main post's data",true,"error_post");
 				$("div#loading_post").trigger("jGrowl.close").remove(); 
+				Orgvis.notify("Error","Could not retrieve the main post's data",true,"error_post");
 			},
 			success: function(json){
 				
@@ -693,7 +693,7 @@ var Orgvis = {
 		Orgvis.notify("Loading","Post data",true,"loading_post");		
 		$.myJSONP(s,"data",{name:"post"});
 	},
-	getReportsFullData:function() {
+	getPostReportsData:function() {
 		
 		log("getting reports full data");
 
@@ -717,8 +717,8 @@ var Orgvis = {
 				error: function(){
 					log("API - postReports - error");
 					//Orgvis.changeLog("Error loading post's organogram data", false);
-					Orgvis.notify("Error","Could not load reporting posts", true, "error_reportingPosts");
 					$("div#loading_reportingPosts").trigger("jGrowl.close").remove(); 					
+					Orgvis.notify("Error","Could not load reporting posts", true, "error_reportingPosts");
 				},
 				success: function(json){
 											
@@ -781,11 +781,11 @@ var Orgvis = {
 		}
 		
 		Orgvis.notify("Loading","Post's reporting posts", true, "loading_reportingPosts");					
-		$.myJSONP(s,"reporting posts' data",Orgvis.vars.postInQuestion);
+		$.myJSONP(s,"reporting posts",Orgvis.vars.postInQuestion);
 				
 			
 	},
-	getJuniorStaffFullData:function() {
+	getJuniorStaffData:function() {
 		
 		log("getting junior reports data");
 		
@@ -809,6 +809,7 @@ var Orgvis = {
 		    error:function (){
 		    	log("API - junior staff - error");
 				//Orgvis.changeLog("Error loading junior staff data", false);
+				$("div#loading_juniorStaff").trigger("jGrowl.close").remove();
 				Orgvis.notify("Error","Could not load junior staff",true,"error_juniorStaff");
 			},
 			success: function(json){
@@ -830,7 +831,7 @@ var Orgvis = {
 					s.url = s.url+"&_page="+pageNumber;
 					s.url = s.url.replace("&_page="+(pageNumber-1),"");
 
-					$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
+					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
 					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();
 					if(pageNumber > 1){
 						Orgvis.notify("Success","Loaded junior staff",false,"success_juniorStaff");
@@ -844,18 +845,18 @@ var Orgvis = {
 					// Pass data to the regData function
 					log("no more pages, passing data to regData");
 					log(combinedJSON);
-					$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
-					Orgvis.notify("Success","Loaded junior staff ("+(pageNumber-1)+")",false,"success_juniorStaff");
+					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
 					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();					
+					Orgvis.notify("Success","Loaded junior staff ("+(pageNumber-1)+")",false,"success_juniorStaff");
 					Orgvis.regData(combinedJSON);
 					Orgvis.vars.apiCallInfo.juniorStaff.complete = true;				
 				} else {
 					// Pass data to the regData function
 					log("no more pages, passing data to regData");
 					log(combinedJSON);
-					$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
-					Orgvis.notify("Success","Loaded junior staff",false,"success_juniorStaff");
+					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
 					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();					
+					Orgvis.notify("Success","Loaded junior staff",false,"success_juniorStaff");
 					Orgvis.regData(combinedJSON);
 					Orgvis.vars.apiCallInfo.juniorStaff.complete = true;				
 				}
@@ -894,6 +895,7 @@ var Orgvis = {
 		    error:function (){
 		    	log("API - stats data: "+node.name[0]+" - error");
 				Orgvis.changeLog("Error loading post: \""+v.name[0]+"\" statistics data", false);
+				$("div#" + "loading_stats_"+postID).trigger("jGrowl.close").remove();
 				Orgvis.notify("Error","Could not load statistics data for \""+node.name[0]+"\"", true,"error_stats_"+postID);
 			},
 			success: function(json){
@@ -1024,7 +1026,7 @@ var Orgvis = {
 		}
 
 		Orgvis.notify("Loading","Reporting posts for "+node.name+"...",true,"loading_rp_onDemand_"+postID);
-		$.myJSONP(s,"reporting posts data",node);
+		$.myJSONP(s,"reporting posts on demand",node);
 				
 	},
 	getJuniorStaffOnDemand:function(node) {
@@ -1113,7 +1115,6 @@ var Orgvis = {
 					    Orgvis.notify("Success","Loaded junior staff for "+node.name,false,"success_jp_onDemand_"+postID);
 					    Orgvis.vars.apiCallInfo.juniorStaffOnDemand.complete = true;
 					}									
-	
 				}
 			};		
 		
@@ -1124,7 +1125,7 @@ var Orgvis = {
 		}
 
 		Orgvis.notify("Loading","Junior staff for "+node.name+"...",true,"loading_jp_onDemand_"+postID);		
-		$.myJSONP(s,"junior staff",node);
+		$.myJSONP(s,"junior staff on demand",node);
 			
 	},
 	addOnDemandNodes:function(json,node){
@@ -2610,16 +2611,6 @@ var Orgvis = {
 		
 		return false;
 	},
-	showLog:function(string){
-		/*
-		$("#log img").show();
-		$("#log span").html(string);
-		$("#log").fadeIn();
-		return false;
-		*/
-		
-		$.jGrowl(string);
-	},
 	changeLog:function(string, showImg){
 		$("#log span").html(string);
 		if(showImg){
@@ -2815,15 +2806,38 @@ $.myJSONP = function(s,callName,n) {
     	log("Attempting to close loading notification for postID: "+postID);
     	
     	// Check for initial loading notifications
-    	if(callName == "data"){
-    		$("div#loading_post").trigger("jGrowl.close").remove();    	    	
-    	} else if (callName == "reporting posts' data"){
-    		$("div#loading_reportingPosts").trigger("jGrowl.close").remove();    	
-    	} else if (callName == "junior staff"){
-    	    $("div#loading_juniorStaff").trigger("jGrowl.close").remove();    	
-    	} else {
-    		$("div#loading_" + postID).trigger("jGrowl.close").remove();
-    		$("div#loading_onDemand_" + postID).trigger("jGrowl.close").remove();
+    	switch(callName)
+    	{
+    	
+    		case "data" :
+    			log("myJSONP - error - closing data notification");
+    			$("div#loading_post").trigger("jGrowl.close").remove();
+    			break;
+    			
+    		case "reporting posts" :
+    			log("myJSONP - error - closing reporting posts data notification");
+    			$("div#loading_reportingPosts").trigger("jGrowl.close").remove();
+    			break;
+    			
+    		case "junior staff" :
+    			log("myJSONP - error - closing junior staff notification");
+	    	    $("div#loading_juniorStaff").trigger("jGrowl.close").remove();    	
+    			break;
+    		
+    		case "reporting posts on demand" :
+    			log("myJSONP - error - closing reporting posts data on demand notification");
+    			$("div#loading_rp_onDemand_"+postID).trigger("jGrowl.close").remove();
+    			break;
+    			
+    		case "junior staff on demand" :
+    			log("myJSONP - error - closing junior staff on demand notification");
+	    	    $("div#loading_jp_onDemand_"+postID).trigger("jGrowl.close").remove();    	
+    			break;
+    			    			
+    		default :
+    			log("myJSONP - error - closing default notification");
+    			$("div#loading_" + postID).trigger("jGrowl.close").remove();
+    			break;
 		}
 		
 		Orgvis.notify("Error","Could not load "+node.name+"'s "+callName, true,"error_handler_"+postID);
@@ -2835,8 +2849,11 @@ $.myJSONP = function(s,callName,n) {
 					items:[]
 				}
     		};
-	    		    	
-    	if(s.url.indexOf("junior-staff-full") > 0){    			
+
+    	if(s.url.indexOf("reports") > 0){    			
+			Orgvis.vars.apiCallInfo.postReports.complete = true;    		
+    	}	    		    	
+    	if(s.url.indexOf("junior-staff") > 0){    			
 			Orgvis.vars.apiCallInfo.juniorStaff.complete = true;    		
     	}
 
