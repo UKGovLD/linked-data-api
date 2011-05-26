@@ -25,13 +25,13 @@
 </head>
 
 <!--[if IE 7]> 
-	<body class="IE7" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>','<?php print $_GET['grade'];?>','<?php print $_GET['preview'];?>');"> 
+	<body class="IE7" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['property'];?>','<?php print $_GET['value'];?>','<?php print $_GET['preview'];?>');"> 
 <![endif]--> 
 <!--[if IE 8]> 
-	<body class="IE8" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>','<?php print $_GET['grade'];?>','<?php print $_GET['preview'];?>');"> 
+	<body class="IE8" onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['property'];?>','<?php print $_GET['value'];?>','<?php print $_GET['preview'];?>');"> 
 <![endif]--> 
 <![if !IE]> 
-<body onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['type'];?>','<?php print $_GET['grade'];?>','<?php print $_GET['preview'];?>');">
+<body onload="PostList.init('<?php print $_GET['dept'];?>','<?php print $_GET['pubbod'];?>','<?php print $_GET['unit'];?>','<?php print $_GET['property'];?>','<?php print $_GET['value'];?>','<?php print $_GET['preview'];?>');">
 <![endif]> 
 
 <h1 class="title breadcrumbs">

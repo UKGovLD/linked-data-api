@@ -403,7 +403,7 @@ if ($isAdmin) {
                             <?php echo $bodyLabel; ?>
                             <?php foreach ($grades as $grade => $present) { ?>
                               -
-                              <a href="http://organogram.data.gov.uk/gov-structure/post-list?<?php echo $bodyType; ?>=<?php echo $bodyId; ?>&grade=<?php echo $grade; ?>&preview=true" target="_blank">
+                              <a href="http://organogram.data.gov.uk/gov-structure/post-list?<?php echo $bodyType; ?>=<?php echo $bodyId; ?>&property=grade&value=<?php echo $grade; ?>&preview=true" target="_blank">
                                 <?php echo "{$grade}s"; ?>
                               </a>
                             <?php } ?>
