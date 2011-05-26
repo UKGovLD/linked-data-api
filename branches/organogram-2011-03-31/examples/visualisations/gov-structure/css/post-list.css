@@ -61,13 +61,11 @@ body.IE7 h1.title label.loadBy {
     margin-right: 168px;
 }
 #infovis {
-    bottom: 0;
     left: 10px;
     margin: auto;
-    overflow-y: auto;
     position: absolute;
+    right: 115px;
     top: 35px;
-    z-index: 9999;
 }
 #infovis div.postHolder {
     height: auto !important;
