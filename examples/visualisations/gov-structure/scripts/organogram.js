@@ -51,6 +51,7 @@ var Orgvis = {
 		firstNode:{},			// The first node object of the organogram
 		firstLoad:true,			// Used for reloading the vis without retrieving the data again
 		autoalign:true,			// automatically center the organogram onclick
+		canvasPanned:false,		// Controls repositioning when the canvas has been moved
 		reOpen:false,			//
 		visOffsetX:180,			// horizontal positioning
 		visOffsetY:0,			// vertical positioning
@@ -340,17 +341,12 @@ var Orgvis = {
 
 						if(Orgvis.vars.transX != Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetX || Orgvis.vars.transY != Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetY){
 							log("Panning has occurred");
+							Orgvis.vars.canvasPanned = true;
 							m.offsetX -= Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetX;
-							m.offsetY -= Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetY;
-							//Orgvis.vars.transX = Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetX;
-							//Orgvis.vars.transY = Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetY;
-	
+							m.offsetY -= Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetY;	
 						} else {
 							//log("Panning has not occurred");
 						}
-
-
-
 														
 						switch(node.data.type) {
 							
@@ -365,12 +361,12 @@ var Orgvis = {
 									Orgvis.loadPostInfobox(node);
 								});
 																
-								log("### clicked, node.name="+node.name);
+								//log("### clicked, node.name="+node.name);
 								//log("### clicked, node.data.childrenAdded="+node.data.childrenAdded);
 								//log("### clicked, Orgvis.vars.postList[postID].data.childrenAdded="+Orgvis.vars.postList[postID].data.childrenAdded);
 
-								log(node.data.gettingStats);
-								log(node.data.gotStats);
+								//log(node.data.gettingStats);
+								//log(node.data.gotStats);
 								if(!node.data.gotStats && !node.data.gettingStats){
 									node.data.gettingStats = true;
 									Orgvis.getStatisticsData(node);
@@ -390,8 +386,11 @@ var Orgvis = {
 									Move: m
 								});		
 								
-								//Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height()); 
-															
+								if(Orgvis.vars.canvasPanned){
+									Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height());
+									Orgvis.vars.canvasPanned = false;
+								}
+																									
 								break;
 							
 							case 'junior_posts' :
@@ -409,8 +408,10 @@ var Orgvis = {
 										st.onClick(node.id, { 
 											Move: m
 										});	
-										//Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height()); 
-
+										if(Orgvis.vars.canvasPanned){
+											Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height());
+											Orgvis.vars.canvasPanned = false;
+										}
 										break;
 										
 									case 'jp_parent' :
@@ -527,17 +528,15 @@ var Orgvis = {
 											}
 										
 										}); // end bind click
-
-										//log("X: "+Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetX);
-										//log("Y: "+Orgvis.vars.global_ST.canvas.canvases[0].translateOffsetY);										
-										//log("Orgvis.vars.transX: "+Orgvis.vars.transX);
-										//log("Orgvis.vars.transY: "+Orgvis.vars.transY);
 																				
 										st.onClick(node.id, { 
 											Move: m
 										});	
 										
-										//Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height());										
+										if(Orgvis.vars.canvasPanned){
+											Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height());
+											Orgvis.vars.canvasPanned = false;
+										}
 										break;
 									
 									case 'jp_group' :
@@ -551,7 +550,10 @@ var Orgvis = {
 										st.onClick(node.id, { 
 											Move: m
 										});
-										//Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height());											
+										if(Orgvis.vars.canvasPanned){
+											Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height());
+											Orgvis.vars.canvasPanned = false;
+										}
 										break;
 											
 									case 'jp_child' :
@@ -568,7 +570,10 @@ var Orgvis = {
 										st.onClick(node.id, { 
 											Move: m
 										});
-										//Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height());	
+										if(Orgvis.vars.canvasPanned){
+											Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height());
+											Orgvis.vars.canvasPanned = false;
+										}
 										break;
 									
 									case 'jp_none' :
@@ -587,7 +592,6 @@ var Orgvis = {
 				style.width = 170 + 'px';
 				style.height = 'auto';           
 				style.cursor = 'pointer';
-				//style.color = '#000000';
 				style.fontSize = '0.8em';
 				style.textAlign= 'center';
 				style.textDecoration = 'none';
@@ -617,7 +621,6 @@ var Orgvis = {
 		Orgvis.vars.global_ST = st;
 		
 		if(Orgvis.vars.previewMode){
-			//Orgvis.showLog("Loading data ...");
 			Orgvis.notify("Loading","Calling API...",true,"loading_data");	
 			log(Orgvis.vars.apiCallInfo);
 			log(Orgvis.vars.apiResponses);
@@ -625,13 +628,11 @@ var Orgvis = {
 			Orgvis.getPostReportsData();
 			Orgvis.getJuniorStaffData();			
 		} else if(!reload){	
-			//Orgvis.showLog("Loading data ...");	
 			Orgvis.notify("Loading","Calling API...",true,"loading_data");				
 			Orgvis.getRootPostData();
 			Orgvis.getPostReportsData();
 			Orgvis.getJuniorStaffData();
 		} else {
-			//Orgvis.showLog("Reloading organogram ...");		
 			Orgvis.notify("Loading","Reloading organogram data...",true,"loading_reloading");					
 			Orgvis.reloadPost();
 		}
