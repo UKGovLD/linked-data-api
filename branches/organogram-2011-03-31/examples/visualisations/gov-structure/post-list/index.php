@@ -47,11 +47,11 @@
 		</optgroup>
 	-->
 		<optgroup label="Grade">
-			<option value="SCS1">SCS1</option>
-			<option value="SCS1A">SCS1A</option>
-			<option value="SCS2">SCS2</option>
-			<option value="SCS3">SCS3</option>
-			<option value="SCS4">SCS4</option>		
+			<option value="SCS1" data-type="grade">SCS1</option>
+			<option value="SCS1A" data-type="grade">SCS1A</option>
+			<option value="SCS2" data-type="grade">SCS2</option>
+			<option value="SCS3" data-type="grade">SCS3</option>
+			<option value="SCS4" data-type="grade">SCS4</option>		
 		</optgroup>
 	</select>
 	<label for="loadBy" class="loadBy">Load</label>

@@ -23,7 +23,8 @@ var PostList = {
 		previewParam:false,
 		apiCallInfo:{},
 		debug:true,
-		apiBase:"http://reference.data.gov.uk"
+		apiBase:"http://reference.data.gov.uk",
+		apiResults:[]
 	},
 	init:function(pDept,pBod,pUnit,property,value,pMode){
 	
@@ -104,17 +105,16 @@ var PostList = {
 				PostList.getPostList(PostList.vars.property,PostList.vars.value);
 				break;			
 		}	
-
-		$('div#apiCalls').hide();
-		$("a.source").remove();
-		$('div.apiCall').remove();
 				
 	},
 	getPostList:function(property,value){
 		
 		// (grade, Grade, SCS1)
 		// (type, Type, Deputy Director)
-
+		
+		$('div#apiCalls').hide();
+		$("a.source").remove();
+		$('div.apiCall').remove();
 		$("div.noPosts").hide();
 		
 		var pageSize = 50;
@@ -129,86 +129,92 @@ var PostList = {
 			complete:false
 		};
 		
-		var s = {
-			url: PostList.vars.apiCallInfo.postList.url+".json"+PostList.vars.apiCallInfo.postList.parameters+"&callback=?",
-			type: "GET",
-			dataType: "jsonp",
-			async:true,
-			cache:true,
-			error: function(){
-				$("div#loading_postsBy"+property).trigger("jGrowl.close").remove(); 					
-				PostList.notify("Error","Could not load posts by "+property, true, "error_postList");
-			},
-			success: function(json){	
-
-				if(json.result.items.length < 1){
-					$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
-					PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
-					PostList.displayNoPosts(PostList.vars.property,PostList.vars.value);
-				} else {
-					
-					// Store results
-					if(typeof combinedJSON.result == 'undefined'){
-						combinedJSON = json;
-					} else {
-						combinedJSON.result.items = combinedJSON.result.items.concat(json.result.items);
-					}
-									
-					// Grab more pages	
-					if(typeof json.result.next != 'undefined'){
-						
-						log("Posts with "+property+": "+value+" ("+pageNumber+") - more pages...");
-						//log(this);
-						pageNumber++;
-						s.url = s.url+"&_page="+pageNumber;
-						s.url = s.url.replace("&_page="+(pageNumber-1),"");
+		if(typeof PostList.vars.apiResults[property+"-"+value] != 'undefined'){
+			PostList.loadPosts(PostList.vars.apiResults[property+"-"+value]);
+			PostList.vars.apiCallInfo.postList.complete = true;
+		} else {
+			var s = {
+				url: PostList.vars.apiCallInfo.postList.url+".json"+PostList.vars.apiCallInfo.postList.parameters+"&callback=?",
+				type: "GET",
+				dataType: "jsonp",
+				async:true,
+				cache:true,
+				error: function(){
+					$("div#loading_postsBy"+property).trigger("jGrowl.close").remove(); 					
+					PostList.notify("Error","Could not load posts by "+property, true, "error_postList");
+				},
+				success: function(json){	
 	
+					if(json.result.items.length < 1){
 						$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
-						if(pageNumber > 1){
-							PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
-						} else {
-							PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber-1)+")",false,"success_postsBy"+property);
-						}
-						PostList.notify("Loading","Posts with "+property+": "+value+" ("+pageNumber+")",true,"loading_postsBy"+property);
-						
-						$.myJSONP(s,property,value);
-				
-					} else if(pageNumber > 1) {
-						// Pass data to the regData function
-						log("no more pages, loading posts");
-						log(combinedJSON);
-						
-						PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber-1)+")",false,"success_postsBy"+property);
-						$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
-						
-						PostList.vars.previewMode = "true";
-						PostList.loadPosts(combinedJSON);
-	
-						PostList.vars.apiCallInfo.postList.complete = true;
-					} else {
-						// Pass data to the regData function
-						log("no more pages, loading posts");
-						log(combinedJSON);
-						
 						PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
-						$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
+						PostList.displayNoPosts(PostList.vars.property,PostList.vars.value);
+					} else {
 						
-						PostList.vars.previewMode = "true";
-						PostList.loadPosts(combinedJSON);
-						PostList.vars.apiCallInfo.postList.complete = true;
-					}	
-				}
-			}		
-		}
+						// Store results
+						if(typeof combinedJSON.result == 'undefined'){
+							combinedJSON = json;
+						} else {
+							combinedJSON.result.items = combinedJSON.result.items.concat(json.result.items);
+						}
+										
+						// Grab more pages	
+						if(typeof json.result.next != 'undefined'){
+							
+							log("Posts with "+property+": "+value+" ("+pageNumber+") - more pages...");
+							//log(this);
+							pageNumber++;
+							s.url = s.url+"&_page="+pageNumber;
+							s.url = s.url.replace("&_page="+(pageNumber-1),"");
 		
-		if(PostList.vars.previewMode || PostList.vars.previewParam){
-			s.username = $.cookie('organogram-username');
-			s.password = $.cookie('organogram-password');
-			//s.url = s.url.replace("reportsFull","reports-full");
+							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
+							if(pageNumber > 1){
+								PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber-1)+")",false,"success_postsBy"+property);
+							} else {
+								PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+							}
+							PostList.notify("Loading","Posts with "+property+": "+value+" ("+pageNumber+")",true,"loading_postsBy"+property);
+							
+							$.myJSONP(s,property,value);
+					
+						} else if(pageNumber > 1) {
+							// Pass data to the regData function
+							log("no more pages, loading posts");
+							log(combinedJSON);
+							
+							PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber)+")",false,"success_postsBy"+property);
+							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
+							
+							PostList.vars.previewMode = "true";
+							PostList.loadPosts(combinedJSON);
+		
+							PostList.vars.apiCallInfo.postList.complete = true;
+						} else {
+							// Pass data to the regData function
+							log("no more pages, loading posts");
+							log(combinedJSON);
+							
+							PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
+							
+							PostList.vars.previewMode = "true";
+							PostList.loadPosts(combinedJSON);
+							PostList.vars.apiResults[property+"-"+value] = combinedJSON;
+							PostList.vars.apiCallInfo.postList.complete = true;
+						}	
+					}
+				}		
+			}
+			
+			if(PostList.vars.previewMode || PostList.vars.previewParam){
+				s.username = $.cookie('organogram-username');
+				s.password = $.cookie('organogram-password');
+				//s.url = s.url.replace("reportsFull","reports-full");
+			}
+					
+			PostList.notify("Loading","Posts with "+property+": "+value, true, "loading_postsBy"+property);
+			$.myJSONP(s,property,value);
 		}
-				
-		PostList.notify("Loading","Posts with "+property+": "+value, true, "loading_postsBy"+property);
-		$.myJSONP(s,property,value);
 						
 	},
 	displayNoPosts:function(filter,value){
@@ -701,18 +707,17 @@ $(document).ready(function() {
 	$("select#loadBy").val("SCS1");
 	
 	$("select#loadBy").change(function(e){
-	
-	var loadType = e.originalEvent.explicitOriginalTarget.parentNode.label;
-		
-		log(loadType);
+				 
+		var $option = $(this).children("optgroup").eq(0).children("option[value='"+$(this).val()+"']");
 		
 		$("div.postHolder").html("");
+		$("select#sortBy").val("--");
+		
+		PostList.vars.property = $option.attr("data-type");
+		PostList.vars.value = $option.html();
+		PostList.getPostList(PostList.vars.property,PostList.vars.value);
+		
 		//$("div.postHolder").css("height","auto");
-		if(loadType == "Post type"){
-			PostList.init(PostList.vars.dept,PostList.vars.pbod,PostList.vars.unit,$(this).val(),'',PostList.vars.previewMode);		
-		} else if(loadType == "Grade"){
-			PostList.init(PostList.vars.dept,PostList.vars.pbod,PostList.vars.unit,'',$(this).val(),PostList.vars.previewMode);
-		}
 		//$('#infovis').quicksand( $('#infovis').find("div."+postType), { adjustHeight: 'dynamic' } );
 	});
 	
