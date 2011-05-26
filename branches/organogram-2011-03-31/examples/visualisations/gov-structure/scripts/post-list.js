@@ -234,6 +234,7 @@ var PostList = {
 		var slug = null;
 		var postStatus = null;
 		var label = null;
+		var imageURL = null;
 		var name = null;
 		var comment = null;
 		var email = null;
@@ -264,8 +265,20 @@ var PostList = {
 			} else {
 				html += '<h3 class="label" data-type="title">?</h3>';						
 			}			
+
 						
-			html += '<div class="image"><img width="130" src="../images/no_profile.jpg" /></div>';
+			try{
+				imageURL = json.result.items[i].depiction;
+			}catch(e){
+			  imageURL = null;
+			}
+			if (imageURL){
+				html += '<div class="image"><img width="130" src="'+imageURL+'" /></div>';
+			} else {
+				html += '<div class="image"><img width="130" src="../images/no_profile.jpg" /></div>';						
+			}	
+			
+			
 			
 			try{
 				name = json.result.items[i].heldBy[0].name;
@@ -320,7 +333,7 @@ var PostList = {
 			  postIn = json.result.items[i].postIn;
 			  unit = null;
 			  for (var j=0; j<postIn.length; j++) {
-			    if (postIn[j].type[0] == 'http://www.w3.org/ns/org#OrganizationalUnit') {
+			    if (postIn[j]._about.indexOf("/unit/")) {
 			      unit = postIn[j].label[0];
 			    }
 			  }
