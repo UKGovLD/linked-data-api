@@ -2414,11 +2414,21 @@ var Orgvis = {
 			
 			html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+'&preview='+Orgvis.vars.previewMode+'">Load organogram</a></p>';
 			
-			if(node.data.salaryRange){
+			if(typeof node.data.salaryRange != 'undefined'){
 				if(node.data.heldBy.length > 1){
-					html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i].label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';				
+					if(typeof node.data.salaryRange.label == 'string'){
+						html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i].label)+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';					
+					} else {
+						html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i].label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
+					}			
 				} else {
-					html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange.label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
+					if(typeof node.data.salaryRange.label == 'string'){
+						html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange.label)+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';					
+					} else if(node.data.salaryRange.length > 0) {
+						html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange.label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
+					} else {
+						// No salary present
+					}
 				}
 			} else {
 				//html += '<p class="salary"><span>Salary</span><span class="value">Not disclosed</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';			
