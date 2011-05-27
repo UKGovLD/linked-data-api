@@ -860,11 +860,14 @@ var Orgvis = {
 					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
 					$("div#loading_juniorStaff_"+pageNumber).trigger("jGrowl.close").remove();					
 					Orgvis.notify("Success","Loaded junior staff ("+(pageNumber)+")",false,"success_juniorStaff_"+(pageNumber-1));
+					log('combinedJSON');
+					log(combinedJSON);
 					Orgvis.regData(combinedJSON);
 					Orgvis.vars.apiCallInfo.juniorStaff.complete = true;				
 				} else {
 					// Pass data to the regData function
 					log("no more pages, passing data to regData");
+					log('combinedJSON');
 					log(combinedJSON);
 					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
 					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();					
@@ -1014,7 +1017,7 @@ var Orgvis = {
 						$("div#" + "loading_rp_onDemand_"+postID).trigger("jGrowl.close").remove();				
 						$("div#loading_rp_onDemand_"+postID).trigger("jGrowl.close").remove();					
 						Orgvis.notify("Success","Loaded reporting posts for "+node.name+" ("+(pageNumber)+")",false,"success_rp_onDemand_"+postID);
-						Orgvis.addOnDemandNodes(json,node);
+						Orgvis.addOnDemandNodes(combinedJSON,node);
 					    Orgvis.vars.apiCallInfo.postReportsOnDemand.complete = true;
 					} else {
 						// Pass data to the regData function
@@ -1023,7 +1026,7 @@ var Orgvis = {
 						$("div#" + "loading_rp_onDemand_"+postID).trigger("jGrowl.close").remove();				
 						$("div#loading_rp_onDemand_"+postID).trigger("jGrowl.close").remove();							
 					    Orgvis.notify("Success","Loaded reporting posts for "+node.name,false,"success_rp_onDemand_"+postID);
-						Orgvis.addOnDemandNodes(json,node);					
+						Orgvis.addOnDemandNodes(combinedJSON,node);					
 					    Orgvis.vars.apiCallInfo.postReportsOnDemand.complete = true;
 					}					    
 				    
@@ -1113,7 +1116,7 @@ var Orgvis = {
 						//log(combinedJSON);
 						$("div#" + "loading_jp_onDemand_"+postID).trigger("jGrowl.close").remove();				
 						$("div#loading_jp_onDemand_"+postID).trigger("jGrowl.close").remove();					
-						Orgvis.addOnDemandNodes(json,node);
+						Orgvis.addOnDemandNodes(combinedJSON,node);
 					    Orgvis.notify("Success","Loaded junior staff for "+node.name+" ("+(pageNumber)+")",false,"success_jp_onDemand_"+postID);
 					    Orgvis.vars.apiCallInfo.juniorStaffOnDemand.complete = true;
 
@@ -1123,7 +1126,7 @@ var Orgvis = {
 						//log(combinedJSON);
 						$("div#" + "loading_jp_onDemand_"+postID).trigger("jGrowl.close").remove();				
 						$("div#loading_jp_onDemand_"+postID).trigger("jGrowl.close").remove();							
-						Orgvis.addOnDemandNodes(json,node);
+						Orgvis.addOnDemandNodes(combinedJSON,node);
 					    Orgvis.notify("Success","Loaded junior staff for "+node.name,false,"success_jp_onDemand_"+postID);
 					    Orgvis.vars.apiCallInfo.juniorStaffOnDemand.complete = true;
 					}									
@@ -2665,7 +2668,7 @@ var Orgvis = {
 		if(type == "Success" || type == "Error"){
 			setTimeout(function(){
 				$("div#loading_data").trigger("jGrowl.close").remove();
-				$("div#"+id.replace("success","loading")).trigger("jGrowl.close").remove();
+				//$("div#"+id.replace("success","loading")).trigger("jGrowl.close").remove();
 			},1000);			
 		}
 
