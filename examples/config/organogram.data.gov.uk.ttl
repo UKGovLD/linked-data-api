@@ -1387,6 +1387,12 @@ organogram:totalPay api:label "totalPay" ;
 <http://reference.data.gov.uk/def/civil-service-grade/SCS3> api:label "SCS3" .
 <http://reference.data.gov.uk/def/civil-service-grade/SCS4> api:label "SCS4" .
 
+<http://reference.data.gov.uk/def/military-grade/OF-9> api:label "OF-9" .
+<http://reference.data.gov.uk/def/military-grade/OF-8> api:label "OF-8" .
+<http://reference.data.gov.uk/def/military-grade/OF-7> api:label "OF-7" .
+<http://reference.data.gov.uk/def/military-grade/OF-6> api:label "OF-6" .
+
+
 gov:PublicBody a rdfs:Class ; api:label "PublicBody" .
 gov:Department a rdfs:Class ; api:label "Department" .
 gov:MinisterialDepartment api:label "MinisterialDepartment" .
