@@ -284,7 +284,7 @@ var Orgvis = {
 					}
 					
 					if(node.data.heldBy.length>1){
-						label.innerHTML = label.innerHTML + '<span class="heldBy">'+node.data.heldBy.length+'</span>';
+						label.innerHTML = label.innerHTML + '<span class="heldBy">'+node.data.totalWorkingTime+'</span>';
 					}
 
 				// If the node is associated with junior posts					
@@ -705,7 +705,7 @@ var Orgvis = {
 		
 		log("getting reports full data");
 
-		var pageSize = 50;
+		var pageSize = 20;
 		var combinedJSON = {};
 		var pageNumber = 1;
 				
@@ -799,7 +799,7 @@ var Orgvis = {
 		
 		log("getting junior reports data");
 		
-		var pageSize = 50;
+		var pageSize = 20;
 		var combinedJSON = {};
 		var pageNumber = 1;
 		
@@ -952,7 +952,7 @@ var Orgvis = {
 		log("getPostReportsOnDemand");
 		
 		var postID = Orgvis.getSlug(node.data.uri);
-		var pageSize = 50;
+		var pageSize = 20;
 		var combinedJSON = {};
 		var pageNumber = 1;
 									
@@ -1051,7 +1051,7 @@ var Orgvis = {
 		log("getJuniorStaffOnDemand");
 		
 		var postID = Orgvis.getSlug(node.data.uri);
-		var pageSize = 50;
+		var pageSize = 20;
 		var combinedJSON = {};
 		var pageNumber = 1;
 		var originalChildren = Orgvis.vars.postList[postID].children.length;
@@ -1546,7 +1546,8 @@ var Orgvis = {
 					processed:false,
 					childrenAdded:false,
 					gotStats:false,
-					gettingStats:false
+					gettingStats:false,
+					totalWorkingTime:0
 				},
 				children:[]
 		};
@@ -1609,7 +1610,9 @@ var Orgvis = {
 						reportsToPostURI:[],
 						comment:"",
 						salaryCostOfReports:-1,
-						salaryCostOfReportsDate:""
+						salaryCostOfReportsDate:"",
+						workingTime:0,
+						profession:""
 				};
 				
 				if(typeof item.heldBy[a].name != 'undefined'){person.foafName = item.heldBy[a].name;}
@@ -1617,6 +1620,10 @@ var Orgvis = {
 				if(typeof item.heldBy[a].email != 'undefined'){person.foafMbox = item.heldBy[a].email.label[0];}
 				if(typeof item._about != 'undefined'){person.holdsPostURI = item._about;}
 				if(typeof item.comment != 'undefined'){person.comment = item.comment;}
+				if(typeof item.heldBy[a].tenure.workingTime != 'undefined'){person.workingTime = item.heldBy[a].tenure.workingTime;}
+				if(typeof item.heldBy[a].profession.prefLabel != 'undefined'){person.profession = item.heldBy[a].profession.prefLabel;}
+				
+				node.data.totalWorkingTime += person.workingTime;
 				
 				if(typeof item.reportsTo != 'undefined'){
 					for(var b=0;b<item.reportsTo.length;b++){
@@ -2493,6 +2500,14 @@ var Orgvis = {
 			} else {
 				html += '<p class="salaryReports"><span>Combined salary of reporting posts </span><span class="value">Checking...</span><img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
 			}				
+			
+			if(node.data.heldBy[i].workingTime > 0){
+				html+='<p class="workingTime"><span>Working time</span><span class="value">'+node.data.heldBy[i].workingTime+'</span></p>';
+			}
+
+			if(node.data.heldBy[i].profession != ''){
+				html+='<p class="profession"><span>Profession</span><span class="value">'+node.data.heldBy[i].profession+'</span></p>';
+			}			
 			
 			if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
 				html+='<p class="comment"><span>Comment</span><span class="text">'+node.data.heldBy[i].comment+'</span></p>';
