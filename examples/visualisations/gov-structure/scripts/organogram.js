@@ -804,7 +804,7 @@ var Orgvis = {
 		Orgvis.vars.apiCallInfo.juniorStaff = {
 				title:"Retrieval of all junior staff",
 				description:"This call retrieves information about the junior staff that report to the posts within this organogram, such as their grade, title and profession.",
-				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post+"/junior-staff",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post+"/immediate-junior-staff",
 				parameters:"?_pageSize="+pageSize,
 				complete:false
 		};		
@@ -817,7 +817,11 @@ var Orgvis = {
 		    error:function (){
 		    	log("API - junior staff - error");
 				//Orgvis.changeLog("Error loading junior staff data", false);
-				$("div#loading_juniorStaff").trigger("jGrowl.close").remove();
+				if(pageNumber > 1) {
+					$("div#loading_juniorStaff_"+pageNumber).trigger("jGrowl.close").remove();
+				} else {
+					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();
+				}
 				Orgvis.notify("Error","Could not load junior staff",true,"error_juniorStaff");
 			},
 			success: function(json){
@@ -842,11 +846,11 @@ var Orgvis = {
 					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
 					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();
 					if(pageNumber > 1){
-						Orgvis.notify("Success","Loaded junior staff",false,"success_juniorStaff");
+						Orgvis.notify("Success","Loaded junior staff ("+(pageNumber-1)+")",false,"success_juniorStaff_"+(pageNumber-1));
 					} else {
-						Orgvis.notify("Success","Loaded junior staff ("+(pageNumber-1)+")",false,"success_juniorStaff");
+						Orgvis.notify("Success","Loaded junior staff",false,"success_juniorStaff");
 					}
-					Orgvis.notify("Loading","Post's junior staff ("+pageNumber+")",true,"loading_juniorStaff");	
+					Orgvis.notify("Loading","Post's junior staff ("+pageNumber+")",true,"loading_juniorStaff_"+pageNumber);	
 					$.myJSONP(s,"junior staff",Orgvis.vars.postInQuestion);	
 			
 				} else if(pageNumber > 1) {
@@ -854,8 +858,8 @@ var Orgvis = {
 					log("no more pages, passing data to regData");
 					log(combinedJSON);
 					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
-					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();					
-					Orgvis.notify("Success","Loaded junior staff ("+(pageNumber)+")",false,"success_juniorStaff");
+					$("div#loading_juniorStaff_"+pageNumber).trigger("jGrowl.close").remove();					
+					Orgvis.notify("Success","Loaded junior staff ("+(pageNumber)+")",false,"success_juniorStaff_"+(pageNumber-1));
 					Orgvis.regData(combinedJSON);
 					Orgvis.vars.apiCallInfo.juniorStaff.complete = true;				
 				} else {
@@ -2659,7 +2663,10 @@ var Orgvis = {
 		});
 		
 		if(type == "Success" || type == "Error"){
-			$("div#loading_data").trigger("jGrowl.close").remove();
+			setTimeout(function(){
+				$("div#loading_data").trigger("jGrowl.close").remove();
+				$("div#"+id.replace("success","loading")).trigger("jGrowl.close").remove();
+			},1000);			
 		}
 
 	},
