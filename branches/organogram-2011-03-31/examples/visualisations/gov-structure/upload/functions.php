@@ -78,13 +78,15 @@ PREFIX postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/>
 SELECT DISTINCT ?body ?post ?postLabel
 WHERE { 
   ?post foaf:page <$graph> ; 
-    a gov:CivilServicePost ;
-    rdfs:label ?postLabel ;
-    gov:postIn ?body .
-  ?body a gov:PublicBody .
+    gov:postIn ?body ;
+    rdfs:label ?postLabel .
   { ?post postStatus:postStatus postStatus:vacant . } 
   UNION 
   { ?post postStatus:postStatus postStatus:current . } 
+  { ?post a gov:CivilServicePost . }
+  UNION
+  { ?post a gov:MilitaryPost . }
+  ?body a gov:PublicBody .
   OPTIONAL { ?post org:reportsTo ?manager } 
   FILTER (!BOUND(?manager))
 }
@@ -101,14 +103,16 @@ PREFIX postStatus: <http://reference.data.gov.uk/def/civil-service-post-status/>
 SELECT DISTINCT ?body ?post ?postLabel
 WHERE { 
   ?post foaf:page <$graph> ; 
-    a gov:CivilServicePost ;
-    rdfs:label ?postLabel ;
     gov:postIn ?body ;
+    rdfs:label ?postLabel ;
     org:reportsTo [].
-  ?body a gov:PublicBody .
   { ?post postStatus:postStatus postStatus:vacant . } 
   UNION 
   { ?post postStatus:postStatus postStatus:current . }
+  { ?post a gov:CivilServicePost . } 
+  UNION 
+  { ?post a gov:MilitaryPost . }
+  ?body a gov:PublicBody .
 }
 ORDER BY ?post
 LIMIT 3
@@ -124,7 +128,7 @@ LOCATION;
         $gradeUri = $binding->grade->value;
 
         $bodyUriParts = explode('/', substr($bodyUri, strpos($bodyUri, '/id/') + 4));
-        $grade = substr($gradeUri, strlen('http://reference.data.gov.uk/def/civil-service-grade/'));
+        $grade = substr($gradeUri, strpos($gradeUri, '-grade/') + 7);
         if ($bodies[$bodyUri]) {
           $bodies[$bodyUri]['grades'][$grade] = true;
         } else {
@@ -209,7 +213,7 @@ function createSeniorCSV($filename) {
            $y++;
        } 
 
-       if ($x > 1 && strval($excel->sheets[4]['cells'][$x][19]) != '1') {
+       if ($x > 1 && strval($excel->sheets[4]['cells'][$x][17]) != 'Military' && strval($excel->sheets[4]['cells'][$x][17]) != 'Other' && strval($excel->sheets[4]['cells'][$x][19]) != '1') {
          $valid = false;
        }
 
@@ -482,7 +486,8 @@ $str = <<<TRANSFORMATION
 :seniorPosts {
   
   [ xl:uri "IF(STRING(A2) != '0', NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & A2)"^^xl:Expr ] 
-    a gov:CivilServicePost , gov:SeniorCivilServicePost ;
+    a [ xl:uri "IF(UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2' || UCASE(C2) == 'SCS1' || UCASE(C2) == 'SCS1A', 'http://reference.data.gov.uk/def/central-government/CivilServicePost', 'http://reference.data.gov.uk/def/central-government/MilitaryPost')"^^xl:Expr ] ;
+    a [ xl:uri "IF(UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2' || UCASE(C2) == 'SCS1' || UCASE(C2) == 'SCS1A', 'http://reference.data.gov.uk/def/central-government/SeniorCivilServicePost', 'http://reference.data.gov.uk/def/central-government/SeniorMilitaryPost')"^^xl:Expr ] ;
     rdfs:label "D2"^^xl:Expr ;
     rdfs:comment "E2"^^xl:Expr ;
     skos:notation "STRING(A2)"^^xl:Expr ;
@@ -512,7 +517,7 @@ $str = <<<TRANSFORMATION
       foaf:page <$fileURL> ;
     ] ;
     grade:grade [ 
-      xl:uri "'http://reference.data.gov.uk/def/civil-service-grade/' & UCASE(C2)"^^xl:Expr ;
+      xl:uri "IF(UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2' || UCASE(C2) == 'SCS1' || UCASE(C2) == 'SCS1A', 'http://reference.data.gov.uk/def/civil-service-grade/' & UCASE(C2), 'http://reference.data.gov.uk/def/military-grade/' & UCASE(C2))"^^xl:Expr ;
       rdfs:label "UCASE(C2)"^^xl:Expr ;
     ] ;
     postStatus:postStatus [ xl:uri "'http://reference.data.gov.uk/def/civil-service-post-status/' & IF(LCASE(B2) == 'vacant', 'vacant', IF(LCASE(B2) == 'eliminated', 'eliminated', 'current'))"^^xl:Expr ] ;
@@ -549,7 +554,7 @@ $str = <<<TRANSFORMATION
       ] ;
       profession:profession [
         # profession
-        xl:uri "IF(Q2 != '', NAME2URI('http://reference.data.gov.uk/def/civil-service-profession/', Q2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/profession.rdf'))"^^xl:Expr ;
+        xl:uri "IF(Q2 != '' && LCASE(Q2) != 'military' && LCASE(Q2) != 'other', NAME2URI('http://reference.data.gov.uk/def/civil-service-profession/', Q2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/profession.rdf'))"^^xl:Expr ;
         skos:prefLabel "Q2"^^xl:Expr ;
       ] ;
       foaf:page <$fileURL> ;
@@ -572,7 +577,7 @@ $str = <<<TRANSFORMATION
   [ xl:uri "IF(LCASE(B2) != 'vacant' && LCASE(B2) != 'eliminated' && STRING(A2) == '0', '$fileURL#person' & ROW(A2))"^^xl:Expr ]
     a foaf:Person ;
     grade:grade [ 
-      xl:uri "'http://reference.data.gov.uk/def/civil-service-grade/' & UCASE(C2)"^^xl:Expr ;
+      xl:uri "IF(UCASE(C2) == 'SCS4' || UCASE(C2) == 'SCS3' || UCASE(C2) == 'SCS2' || UCASE(C2) == 'SCS1' || UCASE(C2) == 'SCS1A', 'http://reference.data.gov.uk/def/civil-service-grade/' & UCASE(C2), 'http://reference.data.gov.uk/def/military-grade/' & UCASE(C2))"^^xl:Expr ;
       rdfs:label "UCASE(C2)"^^xl:Expr ;
     ] ;
     org:reportsTo [ xl:uri "IF(UCASE(STRING(K2)) != 'XX', NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/post/' & K2)"^^xl:Expr ] ;
@@ -821,7 +826,7 @@ $str = <<<TRANSFORMATION
       skos:prefLabel "H2"^^xl:Expr ;
     ] ;
     organogram:profession [
-      xl:uri "NAME2URI('http://reference.data.gov.uk/def/civil-service-profession/', J2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/profession.rdf')"^^xl:Expr ;
+      xl:uri "IF(LCASE(J2) != 'other', NAME2URI('http://reference.data.gov.uk/def/civil-service-profession/', J2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/profession.rdf'))"^^xl:Expr ;
       skos:prefLabel "J2"^^xl:Expr ;
     ] ;
     organogram:fullTimeEquivalent "DOUBLE(I2)"^^xl:Expr ;
