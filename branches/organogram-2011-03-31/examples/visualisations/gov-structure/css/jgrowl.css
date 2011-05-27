@@ -49,8 +49,10 @@ body > div.jGrowl {
 }
 
 div.jGrowl.top-left {
-	left: 				0px;
-	top: 				35px;
+    bottom: 30px;
+    left: 0;
+    top: 35px;
+    overflow: hidden;
 }
 
 div.jGrowl.top-right {
@@ -106,6 +108,7 @@ div.jGrowl div.jGrowl-notification {
     background-position: 8px 50%;
     background-repeat: no-repeat;
     padding-left: 45px;	
+    opacity:0.8;
 }
 
 div.jGrowl div.jGrowl-notification div.jGrowl-header {
