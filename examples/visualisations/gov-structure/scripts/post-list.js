@@ -721,7 +721,7 @@ $(document).ready(function() {
 	
 	$("select#loadBy").change(function(e){
 				 
-		var $option = $(this).children("optgroup").eq(0).children("option[value='"+$(this).val()+"']");
+		var $option = $(this).find("option[value='"+$(this).val()+"']");
 		
 		$("div.postHolder").html("");
 		$("select#sortBy").val("--");

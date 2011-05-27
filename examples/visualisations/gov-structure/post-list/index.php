@@ -47,11 +47,19 @@
 		</optgroup>
 	-->
 		<optgroup label="Grade">
-			<option value="SCS1" data-type="grade">SCS1</option>
-			<option value="SCS1A" data-type="grade">SCS1A</option>
-			<option value="SCS2" data-type="grade">SCS2</option>
-			<option value="SCS3" data-type="grade">SCS3</option>
-			<option value="SCS4" data-type="grade">SCS4</option>		
+		  <optgroup label="Civil Service">
+			  <option value="SCS4" data-type="grade">SCS4</option>		
+  			<option value="SCS3" data-type="grade">SCS3</option>
+  			<option value="SCS2" data-type="grade">SCS2</option>
+  			<option value="SCS1A" data-type="grade">SCS1A</option>
+  			<option value="SCS1" data-type="grade">SCS1</option>
+		  </optgroup>
+		  <optgroup label="Military">
+  			<option value="OF-9" data-type="grade">OF-9</option>
+  			<option value="OF-8" data-type="grade">OF-8</option>
+  			<option value="OF-7" data-type="grade">OF-7</option>
+  			<option value="OF-6" data-type="grade">OF-6</option>
+		  </optgroup>
 		</optgroup>
 	</select>
 	<label for="loadBy" class="loadBy">Load</label>
