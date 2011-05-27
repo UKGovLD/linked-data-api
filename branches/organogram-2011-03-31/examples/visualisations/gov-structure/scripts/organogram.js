@@ -112,6 +112,7 @@ var Orgvis = {
 			*/
 			
 			Orgvis.vars.apiBase = "organogram.data.gov.uk";			
+			//Orgvis.vars.apiBase = "192.168.1.74";
 			//Orgvis.vars.apiBase = "organogram.data.gov.uk/puelia5";
 			//Orgvis.vars.apiBase = "192.168.2.8/puelia5";
 			//Orgvis.vars.apiBase = "localhost/puelia5"
@@ -301,7 +302,10 @@ var Orgvis = {
 						case 'jp_child' : 
 							// Node is a Junior Post					
 							var fteTotal = Math.round(node.data.fullTimeEquivalent*100)/100;						
-							label.innerHTML = label.innerHTML + '<span class="jp_grade">'+node.data.grade.payband.salaryRange+'</span>' + '<span class="heldBy">'+fteTotal+'</span>';
+							try{label.innerHTML = label.innerHTML + '<span class="jp_grade">'+node.data.grade.payband.salaryRange+'</span>' + '<span class="heldBy">'+fteTotal+'</span>';}
+							catch(e){
+								label.innerHTML = label.innerHTML + '<span class="jp_grade">?</span>' + '<span class="heldBy">'+fteTotal+'</span>';							
+							}
 							break;
 						
 						case 'jp_group' :
@@ -1691,30 +1695,23 @@ var Orgvis = {
 			
 			node = {
 				id:$.generateId(),
-				name:el.withJob.prefLabel,
+				name:"JP "+this.id,
 				data:{
 					type:'junior_posts',
 					nodeType:'jp_child',
 					total:0,						// Used for grouping junior staff
 					fullName:el.label[0],
 					grade:{
-						label:el.atGrade.prefLabel,
-						payband:{
-							label:el.atGrade.payband.prefLabel,
-							salaryRange:salaryRangeLabel
-						}
+						label:{},
+						payband:{}
 					},
+					profession:{},
 					salaryRangeVal:salaryRangeValue,
-					job:el.withJob.prefLabel,
-					profession:el.withProfession.prefLabel,
 					reportingTo:{
 						label:el.reportingTo.label[0],
 						uri:el.reportingTo._about
 					},
-					unit:{
-						label:el.inUnit.label[0],
-						uri:el.inUnit._about
-					},
+					unit:{},
 					fullTimeEquivalent:el.fullTimeEquivalent
 					//colour:Orgvis.vars.colours[Orgvis.vars.jpColourCounter]
 				},
@@ -1729,32 +1726,53 @@ var Orgvis = {
 			if(typeof el.withJob.prefLabel != 'string'){
 				node.name = el.withJob.prefLabel[0];
 				node.data.job = el.withJob.prefLabel[0];
+			} else {
+				node.name = el.withJob.prefLabel;
+				node.data.job = el.withJob.prefLabel;
 			}
 		} else {
 			node.data.job = "No job";
 		}
+		
 		if(typeof el.withProfession != 'undefined'){
 			if(typeof el.withProfession.prefLabel != 'string'){
 				node.data.profession = el.withProfession.prefLabel[0];
+			} else {
+				node.data.profession = el.withProfession.prefLabel;
 			}
 		} else {
-			node.data.profession = "No profession"
+			node.data.profession = "Other"
 		}	
 		
 		if(typeof el.atGrade != 'undefined'){
-
+			try{node.data.grade.label = el.atGrade.prefLabel;}catch(e){
+				log(e);
+				node.data.grade.label = "Other";
+			};
+			if(typeof el.atGrade.payband != 'undefined'){
+				try{node.data.grade.payband.label = el.atGrade.payband.prefLabel;}catch(e){
+					log(e);
+					//node.data.grade.payband.label = "No payband";
+				};
+				try{node.data.grade.payband.salaryRange = salaryRangeLabel;}catch(e){
+					log(e);
+					//node.data.grade.payband.salaryRange = "No salary range";
+				};			
+			} else {
+				//node.data.grade.payband.label = "No payband";
+				//node.data.grade.payband.salaryRange = "No salary range";			
+			}
 		} else {
-			node.data.grade.label = "No grade";
-			node.data.grade.payband.label = "No payband";
-			node.data.grade.payband.salaryRange = "No salary range";
+			node.data.grade.label = "Other";
 			node.data.salaryRangeVal = "0";
 		}
 		
 		if(typeof el.inUnit != 'undefined'){
-		
+			try{node.data.unit.label = el.inUnit.label[0];}catch(e){log(e)};
+			try{node.data.unit.uri = el.inUnit._about;}catch(e){log(e)};	
 		} else {
-			node.data.unit.label = "No unit";
-			node.data.unit.uri = "No unit";
+			node.data.unit.label = "Other";
+			node.data.unit.uri = "Other";
 		}
 		
 		//log('makeJuniorPostNode: node made:');
@@ -1988,16 +2006,22 @@ var Orgvis = {
 		//if(items.length>1){
 			for(var i in items) {
 				
-				var pSlug = Orgvis.getSlug(items[i].withProfession._about);
-				var gSlug = Orgvis.getSlug(items[i].atGrade._about);
-				var uSlug = Orgvis.getSlug(items[i].inUnit._about);
+				var pSlug,gSlug,uSlug;
+				
+				try{pSlug = Orgvis.getSlug(items[i].withProfession._about);}
+				catch(e){log(e);pSlug = "Other";}
+				try{gSlug = Orgvis.getSlug(items[i].atGrade._about);}
+				catch(e){log(e);gSlug = "Other";}
+				try{uSlug = Orgvis.getSlug(items[i].inUnit._about);}
+				catch(e){log(e);uSlug = "Other";}				
 				
 				// Group by profession	
 				if(typeof byProfession[pSlug] != 'undefined'){
 					byProfession[pSlug].children.push(Orgvis.makeJuniorPostNode(items[i]));
 					byProfession[pSlug].data.fteTotal += items[i].fullTimeEquivalent;
 				} else {
-					byProfession[pSlug] = Orgvis.makeJuniorPostGroup(items[i].withProfession.prefLabel,"Profession");
+					try{byProfession[pSlug] = Orgvis.makeJuniorPostGroup(items[i].withProfession.prefLabel,"Profession");}
+					catch(e){byProfession[pSlug] = Orgvis.makeJuniorPostGroup("Other","Profession");}
 					byProfession[pSlug].children.push(Orgvis.makeJuniorPostNode(items[i]));
 					byProfession[pSlug].data.fteTotal = items[i].fullTimeEquivalent;
 				}
@@ -2608,7 +2632,7 @@ var Orgvis = {
 		$("#infobox").html(html);
 		Orgvis.setInfoBoxLinks();
 		$("#infobox").fadeIn();
-		//$("#infobox div.content").slideDown();	
+		$("#infobox div.content").show();	
 				
 		
 	},
