@@ -1546,7 +1546,7 @@ var Orgvis = {
 					postIn:[],
 					reportsTo:[],
 					heldBy:[],
-					salaryRange:item.salaryRange,
+					salaryRange:[],
 					processed:false,
 					childrenAdded:false,
 					gotStats:false,
@@ -1642,13 +1642,12 @@ var Orgvis = {
 			if(typeof item.salaryRange.label != 'undefined'){
 				// Post has one salary range
 				log(node.name+" has one salary range");
-				node.data.salaryRange = item.salaryRange.label[0].toString();
+				node.data.salaryRange.push(item.salaryRange.label[0]);
 			} else {
 				// Post has more than one salary range
 				log(node.name+" has more than one salary range");
-				node.data.salaryRange = [];
 				for(var i in item.salaryRange){
-					node.data.salaryRange.push(item.salaryRange[i].label[0].toString());	
+					node.data.salaryRange.push(item.salaryRange[i].label[0]);	
 				}
 			}
 		} else {
@@ -2477,39 +2476,10 @@ var Orgvis = {
 			
 			html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+'&preview='+Orgvis.vars.previewMode+'">Load organogram</a></p>';
 			
-			/*
-			if(typeof node.data.salaryRange != 'undefined'){
-				if(node.data.heldBy.length > 1){
-					if(typeof node.data.salaryRange.label == 'string'){
-						html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i].label)+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';					
-					} else {
-						html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i].label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
-					}			
-				} else {
-					if(typeof node.data.salaryRange.label == 'string'){
-						html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange.label)+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';					
-					} else if(node.data.salaryRange.length > 0) {
-						html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange.label[0])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';
-					} else {
-						// No salary present
-					}
-				}
-			} else {
-				//html += '<p class="salary"><span>Salary</span><span class="value">Not disclosed</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';			
-			}
-			*/
 			
-			if(typeof node.data.salaryRange != 'undefined'){
-				if(typeof node.data.salaryRange == 'string'){
-					html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange)+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';							
-				} else {
-					html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';					
-				}
-			} else {
-				// Post has no salary data present
-			}
-			
-			
+			if(typeof node.data.salaryRange[i] != 'undefined' && node.data.salaryRange[i].toString().length > 1){
+				html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';					
+			}			
 			
 			
 			//'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'
@@ -2530,7 +2500,11 @@ var Orgvis = {
 			}
 
 			if(node.data.heldBy[i].profession != ''){
-				html+='<p class="profession"><span>Profession</span><span class="value">'+node.data.heldBy[i].profession+'</span></p>';
+				if(typeof node.data.heldBy[i].profession != 'string'){
+					html+='<p class="profession"><span>Profession</span><span class="value">'+node.data.heldBy[i].profession[0]+'</span></p>';
+				} else {
+					html+='<p class="profession"><span>Profession</span><span class="value">'+node.data.heldBy[i].profession+'</span></p>';
+				}
 			}			
 			
 			if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
