@@ -117,7 +117,7 @@ var PostList = {
 		$('div.apiCall').remove();
 		$("div.noPosts").hide();
 		
-		var pageSize = 50;
+		var pageSize = 20;
 		var combinedJSON = {};
 		var pageNumber = 1;
 
