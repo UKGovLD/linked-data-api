@@ -200,7 +200,7 @@ display: inline-block;
 width:220px;
 }
 div.panel table tr td.filename {
-
+word-wrap: break-word;
 }
 div.panel table tr td.preview, div.panel table tr td.delete {
 text-align: center;
