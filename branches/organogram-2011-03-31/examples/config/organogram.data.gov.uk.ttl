@@ -75,6 +75,7 @@ spec:api
 	  spec:unitsInPublicBody ,
 	  spec:unitInPublicBody ,
 	  spec:unitInPublicBodyStatistics ,
+	  spec:topPostsInPublicBody ,
 	  spec:postsInPublicBody ,
 	  spec:postInPublicBody ,
 	  spec:postInPublicBodyImmediateReports ,
@@ -93,6 +94,7 @@ spec:api
 	  spec:unitsInDepartment ,
 	  spec:unitInDepartment ,
 	  spec:unitInDepartmentStatistics ,
+	  spec:topPostsInDepartment ,
 	  spec:postsInDepartment ,
 	  spec:postInDepartment ,
 	  spec:postInDepartmentImmediateReports ,
@@ -530,6 +532,30 @@ spec:postsInPublicBody
   api:defaultViewer spec:postListViewer ;
   .
 
+spec:topPostsInPublicBody
+  a api:ListEndpoint ;
+  rdfs:label "Top Posts in Public Body" ;
+  api:uriTemplate "/doc/public-body/{code}/top-post" ;
+  api:variable [
+    a api:Variable ;
+    api:name "publicBody" ;
+    api:value "http://reference.data.gov.uk/id/public-body/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where """
+?item gov:postIn ?publicBody .
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+OPTIONAL {
+  ?item org:reportsTo ?boss .
+}
+FILTER (!BOUND(?boss))
+""" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
 spec:postInPublicBody
   a api:ItemEndpoint ;
   rdfs:label "Post in Public Body" ;
@@ -844,6 +870,30 @@ spec:postsInDepartment
   ] ;
   api:selector [
     api:where "?item gov:postIn ?department . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }" ;
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+  .
+
+spec:topPostsInDepartment
+  a api:ListEndpoint ;
+  rdfs:label "Top Posts in Department" ;
+  api:uriTemplate "/doc/department/{code}/top-post" ;
+  api:variable [
+    a api:Variable ;
+    api:name "department" ;
+    api:value "http://reference.data.gov.uk/id/department/{code}" ;
+    api:type rdfs:Resource ;
+  ] ;
+  api:selector [
+    api:where """
+?item gov:postIn ?department .
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+OPTIONAL {
+  ?item org:reportsTo ?boss .
+}
+FILTER (!BOUND(?boss))
+""" ;
   ] ;
   api:viewer spec:postViewer ;
   api:defaultViewer spec:postListViewer ;
