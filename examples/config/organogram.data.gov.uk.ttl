@@ -108,6 +108,7 @@ spec:api
 	  spec:postInDepartmentNonDisclosures ,
 	  spec:postsInDepartmentUnit ,
     spec:topPostsInDepartmentUnit ,
+    spec:topPostsInDepartmentUnits ,
 	  spec:salaryRanges ,
 	  spec:salaryRange ,
 	  spec:ministers ,
@@ -703,6 +704,30 @@ spec:postsInPublicBodyUnit
   api:defaultViewer spec:postListViewer ;
 .
 
+spec:topPostsInPublicBodyUnits
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/public-body/{dept}/top-unit-post" ;
+  api:variable [
+    api:name "publicBody";
+    api:type rdfs:Resource ;
+    api:value "http://reference.data.gov.uk/id/public-body/{dept}" ;
+  ] ;
+  api:selector [
+    api:where """
+?item gov:postIn ?publicBody ; gov:postIn ?unit .
+?unit org:unitOf ?publicBody .
+OPTIONAL { 
+  ?item org:reportsTo ?boss . 
+  ?boss gov:postIn ?unit . 
+}
+FILTER (!BOUND(?boss))
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+"""
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+.
+
 spec:topPostsInPublicBodyUnit
   a api:ListEndpoint ;
   api:uriTemplate "/doc/public-body/{dept}/unit/{unit}/top-post" ;
@@ -1085,6 +1110,30 @@ spec:postsInDepartmentUnit
   ] ;
   api:selector [
     api:where " ?item gov:postIn ?unitResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }"
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+.
+
+spec:topPostsInDepartmentUnits
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/department/{dept}/top-unit-post" ;
+  api:variable [
+    api:name "department";
+    api:type rdfs:Resource ;
+    api:value "http://reference.data.gov.uk/id/department/{dept}" ;
+  ] ;
+  api:selector [
+    api:where """
+?item gov:postIn ?department ; gov:postIn ?unit .
+?unit org:unitOf ?department .
+OPTIONAL { 
+  ?item org:reportsTo ?boss . 
+  ?boss gov:postIn ?unit . 
+}
+FILTER (!BOUND(?boss))
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+"""
   ] ;
   api:viewer spec:postViewer ;
   api:defaultViewer spec:postListViewer ;
