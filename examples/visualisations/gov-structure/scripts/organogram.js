@@ -64,7 +64,7 @@ var Orgvis = {
 		firstLoad_expectedApiResponses:3, // Used to make the app wait until the correct number of API responses have been gathered
 		apiResponses:[],		// Stores JSON responses from the API
 		cacheObj:{},			// An object to store API responses
-		debug:true				// Output to console or not
+		debug:false				// Output to console or not
 	},
 	init:function(deptSlug,pubbodSlug,postSlug,reload,pMode){
 						
@@ -1624,8 +1624,8 @@ var Orgvis = {
 				if(typeof item.heldBy[a].email != 'undefined'){person.foafMbox = item.heldBy[a].email.label[0];}
 				if(typeof item._about != 'undefined'){person.holdsPostURI = item._about;}
 				if(typeof item.comment != 'undefined'){person.comment = item.comment;}
-				if(typeof item.heldBy[a].tenure.workingTime != 'undefined'){person.workingTime = item.heldBy[a].tenure.workingTime;}
-				if(typeof item.heldBy[a].profession.prefLabel != 'undefined'){person.profession = item.heldBy[a].profession.prefLabel;}
+				if(typeof item.heldBy[a].tenure != 'undefined' && typeof item.heldBy[a].tenure.workingTime != 'undefined'){person.workingTime = item.heldBy[a].tenure.workingTime;}
+				if(typeof item.heldBy[a].profession != 'undefined' && typeof item.heldBy[a].profession.prefLabel != 'undefined'){person.profession = item.heldBy[a].profession.prefLabel;}
 				
 				node.data.totalWorkingTime += person.workingTime;
 				
