@@ -199,10 +199,10 @@ div.panel table tr td {
 display: inline-block;
 width:220px;
 }
-div.pabel table tr td.filename {
+div.panel table tr td.filename {
 
 }
-div.pabel table tr td.preview, div.pabel table tr td.delete {
+div.panel table tr td.preview, div.panel table tr td.delete {
 text-align: center;
 width: 100px;
 }
