@@ -188,7 +188,7 @@ div.panel form input.error {
     border: 1px solid #9C2F2F;
 }
 div.panel table {
-  width: 100%;
+  /*width: 770px;*/
   color: #79678F;
   border-collapse: collapse;
 }
