@@ -891,19 +891,20 @@ var Orgvis = {
 	},
 	getStatisticsData:function(node){
 
+	
+		var postID = Orgvis.getSlug(node.data.uri);
+
 		// Collated for the API call info box
 		Orgvis.vars.apiCallInfo.postStats = {
-				title:"Retrieval of each post's statistics data",
-				description:"An API call to retrieve the statistical data present for an individual post such as the salary cost of their junior staff.",
-				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post",
+				title:"Retrieval of a post's statistics data",
+				description:"An API call to retrieve the statistical data present for an individual post such as the combined salaries of their junior staff.",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/statistics.json",
 				parameters:"?_pageSize=300",
 				complete:false
 		};	
-	
-		var postID = Orgvis.getSlug(node.data.uri);
-		
+				
 		var s = {
-			url: Orgvis.vars.apiCallInfo.postStats.url+"/"+postID+"/statistics.json"+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
+			url: Orgvis.vars.apiCallInfo.postStats.url+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
 			type: "GET",
 			dataType: "jsonp",
 			async:true,
@@ -938,7 +939,9 @@ var Orgvis = {
 					$('p.salaryReports').html('<span>Combined salary of reporting posts</span><span class="value">'+node.data.stats.salaryCostOfReports.formatted+'</span><a class="data" target="_blank" href="'+Orgvis.vars.apiCallInfo.postStats.url+'/'+postID+'/statistics" value="'+node.data.stats.salaryCostOfReports.value+'">Data</a><span class="date">'+node.data.stats.date.formatted+'</span>');	                
 	            }
 	            node.data.gotStats = true;           
-				
+
+				Orgvis.displayDataSources();
+		
 			}
 		};
 			
@@ -2625,8 +2628,8 @@ var Orgvis = {
 
 		$.each(Orgvis.vars.apiCallInfo,function(k,v){
 			
-			log(k);
-			log(v);
+			//log(k);
+			//log(v);
 			
 			html += '<a class="source">'+(i+1)+'</a>';
 			

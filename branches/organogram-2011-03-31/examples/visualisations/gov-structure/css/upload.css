@@ -190,9 +190,25 @@ div.panel form input.error {
 div.panel table {
   width: 100%;
   color: #79678F;
+  border-collapse: collapse;
+}
+div.panel table tr {
+
+}
+div.panel table tr td {
+display: inline-block;
+width:220px;
+}
+div.pabel table tr td.filename {
+
+}
+div.pabel table tr td.preview, div.pabel table tr td.delete {
+text-align: center;
+width: 100px;
 }
 div.panel table td.modified {
   font-size: 0.66em;
+  width:100px;
 }
 div.panel table form input {
   padding-left: 1em;
@@ -228,6 +244,7 @@ div.links p {
 }
 div.links a {
 	text-decoration: underline;
+	font-size: 12px;
 }
 div.links ul {
 	margin:0;
