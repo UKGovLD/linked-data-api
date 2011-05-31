@@ -87,6 +87,7 @@ spec:api
 	  spec:postInPublicBodyStatistics ,
 	  spec:postInPublicBodyNonDisclosures ,
 	  spec:postsInPublicBodyUnit ,
+    spec:topPostsInPublicBodyUnit ,
 	  spec:departments ,
 	  spec:ministerialDepartments ,
 	  spec:nonMinisterialDepartments ,
@@ -106,6 +107,7 @@ spec:api
 	  spec:postInDepartmentStatistics ,
 	  spec:postInDepartmentNonDisclosures ,
 	  spec:postsInDepartmentUnit ,
+    spec:topPostsInDepartmentUnit ,
 	  spec:salaryRanges ,
 	  spec:salaryRange ,
 	  spec:ministers ,
@@ -686,6 +688,44 @@ spec:postInPublicBodyJuniorStaffFull
   api:defaultViewer spec:juniorStaffListViewer ;
   .
 
+spec:postsInPublicBodyUnit
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/public-body/{dept}/unit/{unit}/post" ;
+  api:variable [
+    api:name "unitResource";
+    api:type rdfs:Resource ;
+    api:value "http://reference.data.gov.uk/id/public-body/{dept}/unit/{unit}" ;
+  ] ;
+  api:selector [
+    api:where " ?item gov:postIn ?unitResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }"
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+.
+
+spec:topPostsInPublicBodyUnit
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/public-body/{dept}/unit/{unit}/top-post" ;
+  api:variable [
+    api:name "unitResource";
+    api:type rdfs:Resource ;
+    api:value "http://reference.data.gov.uk/id/public-body/{dept}/unit/{unit}" ;
+  ] ;
+  api:selector [
+    api:where """
+?item gov:postIn ?unitResource . 
+OPTIONAL { 
+  ?item org:reportsTo ?boss . 
+  ?boss gov:postIn ?unitResource . 
+}
+FILTER (!BOUND(?boss))
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+"""
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+.
+
 spec:postInPublicBodyStatistics
   a api:ListEndpoint ;
   rdfs:label "Posts in Public Body Statistics" ;
@@ -1045,6 +1085,29 @@ spec:postsInDepartmentUnit
   ] ;
   api:selector [
     api:where " ?item gov:postIn ?unitResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }"
+  ] ;
+  api:viewer spec:postViewer ;
+  api:defaultViewer spec:postListViewer ;
+.
+
+spec:topPostsInDepartmentUnit
+  a api:ListEndpoint ;
+  api:uriTemplate "/doc/department/{dept}/unit/{unit}/top-post" ;
+  api:variable [
+    api:name "unitResource";
+    api:type rdfs:Resource ;
+    api:value "http://reference.data.gov.uk/id/department/{dept}/unit/{unit}" ;
+  ] ;
+  api:selector [
+    api:where """
+?item gov:postIn ?unitResource . 
+OPTIONAL { 
+  ?item org:reportsTo ?boss . 
+  ?boss gov:postIn ?unitResource . 
+}
+FILTER (!BOUND(?boss))
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+"""
   ] ;
   api:viewer spec:postViewer ;
   api:defaultViewer spec:postListViewer ;
