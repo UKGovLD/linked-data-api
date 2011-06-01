@@ -309,7 +309,7 @@ $prefLabel, $altLabel, $title and $name variables.
 				<xsl:otherwise>identify the items to be shown in the page.</xsl:otherwise>
 			</xsl:choose>
 			<xsl:text> You can modify it here and re-run the query but you may find more options at the </xsl:text>
-			<a href="endpoint/url/@href">endpoint's page</a>
+			<a href="{endpoint/url/@href}">endpoint's page</a>
 			<xsl:text>.</xsl:text>
 		</p>
 		<form action="{endpoint/url/@href}" method="post">
