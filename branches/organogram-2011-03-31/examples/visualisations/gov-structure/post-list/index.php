@@ -41,6 +41,8 @@
 
 	<select id="loadBy">
 	
+		<option disabled value="--">--</option>
+	
 		<!--optgroup label="Type">
 			<option value="Permanent Secretary" data-type="type">Permanent Secretary</option>
 			<option value="Director General" data-type="type">Director General</option>
@@ -48,21 +50,19 @@
 			<option value="Deputy Director" data-type="type">Deputy Director</option>
 		</optgroup-->
 	
-		<optgroup label="Grade">
-		  <optgroup label="Civil Service">
+		  <optgroup label="Civil Service Grade">
 			<option value="SCS4" data-type="grade">SCS4</option>		
   			<option value="SCS3" data-type="grade">SCS3</option>
   			<option value="SCS2" data-type="grade">SCS2</option>
   			<option value="SCS1A" data-type="grade">SCS1A</option>
   			<option value="SCS1" data-type="grade">SCS1</option>
 		  </optgroup>
-		  <optgroup label="Military">
+		  <optgroup label="Military Grade">
   			<option value="OF-9" data-type="grade">OF-9</option>
   			<option value="OF-8" data-type="grade">OF-8</option>
   			<option value="OF-7" data-type="grade">OF-7</option>
   			<option value="OF-6" data-type="grade">OF-6</option>
 		  </optgroup>
-		</optgroup>
 		
 		<optgroup label="Other">
 			<option value="Top posts" data-type="topposts">Top posts</option>
@@ -80,8 +80,8 @@
 	</select>
 	<label for="sortBy" class="sortBy">Sort by</label>
 	
-	<select id="sortBy">
-		<option disabled value="--">--</option>
+	<select id="filterBy">
+		<option value="none" data-type="none">None</option>
 	</select>
 	<label for="filterBy" class="filterBy">Filter by</label>
 		
