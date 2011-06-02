@@ -169,7 +169,8 @@ opacity:0.7;
     font-weight: bold;
     padding-left: 5px;
     padding-right: 5px;
-    width: 35%;
+    text-align: right;
+    width: 45px;
 }
 #infovis div.post ul li {
     font-size: 11px;
