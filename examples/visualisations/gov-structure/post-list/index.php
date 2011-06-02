@@ -5,6 +5,8 @@
 <html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+<link type="image/x-icon" href="http://organogram.data.gov.uk/images/datagovuk_favicon.png" rel="shortcut icon">
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/post-list.css" rel="stylesheet">
 <title>Organogram Data | Post Listing</title>
@@ -38,17 +40,17 @@
 	<button id="gov" rel="government">HM Government</button><button id="dept">Department</button><button id="unit">Unit</button>
 
 	<select id="loadBy">
-	<!--
-		<optgroup label="Post type">
-			<option value="Permanent Secretary">Permanent Secretary</option>
-			<option value="Director General">Director General</option>
-			<option value="Director">Director</option>
-			<option value="Deputy Director">Deputy Director</option>
-		</optgroup>
-	-->
+	
+		<!--optgroup label="Type">
+			<option value="Permanent Secretary" data-type="type">Permanent Secretary</option>
+			<option value="Director General" data-type="type">Director General</option>
+			<option value="Director" data-type="type">Director</option>
+			<option value="Deputy Director" data-type="type">Deputy Director</option>
+		</optgroup-->
+	
 		<optgroup label="Grade">
 		  <optgroup label="Civil Service">
-			  <option value="SCS4" data-type="grade">SCS4</option>		
+			<option value="SCS4" data-type="grade">SCS4</option>		
   			<option value="SCS3" data-type="grade">SCS3</option>
   			<option value="SCS2" data-type="grade">SCS2</option>
   			<option value="SCS1A" data-type="grade">SCS1A</option>
@@ -60,6 +62,10 @@
   			<option value="OF-7" data-type="grade">OF-7</option>
   			<option value="OF-6" data-type="grade">OF-6</option>
 		  </optgroup>
+		</optgroup>
+		
+		<optgroup label="Other">
+			<option value="Top posts" data-type="topposts">Top posts</option>
 		</optgroup>
 	</select>
 	<label for="loadBy" class="loadBy">Load</label>
