@@ -445,7 +445,8 @@ var PostList = {
 			}
 		
 			try{
-				reportsTo = json.result.items[i].reportsTo[0].heldBy[0].name;
+				//reportsTo = json.result.items[i].reportsTo[0].heldBy[0].name;
+				reportsTo = json.result.items[i].reportsTo[0].label[0];
 			}catch(e){
 			  reportsTo = null;
 			}

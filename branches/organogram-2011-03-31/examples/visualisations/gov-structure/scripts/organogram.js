@@ -898,13 +898,13 @@ var Orgvis = {
 		Orgvis.vars.apiCallInfo.postStats = {
 				title:"Retrieval of a post's statistics data",
 				description:"An API call to retrieve the statistical data present for an individual post such as the combined salaries of their junior staff.",
-				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/statistics.json",
+				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+postID+"/statistics",
 				parameters:"?_pageSize=300",
 				complete:false
 		};	
 				
 		var s = {
-			url: Orgvis.vars.apiCallInfo.postStats.url+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
+			url: Orgvis.vars.apiCallInfo.postStats.url+".json"+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
 			type: "GET",
 			dataType: "jsonp",
 			async:true,

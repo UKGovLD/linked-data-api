@@ -79,6 +79,12 @@
 		<option value="salaryRange">Salary Range</option>
 	</select>
 	<label for="sortBy" class="sortBy">Sort by</label>
+	
+	<select id="sortBy">
+		<option disabled value="--">--</option>
+	</select>
+	<label for="filterBy" class="filterBy">Filter by</label>
+		
 </h1>
 
 
