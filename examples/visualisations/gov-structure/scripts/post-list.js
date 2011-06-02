@@ -83,7 +83,7 @@ var PostList = {
 			PostList.vars.apiBase = "reference.data.gov.uk";
 		}	
 
-
+		
 		switch(PostList.vars.property){
 		
 			case 'grade' :
@@ -145,7 +145,7 @@ var PostList = {
 				},
 				success: function(json){	
 	
-					if(json.result.items.length < 1){
+					if(json.result.items.length < 1 && pageNumber == 1){
 						$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
 						PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
 						PostList.displayNoPosts(PostList.vars.property,PostList.vars.value);
