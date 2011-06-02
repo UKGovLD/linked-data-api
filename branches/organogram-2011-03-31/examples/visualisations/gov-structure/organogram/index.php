@@ -7,6 +7,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
+<link type="image/x-icon" href="http://organogram.data.gov.uk/images/datagovuk_favicon.png" rel="shortcut icon">
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/organogram.css" rel="stylesheet">
 <!-- Scripts -->

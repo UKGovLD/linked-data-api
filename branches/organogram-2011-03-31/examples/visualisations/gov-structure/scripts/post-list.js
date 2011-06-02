@@ -36,6 +36,8 @@ var PostList = {
 
 		log('$.cookie("organogram-preview-mode"):'+$.cookie("organogram-preview-mode"));
 		log("pMode: "+pMode);
+		log('property = '+property);
+		log('value = '+value);
 			
 		if(pDept.length>0){
 			log("department");
@@ -98,6 +100,14 @@ var PostList = {
 				PostList.getPostList(PostList.vars.property,PostList.vars.value);
 				break;
 				
+			case 'topposts' :
+			
+				$("select#loadBy").val("Top posts");
+				if(PostList.vars.value){}
+				else{PostList.vars.value = ""};
+				PostList.getPostList(PostList.vars.property,PostList.vars.value);				
+				break;
+				
 			default :
 			
 				PostList.vars.property = "grade";
@@ -129,6 +139,11 @@ var PostList = {
 			complete:false
 		};
 		
+		if(property == "topposts"){
+			PostList.vars.apiCallInfo.postList.url = "http://"+PostList.vars.apiBase+"/doc/"+PostList.vars.orgType+"/"+PostList.vars.org+"/top-post";
+			PostList.vars.apiCallInfo.postList.parameters = "?_pageSize="+pageSize;
+		}
+		
 		if(typeof PostList.vars.apiResults[property+"-"+value] != 'undefined'){
 			PostList.loadPosts(PostList.vars.apiResults[property+"-"+value]);
 			PostList.vars.apiCallInfo.postList.complete = true;
@@ -147,7 +162,13 @@ var PostList = {
 	
 					if(json.result.items.length < 1 && pageNumber == 1){
 						$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
-						PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+						
+						if(property == "topposts"){
+							PostList.notify("Success","Loaded top level posts", true, "success_postsBy"+property);				
+						} else {
+							PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+						}
+			
 						PostList.displayNoPosts(PostList.vars.property,PostList.vars.value);
 					} else {
 						
@@ -169,9 +190,17 @@ var PostList = {
 		
 							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
 							if(pageNumber > 1){
-								PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber-1)+")",false,"success_postsBy"+property);
+								if(property == "topposts"){
+									PostList.notify("Success","Loaded top level posts ("+(pageNumber-1)+")",false,"success_postsBy"+property);
+								} else {
+									PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber-1)+")",false,"success_postsBy"+property);
+								}								
 							} else {
-								PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+								if(property == "topposts"){
+									PostList.notify("Success","Loaded top level posts",false,"success_postsBy"+property);
+								} else {
+									PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+								}
 							}
 							PostList.notify("Loading","Posts with "+property+": "+value+" ("+pageNumber+")",true,"loading_postsBy"+property);
 							
@@ -182,7 +211,12 @@ var PostList = {
 							log("no more pages, loading posts");
 							log(combinedJSON);
 							
-							PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber)+")",false,"success_postsBy"+property);
+							if(property == "topposts"){
+								PostList.notify("Success","Loaded top level posts ("+(pageNumber)+")",false,"success_postsBy"+property);
+							} else {
+								PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber)+")",false,"success_postsBy"+property);
+							}	
+													
 							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
 							
 							PostList.vars.previewMode = "true";
@@ -194,7 +228,13 @@ var PostList = {
 							log("no more pages, loading posts");
 							log(combinedJSON);
 							
-							PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+							if(property == "topposts"){
+								PostList.notify("Success","Loaded top level posts",false,"success_postsBy"+property);
+							} else {
+								PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
+							}	
+							
+							
 							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
 							
 							PostList.vars.previewMode = "true";
@@ -211,8 +251,12 @@ var PostList = {
 				s.password = $.cookie('organogram-password');
 				//s.url = s.url.replace("reportsFull","reports-full");
 			}
-					
-			PostList.notify("Loading","Posts with "+property+": "+value, true, "loading_postsBy"+property);
+			
+			if(property == "topposts"){
+				PostList.notify("Loading","Top level posts", true, "loading_postsBy"+property);				
+			} else {
+				PostList.notify("Loading","Posts with "+property+": "+value, true, "loading_postsBy"+property);
+			}
 			$.myJSONP(s,property,value);
 		}
 						
@@ -719,7 +763,7 @@ $(document).ready(function() {
 	
 	$("select#loadBy").val("SCS1");
 	
-	$("select#loadBy").change(function(e){
+	$("select#loadBy").change(function(){
 				 
 		var $option = $(this).find("option[value='"+$(this).val()+"']");
 		
@@ -729,6 +773,7 @@ $(document).ready(function() {
 		PostList.vars.property = $option.attr("data-type");
 		PostList.vars.value = $option.html();
 		PostList.getPostList(PostList.vars.property,PostList.vars.value);
+		
 		
 		//$("div.postHolder").css("height","auto");
 		//$('#infovis').quicksand( $('#infovis').find("div."+postType), { adjustHeight: 'dynamic' } );
