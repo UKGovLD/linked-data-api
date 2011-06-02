@@ -24,7 +24,8 @@ var PostList = {
 		apiCallInfo:{},
 		debug:true,
 		apiBase:"http://reference.data.gov.uk",
-		apiResults:[]
+		apiResults:[],
+		unitList:{}
 	},
 	init:function(pDept,pBod,pUnit,property,value,pMode){
 	
@@ -284,6 +285,7 @@ var PostList = {
 		var email = null;
 		var phone = null;
 		var unit = null;
+		var unitSlug = null;
 		var dept = null;
 		var type = null;
 		var reportsTo = null;
@@ -292,10 +294,28 @@ var PostList = {
 					
 		for(var i=0,itemLength=json.result.items.length;i<itemLength;i++){
 		
+		
+			var oddeven = 0;
+			
 			slug = json.result.items[i]._about.split("/");
 			slug = slug[slug.length-1];
 			
-			html += '<div class="post" rel="'+slug+'" data-id="id-'+slug+'">';
+			// Find unit
+			try {
+				postIn = json.result.items[i].postIn;
+				unitSlug = null;
+				unit = null;
+				for (var j = 0; j < postIn.length; j++) {
+					if (postIn[j]._about.indexOf("/unit/") > 0) {
+						unitSlug = PostList.getSlug(postIn[j]._about);
+						unit = postIn[j].label[0];
+					}
+				}
+			} catch (e) {
+				unit = null;
+			}
+						
+			html += '<div class="post" rel="'+slug+'" data-id="id-'+slug+'" data-unit="'+unitSlug+'">';
 			
 			postStatus = json.result.items[i].postStatus;
 			
@@ -356,9 +376,11 @@ var PostList = {
 			  email = null;
 			}
 			if(email){
-				//html += '<tr class="email odd"><td class="label">Email</td><td>'+email+'</td></tr>';
+				//html += '<tr class="email '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Email</td><td>'+email+'</td></tr>';
+				//oddeven++;
 			} else {
-				//html += '<tr class="email odd"><td class="label">Email</td><td>'+email+'</td></tr>';
+				//html += '<tr class="email '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Email</td><td>'+email+'</td></tr>';
+				//oddeven++;
 			}			
 
 			try{
@@ -367,9 +389,11 @@ var PostList = {
 			  phone = null;
 			}
 			if(phone){
-				//html += '<tr class="phone even"><td class="label">Phone</td><td>'+phone+'</td></tr>';
+				//html += '<tr class="phone '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Phone</td><td>'+phone+'</td></tr>';
+				//oddeven++;
 			} else {
-				//html += '<tr class="phone even"><td class="label">Phone</td><td>'+phone+'</td></tr>';
+				//html += '<tr class="phone '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Phone</td><td>'+phone+'</td></tr>';
+				//oddeven++;
 			}	
 						
 
@@ -377,17 +401,27 @@ var PostList = {
 			  postIn = json.result.items[i].postIn;
 			  unit = null;
 			  for (var j=0; j<postIn.length; j++) {
-			    if (postIn[j]._about.indexOf("/unit/")) {
+			    if (postIn[j]._about.indexOf("/unit/") > 0) {
 			      unit = postIn[j].label[0];
+			      // If the post belongs in a unit that hasn't been stored yet, 
+			      // store the new unit in the unitList.
+			      if(typeof PostList.vars.unitList[PostList.getSlug(postIn[j]._about)] == 'undefined'){
+			      	PostList.vars.unitList[PostList.getSlug(postIn[j]._about)] = {
+			      		name:postIn[j].label[0],
+			      		uri:postIn[j]._about
+			      	};	
+			      }
 			    }
 			  }
 			}catch(e){
 			  unit = null;
 			}
 			if(unit){
-				html += '<tr class="unit odd"><td class="label">Unit</td><td data-type="unit">'+unit+'</td></tr>';
+				html += '<tr class="unit '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Unit</td><td data-type="unit">'+unit+'</td></tr>';
+				oddeven++;		
 			} else {
-				html += '<tr class="unit odd"><td class="label">Unit</td><td data-type="unit">?</td></tr>';
+				html += '<tr class="unit '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Unit</td><td data-type="unit">?</td></tr>';
+				oddeven++;
 			}	
 			
 			try{
@@ -396,9 +430,11 @@ var PostList = {
 			  dept = null;
 			}
 			if(dept){
-				//html += '<tr class="dept even"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
+				//html += '<tr class="dept '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
+				//oddeven++;
 			} else {
-				//html += '<tr class="dept even"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
+				//html += '<tr class="dept '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
+				//oddeven++;
 			}	
 			
 			/*
@@ -407,7 +443,8 @@ var PostList = {
 			}catch(e){}
 			if(typeof type != 'undefined'){
 			} else {
-				html += '<tr class="type odd"><td class="label">Type</td><td>?</td></tr>';
+				html += '<tr class="type '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Type</td><td>?</td></tr>';
+				oddeven++;
 			}	
 			*/
 			
@@ -416,9 +453,10 @@ var PostList = {
 				type = json.result.items[i].type[0].label[0];
 			}catch(e){}
 			if(typeof type != 'undefined'){
-				html += '<tr class="type even"><td class="label">Type</td><td data-type="type">'+type+'</td></tr>';
+				html += '<tr class="type '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Type</td><td data-type="type">'+type+'</td></tr>';
+				oddeven++;
 			}else {
-				html += '<tr class="type even"><td class="label">Type</td><td data-type="type">?</td></tr>';			
+				html += '<tr class="type '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Type</td><td data-type="type">?</td></tr>';						oddeven++;	
 			}
 			*/
 			
@@ -428,9 +466,10 @@ var PostList = {
 			  grade = null;
 			}			
 			if(grade){
-				html += '<tr class="grade even"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
+				html += '<tr class="grade '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
+				oddeven++;
 			}else {
-				html += '<tr class="grade even"><td class="label">Grade</td><td data-type="grade">?</td></tr>';		
+				html += '<tr class="grade '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Grade</td><td data-type="grade">?</td></tr>';					oddeven++;	
 			}			
 			
 			try{
@@ -439,9 +478,11 @@ var PostList = {
 			  salaryRange = null;
 			}
 			if(salaryRange){
-				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">'+addCommas(salaryRange)+'</td></tr>';
+				html += '<tr class="salaryRange '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Salary</td><td data-type="salaryRange">'+addCommas(salaryRange)+'</td></tr>';
+				oddeven++;
 			}else {
-				html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">?</td></tr>';			
+				//html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">?</td></tr>';			
+				//oddeven++;
 			}
 		
 			try{
@@ -451,7 +492,8 @@ var PostList = {
 			  reportsTo = null;
 			}
 			if(reportsTo){
-				html += '<tr class="reportsTo even end"><td class="label">Reports to</td><td>'+reportsTo+'</td></tr>';
+				html += '<tr class="reportsTo '+(oddeven%2 == 0 ? "odd" : "even")+' end"><td class="label">Reports to</td><td>'+reportsTo+'</td></tr>';
+				oddeven++;
 			} else {
 			}	
 			
@@ -474,13 +516,116 @@ var PostList = {
 		//$("div.post").dropShadow();
 		
 		$("#infovis").css("visibility","visible");
-		
-		PostList.setQuickSand();
-								
+
+		PostList.updateFilter();		
+		PostList.setQuickSandSort();
+		PostList.setQuickSandFilter();
 		PostList.displayDataSources();
 		
 	},
-	setQuickSand:function(){
+	updateFilter:function(){
+	
+/*
+		<option disabled value="--">--</option>
+		<optgroup label="Unit">Unit</optgroup>
+		</optgroup>
+		
+*/		
+		var array = [];
+		
+		for(var i in PostList.vars.unitList){
+			array.push(PostList.vars.unitList[i]);
+		}		
+		
+		array.sort(sort_name());
+		
+		var html = '<option value="none" data-type="none">None</option>';
+		
+		// Units	
+		html += '<optgroup label="Unit">';
+		for(var i in array){
+			//log(PostList.vars.unitList[i]);
+			html += '<option value="'+PostList.getSlug(array[i].uri)+'" data-type="unit">'+array[i].name+'</option>';
+		}
+		html += '</optgroup>';
+				
+		// Other things
+
+		$("select#filterBy").html(html);
+
+	},
+	setQuickSandFilter:function(){
+	
+		var $filterInput = $('select#filterBy');
+		
+		// get the first collection
+		var $posts = $('div.postHolder');
+		
+		// clone applications to get a second collection
+		var $data = $posts.clone();
+		
+		var $filteredData, $sortedData;
+		
+		$filterInput.change(function(e) {
+		  
+		  	var $option = $(this).find("option[value='"+$(this).val()+"']");
+		  	
+		  	//log($option.attr('data-type'));
+		  	
+		  	if($option.attr('data-type') == "none") {
+		      $filteredData = $data.find('div.post');
+		    } else if ($option.attr('data-type') == "unit") {
+		      $filteredData = $data.find('div.post[data-unit=' + $(this).val() + ']');
+		    }
+			
+			//log("filter applied: ")
+			//log($filteredData);		
+			
+			
+		    // apply the sort value
+		    if ($('select#sortBy').val() == "name") {
+		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
+			  		return $(a).find('p[data-type=name]').text().toLowerCase() > $(b).find('p[data-type=name]').text().toLowerCase() ? 1 : -1;
+		  		});
+		    } else if ($('select#sortBy').val() == "title") {
+		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
+			  		return $(a).find('h3[data-type=title]').text().toLowerCase() > $(b).find('h3[data-type=title]').text().toLowerCase() ? 1 : -1;
+		  		});
+		    } else if ($('select#sortBy').val() == "unit") {
+		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
+			  		return $(a).find('td[data-type=unit]').text().toLowerCase() > $(b).find('td[data-type=unit]').text().toLowerCase() ? 1 : -1;
+		  		});
+		    }  else if ($('select#sortBy').val() == "type") {
+		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
+			  		return $(a).find('td[data-type=type]').text().toLowerCase() > $(b).find('td[data-type=type]').text().toLowerCase() ? 1 : -1;
+		  		});
+		    }  else if ($('select#sortBy').val() == "grade") {
+		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
+			  		return $(a).find('td[data-type=grade]').text().toLowerCase() > $(b).find('td[data-type=grade]').text().toLowerCase() ? 1 : -1;
+		  		});
+		    }  else if ($('select#sortBy').val() == "salaryRange") {
+		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
+			    	var sal1 = $(a).find('td[data-type=salaryRange]').text().split(" ");
+			    	sal1 = sal1[0].match(/\d/g).join("");
+			    	var sal2 = $(b).find('td[data-type=salaryRange]').text().split(" ");
+			    	sal2 = sal2[0].match(/\d/g).join("");	    	
+			  		return parseInt(sal1) > parseInt(sal2) ? 1 : -1;
+		  		});
+		    }     
+			
+		    // finally, call quicksand
+		    $posts.quicksand($filteredData,{
+		    	adjustHeight: 'dynamic'
+		    },function(){
+				$("div.post").click(function(){
+					window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+				});
+		    });
+	    
+		});
+	
+	},
+	setQuickSandSort:function(){
 	
 	  // bind radiobuttons in the form
 	  var $sortInput = $('select#sortBy');
@@ -725,6 +870,11 @@ $.myJSONP = function(s,property,value) {
     }
 };
 
+function sort_name() {
+    return function (a,b) {
+        return (a.name < b.name) ? -1 : (a.name > b.name) ? 1 : 0;
+    }
+}
 
 /* Currency formatting */
 function addCommas(nStr) {
@@ -770,6 +920,7 @@ $(document).ready(function() {
 		
 		$("div.postHolder").html("");
 		$("select#sortBy").val("--");
+		$("select#filterBy").val("none");
 		
 		PostList.vars.property = $option.attr("data-type");
 		PostList.vars.value = $option.html();
