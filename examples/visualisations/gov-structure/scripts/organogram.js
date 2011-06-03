@@ -1544,6 +1544,7 @@ var Orgvis = {
 				data:{
 					uri:"",
 					comment:item.comment,
+					note:item.note,
 					grade:[],
 					type:[],
 					postIn:[],
@@ -1627,6 +1628,7 @@ var Orgvis = {
 				if(typeof item.heldBy[a].email != 'undefined'){person.foafMbox = item.heldBy[a].email.label[0];}
 				if(typeof item._about != 'undefined'){person.holdsPostURI = item._about;}
 				if(typeof item.comment != 'undefined'){person.comment = item.comment;}
+				if(typeof item.note != 'undefined'){person.note = item.note;}
 				if(typeof item.heldBy[a].tenure != 'undefined' && typeof item.heldBy[a].tenure.workingTime != 'undefined'){person.workingTime = item.heldBy[a].tenure.workingTime;}
 				if(typeof item.heldBy[a].profession != 'undefined' && typeof item.heldBy[a].profession.prefLabel != 'undefined'){person.profession = item.heldBy[a].profession.prefLabel;}
 				
@@ -2511,7 +2513,11 @@ var Orgvis = {
 			}			
 			
 			if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
-				html+='<p class="comment"><span>Comment</span><span class="text">'+node.data.heldBy[i].comment+'</span></p>';
+				html+='<p class="comment"><span>Role</span><span class="text">'+node.data.heldBy[i].comment+'</span></p>';
+			}
+			
+			if(typeof node.data.heldBy[i].note != 'undefined' && node.data.heldBy[i].note.toString().length > 1){
+				html+='<p class="comment"><span>Notes</span><span class="text">'+node.data.heldBy[i].note+'</span></p>';
 			}
 	
 			if(typeof node.data.heldBy[i].foafMbox != 'undefined' && node.data.heldBy[i].foafMbox != ''){
