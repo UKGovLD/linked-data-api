@@ -579,7 +579,11 @@ spec:postInPublicBodyImmediateReports
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "?item a gov:CivilServicePost ; org:reportsTo ?postResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }" ;
+    api:where """
+?item org:reportsTo ?postResource . 
+{ ?item a gov:CivilServicePost . } UNION { ?item a gov:MilitaryPost . }
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+""" ;
   ] ;
   api:viewer spec:postViewer ;
   api:defaultViewer spec:postListViewer ;
@@ -596,7 +600,14 @@ spec:postInPublicBodyReports
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "?item a gov:CivilServicePost . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . } { ?item org:reportsTo ?postResource . } UNION { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  { ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION { ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] }" ;
+    api:where """
+{ ?item a gov:CivilServicePost . } UNION { ?item a gov:MilitaryPost . }
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . } 
+{ ?item org:reportsTo ?postResource . } UNION 
+{ ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  
+{ ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION 
+{ ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] }
+""" ;
   ] ;
   api:viewer spec:postViewer ;
   api:defaultViewer spec:postListViewer ;
@@ -614,7 +625,7 @@ spec:postInPublicBodyReportsFull
   ] ;
   api:selector [
     api:where """
-    ?item a gov:CivilServicePost . 
+    { ?item a gov:CivilServicePost . } UNION { ?item a gov:MilitaryPost . }
     { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
     { ?item org:reportsTo ?postResource . } UNION 
 #    { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  
@@ -984,7 +995,11 @@ spec:postInDepartmentImmediateReports
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "?item a gov:CivilServicePost ; org:reportsTo ?postResource . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }" ;
+    api:where """
+?item org:reportsTo ?postResource . 
+{ ?item a gov:CivilServicePost . } UNION { ?item a gov:MilitaryPost . }
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
+""" ;
   ] ;
   api:viewer spec:postViewer ;
   api:defaultViewer spec:postListViewer ;
@@ -1001,7 +1016,14 @@ spec:postInDepartmentReports
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "?item a gov:CivilServicePost . { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . } { ?item org:reportsTo ?postResource . } UNION { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  { ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION { ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] }" ;
+    api:where """
+{ ?item a gov:CivilServicePost . } UNION { ?item a gov:MilitaryPost . }
+{ ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . } 
+{ ?item org:reportsTo ?postResource . } UNION 
+{ ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION 
+{ ?item org:reportsTo [ org:reportsTo [org:reportsTo ?postResource ] ] } UNION 
+{ ?item org:reportsTo [ org:reportsTo [org:reportsTo [org:reportsTo ?postResource ] ] ] }
+""" ;
   ] ;
   api:viewer spec:postViewer ;
   api:defaultViewer spec:postListViewer ;
@@ -1019,7 +1041,7 @@ spec:postInDepartmentReportsFull
   ] ;
   api:selector [
     api:where """
-    ?item a gov:CivilServicePost . 
+    { ?item a gov:CivilServicePost . } UNION { ?item a gov:MilitaryPost . }
     { ?item postStatus:postStatus postStatus:current . } UNION { ?item postStatus:postStatus postStatus:vacant . }
     { ?item org:reportsTo ?postResource . } UNION 
 #    { ?item org:reportsTo [ org:reportsTo ?postResource ] } UNION  
