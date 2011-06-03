@@ -71,9 +71,14 @@ if (isset($_POST['date']) || isset($_GET['date'])) {
     $date = $_GET['date'];
   }
   $parts = explode('/', $date);
-  $isoDate = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
-  $isoDate = isoFormatDate($date);
-  if (!checkdate($parts[1],$parts[0],$parts[2])) {
+  if (count($parts) == 3) {
+    $isoDate = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+    $isoDate = isoFormatDate($date);
+    if (!checkdate($parts[1],$parts[0],$parts[2])) {
+      $validDate = false;
+      $errors[] = 'That doesn\'t look like a valid date; the required format is DD/MM/YYYY (eg 31/03/2011).';
+    }
+  } else {
     $validDate = false;
     $errors[] = 'That doesn\'t look like a valid date; the required format is DD/MM/YYYY (eg 31/03/2011).';
   }
@@ -254,24 +259,34 @@ if ($isAdmin) {
   $dataDirResource = opendir('data');
   if ($dataDirResource) {
     while (false != ($deptName = readdir($dataDirResource))) {
-      $deptDir = "data/$deptName/$isoDate";
-      if (file_exists($deptDir)) {
+      $deptDir = "data/$deptName";
+      if (file_exists($deptDir) && filetype($deptDir) == 'dir') {
         $deptDirResource = opendir($deptDir);
-        if ($deptDirResource) {
-          while (false != ($excelFile = readdir($deptDirResource))) {
-            $ext = substr($excelFile, strrpos($excelFile, '.') + 1);
-            if ($ext == 'xls') {
-              $baseFilename = substr($excelFile, 0, strrpos($excelFile, '.'));
-              $mappingFilename = "$deptDir/$baseFilename-mapping.trig";
-              $mappingFileContents = file_get_contents($mappingFilename);
-              preg_match('/foaf:mbox \<mailto:([^>]+)\>/', $mappingFileContents, $matches);
-              $files[] = array(
-                'filename' => $excelFile,
-                'dept' => $deptName,
-                'modified' => filemtime("$deptDir/$excelFile"),
-                'submitter' => $matches[1],
-                'enabled' => file_exists("$xlwrapMappingsDir/$deptName-$isoDate-$baseFilename.trig")
-              );
+        while (false != ($dated = readdir($deptDirResource))) {
+          if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $dated)) {
+            $dateDir = "data/$deptName/$dated";
+            if (file_exists($dateDir)) {
+              $dateDirResource = opendir($dateDir);
+              if ($dateDirResource) {
+                while (false != ($excelFile = readdir($dateDirResource))) {
+                  $ext = substr($excelFile, strrpos($excelFile, '.') + 1);
+                  if ($ext == 'xls') {
+                    $baseFilename = substr($excelFile, 0, strrpos($excelFile, '.'));
+                    $mappingFilename = "$dateDir/$baseFilename-mapping.trig";
+                    $mappingFileContents = file_get_contents($mappingFilename);
+                    preg_match('/foaf:mbox \<mailto:([^>]+)\>/', $mappingFileContents, $matches);
+                    $files[] = array(
+                      'filename' => $excelFile,
+                      'dept' => $deptName,
+                      'isoDate' => $dated,
+                      'date' => preg_replace('/([0-9]{4})-([0-9]{2})-([0-9]{2})/', '$3/$2/$1', $dated),
+                      'modified' => filemtime("$dateDir/$excelFile"),
+                      'submitter' => $matches[1],
+                      'enabled' => file_exists("$xlwrapMappingsDir/$deptName-$dated-$baseFilename.trig")
+                    );
+                  }
+                }
+              }
             }
           }
         }
@@ -474,7 +489,7 @@ if ($isAdmin) {
                               </td>
                             <?php } ?>
                             <td class="filename">
-                              <a href="<?php if ($isAdmin) { echo '/data/'.$file['dept'].'/'.$isoDate.'/'.$file['filename']; } else { echo $dir.'/'.$file['filename']; } ?>">
+                              <a href="<?php if ($isAdmin) { echo '/data/'.$file['dept'].'/'.$file['isoDate'].'/'.$file['filename']; } else { echo $dir.'/'.$file['filename']; } ?>">
                                 <?php echo $file['filename']; ?>
                               </a>
                             </td>
@@ -485,7 +500,7 @@ if ($isAdmin) {
                                 <?php if ($isAdmin) { ?>
                                   <input name="admin" type="hidden" value="true" />
                                 <?php } ?>
-                                <input name="date" type="hidden" value="<?php echo $date; ?>" />
+                                <input name="date" type="hidden" value="<?php echo $isAdmin ? $file['date'] : $date; ?>" />
                                 <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
                                 <input name="action" type="submit" value="Preview" />
                               </form>
@@ -496,7 +511,7 @@ if ($isAdmin) {
                                 <?php if ($isAdmin) { ?>
                                   <input name="admin" type="hidden" value="true" />
                                 <?php } ?>
-                                <input name="date" type="hidden" value="<?php echo $date; ?>" />
+                                <input name="date" type="hidden" value="<?php echo $isAdmin ? $file['date'] : $date; ?>" />
                                 <input name="filename" type="hidden" value="<?php echo $file['filename']; ?>" />
                                 <input name="action" type="hidden" value="delete-preview" />
                                 <input type="submit" value="Delete" />
