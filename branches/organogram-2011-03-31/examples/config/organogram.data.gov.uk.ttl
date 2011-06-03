@@ -1187,13 +1187,13 @@ FILTER (!BOUND(?boss))
 spec:postListViewer
   a api:Viewer ;
   api:name "post list" ;
-  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,reportsTo.label,heldBy.name,heldBy.email.label,heldBy.phone.label,heldBy.profession.prefLabel,heldBy.tenure.workingTime,salaryRange.label,postStatus.prefLabel,grade.label" ;
+  api:properties "label,prefLabel,altLabel,comment,note,postIn.label,type.label,reportsTo.label,heldBy.name,heldBy.email.label,heldBy.phone.label,heldBy.profession.prefLabel,heldBy.tenure.workingTime,salaryRange.label,postStatus.prefLabel,grade.label" ;
   .
 
 spec:postViewer
   a api:Viewer ;
   api:name "post details" ;
-  api:properties "label,prefLabel,altLabel,comment,postIn.label,type.label,heldBy.name,heldBy.phone.label,heldBy.email.label,heldBy.profession.prefLabel,heldBy.tenure.workingTime,reportsTo.label,reportsTo.heldBy.name,reportsTo.reportsTo.label,reportsTo.reportsTo.heldBy.name,reportsTo.reportsTo.reportsTo.label,reportsTo.reportsTo.reportsTo.heldBy.name,salaryRange.label,postStatus.prefLabel,grade.label" ;
+  api:properties "label,prefLabel,altLabel,comment,note,postIn.label,type.label,heldBy.name,heldBy.phone.label,heldBy.email.label,heldBy.profession.prefLabel,heldBy.tenure.workingTime,reportsTo.label,reportsTo.heldBy.name,reportsTo.reportsTo.label,reportsTo.reportsTo.heldBy.name,reportsTo.reportsTo.reportsTo.label,reportsTo.reportsTo.reportsTo.heldBy.name,salaryRange.label,postStatus.prefLabel,grade.label" ;
   .
 
 spec:postInDepartmentStatistics
