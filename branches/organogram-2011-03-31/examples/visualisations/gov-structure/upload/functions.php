@@ -203,14 +203,19 @@ function createSeniorCSV($filename) {
        $row="";
 
        while($y<=19) {
+         if ($y == 16) {
+           // strip salary information from SCS spreadsheet
+           $cell = '';
+         } else {
            $cell = isset($excel->sheets[4]['cells'][$x][$y]) ? $excel->sheets[4]['cells'][$x][$y] : '';
            $cell = preg_replace('/\s+/', ' ', trim($cell));
            // strip leading $ signs, seem to come from formatting numbers as currency
            $cell = preg_replace('/^\$/', '', $cell);
            $cell = str_replace('’', '\'', $cell);
            $cell = str_replace('"', '\'', $cell);
-           $row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
-           $y++;
+         }
+         $row.=($row=="")?"\"".$cell."\"":"".$sep."\"".$cell."\"";
+         $y++;
        } 
 
        if ($x > 1 && strval($excel->sheets[4]['cells'][$x][17]) != 'Military' && strval($excel->sheets[4]['cells'][$x][17]) != 'Other' && strval($excel->sheets[4]['cells'][$x][19]) != '1') {
@@ -498,7 +503,9 @@ $str = <<<TRANSFORMATION
       a [ xl:uri "IF(F2 == G2, 'http://reference.data.gov.uk/def/central-government/Department')"^^xl:Expr ] ;
       rdfs:label "G2"^^xl:Expr ;
       dgu:uriSet [ xl:uri "'http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body')"^^xl:Expr ] ;
-      org:hasUnit [ xl:uri "NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/unit/', H2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf')"^^xl:Expr ] ;
+      org:hasUnit [ 
+        xl:uri "IF(!(SUBSTRING(H2, 50) != ''), NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/unit/', H2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf'), NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/unit/' & SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(LCASE(H2), '-', ''), \"'\", ''), '  ', ' '), ' ', '-'))"^^xl:Expr ; 
+      ] ;
       gov:parentDepartment [
         xl:uri "IF(F2 != G2 && STRING(A2) != '0', NAME2URI('http://reference.data.gov.uk/id/department/', F2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/department.rdf'))"^^xl:Expr ;
         a gov:Department, gov:PublicBody, org:Organization ;
@@ -509,7 +516,7 @@ $str = <<<TRANSFORMATION
       foaf:page <$fileURL> ;
     ], [ 
       # unit
-      xl:uri "IF(STRING(A2) != '0', NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/unit/', H2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf'))"^^xl:Expr ;
+      xl:uri "IF(!(SUBSTRING(H2, 50) != ''), NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/unit/', H2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf'), NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf') & '/unit/' & SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(LCASE(H2), '-', ''), \"'\", ''), '  ', ' '), ' ', '-'))"^^xl:Expr ; 
       a org:OrganizationalUnit ;
       rdfs:label "H2"^^xl:Expr ;
       org:unitOf [ xl:uri "NAME2URI('http://reference.data.gov.uk/id/' & IF (F2 == G2, 'department', 'public-body') & '/', G2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (F2 == G2, 'department', 'public-body') & '.rdf')"^^xl:Expr ] ;
@@ -758,7 +765,7 @@ $str = <<<TRANSFORMATION
     qb:dataSet <$fileURL#juniorPosts> ;
     organogram:date <http://reference.data.gov.uk/id/day/$date> ;
     organogram:unit [ 
-      xl:uri "NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/', C2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf')"^^xl:Expr ; 
+      xl:uri "IF(!(SUBSTRING(C2, 50) != ''), NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/', C2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf'), NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/' & SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(LCASE(C2), '-', ''), \"'\", ''), '  ', ' '), ' ', '-'))"^^xl:Expr ; 
       a org:OrganizationalUnit ;
       rdfs:label "C2"^^xl:Expr ;
       org:unitOf [ 
@@ -767,7 +774,9 @@ $str = <<<TRANSFORMATION
         a [ xl:uri "IF(A2 == B2, 'http://reference.data.gov.uk/def/central-government/Department')"^^xl:Expr ] ;
         rdfs:label "B2"^^xl:Expr ;
         dgu:uriSet [ xl:uri "'http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body')"^^xl:Expr ] ;
-        org:hasUnit [ xl:uri "NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/', C2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf')"^^xl:Expr ] ;
+        org:hasUnit [ 
+          xl:uri "IF(!(SUBSTRING(C2, 50) != ''), NAME2URI(NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/', C2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/unit.rdf'), NAME2URI('http://reference.data.gov.uk/id/' & IF (A2 == B2, 'department', 'public-body') & '/', B2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/' & IF (A2 == B2, 'department', 'public-body') & '.rdf') & '/unit/' & SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(LCASE(C2), '-', ''), \"'\", ''), '  ', ' '), ' ', '-'))"^^xl:Expr ; 
+        ] ;
         gov:parentDepartment [
           xl:uri "IF(A2 != B2, NAME2URI('http://reference.data.gov.uk/id/department/', A2, 'mappings/reconcile/reference/diacritics.txt', 'mappings/reconcile/reference/department.rdf'))"^^xl:Expr ;
           a gov:Department, gov:PublicBody, org:Organization ;
