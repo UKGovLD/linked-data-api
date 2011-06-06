@@ -75,7 +75,7 @@
 		<option value="name">Name</option>
 		<option value="title">Title</option>
 		<option value="unit">Unit</option>
-		<option value="grade">Grade</option>
+		<!--option value="grade">Grade</option-->
 		<option value="salaryRange">Salary Range</option>
 	</select>
 	<label for="sortBy" class="sortBy">Sort by</label>
