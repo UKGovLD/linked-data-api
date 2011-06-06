@@ -276,10 +276,12 @@ div.node
 {
 	-moz-border-radius:5px;
 	-webkit-border-radius:5px 5px 5px 5px;
-	background-color:#FFFFFF;
+	background-color:#EEEEEE;
+	color: #000000;
 	border:1px solid #AAAAAA;
 	border-radius:5px 5px 5px 5px;
 	padding:5px 3px 0;
+	
 }
 
 div.node span.heldBy
@@ -412,6 +414,9 @@ div.panel div.content p span.value {
 	letter-spacing: 0px;
 	padding:0px;
 	word-wrap: break-word;
+}
+div.panel div.content p.email span.value {
+	width:270px;
 }
 div.panel div.content p.unit span.value {
 	width:230px;	
@@ -553,8 +558,8 @@ div.jp_child span.jp_grade {
 }
 div.node span.childLoader {
     border-radius: 3px 3px 3px 3px;
-    background: none repeat scroll 0 0 #FFFFFF;
-    border-color: #AAAAAA #AAAAAA #AAAAAA #FFFFFF;
+    background: none repeat scroll 0 0 #EEEEEE;
+    border-color: #AAAAAA #AAAAAA #AAAAAA #EEEEEE;
     border-style: solid solid solid none;
     border-width: 1px 1px 1px 0px;
     display: none;
