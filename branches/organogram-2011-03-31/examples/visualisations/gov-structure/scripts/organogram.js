@@ -242,9 +242,9 @@ var Orgvis = {
 					
 					//log("onCreateLabel: node.data.childrenAdded: "+node.data.childrenAdded);
 					if(node.data.childrenAdded){
-						$(label).css({ opacity: 1 });
+						//$(label).css({ opacity: 1 });
 					} else {
-						$(label).css({ opacity: 0.7 });
+						//$(label).css({ opacity: 0.7 });
 					}
 					
 					for(var i=0;i<node.data.grade.length;i++){
@@ -276,8 +276,8 @@ var Orgvis = {
 	
 					if(typeof node.data.postIn != 'undefined' && node.data.postIn.length > 0){					
 						for(var a in node.data.postIn){
-								if(node.data.postIn[a]._about.indexOf("/unit/") > 0){
-									label.innerHTML = label.innerHTML + '<span class="postIn ui-state-active">'+node.data.postIn[a].label[0]+'</span><span class="childLoader"><img src="../images/childLoader.gif" /></span>';
+								if(node.data.postIn[a]._about.indexOf("/unit/") > 0 && label.innerHTML.indexOf('childLoader') < 0){
+									label.innerHTML = label.innerHTML + '<span class="postIn ui-state-active">'+node.data.postIn[0].label[0]+'</span><span class="childLoader"><img src="../images/childLoader.gif" /></span>';
 								} else {}
 						}
 					} else {
@@ -1531,6 +1531,7 @@ var Orgvis = {
 						clearInterval(t);
 						Orgvis.vars.global_ST.onClick($("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1].toString()).attr("id"));
 						$("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1].toString()).click();
+						$("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1].toString()).css("background-color","#FFFFFF");
 						//Orgvis.hideLog();
 						$("div#"+"aligning").trigger("jGrowl.close").remove();
 						Orgvis.vars.ST_move = false;
