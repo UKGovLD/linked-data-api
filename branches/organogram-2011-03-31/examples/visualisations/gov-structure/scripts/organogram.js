@@ -64,7 +64,7 @@ var Orgvis = {
 		firstLoad_expectedApiResponses:3, // Used to make the app wait until the correct number of API responses have been gathered
 		apiResponses:[],		// Stores JSON responses from the API
 		cacheObj:{},			// An object to store API responses
-		debug:true				// Output to console or not
+		debug:false				// Output to console or not
 	},
 	init:function(deptSlug,pubbodSlug,postSlug,reload,pMode){
 						

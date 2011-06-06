@@ -22,7 +22,7 @@ var PostList = {
 		previewMode:false,		// Used to initialise authentication and to swap API locations
 		previewParam:false,
 		apiCallInfo:{},
-		debug:true,
+		debug:false,
 		apiBase:"http://reference.data.gov.uk",
 		apiResults:[],
 		unitList:{}
@@ -376,10 +376,10 @@ var PostList = {
 			  email = null;
 			}
 			if(email){
-				//html += '<tr class="email '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Email</td><td>'+email+'</td></tr>';
+				//html += '<tr class="email '+(oddeven%2==0?'odd':'even')+'"><td class="label">Email</td><td>'+email+'</td></tr>';
 				//oddeven++;
 			} else {
-				//html += '<tr class="email '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Email</td><td>'+email+'</td></tr>';
+				//html += '<tr class="email '+(oddeven%2==0?'odd':'even')+'"><td class="label">Email</td><td>'+email+'</td></tr>';
 				//oddeven++;
 			}			
 
@@ -389,10 +389,10 @@ var PostList = {
 			  phone = null;
 			}
 			if(phone){
-				//html += '<tr class="phone '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Phone</td><td>'+phone+'</td></tr>';
+				//html += '<tr class="phone '+(oddeven%2==0?'odd':'even')+'"><td class="label">Phone</td><td>'+phone+'</td></tr>';
 				//oddeven++;
 			} else {
-				//html += '<tr class="phone '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Phone</td><td>'+phone+'</td></tr>';
+				//html += '<tr class="phone '+(oddeven%2==0?'odd':'even')+'"><td class="label">Phone</td><td>'+phone+'</td></tr>';
 				//oddeven++;
 			}	
 						
@@ -417,10 +417,10 @@ var PostList = {
 			  unit = null;
 			}
 			if(unit){
-				html += '<tr class="unit '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Unit</td><td data-type="unit">'+unit+'</td></tr>';
+				html += '<tr class="unit '+(oddeven%2==0?'odd':'even')+'"><td class="label">Unit</td><td data-type="unit">'+unit+'</td></tr>';
 				oddeven++;		
 			} else {
-				html += '<tr class="unit '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Unit</td><td data-type="unit">?</td></tr>';
+				html += '<tr class="unit '+(oddeven%2==0?'odd':'even')+'"><td class="label">Unit</td><td data-type="unit">?</td></tr>';
 				oddeven++;
 			}	
 			
@@ -430,10 +430,10 @@ var PostList = {
 			  dept = null;
 			}
 			if(dept){
-				//html += '<tr class="dept '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
+				//html += '<tr class="dept '+(oddeven%2==0?'odd':'even')+'"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
 				//oddeven++;
 			} else {
-				//html += '<tr class="dept '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
+				//html += '<tr class="dept '+(oddeven%2==0?'odd':'even')+'"><td class="label">Department</td><td data-type="dept">'+dept+'</td></tr>';
 				//oddeven++;
 			}	
 			
@@ -443,7 +443,7 @@ var PostList = {
 			}catch(e){}
 			if(typeof type != 'undefined'){
 			} else {
-				html += '<tr class="type '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Type</td><td>?</td></tr>';
+				html += '<tr class="type '+(oddeven%2==0?'odd':'even')+'"><td class="label">Type</td><td>?</td></tr>';
 				oddeven++;
 			}	
 			*/
@@ -453,10 +453,10 @@ var PostList = {
 				type = json.result.items[i].type[0].label[0];
 			}catch(e){}
 			if(typeof type != 'undefined'){
-				html += '<tr class="type '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Type</td><td data-type="type">'+type+'</td></tr>';
+				html += '<tr class="type '+(oddeven%2==0?'odd':'even')+'"><td class="label">Type</td><td data-type="type">'+type+'</td></tr>';
 				oddeven++;
 			}else {
-				html += '<tr class="type '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Type</td><td data-type="type">?</td></tr>';						oddeven++;	
+				html += '<tr class="type '+(oddeven%2==0?'odd':'even')+'"><td class="label">Type</td><td data-type="type">?</td></tr>';						oddeven++;	
 			}
 			*/
 			
@@ -466,10 +466,10 @@ var PostList = {
 			  grade = null;
 			}			
 			if(grade){
-				html += '<tr class="grade '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
+				html += '<tr class="grade '+(oddeven%2==0?'odd':'even')+'"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
 				oddeven++;
 			}else {
-				html += '<tr class="grade '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Grade</td><td data-type="grade">?</td></tr>';					oddeven++;	
+				html += '<tr class="grade '+(oddeven%2==0?'odd':'even')+'"><td class="label">Grade</td><td data-type="grade">?</td></tr>';					oddeven++;	
 			}			
 			
 			try{
@@ -478,7 +478,7 @@ var PostList = {
 			  salaryRange = null;
 			}
 			if(salaryRange){
-				html += '<tr class="salaryRange '+(oddeven%2 == 0 ? "odd" : "even")+'"><td class="label">Salary</td><td data-type="salaryRange">'+addCommas(salaryRange)+'</td></tr>';
+				html += '<tr class="salaryRange '+(oddeven%2==0?'odd':'even')+'"><td class="label">Salary</td><td data-type="salaryRange">'+addCommas(salaryRange)+'</td></tr>';
 				oddeven++;
 			}else {
 				//html += '<tr class="salaryRange odd"><td class="label">Salary</td><td data-type="salaryRange">?</td></tr>';			
@@ -492,7 +492,7 @@ var PostList = {
 			  reportsTo = null;
 			}
 			if(reportsTo){
-				html += '<tr class="reportsTo '+(oddeven%2 == 0 ? "odd" : "even")+' end"><td class="label">Reports to</td><td>'+reportsTo+'</td></tr>';
+				html += '<tr class="reportsTo '+(oddeven%2==0?'odd':'even')+' end"><td class="label">Reports to</td><td>'+reportsTo+'</td></tr>';
 				oddeven++;
 			} else {
 			}	
@@ -563,131 +563,195 @@ var PostList = {
 		
 		// clone applications to get a second collection
 		var $data = $posts.clone();
-		
-		var $filteredData, $sortedData;
-		
+				
 		$filterInput.change(function(e) {
+				    
+		    $("div.qs-overlay").width($(window).width()).height($(window).height()).show(); 		
+	  			$("div.qs-overlay-div p.text").html("Filtering...");
+		    	$("div.qs-overlay-div").show(0,function(){
 
-		    
-		    $("div.filter-overlay").width($(window).width()).height($(window).height()).show();
-		    $("div.filter-overlay-div").show();
-		    		  
-		  	var $option = $(this).find("option[value='"+$(this).val()+"']");
-		  	
-		  	//log($option.attr('data-type'));
-		  	
-		  	if($option.attr('data-type') == "none") {
-		      $filteredData = $data.find('div.post');
-		    } else if ($option.attr('data-type') == "unit") {
-		      $filteredData = $data.find('div.post[data-unit=' + $(this).val() + ']');
-		    }
-			
-			//log("filter applied: ")
-			//log($filteredData);		
-			
-			
-		    // apply the sort value
-		    if ($('select#sortBy').val() == "name") {
-		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
-			  		return $(a).find('p[data-type=name]').text().toLowerCase() > $(b).find('p[data-type=name]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    } else if ($('select#sortBy').val() == "title") {
-		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
-			  		return $(a).find('h3[data-type=title]').text().toLowerCase() > $(b).find('h3[data-type=title]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    } else if ($('select#sortBy').val() == "unit") {
-		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
-			  		return $(a).find('td[data-type=unit]').text().toLowerCase() > $(b).find('td[data-type=unit]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    }  else if ($('select#sortBy').val() == "type") {
-		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
-			  		return $(a).find('td[data-type=type]').text().toLowerCase() > $(b).find('td[data-type=type]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    }  else if ($('select#sortBy').val() == "grade") {
-		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
-			  		return $(a).find('td[data-type=grade]').text().toLowerCase() > $(b).find('td[data-type=grade]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    }  else if ($('select#sortBy').val() == "salaryRange") {
-		    	$sortedData = $filteredData.find("div.post").sort(function(a, b){
-			    	var sal1 = $(a).find('td[data-type=salaryRange]').text().split(" ");
-			    	sal1 = sal1[0].match(/\d/g).join("");
-			    	var sal2 = $(b).find('td[data-type=salaryRange]').text().split(" ");
-			    	sal2 = sal2[0].match(/\d/g).join("");	    	
-			  		return parseInt(sal1) > parseInt(sal2) ? 1 : -1;
-		  		});
-		    }     
-			
-		    // finally, call quicksand
-		    
-		    $posts.quicksand($filteredData,{
-		    	adjustHeight: 'dynamic'
-		    },function(){
-		    	$("div.filter-overlay").hide();
-		    	$("div.filter-overlay-div").hide();
-				$("div.post").click(function(){
-					window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
-				});
-		    });
-	    
-		});
+				var $filteredData, $sortedData;
+					    		  
+			  	var $option = $filterInput.find("option[value='"+$filterInput.val()+"']");
+			  	
+			  	//log($option.attr('data-type'));
+			  	
+			  	if($option.attr('data-type') == "none") {
+			      $filteredData = $data.find('div.post');
+			    } else if ($option.attr('data-type') == "unit") {
+			      $filteredData = $data.find('div.post[data-unit=' + $filterInput.val() + ']');
+			    }
+				
+				log("filter applied: ")
+				log($filteredData);
+								
+				//var $postHolderDiv = "<div class='postHolder'></div>";
+				//$postHolderDiv.append($filteredData);
+				
+			    // apply the sort value
+			    if ($('select#sortBy').val() == "name") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('p[data-type=name]').text().toLowerCase() > $(b).find('p[data-type=name]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    } else if ($('select#sortBy').val() == "title") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('h3[data-type=title]').text().toLowerCase() > $(b).find('h3[data-type=title]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    } else if ($('select#sortBy').val() == "unit") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('td[data-type=unit]').text().toLowerCase() > $(b).find('td[data-type=unit]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    }  else if ($('select#sortBy').val() == "type") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('td[data-type=type]').text().toLowerCase() > $(b).find('td[data-type=type]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    }  else if ($('select#sortBy').val() == "grade") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('td[data-type=grade]').text().toLowerCase() > $(b).find('td[data-type=grade]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    }  else if ($('select#sortBy').val() == "salaryRange") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+			    	
+			    		var sal1, sal2 = 0;
+			    		
+			    		try{
+					    	sal1 = $(a).find('td[data-type=salaryRange]').text().split(" ");
+					    	sal1 = sal1[0].match(/\d/g).join("");
+				  		}catch(e){
+				  			log(e);
+				  			sal1 = 0;
+				  		}
+				  		
+			    		try{
+					    	sal2 = $(b).find('td[data-type=salaryRange]').text().split(" ");
+					    	sal2 = sal2[0].match(/\d/g).join("");
+				  		}catch(e){
+				  			log(e);
+				  			sal2 = 0;
+				  		}			    	
+					  	
+					  	return parseInt(sal1) > parseInt(sal2) ? 1 : -1;
+		
+			  		});
+			    } else {
+			    	$sortedData = $filteredData;
+			    }
 	
+				log("sort applied: ")
+				log($sortedData);
+							
+			    // finally, call quicksand		    
+			    $posts.quicksand($sortedData,{
+			    	adjustHeight: 'dynamic'
+			    },function(){
+			    	$("div.qs-overlay").hide();
+			    	$("div.qs-overlay-div").hide();
+					$("div.post").click(function(){
+						window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+					});
+			    });		
+	    
+		    });
+		});
 	},
 	setQuickSandSort:function(){
 	
-	  // bind radiobuttons in the form
-	  var $sortInput = $('select#sortBy');
-	
-	  // get the first collection
-	  var $posts = $('div.postHolder');
-	  
-	  // clone applications to get a second collection
-	  var $data = $posts.clone();
-	
-	  // attempt to call Quicksand on every form change
-	  $sortInput.change(function(e) {
-			
-	    // if sorted by size
-	    if ($(this).val() == "name") {
-	    	$sortedData = $data.find("div.post").sort(function(a, b){
-		  		return $(a).find('p[data-type=name]').text().toLowerCase() > $(b).find('p[data-type=name]').text().toLowerCase() ? 1 : -1;
-	  		});
-	    } else if ($(this).val() == "title") {
-	    	$sortedData = $data.find("div.post").sort(function(a, b){
-		  		return $(a).find('h3[data-type=title]').text().toLowerCase() > $(b).find('h3[data-type=title]').text().toLowerCase() ? 1 : -1;
-	  		});
-	    } else if ($(this).val() == "unit") {
-	    	$sortedData = $data.find("div.post").sort(function(a, b){
-		  		return $(a).find('td[data-type=unit]').text().toLowerCase() > $(b).find('td[data-type=unit]').text().toLowerCase() ? 1 : -1;
-	  		});
-	    }  else if ($(this).val() == "type") {
-	    	$sortedData = $data.find("div.post").sort(function(a, b){
-		  		return $(a).find('td[data-type=type]').text().toLowerCase() > $(b).find('td[data-type=type]').text().toLowerCase() ? 1 : -1;
-	  		});
-	    }  else if ($(this).val() == "grade") {
-	    	$sortedData = $data.find("div.post").sort(function(a, b){
-		  		return $(a).find('td[data-type=grade]').text().toLowerCase() > $(b).find('td[data-type=grade]').text().toLowerCase() ? 1 : -1;
-	  		});
-	    }  else if ($(this).val() == "salaryRange") {
-	    	$sortedData = $data.find("div.post").sort(function(a, b){
-		    	var sal1 = $(a).find('td[data-type=salaryRange]').text().split(" ");
-		    	sal1 = sal1[0].match(/\d/g).join("");
-		    	var sal2 = $(b).find('td[data-type=salaryRange]').text().split(" ");
-		    	sal2 = sal2[0].match(/\d/g).join("");	    	
-		  		return parseInt(sal1) > parseInt(sal2) ? 1 : -1;
-	  		});
-	    }     
+		// bind radiobuttons in the form
+		var $sortInput = $('select#sortBy');
 		
-	    // finally, call quicksand
-	    $posts.quicksand($sortedData,{
-	    	adjustHeight: 'dynamic'
-	    },function(){
-			$("div.post").click(function(){
-				window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+		// get the first collection
+		var $posts = $('div.postHolder');
+		
+		// clone applications to get a second collection
+		var $data = $posts.clone();
+		
+		// attempt to call Quicksand on every form change
+		$sortInput.change(function(e) {
+	
+		    $("div.qs-overlay").width($(window).width()).height($(window).height()).show();
+	    	$("div.qs-overlay-div p.text").html("Sorting...");
+	    	$("div.qs-overlay-div").show(0,function(){
+				
+				var $filteredData, $sortedData;
+				
+			    // if sorted by size
+			    if ($sortInput.val() == "name") {
+			    	$sortedData = $data.find("div.post").sort(function(a, b){
+				  		return $(a).find('p[data-type=name]').text().toLowerCase() > $(b).find('p[data-type=name]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    } else if ($sortInput.val() == "title") {
+			    	$sortedData = $data.find("div.post").sort(function(a, b){
+				  		return $(a).find('h3[data-type=title]').text().toLowerCase() > $(b).find('h3[data-type=title]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    } else if ($sortInput.val() == "unit") {
+			    	$sortedData = $data.find("div.post").sort(function(a, b){
+				  		return $(a).find('td[data-type=unit]').text().toLowerCase() > $(b).find('td[data-type=unit]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    }  else if ($sortInput.val() == "type") {
+			    	$sortedData = $data.find("div.post").sort(function(a, b){
+				  		return $(a).find('td[data-type=type]').text().toLowerCase() > $(b).find('td[data-type=type]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    }  else if ($sortInput.val() == "grade") {
+			    	$sortedData = $data.find("div.post").sort(function(a, b){
+				  		return $(a).find('td[data-type=grade]').text().toLowerCase() > $(b).find('td[data-type=grade]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    }  else if ($sortInput.val() == "salaryRange") {
+			    	$sortedData = $data.find("div.post").sort(function(a, b){
+			    	
+			    		var sal1, sal2 = 0;
+			    		
+			    		try{
+					    	sal1 = $(a).find('td[data-type=salaryRange]').text().split(" ");
+					    	sal1 = sal1[0].match(/\d/g).join("");
+				  		}catch(e){
+				  			log(e);
+				  			sal1 = 0;
+				  		}
+				  		
+			    		try{
+					    	sal2 = $(b).find('td[data-type=salaryRange]').text().split(" ");
+					    	sal2 = sal2[0].match(/\d/g).join("");
+				  		}catch(e){
+				  			log(e);
+				  			sal2 = 0;
+				  		}			    	
+					  	
+					  	return parseInt(sal1) > parseInt(sal2) ? 1 : -1;
+		
+			  		});
+			    }     
+				
+				log($sortedData);
+				
+			  	var $option = $('select#filterBy').find("option[value='"+$('select#filterBy').val()+"']");
+			  	
+			  	log($option);
+			  		  	
+			  	if($option.attr('data-type') == "unit") {
+			    	log("sorted, now filtering by unit: "+$('select#filterBy').val());
+			      	$filteredData = $sortedData.filter(function(index){
+    					return $(this).attr('data-unit') == $('select#filterBy').val();
+    				});
+			      	log($filteredData);
+			    } else {
+			      	log("sorted, now filtering by none: "+$('select#filterBy').val());
+			      	$filteredData = $sortedData;
+			      	log($filteredData);
+			    }
+						
+			    // finally, call quicksand
+			    $posts.quicksand($filteredData,{
+			    	adjustHeight: 'dynamic'
+			    },function(){
+				    $("div.qs-overlay").hide();
+				    $("div.qs-overlay-div").hide();
+					$("div.post").click(function(){
+						window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+					});
+			    });
+			    
 			});
-	    });
-	
-	  });
-	
+		});
 	},	
 	displayDataSources:function() {
 		

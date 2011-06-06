@@ -323,6 +323,7 @@ if ($isAdmin) {
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Organogram Data Upload | data.gov.uk</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="image/x-icon" href="http://organogram.data.gov.uk/images/datagovuk_favicon.png" rel="shortcut icon">
     <link type="text/css" href="../css/upload.css" rel="stylesheet" />
     <script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
     <script language="javascript" type="text/javascript" src="../scripts/upload.js"></script>
