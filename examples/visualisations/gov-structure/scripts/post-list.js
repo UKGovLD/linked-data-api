@@ -567,7 +567,11 @@ var PostList = {
 		var $filteredData, $sortedData;
 		
 		$filterInput.change(function(e) {
-		  
+
+		    
+		    $("div.filter-overlay").width($(window).width()).height($(window).height()).show();
+		    $("div.filter-overlay-div").show();
+		    		  
 		  	var $option = $(this).find("option[value='"+$(this).val()+"']");
 		  	
 		  	//log($option.attr('data-type'));
@@ -614,9 +618,12 @@ var PostList = {
 		    }     
 			
 		    // finally, call quicksand
+		    
 		    $posts.quicksand($filteredData,{
 		    	adjustHeight: 'dynamic'
 		    },function(){
+		    	$("div.filter-overlay").hide();
+		    	$("div.filter-overlay-div").hide();
 				$("div.post").click(function(){
 					window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
 				});
@@ -920,7 +927,7 @@ $(document).ready(function() {
 		
 		$("div.postHolder").html("");
 		$("select#sortBy").val("--");
-		$("select#filterBy").val("none");
+		$("select#filterBy").html('<option value="none">None</option>');
 		
 		PostList.vars.property = $option.attr("data-type");
 		PostList.vars.value = $option.html();

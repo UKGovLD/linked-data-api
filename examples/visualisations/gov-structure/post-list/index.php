@@ -134,10 +134,16 @@
 <!-- -->
 </div>
 
-
+<div class="filter-overlay ui-widget-overlay"><!-- --></div>
+<div class="filter-overlay-div">
+	<p>Filtering...</p>
+	<img src="../images/loading.gif" />
+</div>
+	
 <span id="previewModeSign">
 	<span>Preview Mode</span>
 </span>	
+	
 	
 <noscript>
 <div class="noscript">
