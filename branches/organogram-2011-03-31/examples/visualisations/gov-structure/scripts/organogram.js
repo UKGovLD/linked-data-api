@@ -64,7 +64,7 @@ var Orgvis = {
 		firstLoad_expectedApiResponses:3, // Used to make the app wait until the correct number of API responses have been gathered
 		apiResponses:[],		// Stores JSON responses from the API
 		cacheObj:{},			// An object to store API responses
-		debug:false				// Output to console or not
+		debug:true				// Output to console or not
 	},
 	init:function(deptSlug,pubbodSlug,postSlug,reload,pMode){
 						
@@ -626,14 +626,14 @@ var Orgvis = {
 		Orgvis.vars.global_ST = st;
 		
 		if(Orgvis.vars.previewMode){
-			Orgvis.notify("Loading","Calling API...",true,"loading_data");	
+			//Orgvis.notify("Loading","Calling API...",true,"loading_data");	
 			log(Orgvis.vars.apiCallInfo);
 			log(Orgvis.vars.apiResponses);
 			Orgvis.getRootPostData();
 			Orgvis.getPostReportsData();
 			Orgvis.getJuniorStaffData();			
 		} else if(!reload){	
-			Orgvis.notify("Loading","Calling API...",true,"loading_data");				
+			//Orgvis.notify("Loading","Calling API...",true,"loading_data");				
 			Orgvis.getRootPostData();
 			Orgvis.getPostReportsData();
 			Orgvis.getJuniorStaffData();
@@ -808,7 +808,7 @@ var Orgvis = {
 		var pageNumber = 1;
 		
 		Orgvis.vars.apiCallInfo.juniorStaff = {
-				title:"Retrieval of all junior staff",
+				title:"Retrieval of junior staff who report to the root post",
 				description:"This call retrieves information about the junior staff that report to the posts within this organogram, such as their grade, title and profession.",
 				url:"http://"+Orgvis.vars.apiBase+"/doc/"+Orgvis.vars.global_typeOfOrg+"/"+Orgvis.vars.global_postOrg+"/post/"+Orgvis.vars.global_post+"/immediate-junior-staff",
 				parameters:"?_pageSize="+pageSize,
@@ -936,7 +936,7 @@ var Orgvis = {
 	            }
 	            
 	            if($("#infobox p.id span.value").html() == postID) {
-					$('p.salaryReports').html('<span>Combined salary of reporting posts</span><span class="value">'+node.data.stats.salaryCostOfReports.formatted+'</span><a class="data" target="_blank" href="'+Orgvis.vars.apiCallInfo.postStats.url+'/'+postID+'/statistics" value="'+node.data.stats.salaryCostOfReports.value+'">Data</a><span class="date">'+node.data.stats.date.formatted+'</span>');	                
+					$('p.salaryReports').html('<span>Combined salary of reporting posts</span><span class="value">'+node.data.stats.salaryCostOfReports.formatted+'</span><a class="data" target="_blank" href="'+Orgvis.vars.apiCallInfo.postStats.url+'" value="'+node.data.stats.salaryCostOfReports.value+'">Data</a><span class="date">'+node.data.stats.date.formatted+'</span>');	                
 	            }
 	            node.data.gotStats = true;           
 
@@ -1421,7 +1421,10 @@ var Orgvis = {
 				Orgvis.vars.postInQuestion = json.result.items[i];
 			}
 		}
-
+		
+		log('post in question:');
+		log(Orgvis.vars.postInQuestion);
+		
 		/*
 		 * Establish the first node of the organogram 
 		 * (the post that doesn't report to any other posts)
@@ -1435,13 +1438,26 @@ var Orgvis = {
 					j=j-1;
 				} else if(typeof Orgvis.vars.postInQuestion.reportsTo[j]._about != 'undefined') {
 					Orgvis.vars.firstNode = Orgvis.makeNode(Orgvis.vars.postInQuestion.reportsTo[j]);
+					log('firstNode:');
+					log(Orgvis.vars.firstNode);	
 				} else {
 					Orgvis.vars.firstNode = Orgvis.makeNode(Orgvis.vars.postInQuestion);								
+					log('firstNode:');
+					log(Orgvis.vars.firstNode);	
 				}
 			}
 		} else {
-			Orgvis.vars.firstNode = Orgvis.makeNode(Orgvis.vars.postInQuestion);						
+			Orgvis.vars.firstNode = Orgvis.makeNode(Orgvis.vars.postInQuestion);
+			log('firstNode:');
+			log(Orgvis.vars.firstNode);						
 		}
+		
+		if(Orgvis.vars.firstNode.data.reportsTo.length > 0){
+			Orgvis.notify("Info","Top post reports to a post with missing information",false,"top_post_missing");
+			Orgvis.vars.firstNode.data.reportsTo = 'error';
+			Orgvis.vars.postInQuestionReportsTo.splice(Orgvis.vars.postInQuestionReportsTo.length-1,1);
+		}
+		
 		
 		Orgvis.vars.postInQuestion = originalPostInQuestion;
 		
@@ -1641,6 +1657,26 @@ var Orgvis = {
 				}
 				node.data.heldBy.push(person);
 			}
+		} else {
+			// Create a dummy person for a vacant post
+				var person = {
+						foafName:"Vacant",
+						foafPhone:"",
+						foafMbox:"",
+						holdsPostURI:item._about,
+						reportsToPostURI:[],
+						comment:"",
+						salaryCostOfReports:-1,
+						salaryCostOfReportsDate:"",
+						workingTime:0,
+						profession:""
+				};
+				if(typeof item.reportsTo != 'undefined'){
+					for(var b=0;b<item.reportsTo.length;b++){
+						person.reportsToPostURI.push(item.reportsTo[b]._about);
+					}
+				}				
+				node.data.heldBy.push(person);
 		}
 
 		if(typeof item.salaryRange != 'undefined'){
@@ -1659,12 +1695,180 @@ var Orgvis = {
 			// No salary present for post
 		}
 				
-		//log("made node:");
-		//log(node);
+		log("made node:");
+		log(node);
 
 		return node;
 	},
 	makeJuniorPostNode:function(el){
+		
+		log("makeJuniorPostNode: using item:");
+		log(el);
+		
+		/*
+		el.label[0]		B1/BAND B1 Project Manager (Operational Delivery) in 
+						Civil Service Capabilities Group reporting to post 93 FTE at 31/03/2011
+					
+		el.fullTimeEquivalent 						1 or 2
+		el.atGrade.prefLabel 						Grade B1/BAND B1
+		el.atGrade.payband.prefLabel 				B1/BAND B1 Payband
+		el.atGrade.payband.salaryRange.label[0]		£44,000 - £53,999
+		el.atGrade.payband.salaryRange.prefLabel	B1/BAND B1 Payband
+		el.withJob.prefLabel						Project Manager
+		el.withProfession.prefLabel					Operational Delivery
+		el.reportingTo.label[0]						Deputy Director, Capability Review
+		el.inUnit.label[0]							Civil Service Capabilities Group
+		*/
+		
+		var node = {
+				id:$.generateId(),
+				name:"JP "+this.id,
+				data:{
+					type:'junior_posts',
+					nodeType:'jp_child',
+					total:0,						// Used for grouping junior staff
+					fullName:'?',
+					grade:{
+						payband:{}
+					},
+					profession:{},
+					salaryRangeVal:0,
+					reportingTo:{},
+					unit:{},
+					fullTimeEquivalent:0
+				},
+				children:[]
+			};
+		
+		if(typeof el.label != 'undefined' && typeof el.label[0] != 'undefined'){
+			node.data.fullName = el.label[0];
+		}
+		
+		if (typeof el.atGrade != 'undefined'){		
+			
+			try{
+				node.data.grade.label = el.atGrade.prefLabel;
+			} catch(e){
+				log(e);
+				node.data.grade.label = "Other";
+			};
+			
+			if(typeof el.atGrade.payband != 'undefined'){
+				
+				try{
+					node.data.grade.payband.label = el.atGrade.payband.prefLabel;
+				}catch(e){
+					log(e);
+					node.data.grade.payband.label = "No payband";
+				};
+							
+				if(typeof el.atGrade.payband.salaryRange != 'undefined') {
+				
+					try {		
+						salaryRangeLabel = el.atGrade.payband.salaryRange.label[0];
+			  			salaryRangeValue = salaryRangeLabel.replace(/£/g,'');
+			  			salaryRangeValue = salaryRangeValue.split(" - ");
+			  			salaryRangeValue = salaryRangeValue[0];
+			  			salaryRangeLabel = addCommas(salaryRangeLabel);
+			  			node.data.salaryRangeVal = salaryRangeValue;
+			  		} catch (e) {
+			  			log(e);
+			  			node.data.salaryRangeVal = 0
+			  		}
+			  		
+					try{
+						node.data.grade.payband.salaryRange = salaryRangeLabel;
+					}catch(e){
+						log(e);
+						node.data.grade.payband.salaryRange = "Salary not disclosed";
+					};
+					
+			  	} else {
+			  		//
+			  	}
+			} else {
+				node.data.grade.payband.label = "Payband not disclosed";
+				node.data.grade.payband.salaryRange = "Salary not disclosed";			
+			}
+		} else {
+			node.data.grade.label = "Other";
+			node.data.salaryRangeVal = "0";
+		}
+			
+		if(typeof el.fullTimeEquivalent != 'undefined'){
+			node.data.fullTimeEquivalent = el.fullTimeEquivalent;
+		}
+		
+		if(typeof el.withJob != 'undefined'){
+			if(typeof el.withJob.prefLabel != 'string'){
+				node.name = el.withJob.prefLabel[0];
+				node.data.job = el.withJob.prefLabel[0];
+			} else {
+				node.name = el.withJob.prefLabel;
+				node.data.job = el.withJob.prefLabel;
+			}
+		} else {
+			node.data.job = "No job";
+		}
+		
+		if(typeof el.withProfession != 'undefined'){
+			if(typeof el.withProfession.prefLabel != 'string'){
+				node.data.profession = el.withProfession.prefLabel[0];
+			} else {
+				node.data.profession = el.withProfession.prefLabel;
+			}
+		} else {
+			node.data.profession = "Other"
+		}
+		
+		if(typeof el.inUnit != 'undefined'){
+		
+			try{
+				node.data.unit.label = el.inUnit.label[0];
+			}catch(e){
+				log(e)
+			};
+			
+			try{
+				node.data.unit.uri = el.inUnit._about;
+			}catch(e){
+				log(e)
+			};
+				
+		} else {
+			node.data.unit.label = "Other";
+			node.data.unit.uri = "Other";
+		}
+		
+		if(typeof el.reportingTo != 'undefined'){
+		
+			try{
+				node.data.reportingTo.label = el.reportingTo.label[0];
+			} catch (e){
+				log(e);
+			}
+
+			try{
+				node.data.reportingTo.uri = el.reportingTo._about;
+			} catch (e){
+				log(e);
+			}
+		}
+		
+		log('makeJuniorPostNode: node made:');
+		log(node);
+		
+		/*if(Orgvis.vars.jpColourCounter == Orgvis.vars.colours.length-1){
+			Orgvis.vars.jpColourCounter = 0;
+		} else {
+			Orgvis.vars.jpColourCounter++;		
+		}
+		*/
+		Orgvis.vars.jpCounter++;
+		
+		return node;
+	},
+	makeJuniorPostNode2:function(el){
 		
 		//log("makeJuniorPostNode: using item:");
 		//log(el);
@@ -1905,14 +2109,18 @@ var Orgvis = {
 	},	
 	connectPosts:function(){
 	
+		log("connectPosts:");
 		var visJSON;
 
 		$.each(Orgvis.vars.postList, function (index, el) {
 			
 			// Find the reportsTo values for each post
-			if(typeof el.data.reportsTo != 'undefined' && el.data.reportsTo.length > 0) {
-				//log("el.data:");
-				//log(el.data)
+			log("el:");
+			log(el);
+			
+			if(typeof el.data.reportsTo != 'undefined' && el.data.reportsTo.length > 0 && el.data.reportsTo != 'error') {
+				log("el.data:");
+				log(el.data);
 				var postID = Orgvis.getSlug(el.data.reportsTo[0]);
 				// Use the postID slug from the reportsTo value as a pointer in the associative array
 				// to connect the post to it's parent. 
@@ -1932,13 +2140,14 @@ var Orgvis = {
   					}
 				}
 			} else {
+				log("el doesn't report to anyone");
 				visJSON = el;
 			}
 			
 		});
 			
-		//log("visJSON:")
-		//log(visJSON);
+		log("visJSON:")
+		log(visJSON);
 	
 		return visJSON;
 	
@@ -2010,6 +2219,9 @@ var Orgvis = {
 		//if(items.length>1){
 			for(var i in items) {
 				
+				log("connecting junior post:");
+				log(items[i]);
+				
 				var pSlug,gSlug,uSlug;
 				
 				try{pSlug = Orgvis.getSlug(items[i].withProfession._about);}
@@ -2035,7 +2247,12 @@ var Orgvis = {
 					byGrade[gSlug].data.fteTotal += items[i].fullTimeEquivalent;
 				} else {
 				  	
-				  	var salaryRange = items[i].atGrade.payband.salaryRange ? addCommas(items[i].atGrade.payband.salaryRange.label[0]) : 'Salary not disclosed';
+				  	var salaryRange;
+				  	if(typeof items[i].atGrade.payband != 'undefined' && typeof items[i].atGrade.payband.salaryRange != 'undefined'){
+				  		salaryRange = addCommas(items[i].atGrade.payband.salaryRange.label[0]);
+				  	} else {
+				  		salaryRange = "Salary not disclosed";
+				  	}
 					byGrade[gSlug] = Orgvis.makeJuniorPostGroup(items[i].atGrade.prefLabel, salaryRange);
 					byGrade[gSlug].children.push(Orgvis.makeJuniorPostNode(items[i]));
 					byGrade[gSlug].data.fteTotal = items[i].fullTimeEquivalent;
@@ -2217,7 +2434,8 @@ var Orgvis = {
 						
 						var visNode = Orgvis.vars.global_ST.graph.getNode(nodes[i].id);
 					
-						log("<><><>");log(visNode);
+						log("<><><>");
+						log(visNode);
 					
 						visNode.data.childrenAdded = true;
 					} catch(e){
@@ -2466,99 +2684,107 @@ var Orgvis = {
 	
 		// Construct the HTML for the infobox
 		var html = '<h1>'+node.name+'</h1>';			
-		html += '<div class="panel heldBy ui-accordion ui-widget ui-helper-reset ui-accordion-icons">';
-	
-		for(var i=0; i<node.data.heldBy.length; i++) {
-	
-			var tempID = Orgvis.getSlug(node.data.heldBy[i].holdsPostURI);					
-			if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
-				html += '<h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-corner-all"><span class="ui-icon ui-icon-triangle-1-e"></span><a class="name infobox_'+tempID+'">'+node.data.heldBy[i].foafName+'</a></h3>';
-			}else {
-				html += '<h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-corner-all"><span class="ui-icon ui-icon-triangle-1-e"></span><a class="name infobox_'+tempID+'">?</a></h3>';		
-			}
-	
-			html += '<div class="content ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">';
-			
-			html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+'&preview='+Orgvis.vars.previewMode+'">Load organogram</a></p>';
-			
-			
-			if(typeof node.data.salaryRange[i] != 'undefined' && node.data.salaryRange[i].toString().length > 1){
-				html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';					
-			}			
-			
-			
-			//'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'
-
-			// If stats data has been retrieved then show data
-			// otherwise show the loading sign
-			
-			var postObj = Orgvis.vars.postList[tempID];
-						
-			if(node.data.gotStats) {
-				html += '<p class="salaryReports"><span>Combined salary of reporting posts</span><span class="value">'+node.data.stats.salaryCostOfReports.formatted+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'/statistics" value="'+node.data.stats.salaryCostOfReports.value+'">Data</a><span class="date">'+node.data.stats.date.formatted+'</span>';	
-			} else {
-				html += '<p class="salaryReports"><span>Combined salary of reporting posts </span><span class="value">Checking...</span><img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
-			}				
-			
-			if(node.data.heldBy[i].workingTime > 0){
-				html+='<p class="workingTime"><span>Working time</span><span class="value">'+node.data.heldBy[i].workingTime+'</span></p>';
-			}
-
-			if(node.data.heldBy[i].profession != ''){
-				if(typeof node.data.heldBy[i].profession != 'string'){
-					html+='<p class="profession"><span>Profession</span><span class="value">'+node.data.heldBy[i].profession[0]+'</span></p>';
-				} else {
-					html+='<p class="profession"><span>Profession</span><span class="value">'+node.data.heldBy[i].profession+'</span></p>';
-				}
-			}			
-			
-			if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
-				html+='<p class="comment"><span>Role</span><span class="text">'+node.data.heldBy[i].comment+'</span></p>';
-			}
-			
-			if(typeof node.data.heldBy[i].note != 'undefined' && node.data.heldBy[i].note.toString().length > 1){
-				html+='<p class="comment"><span>Notes</span><span class="text">'+node.data.heldBy[i].note+'</span></p>';
-			}
-	
-			if(typeof node.data.heldBy[i].foafMbox != 'undefined' && node.data.heldBy[i].foafMbox != ''){
-				html += '<p class="email"><span>Email</span><span class="value">'+node.data.heldBy[i].foafMbox+'</span></p>';
-			}
-			
-			if(typeof node.data.heldBy[i].foafPhone != 'undefined' && node.data.heldBy[i].foafPhone != ''){
-				html += '<p class="tel"><span>Phone</span><span class="value">'+node.data.heldBy[i].foafPhone+'</span></p>';
-			}
 		
-			if(typeof node.data.type != 'undefined'){
-				for(var a=0;a<node.data.type.length;a++){
-					html += '<p class="type"><span>Type</span><span class="value">'+node.data.type[a]+'</span><a class="data center_organogram" href="../post-list?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&type='+node.data.type[a].replace(" ","+")+'">Post list</a></p>';
+		if(node.data.heldBy.length > 0){
+			html += '<div class="panel heldBy ui-accordion ui-widget ui-helper-reset ui-accordion-icons">';
+		
+			for(var i=0; i<node.data.heldBy.length; i++) {
+		
+				var tempID = Orgvis.getSlug(node.data.heldBy[i].holdsPostURI);	
+								
+				if(typeof node.data.heldBy[i].foafName != 'undefined' && node.data.heldBy[i].foafName != ''){
+					html += '<h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-corner-all"><span class="ui-icon ui-icon-triangle-1-e"></span><a class="name infobox_'+tempID+'">'+node.data.heldBy[i].foafName+'</a></h3>';
+				}else {
+					html += '<h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-corner-all"><span class="ui-icon ui-icon-triangle-1-e"></span><a class="name infobox_'+tempID+'">?</a></h3>';		
 				}
-			}
-							
-			if(typeof node.data.grade != 'undefined'){
-				for(var a=0;a<node.data.grade.length;a++){
-					html += '<p class="grade"><span>Grade</span><span class="value">'+node.data.grade[a]+'</span></p>';
-				}
-			}				
-			
-			html+= '<p class="unit"><span>Unit(s)</span><span class="value">'+tempUnitLabel+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/id/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/unit/'+tempUnitID+'">Data</a>';
+		
+				html += '<div class="content ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">';
+				
+				html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/doc/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+'&preview='+Orgvis.vars.previewMode+'">Load organogram</a></p>';
+				
+				
+				if(typeof node.data.salaryRange[i] != 'undefined' && node.data.salaryRange[i].toString().length > 1){
+					html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/doc/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';					
+				}			
+				
+				
+				//'+addCommas(''+Math.floor(50000+(Math.random()*500000)))+'
 	
-			if(typeof node.data.heldBy[i].notes != 'undefined' && node.data.heldBy[i].notes.toString().length > 1){
-				html+='<p class="notes"><span>Notes</span><span class="text">'+node.data.heldBy[i].notes+'</span></p>';
-			}
-					
-			html+= '</p>';
+				// If stats data has been retrieved then show data
+				// otherwise show the loading sign
+				
+				var postObj = Orgvis.vars.postList[tempID];
+							
+				if(node.data.gotStats) {
+					html += '<p class="salaryReports"><span>Combined salary of reporting posts</span><span class="value">'+node.data.stats.salaryCostOfReports.formatted+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/doc/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'/statistics" value="'+node.data.stats.salaryCostOfReports.value+'">Data</a><span class="date">'+node.data.stats.date.formatted+'</span>';	
+				} else {
+					html += '<p class="salaryReports"><span>Combined salary of reporting posts </span><span class="value">Checking...</span><img class="salaryReports" width="14" height="14" src="../images/loading_white.gif"></p>';
+				}				
+				
+				if(node.data.heldBy[i].workingTime > 0){
+					html+='<p class="workingTime"><span>Working time</span><span class="value">'+node.data.heldBy[i].workingTime+'</span></p>';
+				}
+
+							
+				if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
+					html+='<p class="comment"><span>Role</span><span class="text">'+node.data.heldBy[i].comment+'</span></p>';
+				}
+				
+				if(typeof node.data.heldBy[i].note != 'undefined' && node.data.heldBy[i].note.toString().length > 1){
+					html+='<p class="comment"><span>Notes</span><span class="text">'+node.data.heldBy[i].note+'</span></p>';
+				}
+	
+				if(node.data.heldBy[i].profession != ''){
+					if(typeof node.data.heldBy[i].profession != 'string'){
+						html+='<p class="profession"><span>Profession</span><span class="value">'+node.data.heldBy[i].profession[0]+'</span></p>';
+					} else {
+						html+='<p class="profession"><span>Profession</span><span class="value">'+node.data.heldBy[i].profession+'</span></p>';
+					}
+				}			
+				
+				/*if(typeof node.data.heldBy[i].comment != 'undefined' && node.data.heldBy[i].comment.toString().length > 1){
+					html+='<p class="comment"><span>Comment</span><span class="text">'+node.data.heldBy[i].comment+'</span></p>';
+				}*/
+		
+				if(typeof node.data.heldBy[i].foafMbox != 'undefined' && node.data.heldBy[i].foafMbox != ''){
+					html += '<p class="email"><span>Email</span><span class="value">'+node.data.heldBy[i].foafMbox+'</span></p>';
+				}
+				
+				if(typeof node.data.heldBy[i].foafPhone != 'undefined' && node.data.heldBy[i].foafPhone != ''){
+					html += '<p class="tel"><span>Phone</span><span class="value">'+node.data.heldBy[i].foafPhone+'</span></p>';
+				}
 			
-			html += '</div><!-- end content -->';
-			
-		} // end for loop
-			
-		if(node.data.heldBy.length < 1){
+				if(typeof node.data.type != 'undefined'){
+					for(var a=0;a<node.data.type.length;a++){
+						html += '<p class="type"><span>Type</span><span class="value">'+node.data.type[a]+'</span><a class="data center_organogram" href="../post-list?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&type='+node.data.type[a].replace(" ","+")+'">Post list</a></p>';
+					}
+				}
+								
+				if(typeof node.data.grade != 'undefined'){
+					for(var a=0;a<node.data.grade.length;a++){
+						html += '<p class="grade"><span>Grade</span><span class="value">'+node.data.grade[a]+'</span></p>';
+					}
+				}				
+				
+				html+= '<p class="unit"><span>Unit(s)</span><span class="value">'+tempUnitLabel+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/doc/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/unit/'+tempUnitID+'">Data</a>';
+		
+				if(typeof node.data.heldBy[i].notes != 'undefined' && node.data.heldBy[i].notes.toString().length > 1){
+					html+='<p class="notes"><span>Notes</span><span class="text">'+node.data.heldBy[i].notes+'</span></p>';
+				}
+						
+				html+= '</p>';
+				
+				html += '</div><!-- end content -->';
+				
+			} // end for loop
+	
+			html+= '</div><!-- end panel -->';
+
+		} else {
 			html = '<h1>'+node.name+'</h1>';			
-			html += '<div class="panel heldBy">';
 			html += '<p>This post is either currently not held or there is no data present for the person who holds this post.</p>';
 		}
 				
-		html+= '</div><!-- end panel -->';
 		html+= '<a class="close">x</a>';
 		
 		$("#infobox").html(html);
@@ -2719,7 +2945,7 @@ var Orgvis = {
 		return false;
 	},
 	notify:function(type,message,stick,id) {
-	
+		
 		$.jGrowl(message,{
 				header:type,
 				theme:type,
@@ -2735,6 +2961,7 @@ var Orgvis = {
 				$("div#"+id.replace("success","loading")).trigger("jGrowl.close").remove();
 			},3000);			
 		}
+		
 
 	},
 	getSlug:function(string){

@@ -77,7 +77,7 @@ body.IE7 h1.title label.loadBy {
     background: none repeat scroll 0 0 #FAFAFA;
     border: 3px solid #FFFFFF;
     float: left;
-    height: 305px;
+    height: 315px;
     margin: 10px;
     padding: 0;
     width: 220px;
@@ -203,4 +203,40 @@ div.noPosts {
 div.padder {
 	display: block;
 	margin-bottom:50px;
+}
+div.filter-overlay {
+	display: none;
+    top: 34px;
+    z-index: 9998;
+    position: fixed;
+    left:0;
+}
+div.filter-overlay-div {
+    -webkit-border-radius: 10px 10px 10px 10px;
+    -moz-border-radius: 10px 10px 10px 10px;
+    border-radius: 10px 10px 10px 10px;
+    background-color: #000000;
+    border: 3px solid #777777;
+    display: none;
+    height: 60px;
+    left: 43%;
+    opacity: 1;
+    padding: 10px;
+    position: fixed;
+    text-align: center;
+    top: 43%;
+    width: 10%;
+    z-index: 9999;      
+}
+div.filter-overlay-div p {
+    color: #FFFFFF;
+    font-size: 15px;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 5px;
+    text-align: center;
+}
+div.filter-overlay-div img {
+	padding: 5px;
 }
