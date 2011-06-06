@@ -41,7 +41,7 @@
 
 	<select id="loadBy">
 	
-		<option disabled value="--">--</option>
+		<option value="--">--</option>
 	
 		<!--optgroup label="Type">
 			<option value="Permanent Secretary" data-type="type">Permanent Secretary</option>
@@ -71,7 +71,7 @@
 	<label for="loadBy" class="loadBy">Load</label>
 	
 	<select id="sortBy">
-		<option disabled value="--">--</option>
+		<option value="--">--</option>
 		<option value="name">Name</option>
 		<option value="title">Title</option>
 		<option value="unit">Unit</option>
@@ -134,9 +134,9 @@
 <!-- -->
 </div>
 
-<div class="filter-overlay ui-widget-overlay"><!-- --></div>
-<div class="filter-overlay-div">
-	<p>Filtering...</p>
+<div class="qs-overlay ui-widget-overlay"><!-- --></div>
+<div class="qs-overlay-div">
+	<p class="text">Filtering...</p>
 	<img src="../images/loading.gif" />
 </div>
 	
