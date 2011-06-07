@@ -264,7 +264,7 @@ var PostList = {
 	},
 	displayNoPosts:function(filter,value){
 
-		$("div.noPosts").html('<p>No posts found for '+PostList.vars.orgType+' ID "'+PostList.vars.org+'", when filtering by '+filter+': '+value+'</p>');
+		$("div.noPosts").html('<p>No posts found for '+PostList.vars.orgType+' ID "'+PostList.vars.org+'", when loading post type "'+value+'"</p>');
 
 		PostList.displayDataSources();
 				

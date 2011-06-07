@@ -64,7 +64,7 @@ var Orgvis = {
 		firstLoad_expectedApiResponses:3, // Used to make the app wait until the correct number of API responses have been gathered
 		apiResponses:[],		// Stores JSON responses from the API
 		cacheObj:{},			// An object to store API responses
-		debug:false				// Output to console or not
+		debug:true				// Output to console or not
 	},
 	init:function(deptSlug,pubbodSlug,postSlug,reload,pMode){
 						
@@ -1453,7 +1453,7 @@ var Orgvis = {
 		}
 		
 		if(Orgvis.vars.firstNode.data.reportsTo.length > 0){
-			Orgvis.notify("Info","Top post reports to a post with missing information",false,"top_post_missing");
+			Orgvis.notify("Info","Top post reports to a post with missing or incorrect information",true,"top_post_missing");
 			Orgvis.vars.firstNode.data.reportsTo = 'error';
 			Orgvis.vars.postInQuestionReportsTo.splice(Orgvis.vars.postInQuestionReportsTo.length-1,1);
 		}
@@ -1562,7 +1562,7 @@ var Orgvis = {
 					uri:"",
 					comment:item.comment,
 					note:item.note,
-					grade:[],
+					grade:"",
 					type:[],
 					postIn:[],
 					reportsTo:[],
@@ -1604,7 +1604,14 @@ var Orgvis = {
 				}
 			}
 		}
-		
+
+		// Handle posts with more than one grade
+		if(typeof item.grade != 'undefined'){
+			if(typeof item.grade.label != 'undefined') {
+				node.data.grade = item.grade.label[0].toString();
+			}
+		}		
+
 		// Handle posts that are in more than one unit
 		if(typeof item.postIn != 'undefined'){
 			for(a=0;a<item.postIn.length;a++){
@@ -1672,6 +1679,8 @@ var Orgvis = {
 						workingTime:0,
 						profession:""
 				};
+				if(typeof item.comment != 'undefined'){person.comment = item.comment;}
+				if(typeof item.note != 'undefined'){person.note = item.note;}
 				if(typeof item.reportsTo != 'undefined'){
 					for(var b=0;b<item.reportsTo.length;b++){
 						person.reportsToPostURI.push(item.reportsTo[b]._about);
@@ -2701,8 +2710,11 @@ var Orgvis = {
 		
 				html += '<div class="content ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">';
 				
-				html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/doc/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+'&preview='+Orgvis.vars.previewMode+'">Load organogram</a></p>';
-				
+				html+= '<p class="id"><span>Post ID</span><span class="value">'+tempID+'</span><a class="data postID" target="_blank" href="http://'+Orgvis.vars.apiBase+'/doc/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a><a class="data center_organogram" href="?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&post='+tempID+(Orgvis.vars.previewMode?'&preview=true':'')+'">Load organogram</a></p>';
+
+				if(typeof node.data.grade != 'undefined' && node.data.grade != ""){
+						html += '<p class="grade"><span>Grade</span><span class="value">'+node.data.grade+'</span><a class="data" target="_blank" href="../post-list?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&property=grade&value='+node.data.grade+(Orgvis.vars.previewMode?'&preview=true':'')+'">Post list</a></p>';
+				}				
 				
 				if(typeof node.data.salaryRange[i] != 'undefined' && node.data.salaryRange[i].toString().length > 1){
 					html += '<p class="salary"><span>Salary</span><span class="value">'+addCommas(node.data.salaryRange[i])+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/doc/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/post/'+tempID+'">Data</a></p>';					
@@ -2755,17 +2767,13 @@ var Orgvis = {
 					html += '<p class="tel"><span>Phone</span><span class="value">'+node.data.heldBy[i].foafPhone+'</span></p>';
 				}
 			
-				if(typeof node.data.type != 'undefined'){
+				/*if(typeof node.data.type != 'undefined'){
 					for(var a=0;a<node.data.type.length;a++){
 						html += '<p class="type"><span>Type</span><span class="value">'+node.data.type[a]+'</span><a class="data center_organogram" href="../post-list?'+Orgvis.vars.global_orgSlug+'='+Orgvis.vars.global_postOrg+'&type='+node.data.type[a].replace(" ","+")+'">Post list</a></p>';
 					}
-				}
+				}*/
 								
-				if(typeof node.data.grade != 'undefined'){
-					for(var a=0;a<node.data.grade.length;a++){
-						html += '<p class="grade"><span>Grade</span><span class="value">'+node.data.grade[a]+'</span></p>';
-					}
-				}				
+				
 				
 				html+= '<p class="unit"><span>Unit(s)</span><span class="value">'+tempUnitLabel+'</span><a class="data" target="_blank" href="http://'+Orgvis.vars.apiBase+'/doc/'+Orgvis.vars.global_typeOfOrg+'/'+Orgvis.vars.global_postOrg+'/unit/'+tempUnitID+'">Data</a>';
 		

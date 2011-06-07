@@ -631,9 +631,9 @@ body.IE7 div.node span.childLoader {
 	top:0;
 }
 div.node span.childLoader img {
-    margin-top: 4px;
+    margin-top: 3px;
     position: static;
-    width: 8px;
+    width: 10px;
 }
 div#login {
 	display: none;
