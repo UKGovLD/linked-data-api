@@ -241,11 +241,11 @@ var Orgvis = {
 					// Change the opacity if the node is not fully loaded
 					
 					//log("onCreateLabel: node.data.childrenAdded: "+node.data.childrenAdded);
-					if(node.data.childrenAdded){
-						//$(label).css({ opacity: 1 });
+					/*if(node.data.childrenAdded){
+						$(label).css({ opacity: 1 });
 					} else {
-						//$(label).css({ opacity: 0.7 });
-					}
+						$(label).css({ opacity: 0.7 });
+					}*/
 					
 					for(var i=0;i<node.data.grade.length;i++){
 						$(label).addClass(node.data.grade[0]);
