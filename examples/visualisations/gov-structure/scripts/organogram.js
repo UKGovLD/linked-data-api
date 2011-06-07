@@ -277,7 +277,7 @@ var Orgvis = {
 					if(typeof node.data.postIn != 'undefined' && node.data.postIn.length > 0){					
 						for(var a in node.data.postIn){
 								if(node.data.postIn[a]._about.indexOf("/unit/") > 0 && label.innerHTML.indexOf('childLoader') < 0){
-									label.innerHTML = label.innerHTML + '<span class="postIn ui-state-active">'+node.data.postIn[0].label[0]+'</span><span class="childLoader"><img src="../images/childLoader.gif" /></span>';
+									label.innerHTML = label.innerHTML + '<span class="postIn ui-state-active">'+node.data.postIn[a].label[0]+'</span><span class="childLoader"><img src="../images/childLoader.gif" /></span>';
 								} else {}
 						}
 					} else {
@@ -1615,7 +1615,7 @@ var Orgvis = {
 		// Handle posts that are in more than one unit
 		if(typeof item.postIn != 'undefined'){
 			for(a=0;a<item.postIn.length;a++){
-				node.data.postIn.push(item.postIn[a]);
+					node.data.postIn.push(item.postIn[a]);
 			}
 		}
 		
