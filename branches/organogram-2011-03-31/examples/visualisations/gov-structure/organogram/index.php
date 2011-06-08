@@ -11,13 +11,14 @@
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/organogram.css" rel="stylesheet">
 <!-- Scripts -->
-<script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery-latest.min.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
 <!--script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script-->
 <script language="javascript" type="text/javascript" src="../scripts/Jit/jit.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.cookie.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.color.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.jgrowl.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/ui.selectmenu.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/organogram.js"></script>
 
 
@@ -51,6 +52,10 @@
 
 <h1 class="title breadcrumbs">
 	<button id="dept">Department</button><button id="unit">Unit</button><button id="post">Post</button>
+	<select id="filterBy">
+		<option value="none" data-type="none">--</option>
+	</select>
+	<label for="filterBy">Highlight</label>
 </h1>
 
 <!--[if lt IE 7]>

@@ -551,6 +551,7 @@ div.ui-widget-overlay {
     position: fixed !important;
     top: 0 !important;
     width: 100% !important;
+    opacity: 0.4 !important;
 }
 div.ui-dialog {
 	position: fixed !important;
