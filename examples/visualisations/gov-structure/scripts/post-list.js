@@ -553,6 +553,13 @@ var PostList = {
 
 		$("select#filterBy").html(html);
 
+		if($.browser.msie && $.browser.version.substr(0,1)<8) {} 
+		else {
+			$('a#filterBy-button').remove();
+			$('ul#filterBy-menu').remove();
+			$('select#filterBy').selectmenu({style:'dropdown',menuWidth:220});
+		}
+
 	},
 	setQuickSandFilter:function(){
 	
@@ -774,16 +781,19 @@ var PostList = {
 
 		$.each(PostList.vars.apiCallInfo,function(k,v){
 			
-			log(k);
-			log(v);
+			//log(k);
+			//log(v);
 			
-			html += '<a class="source">'+(i+1)+'</a>';
+			$('div.apiCall.'+(i+1)).dialog('destroy');
+			$('div.apiCall.'+(i+1)).remove();
+						
+			html += '<a class="source" data-id="'+(i+1)+'">'+(i+1)+'</a>';
 			
-			html += '<div class="apiCall shadowBox">';
+			html += '<div class="apiCall '+(i+1)+'">';
 			
 			html += '<p class="title"><span>API call '+(i+1)+':</span>'+v.title+'</p>';
 			html += '<p class="description"><span>Description:</span>'+v.description+'</p>';
-			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'">'+v.url+'</a></p>';	
+			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'" target="_blank">'+v.url+'</a></p>';	
 	
 			if(v.parameters != ""){
 				html += '<p class="params"><span>Parameters:</span></p>';
@@ -804,7 +814,7 @@ var PostList = {
 			html += '<a href="'+v.url+'.json'+v.parameters+'" target="_blank">JSON</a>';
 			html += '<a href="'+v.url+'.html'+v.parameters+'" target="_blank">HTML</a>';
 			html += '</p>';
-			html += '<a class="close">x</a>';
+			//html += '<a class="close">x</a>';
 			html += '</div><!-- end apiCall -->';
 			
 			i++;
@@ -814,13 +824,17 @@ var PostList = {
 		$('div#apiCalls').html(html);
 		
 		$('div#apiCalls a.source').each(function(){
-			$(this).button({text:true}).toggle(function() { $(this).next('div.apiCall').show();return false; },function(){$('div.apiCall').hide();return false;});
+			$(this).button({text:true});
 		});
 		
 		$('p.formats a').each(function(){
 			$(this).button({text:true});
 		});
-		
+
+		$('div.apiCall').each(function(){
+			$(this).dialog({autoOpen:false, modal: true, position: 'center', title: 'API Call Information', resizable: false, width: 500, zIndex: 9999});
+		});
+				
 		PostList.resetSourceLinks();
 		
 		$('div#apiCalls').fadeIn();
@@ -829,14 +843,14 @@ var PostList = {
 	},	
 	resetSourceLinks:function() {
 		
-		$("div#apiCalls a.source").click(function(){
-			$("div#apiCalls div.apiCall").hide();
-			$(this).next().fadeIn();
+		$('div.apiCall').each(function(){
+			$(this).dialog({autoOpen:false, modal: true, position: 'center', title: 'API Call Information', resizable: false, width: 350, zIndex: 9999});
 		});
 		
-		$("a.close").click(function(){
-			$(this).parent().fadeOut();
-		});
+		$('div#apiCalls a.source').button().click(function() {
+			$('div.apiCall.'+$(this).attr("data-id")).dialog('open');
+			return false;
+		});		
 			
 		return false;
 	},	
@@ -975,14 +989,20 @@ $(document).ready(function() {
 	//$("#infovis").width($(window).width()-140);
 	//$("#infovis").height($(window).height()-71);
 	
+	if($.browser.msie && $.browser.version.substr(0,1)<8) {} 
+	else {
+		$('select#filterBy').selectmenu({style:'dropdown',menuWidth:220});	
+		$('select#sortBy').selectmenu({style:'dropdown',menuWidth:120});
+		$('select#loadBy').selectmenu({style:'dropdown',menuWidth:140});	
+	}
+	
 	$('div.about-tip').dialog({autoOpen:false, buttons: [
   		{
         	text: "Ok",
         	click: function() { $(this).dialog("close"); }
     	}
 	], modal: true, position: 'center', title: 'About', resizable: false, width: 500, zIndex: 9999});
-	
-	
+		
 	$( "a.aboutToggle").button().click(function() { $('div.about-tip').dialog('open'); return false;});
 	
 	$('.ui-state-default').mouseout(function(){$(this).removeClass('ui-state-focus')});
@@ -992,17 +1012,20 @@ $(document).ready(function() {
 	$("select#loadBy").val("SCS1");
 	
 	$("select#loadBy").change(function(){
-				 
+		
+		if($(this).val() != "--"){		 
+		
 		var $option = $(this).find("option[value='"+$(this).val()+"']");
-		
-		$("div.postHolder").html("");
-		$("select#sortBy").val("--");
-		$("select#filterBy").html('<option value="none">None</option>');
-		
-		PostList.vars.property = $option.attr("data-type");
-		PostList.vars.value = $option.html();
-		PostList.getPostList(PostList.vars.property,PostList.vars.value);
-		
+
+			PostList.vars.property = $option.attr("data-type");
+			PostList.vars.value = $option.html();
+
+			$("div.postHolder").html("");
+			$("select#sortBy").val("--");
+			$("select#filterBy").html('<option value="none">None</option>');
+			
+			PostList.getPostList(PostList.vars.property,PostList.vars.value);
+		}
 		
 		//$("div.postHolder").css("height","auto");
 		//$('#infovis').quicksand( $('#infovis').find("div."+postType), { adjustHeight: 'dynamic' } );
@@ -1021,4 +1044,13 @@ $(document).ready(function() {
 		$("div#log").corner();
 		$("div#right").corner("tl bl 10px");
 	}	
+	
+	$(window).resize(function(){
+		if($.browser.msie && $.browser.version.substr(0,1)<8) {} 
+		else {
+			$('select#filterBy').selectmenu("refreshPosition");
+			$('select#sortBy').selectmenu("refreshPosition");
+			$('select#loadBy').selectmenu("refreshPosition");
+		}
+	});
 });

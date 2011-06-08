@@ -11,7 +11,7 @@
 <link type="text/css" href="../css/interface.css" rel="stylesheet">
 <link type="text/css" href="../css/organogram.css" rel="stylesheet">
 <!-- Scripts -->
-<script language="javascript" type="text/javascript" src="../scripts/jquery-latest.min.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/jquery-1.4.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery-ui-1.8.7.min.js"></script>		
 <!--script language="javascript" type="text/javascript" src="../scripts/Jit/jit-yc.js"></script-->
 <script language="javascript" type="text/javascript" src="../scripts/Jit/jit.js"></script>
