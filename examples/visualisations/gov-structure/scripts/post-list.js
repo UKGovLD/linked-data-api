@@ -151,10 +151,6 @@ var PostList = {
 		} else {
 			var s = {
 				url: PostList.vars.apiCallInfo.postList.url+".json"+PostList.vars.apiCallInfo.postList.parameters+"&callback=?",
-				type: "GET",
-				dataType: "jsonp",
-				async:true,
-				cache:true,
 				error: function(){
 					$("div#loading_postsBy"+property).trigger("jGrowl.close").remove(); 					
 					PostList.notify("Error","Could not load posts by "+property, true, "error_postList");
@@ -882,6 +878,9 @@ $.myJSONP = function(s,property,value) {
 	log("myJSONP, property:"+property+", value:"+value);
 		
     s.dataType = 'jsonp';
+	s.type = "GET";
+	s.async = true;
+	s.cache = true;
     $.ajax(s);
 
     // figure out what the callback fn is

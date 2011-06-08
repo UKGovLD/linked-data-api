@@ -1,3 +1,86 @@
+body.IE7 h1.breadcrumbs  {
+    -moz-box-shadow: 0 5px 24px #888888;
+    box-shadow: 0 5px 24px #888888;
+    -webkit-box-shadow: 0 5px 24px #888888;
+    background-color: #111111;
+    background-image: url("../images/hmg-banner.png");
+    background-position: left center;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid #666666;
+    color: #FFFFFF;
+    font-size: 16px;
+    height: 33px;
+    margin: 0 0 0 -1px;
+    min-height: 30px;
+    padding-left: 200px;
+    padding-top: 1px !important;
+    text-align: left;
+    top: 0;
+    width: auto;
+    z-index: 8881;
+	position: fixed;
+	overflow:visible;
+	right:0px;
+	left:0px;
+}
+h1.title label {
+    background-color: #534D62;
+    border: 1px solid #777777;
+    border-radius: 5px 5px 5px 5px;
+    display: block;
+    float: right;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    margin: 6px -15px 0 0;
+    padding: 3px 20px 2px 10px;
+    position: relative;
+    z-index: -1;
+}
+body.IE8 h1.title label {
+    padding: 3px 20px 4px 10px;
+}
+body.IE7 h1.title label {
+	background:none;
+	border: none;
+    display: block;
+    float: right;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 13px;
+    font-weight: normal;
+    margin: 8px 0 0 0;
+    padding: 3px 5px 2px 0px;
+    position: relative;
+}
+h1.title span {
+	margin-right:0px;
+}
+h1.title select {
+    float: right;
+    position: relative;
+    top: 7px;
+    margin-right: 10px;
+}
+body.IE7 h1.title select {
+    /*right: 0px;
+    position: fixed;
+    margin-right: 10px;*/
+    float:right;
+    top: -23px;
+    margin-right: 20px;
+    padding: 0;
+}
+body.IE7 h1.title label {
+	/*position:fixed;
+	right:0px;*/
+	top: -28px;
+    margin-right: 10px;
+    padding: 0;
+    float: right;	
+}
+body.IE7 h1.title select#filterBy {
+    width: 300px;
+}
 canvas
 {
 	cursor:move;
@@ -283,7 +366,16 @@ div.node
 	padding:5px 3px 0;
 	
 }
-
+div.node.highlighted {
+    background: none repeat scroll 0 0 #FBFBCE !important;
+    border: 2px solid #F9FF96 !important;	
+}
+div.node.highlighted span.postIn {
+	background:none repeat scroll 0 0 #818266 !important;
+}
+div.node.highlighted span.childLoader {
+	border-color: #F9FF96 #F9FF96 #F9FF96 #FBFBCE !important;
+}
 div.node span.heldBy
 {
     background-color: #819C9B;
@@ -305,7 +397,7 @@ div.node span.postIn
 	-moz-border-radius:0 0 3px 3px;
 	-webkit-border-radius:0 0 3px 3px;
 	border-radius: 0 0 3px 3px;
-    background-color: #577D00;
+    background: #8D6CD1 !important;
     border: medium none !important;
     color: #FFFFFF;
     display: block;
@@ -661,4 +753,8 @@ div#login p.login-failed {
 div#login p.login-success {
 }
 div#login p.logging-in {
+}
+
+h1 .ui-selectmenu-menu li a, .ui-selectmenu-status {
+    line-height: 15px;
 }

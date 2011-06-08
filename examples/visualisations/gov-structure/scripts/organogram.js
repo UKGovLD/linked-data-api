@@ -249,7 +249,7 @@ var Orgvis = {
 					}*/
 					
 					for(var i=0;i<node.data.grade.length;i++){
-						$(label).addClass(node.data.grade[0]);
+						$(label).addClass(node.data.grade.label);
 					}
 					
 					if(node.data.heldBy.length > 1){
@@ -280,14 +280,7 @@ var Orgvis = {
 								if(node.data.postIn[a]._about.indexOf("/unit/") > 0 && label.innerHTML.indexOf('childLoader') < 0){
 								
 									label.innerHTML = label.innerHTML + '<span class="postIn ui-state-active">'+node.data.postIn[a].label[0]+'</span><span class="childLoader"><img src="../images/childLoader.gif" /></span>';
-									
-									if(typeof Orgvis.vars.unitList[Orgvis.getSlug(node.data.postIn[a]._about)] == 'undefined'){
-										Orgvis.vars.unitList[Orgvis.getSlug(node.data.postIn[a]._about)] = {
-											name:node.data.postIn[a].label[0],
-											uri:node.data.postIn[a]._about
-										};	
-									}	
-																	
+																										
 								} else {}
 						}
 					} else {
@@ -664,9 +657,6 @@ var Orgvis = {
 		
 		var s = {	
 			url: Orgvis.vars.apiCallInfo.rootPost.url+".json"+"?"+Orgvis.vars.apiCallInfo.rootPost.parameters+"&callback=?",
-			type: "GET",
-			dataType: "jsonp",
-			async:true,
 			error:function (){
 				log("API - rootPost - error");
 				$.cookie("organogram-preview-mode", null);
@@ -732,10 +722,7 @@ var Orgvis = {
 		};		
 
 		var s = {
-				url: Orgvis.vars.apiCallInfo.postReports.url+".json"+Orgvis.vars.apiCallInfo.postReports.parameters+"&callback=?",
-				type: "GET",
-				dataType: "jsonp",
-				async:true,				
+				url: Orgvis.vars.apiCallInfo.postReports.url+".json"+Orgvis.vars.apiCallInfo.postReports.parameters+"&callback=?",			
 				error: function(){
 					log("API - postReports - error");
 					//Orgvis.changeLog("Error loading post's organogram data", false);
@@ -827,9 +814,6 @@ var Orgvis = {
 
 		var s = {
 			url: Orgvis.vars.apiCallInfo.juniorStaff.url+".json"+Orgvis.vars.apiCallInfo.juniorStaff.parameters+"&callback=?",
-			type: "GET", 
-			dataType: "jsonp",
-			async:true,
 		    error:function (){
 		    	log("API - junior staff - error");
 				//Orgvis.changeLog("Error loading junior staff data", false);
@@ -915,9 +899,6 @@ var Orgvis = {
 				
 		var s = {
 			url: Orgvis.vars.apiCallInfo.postStats.url+".json"+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
-			type: "GET",
-			dataType: "jsonp",
-			async:true,
 		    error:function (){
 		    	log("API - stats data: "+node.name[0]+" - error");
 				Orgvis.changeLog("Error loading post: \""+v.name[0]+"\" statistics data", false);
@@ -982,10 +963,7 @@ var Orgvis = {
 		};		
 
 		var s = {
-				url: Orgvis.vars.apiCallInfo.postReportsOnDemand.url+".json"+Orgvis.vars.apiCallInfo.postReportsOnDemand.parameters+"&callback=?",
-				type: "GET",
-				dataType: "jsonp",
-				async:true,				
+				url: Orgvis.vars.apiCallInfo.postReportsOnDemand.url+".json"+Orgvis.vars.apiCallInfo.postReportsOnDemand.parameters+"&callback=?",			
 				error: function(){
 					log("API - postReportsOnDemand - error");
 					//Orgvis.changeLog("Error loading clicked post's reporting posts data", false);
@@ -1083,10 +1061,7 @@ var Orgvis = {
 		};		
 
 		var s = {
-				url: Orgvis.vars.apiCallInfo.juniorStaffOnDemand.url+".json"+Orgvis.vars.apiCallInfo.juniorStaffOnDemand.parameters+"&callback=?",
-				type: "GET",
-				dataType: "jsonp",
-				async:true,				
+				url: Orgvis.vars.apiCallInfo.juniorStaffOnDemand.url+".json"+Orgvis.vars.apiCallInfo.juniorStaffOnDemand.parameters+"&callback=?",		
 				error: function(){
 					log("API - juniorStaffOnDemand - error");
 					//Orgvis.changeLog("Error loading clicked post's junior staff data", false);
@@ -1299,6 +1274,8 @@ var Orgvis = {
 	    node.data.onDemandInAction = false;
 
 	    //Orgvis.getStatsData();
+	    
+	    Orgvis.updateFilter();
 	    
 	    return false;
 		        	
@@ -1530,6 +1507,7 @@ var Orgvis = {
 		//Orgvis.changeLog("Aligning node ...",true);
 		Orgvis.notify("Info","Aligning node...",false,"aligning");	
 
+		Orgvis.updateFilter();
 		
 		var t = 0;
 		var c = Orgvis.vars.postInQuestionReportsTo.length;
@@ -1546,6 +1524,7 @@ var Orgvis = {
 						$("div#"+"aligning").trigger("jGrowl.close").remove();
 						Orgvis.vars.ST_move = false;
 						//log("Orgvis.vars.ST_move:"+Orgvis.vars.ST_move);
+						
 						return false;
 					}
 					
@@ -1625,8 +1604,15 @@ var Orgvis = {
 		// Handle posts that are in more than one unit
 		if(typeof item.postIn != 'undefined'){
 			for(a=0;a<item.postIn.length;a++){
-					node.data.postIn.push(item.postIn[a]);
-			}
+			
+				node.data.postIn.push(item.postIn[a]);
+				if(item.postIn[a]._about.indexOf("/unit/") > 0 && typeof Orgvis.vars.unitList[Orgvis.getSlug(node.data.postIn[a]._about)] == 'undefined'){
+					Orgvis.vars.unitList[Orgvis.getSlug(node.data.postIn[a]._about)] = {
+						name:node.data.postIn[a].label[0],
+						uri:node.data.postIn[a]._about
+					};	
+				}	
+			}		
 		}
 		
 		// Handle posts that report to more than one post
@@ -2962,6 +2948,67 @@ var Orgvis = {
 		
 		return false;
 	},
+	updateFilter:function(){
+		
+		log("updating filter");
+		
+		// Store select menu value
+		var originalValue = $("select#filterBy").selectmenu("value");
+		log(originalValue);
+		log($("select#filterBy"));
+		
+		var array = [];
+		
+		for(var i in Orgvis.vars.unitList){
+			array.push(Orgvis.vars.unitList[i]);
+		}		
+		
+		array.sort(sort_name());
+		
+		var html = '<option value="none" data-type="none">--</option>';
+		
+		// Units	
+		html += '<optgroup label="Unit">';
+		for(var i in array){
+			//log(Orgvis.vars.unitList[i]);
+			html += '<option value="'+array[i].name+'" data-type="unit">'+array[i].name+'</option>';
+		}
+		html += '</optgroup>';
+				
+		// Other things
+
+		$("select#filterBy").html(html);
+		
+		$("select#filterBy").unbind('change');
+		$("select#filterBy").bind('change',function(){
+			$("div.node").each(function(){
+				if($(this).children("span.postIn").eq(0).html() == $("select#filterBy").val()){
+					$(this).addClass("highlighted");
+				} else {
+					$(this).removeClass("highlighted");
+				}
+			});
+		});
+		
+		if($.browser.msie && $.browser.version.substr(0,1)<8){} 
+		else {
+			$('a#filterBy-button').remove();
+			$('ul#filterBy-menu').remove();
+			$('select#filterBy').selectmenu({style:'dropdown',width:240,menuWidth:240});
+		}		
+		
+		// Restore select menu value
+		$("select#filterBy").selectmenu("value",originalValue);
+		
+		$("div.node").each(function(){
+			if($(this).children("span.postIn").eq(0).html() == $("select#filterBy").val()){
+				$(this).addClass("highlighted");
+			} else {
+				$(this).removeClass("highlighted");
+			}
+		});
+
+	},	
 	notify:function(type,message,stick,id) {
 		
 		$.jGrowl(message,{
@@ -3098,8 +3145,12 @@ $.myJSONP = function(s,callName,n) {
 	
 	log("myJSONP, recevied node:");
 	log(node);
-		
+
+ 	s.type = "GET";		
     s.dataType = 'jsonp';
+	s.async = true;
+	s.cache = true;	
+		   
     $.ajax(s);
 
     // figure out what the callback fn is
@@ -3277,18 +3328,10 @@ $(document).ready(function() {
 	
 	$('label[for=left]').click();
 	
-	/*
-	$( "div#Orgvis.vars.autoalign" ).buttonset().click(function(value){
-		if(value.target.id == "on"){
-			Orgvis.vars.autoalign = true;
-		}else if(value.target.id == "off"){
-			Orgvis.vars.autoalign = false;
-			$('div#'+Orgvis.vars.global_ST.clickedNode.id);
-		}
-	});
-	
-	$('label[for=on]').click();
-	*/
+	if($.browser.msie && $.browser.version.substr(0,1)<8) {} 
+	else {
+		$('select#filterBy').selectmenu({style:'dropdown',width:240,menuWidth:240});	
+	}
 	
 	// Navigation controls
 	$(function() { 
@@ -3328,19 +3371,6 @@ $(document).ready(function() {
 	    });	    
 	});
 	
-	/*
-	$("#reload button#reset" ).button({
-		icons: { primary: "ui-icon-refresh" },
-	    text: false
-	}).click(function(){
-		Orgvis.vars.global_ST.canvas.clear();
-		Orgvis.vars.global_ST.graph.clean();
-		$('#infovis').html("");
-		$('#infobox').html("").hide();	
-		Orgvis.init(Orgvis.vars.global_department, Orgvis.vars.global_post,true);
-	});
-	*/
-	
 	$('div#right').children().css('visibility','visible');
 	
 	if($.browser.msie) {
@@ -3360,9 +3390,15 @@ $(document).ready(function() {
 		$("#infovis").height($(window).height()-30);
 		$("div.jGrowl.top-left").css("max-height",$(window).height()-80);
 		$("div.jGrowl.top-left").css('height','expression( this.scrollHeight > '+$(window).height()-79+' ? "'+$(window).height()-80+'px" : "auto" )');
+		
 		try{
 			Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height()); 
 		}catch(e){}
+		
+		if($.browser.msie && $.browser.version.substr(0,1)<8) {} 
+		else {
+			$('select#filterBy').selectmenu("refreshPosition");
+		}		
 	});
 		
 }); // end docready
