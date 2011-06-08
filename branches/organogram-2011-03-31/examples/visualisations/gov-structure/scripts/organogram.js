@@ -44,7 +44,8 @@ var Orgvis = {
 		],
 		jpCounter:0,			// Number of junior posts
 		jpColourCounter:0,		// Used to colour the junior post nodes
-		postList:{},			// An associative array of posts (used for connecting nodes)
+		postList:{},			// An associative array of posts
+		unitList:{},			// An associative array of units
 		postInQuestion:{		// The node object of the post in question (PIQ)
 			name:"post"
 		},		
@@ -277,7 +278,16 @@ var Orgvis = {
 					if(typeof node.data.postIn != 'undefined' && node.data.postIn.length > 0){					
 						for(var a in node.data.postIn){
 								if(node.data.postIn[a]._about.indexOf("/unit/") > 0 && label.innerHTML.indexOf('childLoader') < 0){
+								
 									label.innerHTML = label.innerHTML + '<span class="postIn ui-state-active">'+node.data.postIn[a].label[0]+'</span><span class="childLoader"><img src="../images/childLoader.gif" /></span>';
+									
+									if(typeof Orgvis.vars.unitList[Orgvis.getSlug(node.data.postIn[a]._about)] == 'undefined'){
+										Orgvis.vars.unitList[Orgvis.getSlug(node.data.postIn[a]._about)] = {
+											name:node.data.postIn[a].label[0],
+											uri:node.data.postIn[a]._about
+										};	
+									}	
+																	
 								} else {}
 						}
 					} else {
@@ -2872,13 +2882,16 @@ var Orgvis = {
 			//log(k);
 			//log(v);
 			
-			html += '<a class="source">'+(i+1)+'</a>';
+			$('div.apiCall.'+(i+1)).dialog('destroy');
+			$('div.apiCall.'+(i+1)).remove();
 			
-			html += '<div class="apiCall shadowBox">';
+			html += '<a class="source" data-id="'+(i+1)+'">'+(i+1)+'</a>';
+			
+			html += '<div class="apiCall '+(i+1)+'">';
 			
 			html += '<p class="title"><span>API call '+(i+1)+':</span>'+v.title+'</p>';
 			html += '<p class="description"><span>Description:</span>'+v.description+'</p>';
-			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'">'+v.url+'</a></p>';	
+			html += '<p class="url"><span>Endpoint URL:</span><a href="'+v.url+'" target="_blank">'+v.url+'</a></p>';	
 	
 			if(v.parameters != ""){
 				html += '<p class="params"><span>Parameters:</span></p>';
@@ -2899,7 +2912,7 @@ var Orgvis = {
 			html += '<a href="'+v.url+'.json'+v.parameters+'" target="_blank">JSON</a>';
 			html += '<a href="'+v.url+'.html'+v.parameters+'" target="_blank">HTML</a>';
 			html += '</p>';
-			html += '<a class="close">x</a>';
+			//html += '<a class="close">x</a>';
 			html += '</div><!-- end apiCall -->';
 			
 			i++;
@@ -2907,11 +2920,7 @@ var Orgvis = {
 		});	
 		
 		$('div#apiCalls').html(html);
-		
-		$('div#apiCalls a.source').each(function(){
-			$(this).button({text:true}).toggle(function() { $(this).next('div.apiCall').show();return false; },function(){$('div.apiCall').hide();return false;});
-		});
-		
+				
 		$('p.formats a').each(function(){
 			$(this).button({text:true});
 		});
@@ -2924,15 +2933,15 @@ var Orgvis = {
 	},	
 	resetSourceLinks:function() {
 		
-		$("div#apiCalls a.source").click(function(){
-			$("div#apiCalls div.apiCall").hide();
-			$(this).next().fadeIn();
+		$('div.apiCall').each(function(){
+			$(this).dialog({autoOpen:false, modal: true, position: 'center', title: 'API Call Information', resizable: false, width: 350, zIndex: 9999});
 		});
 		
-		$("a.close").click(function(){
-			$(this).parent().fadeOut();
-		});
-	
+		$('div#apiCalls a.source').button().click(function() {
+			$('div.apiCall.'+$(this).attr("data-id")).dialog('open');
+			return false;
+		});		
+			
 		return false;
 	},
 	setInfoBoxLinks:function() {
@@ -3348,7 +3357,9 @@ $(document).ready(function() {
 	
 	$(window).resize(function(){
 		$("#infovis").width($(window).width()-0);
-		$("#infovis").height($(window).height()-30);	
+		$("#infovis").height($(window).height()-30);
+		$("div.jGrowl.top-left").css("max-height",$(window).height()-80);
+		$("div.jGrowl.top-left").css('height','expression( this.scrollHeight > '+$(window).height()-79+' ? "'+$(window).height()-80+'px" : "auto" )');
 		try{
 			Orgvis.vars.global_ST.canvas.resize($('#infovis').width(), $('#infovis').height()); 
 		}catch(e){}

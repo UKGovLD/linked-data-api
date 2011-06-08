@@ -49,7 +49,6 @@ body > div.jGrowl {
 }
 
 div.jGrowl.top-left {
-    bottom: 30px;
     left: 0;
     top: 35px;
     overflow: hidden;

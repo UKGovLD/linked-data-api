@@ -18,6 +18,7 @@
 <script language="javascript" type="text/javascript" src="../scripts/jquery.quicksand.js"></script>		
 <script language="javascript" type="text/javascript" src="../scripts/jquery.cookie.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/jquery.jgrowl.js"></script>
+<script language="javascript" type="text/javascript" src="../scripts/ui.selectmenu.js"></script>
 <script language="javascript" type="text/javascript" src="../scripts/post-list.js"></script>
 
 <!--[if IE]>
@@ -41,9 +42,10 @@
 
 	<select id="loadBy">
 	
+		
 		<option value="--">--</option>
 	
-		<!--optgroup label="Type">
+		<!--<optgroup label="Type">
 			<option value="Permanent Secretary" data-type="type">Permanent Secretary</option>
 			<option value="Director General" data-type="type">Director General</option>
 			<option value="Director" data-type="type">Director</option>
@@ -102,11 +104,6 @@
 <!-- -->
 </div>
 <div class="clear padder"><!-- --></div>
-</div>
-
-<div id="log">
-	<span>Loading posts</span>
-	<img src="../images/loading.gif" />
 </div>
 
 <div id="right">
