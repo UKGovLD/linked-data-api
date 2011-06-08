@@ -545,7 +545,16 @@ color:#FFFFFF;
 width:1000px;
 }
 
-
+div.ui-widget-overlay {
+    height: 100% !important;
+    left: 0 !important;
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+}
+div.ui-dialog {
+	position: fixed !important;
+}
 
 /* Selectmenu
 ----------------------------------*/
