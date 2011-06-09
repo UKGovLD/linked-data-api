@@ -104,7 +104,7 @@ $.widget("ui.selectmenu", {
 
 		//change event on original selectmenu
 		this.element
-			.click(function(){ this._refreshValue(); })
+			.click(function(){ this.refreshValue(); })
 			.focus(function(){ this.newelement[0].focus(); });
 		
 		//create menu portion, append to body
@@ -456,12 +456,12 @@ $.widget("ui.selectmenu", {
 	value: function(newValue) {
 		if (arguments.length) {
 			this.element[0].selectedIndex = newValue;
-			this._refreshValue();
+			this.refreshValue();
 			this.refreshPosition();
 		}
 		return this.element[0].selectedIndex;
 	},
-	_refreshValue: function() {
+	refreshValue: function() {
 		var activeClass = (this.options.style == "popup") ? " ui-state-active" : "";
 		var activeID = this.widgetBaseClass + '-item-' + Math.round(Math.random() * 1000);
 		//deselect previous
