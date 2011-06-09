@@ -140,7 +140,7 @@
 						$('div.jGrowl-notification:first', self.element).before(notification);
 					}
 					
-					$(this).animate(o.animateOpen, o.openDuration, o.easing, function() {
+					$(this).show(0, function() {
 						// Fixes some anti-aliasing issues with IE filters.
 						if ($.browser.msie && (parseInt($(this).css('opacity'), 10) === 1 || parseInt($(this).css('opacity'), 10) === 0))
 							this.style.removeAttribute('filter');
@@ -158,7 +158,7 @@
 			}).bind('jGrowl.close', function() {
 				// Pause the notification, lest during the course of animation another close event gets called.
 				$(this).data('jGrowl.pause', true);
-				$(this).animate(o.animateClose, o.closeDuration, o.easing, function() {
+				$(this).hide(0, function() {
 					$(this).remove();
 					var close = o.close.apply( notification , [notification,message,o,self.element] );
 
@@ -174,7 +174,7 @@
 			if ( $('div.jGrowl-notification:parent', self.element).size() > 1 && 
 				 $('div.jGrowl-closer', self.element).size() == 0 && this.defaults.closer != false ) {
 				$(this.defaults.closerTemplate).addClass('jGrowl-closer ui-state-highlight ui-corner-all').addClass(this.defaults.theme)
-					.appendTo(self.element).animate(this.defaults.animateOpen, this.defaults.speed, this.defaults.easing)
+					.appendTo(self.element).show()
 					.bind("click.jGrowl", function() {
 						$(this).siblings().trigger("jGrowl.beforeClose");
 
@@ -203,7 +203,7 @@
 				this.render( this.notifications.shift() );
 
 			if ( $(this.element).find('div.jGrowl-notification:parent').size() < 2 ) {
-				$(this.element).find('div.jGrowl-closer').animate(this.defaults.animateClose, this.defaults.speed, this.defaults.easing, function() {
+				$(this.element).find('div.jGrowl-closer').hide(0, function() {
 					$(this).remove();
 				});
 			}
