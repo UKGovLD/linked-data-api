@@ -35,10 +35,10 @@ var PostList = {
 			$.cookie("organogram-password", null);
 		}
 
-		log('$.cookie("organogram-preview-mode"):'+$.cookie("organogram-preview-mode"));
-		log("pMode: "+pMode);
-		log('property = '+property);
-		log('value = '+value);
+		//log('$.cookie("organogram-preview-mode"):'+$.cookie("organogram-preview-mode"));
+		//log("pMode: "+pMode);
+		//log('property = '+property);
+		//log('value = '+value);
 			
 		if(pDept.length>0){
 			log("department");
