@@ -2953,9 +2953,8 @@ var Orgvis = {
 		log("updating filter");
 		
 		// Store select menu value
-		var originalValue = $("select#filterBy").selectmenu("value");
+		var originalValue = $("select#filterBy").val();
 		log(originalValue);
-		log($("select#filterBy"));
 		
 		var array = [];
 		
@@ -2998,7 +2997,9 @@ var Orgvis = {
 		}		
 		
 		// Restore select menu value
-		$("select#filterBy").selectmenu("value",originalValue);
+		log("setting new filter value");
+		$("select#filterBy").val(originalValue);
+		$("select#filterBy").selectmenu("refreshValue");
 		
 		$("div.node").each(function(){
 			if($(this).children("span.postIn").eq(0).html() == $("select#filterBy").val()){
