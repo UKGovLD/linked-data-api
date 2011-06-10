@@ -1252,32 +1252,15 @@ var Orgvis = {
 		//log(Orgvis.vars.apiResponses);
 		// If both API calls have been made then load the organogram
 		if(Orgvis.vars.apiResponses.length == Orgvis.vars.firstLoad_expectedApiResponses){
-		//log("length is "+Orgvis.vars.firstLoad_expectedApiResponses);
+		log("length is "+Orgvis.vars.firstLoad_expectedApiResponses);
 			for(var i=Orgvis.vars.apiResponses.length;i--;){
-				if(Orgvis.vars.previewMode){
-					//log('Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full"):');
-					//log(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full"));
-					
-					if(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full") > 0){
-						//log("found reports-full data");
-						//if(Orgvis.vars.apiResponses[i].result.items.length > 0){
-							Orgvis.loadOrganogram(Orgvis.vars.apiResponses[i]);
-						//} else {
-						//	Orgvis.notify("Error","No reporting posts could be found.",true,"no_reporting_posts");
-						//}
-					}
-				} else {
-					//log('Orgvis.vars.apiResponses[i].result._about.indexOf("reportsFull"):');
-					//log(Orgvis.vars.apiResponses[i].result._about.indexOf("reportsFull"));
-					
-					if(Orgvis.vars.apiResponses[i].result._about.indexOf("reportsFull") > 0){
-						//log("found reportsFull data");
-						//if(Orgvis.vars.apiResponses[i].result.items.length > 0){
-							Orgvis.loadOrganogram(Orgvis.vars.apiResponses[i]);
-						//} else {
-						//	Orgvis.notify("Error","No reporting posts could be found.",true,"no_reporting_posts");
-						//}			
-					}	
+				if(Orgvis.vars.apiResponses[i].result._about.indexOf("reports-full") > 0){
+					log("found reports-full data");
+					//if(Orgvis.vars.apiResponses[i].result.items.length > 0){
+						Orgvis.loadOrganogram(Orgvis.vars.apiResponses[i]);
+					//} else {
+					//	Orgvis.notify("Error","No reporting posts could be found.",true,"no_reporting_posts");
+					//}
 				}
 			}
 		} else {
@@ -1353,7 +1336,7 @@ var Orgvis = {
 					}
 				}
 			} else {
-				log("Post in question doesn't report to anybody...");
+				//Orgvis.notify("Info","Post in question doesn't report to anybody...",true,"error_postDoesntReport");
 			}
 					
 		} else {
@@ -1613,11 +1596,11 @@ var Orgvis = {
 		if(typeof item.salaryRange != 'undefined'){
 			if(typeof item.salaryRange.label != 'undefined'){
 				// Post has one salary range
-				log(node.name+" has one salary range");
+				//log(node.name+" has one salary range");
 				node.data.salaryRange.push(item.salaryRange.label[0]);
 			} else {
 				// Post has more than one salary range
-				log(node.name+" has more than one salary range");
+				//log(node.name+" has more than one salary range");
 				for(var i in item.salaryRange){
 					node.data.salaryRange.push(item.salaryRange[i].label[0]);	
 				}

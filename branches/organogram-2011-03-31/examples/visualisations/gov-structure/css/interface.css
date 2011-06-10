@@ -104,6 +104,9 @@ h1.title span
 {
 	margin-right:5px;
 }
+h1 .ui-selectmenu-menu li a, .ui-selectmenu-status {
+    line-height: 15px;
+}
 div.tip
 {
 	font-size:11px;
@@ -599,7 +602,11 @@ div.ui-dialog {
 }
 .ui-selectmenu-open { display: block; }
 .ui-selectmenu-menu-popup { margin-top: -1px; }
-.ui-selectmenu-menu-dropdown { }
+.ui-selectmenu-menu-dropdown {
+    max-height: 300px;
+    height:expression( this.scrollHeight > 299 ? "300px" : "auto" );
+    overflow-y: auto;
+}
 .ui-selectmenu-menu li { padding:0; margin:0; display: block; border-top: 1px dotted transparent; border-bottom: 1px dotted transparent; border-right-width: 0 !important; border-left-width: 0 !important; font-weight: normal !important; }
 .ui-selectmenu-menu li.ui-state-hover {
 	background: #EEEEEE;
@@ -611,7 +618,7 @@ div.ui-dialog {
     color: #FFFFFF;
     cursor: pointer;
     display: block;
-    line-height: 12px;
+    line-height: 15px;
     outline: medium none;
     overflow: hidden;
     padding: 3px 3px 3px 5px;

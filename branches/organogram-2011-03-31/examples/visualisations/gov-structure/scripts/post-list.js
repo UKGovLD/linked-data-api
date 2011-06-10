@@ -404,8 +404,11 @@ var PostList = {
 			      if(typeof PostList.vars.unitList[PostList.getSlug(postIn[j]._about)] == 'undefined'){
 			      	PostList.vars.unitList[PostList.getSlug(postIn[j]._about)] = {
 			      		name:postIn[j].label[0],
-			      		uri:postIn[j]._about
+			      		uri:postIn[j]._about,
+			      		count:1
 			      	};	
+			      } else {
+			      	PostList.vars.unitList[PostList.getSlug(postIn[j]._about)].count++;
 			      }
 			    }
 			  }
@@ -465,7 +468,7 @@ var PostList = {
 				html += '<tr class="grade '+(oddeven%2==0?'odd':'even')+'"><td class="label">Grade</td><td data-type="grade">'+grade+'</td></tr>';
 				oddeven++;
 			}else {
-				html += '<tr class="grade '+(oddeven%2==0?'odd':'even')+'"><td class="label">Grade</td><td data-type="grade">?</td></tr>';					oddeven++;	
+				html += '<tr class="grade '+(oddeven%2==0?'odd':'even')+'"><td class="label">Grade</td><td data-type="grade">?</td></tr>';							oddeven++;	
 			}			
 			
 			try{
@@ -541,7 +544,7 @@ var PostList = {
 		html += '<optgroup label="Unit">';
 		for(var i in array){
 			//log(PostList.vars.unitList[i]);
-			html += '<option value="'+PostList.getSlug(array[i].uri)+'" data-type="unit">'+array[i].name+'</option>';
+			html += '<option value="'+PostList.getSlug(array[i].uri)+'" data-type="unit">'+array[i].name+' ('+array[i].count+')</option>';
 		}
 		html += '</optgroup>';
 				
@@ -570,91 +573,92 @@ var PostList = {
 		$filterInput.change(function(e) {
 				    
 		    $("div.qs-overlay").width($(window).width()).height($(window).height()).show(); 	
-		    $("div.postHolder").hide();	
+		    $("div.postHolder").hide().html("");	
   			$("div.qs-overlay-div p.text").html("Filtering...");
 	    	$("div.qs-overlay-div").show(0,function(){
-
-			var $filteredData, $sortedData;
-				    		  
-		  	var $option = $filterInput.find("option[value='"+$filterInput.val()+"']");
-		  	
-		  	//log($option.attr('data-type'));
-		  	
-		  	if($option.attr('data-type') == "none") {
-		      $filteredData = $data.find('div.post');
-		    } else if ($option.attr('data-type') == "unit") {
-		      $filteredData = $data.find('div.post[data-unit=' + $filterInput.val() + ']');
-		    }
-			
-			log("filter applied: ")
-			log($filteredData);
-							
-			//var $postHolderDiv = "<div class='postHolder'></div>";
-			//$postHolderDiv.append($filteredData);
-			
-		    // apply the sort value
-		    if ($('select#sortBy').val() == "name") {
-		    	$sortedData = $filteredData.sort(function(a, b){
-			  		return $(a).find('p[data-type=name]').text().toLowerCase() > $(b).find('p[data-type=name]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    } else if ($('select#sortBy').val() == "title") {
-		    	$sortedData = $filteredData.sort(function(a, b){
-			  		return $(a).find('h3[data-type=title]').text().toLowerCase() > $(b).find('h3[data-type=title]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    } else if ($('select#sortBy').val() == "unit") {
-		    	$sortedData = $filteredData.sort(function(a, b){
-			  		return $(a).find('td[data-type=unit]').text().toLowerCase() > $(b).find('td[data-type=unit]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    }  else if ($('select#sortBy').val() == "type") {
-		    	$sortedData = $filteredData.sort(function(a, b){
-			  		return $(a).find('td[data-type=type]').text().toLowerCase() > $(b).find('td[data-type=type]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    }  else if ($('select#sortBy').val() == "grade") {
-		    	$sortedData = $filteredData.sort(function(a, b){
-			  		return $(a).find('td[data-type=grade]').text().toLowerCase() > $(b).find('td[data-type=grade]').text().toLowerCase() ? 1 : -1;
-		  		});
-		    }  else if ($('select#sortBy').val() == "salaryRange") {
-		    	$sortedData = $filteredData.sort(function(a, b){
-		    	
-		    		var sal1, sal2 = 0;
-		    		
-		    		try{
-				    	sal1 = $(a).find('td[data-type=salaryRange]').text().split(" ");
-				    	sal1 = sal1[0].match(/\d/g).join("");
-			  		}catch(e){
-			  			log(e);
-			  			sal1 = 0;
-			  		}
-			  		
-		    		try{
-				    	sal2 = $(b).find('td[data-type=salaryRange]').text().split(" ");
-				    	sal2 = sal2[0].match(/\d/g).join("");
-			  		}catch(e){
-			  			log(e);
-			  			sal2 = 0;
-			  		}			    	
-				  	
-				  	return parseInt(sal1) > parseInt(sal2) ? 1 : -1;
 	
-		  		});
-		    } else {
-		    	$sortedData = $filteredData;
-		    }
-
-			log("sort applied: ")
-			log($sortedData);
-						
-		    // finally, call quicksand		    
-		    $posts.quicksand($sortedData,{
-		    	adjustHeight: 'dynamic'
-		    },function(){
-		    	$("div.postHolder").show();
-		    	$("div.qs-overlay").hide();
-		    	$("div.qs-overlay-div").hide();
-				$("div.post").click(function(){
-					window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
-				});
-		    });		
+				var $filteredData, $sortedData;
+					    		  
+			  	var $option = $filterInput.find("option[value='"+$filterInput.val()+"']");
+			  	
+			  	log($option.attr('data-type'));
+			  	log($filterInput.val());
+			  	
+			  	if($option.attr('data-type') == "none") {
+			      $filteredData = $data.find('div.post');
+			    } else if ($option.attr('data-type') == "unit") {
+			      $filteredData = $data.find('div.post[data-unit="' + $filterInput.val() + '"]');
+			    }
+				
+				log("filter applied: ")
+				log($filteredData);
+								
+				//var $postHolderDiv = "<div class='postHolder'></div>";
+				//$postHolderDiv.append($filteredData);
+				
+			    // apply the sort value
+			    if ($('select#sortBy').val() == "name") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('p[data-type=name]').text().toLowerCase() > $(b).find('p[data-type=name]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    } else if ($('select#sortBy').val() == "title") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('h3[data-type=title]').text().toLowerCase() > $(b).find('h3[data-type=title]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    } else if ($('select#sortBy').val() == "unit") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('td[data-type=unit]').text().toLowerCase() > $(b).find('td[data-type=unit]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    }  else if ($('select#sortBy').val() == "type") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('td[data-type=type]').text().toLowerCase() > $(b).find('td[data-type=type]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    }  else if ($('select#sortBy').val() == "grade") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+				  		return $(a).find('td[data-type=grade]').text().toLowerCase() > $(b).find('td[data-type=grade]').text().toLowerCase() ? 1 : -1;
+			  		});
+			    }  else if ($('select#sortBy').val() == "salaryRange") {
+			    	$sortedData = $filteredData.sort(function(a, b){
+			    	
+			    		var sal1, sal2 = 0;
+			    		
+			    		try{
+					    	sal1 = $(a).find('td[data-type=salaryRange]').text().split(" ");
+					    	sal1 = sal1[0].match(/\d/g).join("");
+				  		}catch(e){
+				  			log(e);
+				  			sal1 = 0;
+				  		}
+				  		
+			    		try{
+					    	sal2 = $(b).find('td[data-type=salaryRange]').text().split(" ");
+					    	sal2 = sal2[0].match(/\d/g).join("");
+				  		}catch(e){
+				  			log(e);
+				  			sal2 = 0;
+				  		}			    	
+					  	
+					  	return parseInt(sal1) > parseInt(sal2) ? 1 : -1;
+		
+			  		});
+			    } else {
+			    	$sortedData = $filteredData;
+			    }
+	
+				log("sort applied: ")
+				log($sortedData);
+							
+			    // finally, call quicksand		    
+			    $posts.quicksand($sortedData,{
+			    	adjustHeight: 'dynamic'
+			    },function(){
+					$("div.post").click(function(){
+						window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+					});
+			    	$("div.postHolder").show();
+			    	$("div.qs-overlay").hide();
+			    	$("div.qs-overlay-div").hide();				
+			    });		
 	    
 		    });
 		});
@@ -674,7 +678,7 @@ var PostList = {
 		$sortInput.change(function(e) {
 	
 		    $("div.qs-overlay").width($(window).width()).height($(window).height()).show();
-		    $("div.postHolder").hide();	
+		    $("div.postHolder").hide();
 	    	$("div.qs-overlay-div p.text").html("Sorting...");
 	    	$("div.qs-overlay-div").show(0,function(){
 				
@@ -751,12 +755,12 @@ var PostList = {
 			    $posts.quicksand($filteredData,{
 			    	adjustHeight: 'dynamic'
 			    },function(){
-			    	$("div.postHolder").show();	
-				    $("div.qs-overlay").hide();
-				    $("div.qs-overlay-div").hide();
 					$("div.post").click(function(){
 						window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
 					});
+			    	$("div.postHolder").show();	
+				    $("div.qs-overlay").hide();
+				    $("div.qs-overlay-div").hide();					
 			    });
 			    
 			});
@@ -861,7 +865,11 @@ var PostList = {
 		});
 		
 		if(type == "Success" || type == "Error"){
-			$("div#loading_data").trigger("jGrowl.close").remove();
+			setTimeout(function(){
+				log("Making sure notification "+id.replace("success","loading")+" is closed!");
+				$("div#loading_data").trigger("jGrowl.close").remove();
+				$("div#"+id.replace("success","loading")).trigger("jGrowl.close").remove();
+			},3000);			
 		}
 
 	},
@@ -877,7 +885,7 @@ $.myJSONP = function(s,property,value) {
 	
 	log("myJSONP, property:"+property+", value:"+value);
 		
-    s.dataType = 'jsonp';
+    s.dataType = 'json';
 	s.type = "GET";
 	s.async = true;
 	s.cache = true;
@@ -1009,7 +1017,7 @@ $(document).ready(function() {
 	$('div#right').children().css('visibility','visible');
 	
 	$("select#loadBy").val("SCS1");
-	
+	$("select#loadBy").selectmenu("refreshValue");	
 	$("select#loadBy").change(function(){
 		
 		if($(this).val() != "--"){		 
