@@ -770,10 +770,6 @@ div#login p.login-success {
 }
 div#login p.logging-in {
 }
-
-h1 .ui-selectmenu-menu li a, .ui-selectmenu-status {
-    line-height: 15px;
-}
 div#infobox .ui-accordion .ui-accordion-header .ui-icon {
     float: left;
     left: 0.5em;
