@@ -2623,7 +2623,13 @@ $.myJSONP = function(s,callName,n) {
 	s.async = true;
 	s.cache = true;
 	
+	if(!Orgvis.vars.useJSONP && s.url.indexOf("&callback=?") > 0){
+		s.url = s.url.replace("?&callback=?","");
+		s.url = s.url.replace("&callback=?","");
+	}
+	
 	log("Type of JSON being used: "+s.dataType);
+	log("API URL: "+s.url);
 		   
     $.ajax(s);
 
