@@ -64,7 +64,8 @@ var Orgvis = {
 		firstLoad_expectedApiResponses:3, // Used to make the app wait until the correct number of API responses have been gathered
 		apiResponses:[],		// Stores JSON responses from the API
 		cacheObj:{},			// An object to store API responses
-		debug:false				// Output to console or not
+		useJSONP:false,			// Boolean for setting the AJAX dataType
+		debug:true				// Output to console or not
 	},
 	init:function(deptSlug,pubbodSlug,postSlug,reload,pMode){
 						
@@ -93,31 +94,19 @@ var Orgvis = {
 		} else{
 			Orgvis.vars.global_post = postSlug;		
 		}
+		
 			
 		// Check for preview parameter
 		if(pMode == "true"){
 			log("Param: In preview mode");
 			// In preview mode
-			
-			/*
-			if($.cookie("organogram-preview-mode") == "true") {
-				// Already authenticated
-				Orgvis.vars.previewMode = pMode;
-				Orgvis.vars.apiBase = "organogram.data.gov.uk";
-				Orgvis.initSpaceTree(reload);
-			} else {
-				// Ask for username and pass
-				Orgvis.showLogin();
-			}
-			*/
-			
+
 			Orgvis.vars.apiBase = "organogram.data.gov.uk";			
 			//Orgvis.vars.apiBase = "192.168.1.74";
 			//Orgvis.vars.apiBase = "organogram.data.gov.uk/puelia5";
 			//Orgvis.vars.apiBase = "192.168.2.8/puelia5";
 			//Orgvis.vars.apiBase = "localhost/puelia5"
 			Orgvis.vars.previewParam = true;			
-			Orgvis.initSpaceTree(reload);
 
 		} else if($.cookie("organogram-preview-mode")) {
 			log("Cookie: In preview mode");
@@ -128,14 +117,20 @@ var Orgvis = {
 			//Orgvis.vars.apiBase = "organogram.data.gov.uk/puelia5";
 			//Orgvis.vars.apiBase = "192.168.2.8/puelia5";
 			//Orgvis.vars.apiBase = "localhost/puelia5"
-			Orgvis.initSpaceTree(reload);
 		} else {
 			log("Not in preview mode");
 			// Not in preview mode
 			Orgvis.vars.apiBase = "reference.data.gov.uk";
-			Orgvis.initSpaceTree(reload);
-		}		
+		}
+
+		if(document.domain == Orgvis.vars.apiBase){
+			Orgvis.vars.useJSONP = false;
+		}else {
+			Orgvis.vars.useJSONP = true;
+		}
 		
+		Orgvis.initSpaceTree(reload);
+	
 	},
 	initSpaceTree:function(reload){
 		
@@ -2624,9 +2619,11 @@ $.myJSONP = function(s,callName,n) {
 	//log(node);
 
  	s.type = "GET";		
-    s.dataType = 'json';
+    s.dataType = (Orgvis.vars.useJSONP ? 'jsonp' : 'json');
 	s.async = true;
-	s.cache = true;	
+	s.cache = true;
+	
+	log("Type of JSON being used: "+s.dataType);
 		   
     $.ajax(s);
 
