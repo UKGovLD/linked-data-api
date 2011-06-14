@@ -25,7 +25,7 @@ var PostList = {
 		apiBase:"http://reference.data.gov.uk",
 		apiResults:[],
 		unitList:{},
-		useJSONP:false
+		useJSONP:false,
 		debug:true
 	},
 	init:function(pDept,pBod,pUnit,property,value,pMode){
