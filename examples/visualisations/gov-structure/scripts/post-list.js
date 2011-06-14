@@ -22,10 +22,11 @@ var PostList = {
 		previewMode:false,		// Used to initialise authentication and to swap API locations
 		previewParam:false,
 		apiCallInfo:{},
-		debug:false,
 		apiBase:"http://reference.data.gov.uk",
 		apiResults:[],
-		unitList:{}
+		unitList:{},
+		useJSONP:false
+		debug:true
 	},
 	init:function(pDept,pBod,pUnit,property,value,pMode){
 	
@@ -86,6 +87,11 @@ var PostList = {
 			PostList.vars.apiBase = "reference.data.gov.uk";
 		}	
 
+		if(document.domain == PostList.vars.apiBase){
+			PostList.vars.useJSONP = false;
+		}else {
+			PostList.vars.useJSONP = true;
+		}
 		
 		switch(PostList.vars.property){
 		
@@ -885,11 +891,13 @@ $.myJSONP = function(s,property,value) {
 	
 	log("myJSONP, property:"+property+", value:"+value);
 		
-    s.dataType = 'json';
+    s.dataType = (PostList.vars.useJSONP ? 'jsonp' : 'json');
 	s.type = "GET";
 	s.async = true;
 	s.cache = true;
-    $.ajax(s);
+	
+	log("Type of JSON being used: "+s.dataType);
+	$.ajax(s);
 
     // figure out what the callback fn is
     var $script = $(document.getElementsByTagName('head')[0].firstChild);
