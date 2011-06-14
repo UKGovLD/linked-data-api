@@ -70,7 +70,8 @@ var PostList = {
 			//PostList.vars.apiBase = "organogram.data.gov.uk/puelia5";
 			//PostList.vars.apiBase = "192.168.2.8/puelia5";
 			//PostList.vars.apiBase = "localhost/puelia5"
-			PostList.vars.previewParam = true;			
+			PostList.vars.previewParam = true;	
+			PostList.vars.previewMode = true;			
 
 		} else if($.cookie("organogram-preview-mode")) {
 			log("Cookie: In preview mode");
@@ -85,6 +86,7 @@ var PostList = {
 			log("Not in preview mode");
 			// Not in preview mode
 			PostList.vars.apiBase = "reference.data.gov.uk";
+			PostList.vars.previewMode = false;
 		}	
 
 		if(document.domain == PostList.vars.apiBase){
@@ -192,55 +194,58 @@ var PostList = {
 							s.url = s.url.replace("&_page="+(pageNumber-1),"");
 		
 							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();
+							
 							if(pageNumber > 1){
+	
+								$("div#loading_postsBy"+property+"_"+(pageNumber-1)).trigger("jGrowl.close").remove();
+
 								if(property == "topposts"){
-									PostList.notify("Success","Loaded top level posts ("+(pageNumber-1)+")",false,"success_postsBy"+property);
+									PostList.notify("Success","Loaded top level posts ("+(pageNumber-1)+")",false,"success_postsBy"+property+"_"+(pageNumber-1));
 								} else {
-									PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber-1)+")",false,"success_postsBy"+property);
+									PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber-1)+")",false,"success_postsBy"+property+"_"+(pageNumber-1));
 								}								
 							} else {
+							
 								if(property == "topposts"){
 									PostList.notify("Success","Loaded top level posts",false,"success_postsBy"+property);
 								} else {
 									PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
 								}
 							}
-							PostList.notify("Loading","Posts with "+property+": "+value+" ("+pageNumber+")",true,"loading_postsBy"+property);
 							
+							PostList.notify("Loading","Posts with "+property+": "+value+" ("+pageNumber+")",true,"loading_postsBy"+property+"_"+pageNumber);
 							$.myJSONP(s,property,value);
 					
 						} else if(pageNumber > 1) {
 							// Pass data to the regData function
 							log("no more pages, loading posts");
 							log(combinedJSON);
+
+							$("div#loading_postsBy"+property+"_"+pageNumber).trigger("jGrowl.close").remove();					
 							
 							if(property == "topposts"){
-								PostList.notify("Success","Loaded top level posts ("+(pageNumber)+")",false,"success_postsBy"+property);
+								PostList.notify("Success","Loaded top level posts ("+(pageNumber)+")",false,"success_postsBy"+property+"_"+pageNumber);
 							} else {
-								PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber)+")",false,"success_postsBy"+property);
+								PostList.notify("Success","Loaded posts with "+property+": "+value+" ("+(pageNumber)+")",false,"success_postsBy"+property+"_"+pageNumber);
 							}	
 													
-							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
 							
-							PostList.vars.previewMode = "true";
-							PostList.loadPosts(combinedJSON);
-		
+							PostList.loadPosts(combinedJSON);		
 							PostList.vars.apiCallInfo.postList.complete = true;
 						} else {
 							// Pass data to the regData function
 							log("no more pages, loading posts");
 							log(combinedJSON);
+
+							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
 							
 							if(property == "topposts"){
 								PostList.notify("Success","Loaded top level posts",false,"success_postsBy"+property);
 							} else {
 								PostList.notify("Success","Loaded posts with "+property+": "+value,false,"success_postsBy"+property);
-							}	
+							}
 							
 							
-							$("div#loading_postsBy"+property).trigger("jGrowl.close").remove();					
-							
-							PostList.vars.previewMode = "true";
 							PostList.loadPosts(combinedJSON);
 							PostList.vars.apiResults[property+"-"+value] = combinedJSON;
 							PostList.vars.apiCallInfo.postList.complete = true;
@@ -515,7 +520,7 @@ var PostList = {
 		$("div.postHolder").html(html);
 		
 		$("div.post").click(function(){
-			window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+			window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode ? "&preview=true" : "");
 		});
 		
 		//$("div.post").dropShadow();
@@ -659,7 +664,7 @@ var PostList = {
 			    	adjustHeight: 'dynamic'
 			    },function(){
 					$("div.post").click(function(){
-						window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+						window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode ? "&preview=true" : "");
 					});
 			    	$("div.postHolder").show();
 			    	$("div.qs-overlay").hide();
@@ -762,7 +767,7 @@ var PostList = {
 			    	adjustHeight: 'dynamic'
 			    },function(){
 					$("div.post").click(function(){
-						window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode?'&preview=true':'');
+						window.location = "../organogram?"+PostList.vars.orgTypeSlug+"="+PostList.vars.org+"&post="+$(this).attr("rel")+(PostList.vars.previewMode ? "&preview=true" : "");
 					});
 			    	$("div.postHolder").show();	
 				    $("div.qs-overlay").hide();
@@ -873,7 +878,7 @@ var PostList = {
 		if(type == "Success" || type == "Error"){
 			setTimeout(function(){
 				log("Making sure notification "+id.replace("success","loading")+" is closed!");
-				$("div#loading_data").trigger("jGrowl.close").remove();
+				//$("div#"+id).trigger("jGrowl.close").remove();
 				$("div#"+id.replace("success","loading")).trigger("jGrowl.close").remove();
 			},3000);			
 		}
