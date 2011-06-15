@@ -2623,10 +2623,10 @@ $.myJSONP = function(s,callName,n) {
 	//log(node);
 
  	s.type = "GET";		
-    //s.dataType = (Orgvis.vars.useJSONP ? 'jsonp' : 'json');
-	s.dataType = 'jsonp';
+    s.dataType = (Orgvis.vars.useJSONP ? 'jsonp' : 'json');
+	//s.dataType = 'jsonp';
 	s.async = true;
-	s.cache = true;
+	s.cache = false;
 	
 	if(!Orgvis.vars.useJSONP && s.url.indexOf("&callback=?") > 0){
 		s.url = s.url.replace("?&callback=?","");
