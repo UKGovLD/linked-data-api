@@ -1841,12 +1841,14 @@ var Orgvis = {
 		for(var i in postList) {
 			
 			// Find the reportsTo values for each post
-			//log("postList[i]:");
-			//log(postList[i]);
+			log("postList["+i+"]:");
+			log(postList[i]);
+			log("postList["+i+"].data:");
+			log(postList[i].data);			
 			
 			if(typeof postList[i].data.reportsTo != 'undefined' && postList[i].data.reportsTo.length > 0 && postList[i].data.reportsTo != 'error') {
-				//log("postList[i].data:");
-				//log(postList[i].data);
+				log("postList["+i+"] reports to:");
+				log(postList[i].data.reportsTo[0]);
 				var postID = Orgvis.getSlug(postList[i].data.reportsTo[0]);
 				// Use the postID slug from the reportsTo value as a pointer in the associative array
 				// to connect the post to it's parent. 
@@ -1867,7 +1869,7 @@ var Orgvis = {
   					}
 				}
 			} else {
-				log("postList[i] doesn't report to anyone");
+				log(postList[i].name+" (postList["+i+"]) doesn't report to anyone");
 				visJSON = postList[i];
 			}
 			
@@ -1982,7 +1984,7 @@ var Orgvis = {
 				
 					for(var j in postChildren){
 						if(postChildren[j].name == "No Junior Posts"){
-							//log("Removing node: "+postChildren[j].name);
+							log("Removing node: "+postChildren[j].name);
 							postChildren.splice(j,1);
 						}
 					}					
@@ -1990,10 +1992,10 @@ var Orgvis = {
 					var addJPNode = true;
 				
 					for(var m in postChildren){
-						//log("searching postChildren fo JPNode:");
+						//log("searching postChildren for JPNode:");
 						//log(postChildren[m]);
 						if(postChildren[m].name == "Junior Posts"){
-							//log("Post already has Junior Post connected");
+							log("Post already has Junior Post connected");
 							addJPNode = false;
 						}
 					}
@@ -2006,7 +2008,8 @@ var Orgvis = {
 
 					// Loop through the posts children
 					for(var k in postChildren){
-
+						
+						//log("looping through postChildren, postChildren["+k+"].name = "+postChildren[k].name);
 						// If one of the posts's children is named "Junior Posts'
 						if(postChildren[k].name == "Junior Posts"){
 
@@ -2015,33 +2018,34 @@ var Orgvis = {
 							// Add the actual junior staff item to the Junior Posts node
 							postChildren[k].children.push(Orgvis.makeJuniorPostNode(items[i]));
 							postChildren[k].data.fteTotal += items[i].fullTimeEquivalent;
-						}
 					
-						postChildren[k].data.fteTotal = Math.round(postChildren[k].data.fteTotal*100)/100;
+							postChildren[k].data.fteTotal = Math.round(postChildren[k].data.fteTotal*100)/100;
+							
+							postChildren[k].data.byProfession = [];
+							for(var p in byProfession){
+								byProfession[p].children.sort(sort_salaryRangeVal());
+								postChildren[k].data.byProfession.push(byProfession[p]);
+							}
+							postChildren[k].data.byProfession.sort(sort_name());
+	
+							postChildren[k].data.byUnit = [];
+							for(var u in byUnit){
+								byUnit[u].children.sort(sort_salaryRangeVal());
+								postChildren[k].data.byUnit.push(byUnit[u]);
+							}
+							postChildren[k].data.byUnit.sort(sort_name());
+							
+							postChildren[k].data.byGrade = [];
+							for(var g in byGrade){
+								byGrade[g].children.sort(sort_name());
+								postChildren[k].data.byGrade.push(byGrade[g]);
+							}
+							postChildren[k].data.byGrade.sort(sort_prop());
+							
+							postChildren[k].children.sort(sort_salaryRangeVal());
+							postChildren[k].data.unGrouped = postChildren[k].children;
 						
-						postChildren[k].data.byProfession = [];
-						for(var p in byProfession){
-							byProfession[p].children.sort(sort_salaryRangeVal());
-							postChildren[k].data.byProfession.push(byProfession[p]);
 						}
-						postChildren[k].data.byProfession.sort(sort_name());
-
-						postChildren[k].data.byUnit = [];
-						for(var u in byUnit){
-							byUnit[u].children.sort(sort_salaryRangeVal());
-							postChildren[k].data.byUnit.push(byUnit[u]);
-						}
-						postChildren[k].data.byUnit.sort(sort_name());
-						
-						postChildren[k].data.byGrade = [];
-						for(var g in byGrade){
-							byGrade[g].children.sort(sort_name());
-							postChildren[k].data.byGrade.push(byGrade[g]);
-						}
-						postChildren[k].data.byGrade.sort(sort_prop());
-						
-						postChildren[k].children.sort(sort_salaryRangeVal());
-						postChildren[k].data.unGrouped = postChildren[k].children;
 			
 					} // end for loop
 				} // end if postID exists
