@@ -2623,8 +2623,8 @@ $.myJSONP = function(s,callName,n) {
 	//log(node);
 
  	s.type = "GET";		
-    s.dataType = (Orgvis.vars.useJSONP ? 'jsonp' : 'json');
-	//s.dataType = 'jsonp';
+    //s.dataType = (Orgvis.vars.useJSONP ? 'jsonp' : 'json');
+	s.dataType = 'jsonp';
 	s.async = true;
 	s.cache = true;
 	
