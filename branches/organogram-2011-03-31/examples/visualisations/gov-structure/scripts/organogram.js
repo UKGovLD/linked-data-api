@@ -1951,7 +1951,7 @@ var Orgvis = {
 			} else {
 			  	
 			  	var salaryRange;
-			  	if(typeof items[i].atGrade.payband != 'undefined' && typeof items[i].atGrade.payband.salaryRange != 'undefined' && typeof items[i].atGrade.payband.salaryRange.label != 'undefined'){
+			  	if(typeof items[i].atGrade.payband != 'undefined' && typeof items[i].atGrade.payband.salaryRange != 'undefined'){
 			  		salaryRange = addCommas(items[i].atGrade.payband.salaryRange.label[0]);
 			  	} else {
 			  		salaryRange = "Salary not disclosed";
