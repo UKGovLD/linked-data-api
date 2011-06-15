@@ -1951,7 +1951,7 @@ var Orgvis = {
 			} else {
 			  	
 			  	var salaryRange;
-			  	if(typeof items[i].atGrade.payband != 'undefined' && typeof items[i].atGrade.payband.salaryRange != 'undefined'){
+			  	if(typeof items[i].atGrade.payband != 'undefined' && typeof items[i].atGrade.payband.salaryRange != 'undefined' && typeof items[i].atGrade.payband.salaryRange.label != 'undefined'){
 			  		salaryRange = addCommas(items[i].atGrade.payband.salaryRange.label[0]);
 			  	} else {
 			  		salaryRange = "Salary not disclosed";
@@ -2626,7 +2626,7 @@ $.myJSONP = function(s,callName,n) {
     s.dataType = (Orgvis.vars.useJSONP ? 'jsonp' : 'json');
 	//s.dataType = 'jsonp';
 	s.async = true;
-	s.cache = false;
+	s.cache = true;
 	
 	if(!Orgvis.vars.useJSONP && s.url.indexOf("&callback=?") > 0){
 		s.url = s.url.replace("?&callback=?","");
