@@ -90,6 +90,9 @@ h1.title button#unit {
     background: none repeat scroll 0 0 #665F6C;
     border: 1px solid #888888;
 }
+div#infovis-canvaswidget {
+	left:-150px;
+}
 canvas
 {
 	cursor:move;

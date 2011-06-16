@@ -2769,7 +2769,7 @@ function log(info){
 $(document).ready(function() {
 	
 	$("#infobox").hide();
-	$("#infovis").width($(window).width()-0);
+	$("#infovis").width($(window).width()+150);
 	$("#infovis").height($(window).height()-30);	
 		
 	// Breadcrumbs
@@ -2883,7 +2883,7 @@ $(document).ready(function() {
 	}
 	
 	$(window).resize(function(){
-		$("#infovis").width($(window).width()-0);
+		$("#infovis").width($(window).width()+150);
 		$("#infovis").height($(window).height()-30);
 		$("div.jGrowl.top-left").css("max-height",$(window).height()-80);
 		$("div.jGrowl.top-left").css('height','expression( this.scrollHeight > '+$(window).height()-79+' ? "'+$(window).height()-80+'px" : "auto" )');
