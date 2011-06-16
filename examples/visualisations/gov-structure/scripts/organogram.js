@@ -1672,9 +1672,14 @@ var Orgvis = {
 				} else {
 					node.data.payband = "No payband";
 				}
-		
+				
+				
 				if(typeof el.atGrade.payband.salaryRange != 'undefined') {
-
+					
+					if(el.atGrade.payband.salaryRange instanceof Array){
+						el.atGrade.payband.salaryRange = el.atGrade.payband.salaryRange[el.atGrade.payband.salaryRange.length-1];
+					}
+					
 					var salaryRangeLabel, salaryRangeValue;
 			  								
 					if(typeof el.atGrade.payband.salaryRange.label != 'undefined'){
@@ -1969,6 +1974,11 @@ var Orgvis = {
 			} else {
 			  	
 			  	var salaryRange;
+			  	
+			  	if(items[i].atGrade.payband.salaryRange instanceof Array){
+			  		items[i].atGrade.payband.salaryRange = items[i].atGrade.payband.salaryRange[items[i].atGrade.payband.salaryRange.length-1];
+			  	}
+			  	
 			  	if(typeof items[i].atGrade.payband != 'undefined' && typeof items[i].atGrade.payband.salaryRange != 'undefined' && typeof items[i].atGrade.payband.salaryRange.label != 'undefined'){
 			  		salaryRange = addCommas(items[i].atGrade.payband.salaryRange.label[0]);
 			  	} else {
