@@ -885,6 +885,14 @@ var Orgvis = {
 						value:json.result.items[0].date
 					}
 				};	
+				
+				log("json.result.items[0].salaryCostOfReports Array? "+json.result.items[0].salaryCostOfReports instanceof Array);
+				log("json.result.items[0].salaryCostOfReports String? "+json.result.items[0].salaryCostOfReports instanceof String);
+				
+				if(json.result.items[0].salaryCostOfReports instanceof Array){
+					node.data.stats.salaryCostOfReports.value = json.result.items[0].salaryCostOfReports[json.result.items[0].salaryCostOfReports.length-1];
+				}
+				
 				node.data.stats.date.formatted = '['+Orgvis.getSlug(node.data.stats.date.value)+']';
 	            
 	            if(typeof node.data.stats.salaryCostOfReports.value != 'undefined') {
@@ -1926,7 +1934,17 @@ var Orgvis = {
 				gSlug = "other";
 			}			
 			if(typeof items[i].inUnit != 'undefined'){
+			
+				log(items[i].inUnit);
+				
+				if(items[i].inUnit instanceof Array){
+					items[i].inUnit = items[i].inUnit[items[i].inUnit.length-1];
+				}
+				
+				log(items[i].inUnit);
+				
 				uSlug = Orgvis.getSlug(items[i].inUnit._about);
+				
 			} else {
 				uSlug = "other";
 			}			
