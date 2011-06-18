@@ -592,9 +592,16 @@ var Orgvis = {
 					} else {
 						log("Spacetree is busy!");
 						Orgvis.vars.busyCount++;
-						if(Orgvis.vars.busyCount>1){
-							Orgvis.vars.ST.busy = false;
-							Orgvis.vars.busyCount = 0;
+						if(!$.browser.msie){
+							if(Orgvis.vars.busyCount>1){
+								Orgvis.vars.ST.busy = false;
+								Orgvis.vars.busyCount = 0;
+							}
+						} else {
+							if(Orgvis.vars.busyCount>0){
+								Orgvis.vars.ST.busy = false;
+								Orgvis.vars.busyCount = 0;
+							}						
 						}
 					} // end if ST.busy
 				};  // end label.onClick
