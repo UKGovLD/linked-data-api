@@ -19,6 +19,7 @@ var Orgvis = {
 		nativeTextSupport:"",		// var for theJIT
 		animate:false,			// var for theJIT
 		ST_move:true,			// custom var for use in core JIT code (controls tree moving on click)
+		busyCount:0,			// Used to monitor users clicks on organogram
 		previewMode:false,		// Used to initialise authentication and to swap API locations
 		previewParam:false,		// 
 		department:"",			// The department in questions ID
@@ -331,7 +332,9 @@ var Orgvis = {
 				}
 				
 				label.onclick = function(){ 										
-
+				
+					if(!Orgvis.vars.ST.busy){
+					
 						var m = {
 						    offsetX: st.canvas.translateOffsetX+Orgvis.vars.visOffsetX,
 						    offsetY: st.canvas.translateOffsetY,
@@ -586,7 +589,14 @@ var Orgvis = {
 								
 								break;
 						}		
-						
+					} else {
+						log("Spacetree is busy!");
+						Orgvis.vars.busyCount++;
+						if(Orgvis.vars.busyCount>1){
+							Orgvis.vars.ST.busy = false;
+							Orgvis.vars.busyCount = 0;
+						}
+					} // end if ST.busy
 				};  // end label.onClick
 				
 				var style = label.style;
@@ -649,12 +659,12 @@ var Orgvis = {
 				//	Orgvis.showLogin();					
 				//}
 				//Orgvis.changeLog("Error loading post's data", false);
-				$("div#loading_post").trigger("jGrowl.close").remove(); 
+				$("div#loading_post").remove(); 
 				Orgvis.notify("Error","Could not retrieve the main post's data",true,"error_post");
 			},
 			success: function(json){
 				
-				$("div#" + "loading_post").trigger("jGrowl.close").remove();
+				$("div#" + "loading_post").remove();
 
 				if(Orgvis.vars.previewParam){
 					$("span#previewModeSign").show();
@@ -704,9 +714,9 @@ var Orgvis = {
 					log("API - postReports - error");
 					//Orgvis.changeLog("Error loading post's organogram data", false);
 					if(pageNumber > 1) {
-						$("div#loading_reportingPosts_"+pageNumber).trigger("jGrowl.close").remove(); 	
+						$("div#loading_reportingPosts_"+pageNumber).remove(); 	
 					} else {
-						$("div#loading_reportingPosts").trigger("jGrowl.close").remove(); 	
+						$("div#loading_reportingPosts").remove(); 	
 					}					
 					Orgvis.notify("Error","Could not load reporting posts", true, "error_reportingPosts");
 				},
@@ -728,8 +738,8 @@ var Orgvis = {
 						s.url = s.url+"&_page="+pageNumber;
 						s.url = s.url.replace("&_page="+(pageNumber-1),"");
 	
-						$("div#" + "loading_reportingPosts").trigger("jGrowl.close").remove();				
-						$("div#loading_reportingPosts").trigger("jGrowl.close").remove();
+						$("div#" + "loading_reportingPosts").remove();				
+						$("div#loading_reportingPosts").remove();
 						
 						if(pageNumber > 1){
 							Orgvis.notify("Success","Loaded reporting posts ("+(pageNumber-1)+")",false,"success_reportingPosts_"+(pageNumber-1));
@@ -744,16 +754,16 @@ var Orgvis = {
 						// Pass data to the regData function
 						//log("no more pages, passing data to regData");
 						//log(combinedJSON);
-						$("div#loading_reportingPosts_"+pageNumber).trigger("jGrowl.close").remove();					
+						$("div#loading_reportingPosts_"+pageNumber).remove();					
 						Orgvis.notify("Success","Loaded reporting posts ("+(pageNumber)+")",false,"success_reportingPosts_"+(pageNumber-1));
 						Orgvis.regData(combinedJSON);
 					} else {
 						// Pass data to the regData function
 						//log("no more pages, passing data to regData");
 						//log(combinedJSON);
-						$("div#" + "loading_reportingPosts").trigger("jGrowl.close").remove();				
+						$("div#" + "loading_reportingPosts").remove();				
 						Orgvis.notify("Success","Loaded reporting posts",false,"success_reportingPosts");
-						$("div#loading_reportingPosts").trigger("jGrowl.close").remove();					
+						$("div#loading_reportingPosts").remove();					
 						Orgvis.regData(combinedJSON);
 					}	
 				}
@@ -791,9 +801,9 @@ var Orgvis = {
 		    error:function (){
 		    	log("API - junior staff - error");
 				if(pageNumber > 1) {
-					$("div#loading_juniorStaff_"+pageNumber).trigger("jGrowl.close").remove();
+					$("div#loading_juniorStaff_"+pageNumber).remove();
 				} else {
-					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();
+					$("div#loading_juniorStaff").remove();
 				}
 				Orgvis.notify("Error","Could not load junior staff",true,"error_juniorStaff");
 			},
@@ -815,8 +825,8 @@ var Orgvis = {
 					s.url = s.url+"&_page="+pageNumber;
 					s.url = s.url.replace("&_page="+(pageNumber-1),"");
 
-					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
-					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();
+					//$("div#" + "loading_juniorStaff").remove();				
+					$("div#loading_juniorStaff").remove();
 					if(pageNumber > 1){
 						Orgvis.notify("Success","Loaded junior staff ("+(pageNumber-1)+")",false,"success_juniorStaff_"+(pageNumber-1));
 					} else {
@@ -829,15 +839,15 @@ var Orgvis = {
 					// Pass data to the regData function
 					//log("no more pages, passing data to regData");
 					log(combinedJSON);
-					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
-					$("div#loading_juniorStaff_"+pageNumber).trigger("jGrowl.close").remove();					
+					//$("div#" + "loading_juniorStaff").remove();				
+					$("div#loading_juniorStaff_"+pageNumber).remove();					
 					Orgvis.notify("Success","Loaded junior staff ("+(pageNumber)+")",false,"success_juniorStaff_"+(pageNumber-1));
 					Orgvis.regData(combinedJSON);
 				} else {
 					// Pass data to the regData function
 					//log("no more pages, passing data to regData");
-					//$("div#" + "loading_juniorStaff").trigger("jGrowl.close").remove();				
-					$("div#loading_juniorStaff").trigger("jGrowl.close").remove();					
+					//$("div#" + "loading_juniorStaff").remove();				
+					$("div#loading_juniorStaff").remove();					
 					Orgvis.notify("Success","Loaded junior staff",false,"success_juniorStaff");
 					Orgvis.regData(combinedJSON);
 				}			
@@ -870,11 +880,11 @@ var Orgvis = {
 			url: Orgvis.vars.apiCallInfo.postStats.url+".json"+Orgvis.vars.apiCallInfo.postStats.parameters+"&callback=?",
 		    error:function (){
 		    	log("API - stats data: "+node.name+" - error");
-				$("div#" + "loading_stats_"+postID).trigger("jGrowl.close").remove();
+				$("div#" + "loading_stats_"+postID).remove();
 				Orgvis.notify("Error","Could not load statistics data for \""+node.name+"\"", true,"error_stats_"+postID);
 			},
 			success: function(json){
-				$("div#" + "loading_stats_"+postID).trigger("jGrowl.close").remove();
+				$("div#" + "loading_stats_"+postID).remove();
 				Orgvis.notify("Success","Loaded statistics data for \""+node.name+"\"", false,"success_stats_"+postID);
 				
 				node.data.stats = {
@@ -945,9 +955,9 @@ var Orgvis = {
 					//Orgvis.changeLog("Error loading clicked post's reporting posts data", false);
 					
 					if(pageNumber > 1) {
-						$("div#loading_rp_onDemand_" + postID+"_"+pageNumber).trigger("jGrowl.close").remove();
+						$("div#loading_rp_onDemand_" + postID+"_"+pageNumber).remove();
 					} else {
-						$("div#loading_rp_onDemand_" + postID).trigger("jGrowl.close").remove();
+						$("div#loading_rp_onDemand_" + postID).remove();
 					}					
 						
 					Orgvis.notify("Error","Could not load children posts for "+node.name, true,"error_rp_onDemand_"+postID);					
@@ -973,7 +983,7 @@ var Orgvis = {
 						s.url = s.url+"&_page="+pageNumber;
 						s.url = s.url.replace("&_page="+(pageNumber-1),"");
 						
-						$("div#" + "loading_rp_onDemand_"+postID).trigger("jGrowl.close").remove();				
+						$("div#" + "loading_rp_onDemand_"+postID).remove();				
 						
 						if(pageNumber > 1){
 							Orgvis.notify("Success","Loaded reporting posts for "+node.name+" ("+(pageNumber-1)+")",false,"success_rp_onDemand_"+postID+"_"+(pageNumber-1));
@@ -988,14 +998,14 @@ var Orgvis = {
 						// Pass data to the regData function
 						//log("no more pages, passing data to regData");
 						//log(combinedJSON);
-						$("div#loading_rp_onDemand_"+postID+"_"+pageNumber).trigger("jGrowl.close").remove();					
+						$("div#loading_rp_onDemand_"+postID+"_"+pageNumber).remove();					
 						Orgvis.notify("Success","Loaded reporting posts for "+node.name+" ("+(pageNumber)+")",false,"success_rp_onDemand_"+postID+"_"+(pageNumber-1));
 						Orgvis.addOnDemandNodes(combinedJSON,node);
 					} else {
 						// Pass data to the regData function
 						//log("no more pages, passing data to regData");
 						//log(combinedJSON);
-						$("div#loading_rp_onDemand_"+postID).trigger("jGrowl.close").remove();							
+						$("div#loading_rp_onDemand_"+postID).remove();							
 					    Orgvis.notify("Success","Loaded reporting posts for "+node.name,false,"success_rp_onDemand_"+postID);
 						Orgvis.addOnDemandNodes(combinedJSON,node);					
 					}					    
@@ -1039,9 +1049,9 @@ var Orgvis = {
 					//Orgvis.changeLog("Error loading clicked post's junior staff data", false);
 
 					if(pageNumber > 1) {
-						$("div#loading_jp_onDemand_" + postID + "_"+pageNumber).trigger("jGrowl.close").remove();
+						$("div#loading_jp_onDemand_" + postID + "_"+pageNumber).remove();
 					} else {
-						$("div#loading_jp_onDemand_" + postID).trigger("jGrowl.close").remove();
+						$("div#loading_jp_onDemand_" + postID).remove();
 					}
 					
 					Orgvis.notify("Error","Could not load junior staff for "+node.name, true,"error_jp_onDemand_"+postID);					
@@ -1068,7 +1078,7 @@ var Orgvis = {
 						s.url = s.url+"&_page="+pageNumber;
 						s.url = s.url.replace("&_page="+(pageNumber-1),"");
 						
-						$("div#" + "loading_jp_onDemand_"+postID).trigger("jGrowl.close").remove();				
+						$("div#" + "loading_jp_onDemand_"+postID).remove();			
 						if(pageNumber > 1){
 							Orgvis.notify("Success","Loaded junior staff for "+node.name+" ("+(pageNumber-1)+")",false,"success_jp_onDemand_"+postID+"_"+(pageNumber-1));
 						} else {
@@ -1082,14 +1092,14 @@ var Orgvis = {
 						// Pass data to the regData function
 						//log("no more pages, passing data to regData");
 						//log(combinedJSON);
-						$("div#loading_jp_onDemand_"+postID+"_"+pageNumber).trigger("jGrowl.close").remove();					
+						$("div#loading_jp_onDemand_"+postID+"_"+pageNumber).remove();					
 						Orgvis.addOnDemandNodes(combinedJSON,node);
 					    Orgvis.notify("Success","Loaded junior staff for "+node.name+" ("+(pageNumber)+")",false,"success_jp_onDemand_"+postID+"_"+(pageNumber));
 					} else {
 						// Pass data to the regData function
 						//log("no more pages, passing data to regData");
 						//log(combinedJSON);
-						$("div#loading_jp_onDemand_"+postID).trigger("jGrowl.close").remove();							
+						$("div#loading_jp_onDemand_"+postID).remove();							
 						Orgvis.addOnDemandNodes(combinedJSON,node);
 					    Orgvis.notify("Success","Loaded junior staff for "+node.name,false,"success_jp_onDemand_"+postID);
 					}									
@@ -1134,7 +1144,7 @@ var Orgvis = {
 			// Both on-demand calls received
 			//log("Both on-demand calls received");
 
-			$("div#loading_onDemand_" + postID).trigger("jGrowl.close").remove();
+			$("div#loading_onDemand_" + postID).remove();
 			
 			if(json.result._about.indexOf("junior-staff") > 0) {
 				// junior staff data receieved
@@ -1191,9 +1201,9 @@ var Orgvis = {
 		log(node);
 		log(originalChildren);
 		
-		if(!Orgvis.vars.addSubtreeBusy){
+		//if(!Orgvis.vars.addSubtreeBusy){
 			
-			Orgvis.vars.addSubtreeBusy = true;
+			//Orgvis.vars.addSubtreeBusy = true;
 			
 			setTimeout(function(){
 			Orgvis.vars.ST.addSubtree(Orgvis.vars.postList[postID], 'animate', {  
@@ -1202,21 +1212,20 @@ var Orgvis = {
 		        	Orgvis.onDemandAfterCompute(node,postID,originalChildren);
 		        }
 		    });		
-			},1000);
-			
-	    	setTimeout(function(){
+			},500);
+	    	//setTimeout(function(){
 	    		if(node.data.onDemandInAction){
 	    			Orgvis.onDemandAfterCompute(node,postID,originalChildren);
 	    		}
 	    		Orgvis.vars.addSubtreeBusy = false;
-	    	},1000);
+	    	//},1000);
 	    	
-        } else {
-        	log("onDemandAddNodes() - waiting");
-        	setTimeout(function(){
-        		Orgvis.onDemandAddNodes(node,postID,originalChildren);
-        	},500);
-        }
+       // } else {
+       // 	log("onDemandAddNodes() - waiting");
+        	//setTimeout(function(){
+       // 		Orgvis.onDemandAddNodes(node,postID,originalChildren);
+        	//},500);
+       // }
         
 		return false;
 	},
@@ -1449,7 +1458,7 @@ var Orgvis = {
 						$("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1]).click();
 						$("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1]).css("background-color","#FFFFFF");
 						//Orgvis.hideLog();
-						$("div#"+"aligning").trigger("jGrowl.close").remove();
+						$("div#"+"aligning").remove();
 						Orgvis.vars.ST_move = false;
 						//log("Orgvis.vars.ST_move:"+Orgvis.vars.ST_move);
 						
@@ -2525,18 +2534,22 @@ var Orgvis = {
 				header:type,
 				theme:type,
 				sticky:stick,
-				life:7000,
+				life:6000,
 				growlID:id
 		});
 		
 		if(type == "Success" || type == "Error"){
 			setTimeout(function(){
 				log("Making sure notification "+id.replace("success","loading")+" is closed!");
-				$("div#loading_data").trigger("jGrowl.close").remove();
-				$("div#"+id.replace("success","loading")).trigger("jGrowl.close").remove();
-			},3000);			
-		}
-		
+				$("div#loading_data").remove();
+				$("div#"+id.replace("success","loading")).remove();
+					setTimeout(function(){
+						$("div#"+id.replace("success","loading")).remove();
+					},8000);				
+			},1500);			
+		}	
+
+
 
 	},
 	getSlug:function(string){
@@ -2719,32 +2732,32 @@ $.myJSONP = function(s,callName,n) {
     	
     		case "data" :
     			log("myJSONP - error - closing data notification");
-    			$("div#loading_post").trigger("jGrowl.close").remove();
+    			$("div#loading_post").remove();
     			break;
     			
     		case "reporting posts" :
     			log("myJSONP - error - closing reporting posts data notification");
-    			$("div#loading_reportingPosts").trigger("jGrowl.close").remove();
+    			$("div#loading_reportingPosts").remove();
     			break;
     			
     		case "junior staff" :
     			log("myJSONP - error - closing junior staff notification");
-	    	    $("div#loading_juniorStaff").trigger("jGrowl.close").remove();    	
+	    	    $("div#loading_juniorStaff").remove();    	
     			break;
     		
     		case "reporting posts on demand" :
     			log("myJSONP - error - closing reporting posts data on demand notification");
-    			$("div#loading_rp_onDemand_"+postID).trigger("jGrowl.close").remove();
+    			$("div#loading_rp_onDemand_"+postID).remove();
     			break;
     			
     		case "junior staff on demand" :
     			log("myJSONP - error - closing junior staff on demand notification");
-	    	    $("div#loading_jp_onDemand_"+postID).trigger("jGrowl.close").remove();    	
+	    	    $("div#loading_jp_onDemand_"+postID).remove();    	
     			break;
     			    			
     		default :
     			log("myJSONP - error - closing default notification");
-    			$("div#loading_" + postID).trigger("jGrowl.close").remove();
+    			$("div#loading_" + postID).remove();
     			break;
 		}
 		
