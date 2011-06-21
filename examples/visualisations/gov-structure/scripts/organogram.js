@@ -591,7 +591,7 @@ var Orgvis = {
 						}		
 					} else {
 					
-						log("Spacetree is busy!");
+						//log("Spacetree is busy!");
 						setTimeout(function(){
 							$(label).click();
 						},100);
@@ -770,7 +770,7 @@ var Orgvis = {
 						//log("no more pages, passing data to regData");
 						//log(combinedJSON);
 						$("div#loading_reportingPosts_"+pageNumber).remove();					
-						Orgvis.notify("Success","Loaded reporting posts ("+(pageNumber)+")",false,"success_reportingPosts_"+(pageNumber-1));
+						Orgvis.notify("Success","Loaded reporting posts ("+(pageNumber)+")",false,"success_reportingPosts_"+(pageNumber));
 						Orgvis.regData(combinedJSON);
 					} else {
 						// Pass data to the regData function
@@ -1375,17 +1375,18 @@ var Orgvis = {
 	},
 	loadOrganogram:function(json) {
 							
-		//log("loading organogram");
+		log("loading organogram");
 									
 		// Search for the post in question
-		for(var i=0;i<json.result.items.length;i++){
+		var len = json.result.items.length;
+		for(var i=len;i--;){
 			if(Orgvis.vars.postInQuestion._about == json.result.items[i]._about){
 				Orgvis.vars.postInQuestion = json.result.items[i];
 			}
 		}
 		
-		//log('post in question:');
-		//log(Orgvis.vars.postInQuestion);
+		log('post in question:');
+		log(Orgvis.vars.postInQuestion);
 		
 		/*
 		 * Establish the first node of the organogram 
@@ -1396,22 +1397,24 @@ var Orgvis = {
 		
 		if(typeof _piq.reportsTo != 'undefined') {
 			for(var j=0;j<_piq.reportsTo.length;j++){
+				//log("_piq:");
+				//log(_piq);
 				if(typeof _piq.reportsTo[j].reportsTo != 'undefined' && _piq.reportsTo[j].label != 'undefined' && typeof _piq.reportsTo[j]._about != 'undefined'){
 					_piq = _piq.reportsTo[j];
 					j=j-1;
 				} else if(typeof _piq.reportsTo[j]._about != 'undefined') {
 					Orgvis.vars.firstNode = Orgvis.makeNode(_piq.reportsTo[j]);
-					//log('firstNode:');
+					//log('firstNode 1:');
 					//log(Orgvis.vars.firstNode);	
 				} else {
 					Orgvis.vars.firstNode = Orgvis.makeNode(_piq);								
-					//log('firstNode:');
+					//log('firstNode 2:');
 					//log(Orgvis.vars.firstNode);	
 				}
 			}
 		} else {
 			Orgvis.vars.firstNode = Orgvis.makeNode(_piq);
-			//log('firstNode:');
+			//log('firstNode 3:');
 			//log(Orgvis.vars.firstNode);						
 		}
 		
@@ -1463,20 +1466,16 @@ var Orgvis = {
 		
 		var t = 0;
 		var c = Orgvis.vars.postInQuestionReportsTo.length;
-		log("start c = "+c);
+		//log("start c = "+c);
 		
 		setTimeout(function(){
-			log("Aligning node...");
 			t = setInterval(function(){
-				log("Interval...c = "+c);
-				log("Orgvis.vars.ST.busy = "+Orgvis.vars.ST.busy);
 				if(c == 1){
 					if(!Orgvis.vars.ST.busy){
 						clearInterval(t);
 						Orgvis.vars.ST.onClick($("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1]).attr("id"));
 						$("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1]).click();
 						$("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1]).css("background-color","#FFFFFF");
-						//Orgvis.hideLog();
 						$("div#"+"aligning").remove();
 						Orgvis.vars.ST_move = false;
 						//log("Orgvis.vars.ST_move:"+Orgvis.vars.ST_move);
@@ -1853,8 +1852,8 @@ var Orgvis = {
 		
 		var items = json.result.items;		
 		
-		var fNodeID = Orgvis.getSlug(Orgvis.vars.firstNode.data.uri);
-		Orgvis.vars.postList[fNodeID] = Orgvis.vars.firstNode;
+		//var fNodeID = Orgvis.getSlug(Orgvis.vars.firstNode.data.uri);
+		//Orgvis.vars.postList[fNodeID] = Orgvis.vars.firstNode;
 		// Push an empty Junior Posts node to the first node.
 		// Orgvis.vars.postList[fNodeID].children.push(Orgvis.makeNoJuniorPostNode());
 		
@@ -1873,6 +1872,18 @@ var Orgvis = {
 			}
 		}
 		
+		var fNodeID = Orgvis.getSlug(Orgvis.vars.firstNode.data.uri);
+		
+		log("Orgvis.vars.firstNode");
+		log(Orgvis.vars.firstNode);
+		log("Orgvis.vars.postList[Orgvis.vars.postID]");
+		log(Orgvis.vars.postList[Orgvis.vars.postID]);
+		log("postID:"+postID);
+		
+		if(typeof Orgvis.vars.postList[Orgvis.vars.postID] == 'undefined'){			
+			Orgvis.vars.postList[Orgvis.vars.postID] = Orgvis.vars.firstNode;		
+		}
+		
 		//log("postList:");
 		//log(Orgvis.vars.postList);	
 	},	
@@ -1886,14 +1897,14 @@ var Orgvis = {
 		for(var i in postList) {
 			
 			// Find the reportsTo values for each post
-			log("postList["+i+"]:");
-			log(postList[i]);
-			log("postList["+i+"].data:");
-			log(postList[i].data);			
+			//log("postList["+i+"]:");
+			//log(postList[i]);
+			//log("postList["+i+"].data:");
+			//log(postList[i].data);			
 			
 			if(typeof postList[i].data.reportsTo != 'undefined' && postList[i].data.reportsTo.length > 0 && postList[i].data.reportsTo != 'error') {
-				log("postList["+i+"] reports to:");
-				log(postList[i].data.reportsTo[0]);
+				//log("postList["+i+"] reports to:");
+				//log(postList[i].data.reportsTo[0]);
 				var postID = Orgvis.getSlug(postList[i].data.reportsTo[0]);
 				// Use the postID slug from the reportsTo value as a pointer in the associative array
 				// to connect the post to it's parent. 
@@ -1972,13 +1983,13 @@ var Orgvis = {
 			}			
 			if(typeof items[i].inUnit != 'undefined'){
 			
-				log(items[i].inUnit);
+				//log(items[i].inUnit);
 				
 				if(items[i].inUnit instanceof Array){
 					items[i].inUnit = items[i].inUnit[items[i].inUnit.length-1];
 				}
 				
-				log(items[i].inUnit);
+				//log(items[i].inUnit);
 				
 				uSlug = Orgvis.getSlug(items[i].inUnit._about);
 				
@@ -2044,7 +2055,7 @@ var Orgvis = {
 				
 					for(var j in postChildren){
 						if(postChildren[j].name == "No Junior Posts"){
-							log("Removing node: "+postChildren[j].name);
+							//log("Removing node: "+postChildren[j].name);
 							postChildren.splice(j,1);
 						}
 					}					
@@ -2055,7 +2066,7 @@ var Orgvis = {
 						//log("searching postChildren for JPNode:");
 						//log(postChildren[m]);
 						if(postChildren[m].name == "Junior Posts"){
-							log("Post already has Junior Post connected");
+							//log("Post already has Junior Post connected");
 							addJPNode = false;
 						}
 					}
