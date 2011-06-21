@@ -590,7 +590,13 @@ var Orgvis = {
 								break;
 						}		
 					} else {
+					
 						log("Spacetree is busy!");
+						setTimeout(function(){
+							$(label).click();
+						},100);
+						
+						/*
 						Orgvis.vars.busyCount++;
 						if(!$.browser.msie){
 							if(Orgvis.vars.busyCount>1){
@@ -603,6 +609,8 @@ var Orgvis = {
 								Orgvis.vars.busyCount = 0;
 							}						
 						}
+						*/
+						
 					} // end if ST.busy
 				};  // end label.onClick
 				
@@ -1455,9 +1463,13 @@ var Orgvis = {
 		
 		var t = 0;
 		var c = Orgvis.vars.postInQuestionReportsTo.length;
-		//log("start c="+c);
-		setTimeout(function(){	
+		log("start c = "+c);
+		
+		setTimeout(function(){
+			log("Aligning node...");
 			t = setInterval(function(){
+				log("Interval...c = "+c);
+				log("Orgvis.vars.ST.busy = "+Orgvis.vars.ST.busy);
 				if(c == 1){
 					if(!Orgvis.vars.ST.busy){
 						clearInterval(t);
@@ -1471,14 +1483,15 @@ var Orgvis = {
 						
 						return false;
 					}
-					
 				} else {
 					if(!Orgvis.vars.ST.busy){
 						Orgvis.vars.ST.onClick($("div.post_"+Orgvis.vars.postInQuestionReportsTo[c-1]).attr("id"));
 						c--;
 					}
-				}				
+				}
+						
 			},250);
+			
 		},500);	
 		//end
 
