@@ -55,7 +55,7 @@ var Orgvis = {
 		autoalign:true,			// automatically center the organogram onclick
 		canvasPanned:false,		// Controls repositioning when the canvas has been moved
 		reOpen:false,			//
-		visOffsetX:180,			// horizontal positioning
+		visOffsetX:250,			// horizontal positioning
 		visOffsetY:0,			// vertical positioning
 		JPcount:0,			// Junior post count
 		transX: 0, 			// Canvas translateOffsetX value
@@ -2814,7 +2814,9 @@ function log(info){
 }
 
 $(document).ready(function() {
-	
+
+	(window.location != window.parent.location) ? Orgvis.vars.visOffsetX = 250 : Orgvis.vars.visOffsetX = 80;
+			
 	$("#infobox").hide();
 	$("#infovis").width($(window).width()+150);
 	$("#infovis").height($(window).height()-30);	
