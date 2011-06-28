@@ -28,13 +28,12 @@ t:api
 ##	api:base "http://environment.data.gov.uk/";
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
-##  api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
+    api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
 ##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
-	api:sparqlEndpoint <http://10.254.65.24/environment/sparql>;
+##	api:sparqlEndpoint <http://10.254.65.24/environment/sparql>;
 	api:defaultFormatter t:HtmlFormatter ;
 	api:formatter t:CsvFormatter ;
 	api:endpoint
-#		t:scheme ,
 		t:scheme-bw ,
 		t:scheme-bwq ,
 		t:definition-bw ,
@@ -74,7 +73,8 @@ t:api
 		t:complianceByYearSlices,
 		t:complianceByYearSlice,
 		t:complianceByPointSlices,
-		t:complianceByPointSlice;
+		t:complianceByPointSlice,
+		t:latestInSeasonSlice;
 	.
 
 #FORMATTERS
@@ -99,9 +99,7 @@ t:CsvFormatter
 ##############################################################################################
 t:scheme-bw
   a api:ItemEndpoint ;
-#  api:uriTemplate "/def/{scheme}" ;
   api:uriTemplate "/def/bathing-water" ;
-#  api:itemTemplate "http://environment.data.gov.uk/def/{scheme}" ;
   api:itemTemplate "http://environment.data.gov.uk/def/bathing-water" ;
 #  api:defaultViewer t:schemeViewer ;
   api:defaultViewer	api:describeViewer;
@@ -109,9 +107,7 @@ t:scheme-bw
 
 t:scheme-bwq
   a api:ItemEndpoint ;
-#  api:uriTemplate "/def/{scheme}" ;
   api:uriTemplate "/def/bathing-water-quality" ;
-#  api:itemTemplate "http://environment.data.gov.uk/def/{scheme}" ;
   api:itemTemplate "http://environment.data.gov.uk/def/bathing-water-quality" ;
 #  api:defaultViewer t:schemeViewer ;
   api:defaultViewer	api:describeViewer;
@@ -208,7 +204,7 @@ t:properties-bw
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where " [] a ?class ; ?item [] . " ;
+    api:where "[] a ?class ; ?item [] . " ;
   ] ;
   api:defaultViewer t:definitionViewer ;
   .
@@ -222,7 +218,7 @@ t:properties-bwq
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where " [] a ?class ; ?item [] . " ;
+    api:where "[] a ?class ; ?item [] . " ;
   ] ;
   api:defaultViewer t:definitionViewer ;
   .
@@ -651,6 +647,15 @@ t:sliceByPointItemViewer
 	api:name	"slice-by-point";
 	api:properties	"name,label,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,observation.sampleWeek.label";
 	.
+	
+t:latestInSeasonSlice
+	a	api:ItemEndpoint;
+	api:viewer			api:describeViewer, api:labelledDescribeViewer, api:basicViewer;
+	api:uriTemplate		"/data/bathing-water-quality/in-season/slice/latest";
+	api:itemTemplate	"http://environment.data.gov.uk/data/bathing-water-quality/in-season/slice/latest";
+	api:defaultViewer	api:labelledDescribeViewer;
+	.
+	
 
 ##############################################################################################
 ## Annual Compliance Samples
