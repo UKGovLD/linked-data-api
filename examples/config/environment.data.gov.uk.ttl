@@ -21,6 +21,12 @@
 @prefix ef_def:           <http://location.data.gov.uk/def/ef/SamplingPoint/> .
 @prefix dct:			  <http://purl.org/dc/terms/> .
 @prefix t:                <http://environment.data.gov.uk/api#> .
+##
+## Epimorphics LDA extensions vocabulary
+##
+@prefix elda:			  <http://www.epimorphics.com/vocabularies/lda#> .
+
+<http://environment.data.gov.uk/sparql/bwq/query> elda:supportsNestedSelect true . 
 
 t:api
 	a api:API ;
@@ -28,10 +34,29 @@ t:api
 ##	api:base "http://environment.data.gov.uk/";
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
-    api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
+##  api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
 ##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
-##	api:sparqlEndpoint <http://10.254.65.24/environment/sparql>;
+	api:sparqlEndpoint <http://environment.data.gov.uk/sparql/bwq/query> ;
+##	api:sparqlEndpoint <tdb:>;
+##
+##
+	api:variable [ api:name "_strip_has"; api:value "yes" ];
+	api:variable [ api:name "_suppress_ipto"; api:value "yes" ];
+##
+##
 	api:defaultFormatter t:HtmlFormatter ;
+#	api:variable [ api:name "activeImageBase"; api:value "/images/green/16x16" ];
+#	api:variable [ api:name "inactiveImageBase"; api:value "/images/grey/16x16" ];
+
+	api:variable [ api:name "visibleSparqlEndpoint"; api:value "http://environment.data.gov.uk/sparql/bwq/query" ];
+	api:variable [ api:name "visibleSparqlForm"; api:value "http://environment.data.gov.uk/lab/sparql.html" ];
+
+##	api:variable [ api:name "visibleSparqlEndpoint"; api:value "http://gov.tso.co.uk/environment/sparql" ];
+##	api:variable [ api:name "visibleSparqlForm"; api:value "http://openuplabs.tso.co.uk/sparql/gov-environment" ];
+
+#  Optional base URI for referencing XSLT/HTML stylesheet resources.
+#	api:variable [ api:name "_resourceRoot"; api:value "/" ];
+
 	api:formatter t:CsvFormatter ;
 	api:endpoint
 		t:scheme-bw ,
@@ -82,13 +107,22 @@ t:api
 t:HtmlFormatter
   a api:XsltFormatter ;
   api:name "html" ;
-  api:mimeType "text/html" , "application/xhtml+xml" ;
+  api:mimeType "text/html";
+# , "application/xhtml+xml" ;
+##
+## elda special
+## 
+  elda:metadataOptions "bindings,versions,execution,formats";
   api:stylesheet "xslt/environment.xsl" .
 
 t:CsvFormatter
   a api:XsltFormatter ;
   api:name "csv" ;
   api:mimeType "text/csv" ;
+##
+## elda special
+## 
+  elda:metadataOptions "bindings,versions,execution,formats";  
   api:stylesheet "xslt/environment-csv.xsl" .
 
 # Viewers #
@@ -101,7 +135,7 @@ t:scheme-bw
   a api:ItemEndpoint ;
   api:uriTemplate "/def/bathing-water" ;
   api:itemTemplate "http://environment.data.gov.uk/def/bathing-water" ;
-#  api:defaultViewer t:schemeViewer ;
+  api:viewer t:schemeViewer, api:describeViewer;
   api:defaultViewer	api:describeViewer;
   .
 
@@ -109,7 +143,7 @@ t:scheme-bwq
   a api:ItemEndpoint ;
   api:uriTemplate "/def/bathing-water-quality" ;
   api:itemTemplate "http://environment.data.gov.uk/def/bathing-water-quality" ;
-#  api:defaultViewer t:schemeViewer ;
+  api:viewer t:schemeViewer, api:describeViewer;
   api:defaultViewer	api:describeViewer;
   .
 
@@ -123,6 +157,7 @@ t:definition-bw
   a api:ItemEndpoint ;
   api:uriTemplate "/def/bathing-water/{term}" ;
   api:itemTemplate "http://environment.data.gov.uk/def/bathing-water/{term}" ;
+  api:viewer t:definitionViewer, api:describeViewer;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -130,6 +165,7 @@ t:definition-bwq
   a api:ItemEndpoint ;
   api:uriTemplate "/def/bathing-water-quality/{term}" ;
   api:itemTemplate "http://environment.data.gov.uk/def/bathing-water-quality/{term}" ;
+  api:viewer t:definitionViewer, api:describeViewer;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -149,7 +185,9 @@ t:subclasses-bw
   ] ;
   api:selector [
     api:where " ?item rdfs:subClassOf ?superclass . " ;
+    api:orderBy "STR(?item)";
   ] ;
+  api:viewer t:definitionViewer, api:describeViewer;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -163,7 +201,9 @@ t:subclasses-bwq
   ] ;
   api:selector [
     api:where " ?item rdfs:subClassOf ?superclass . " ;
+    api:orderBy "STR(?item)";
   ] ;
+  api:viewer t:definitionViewer, api:describeViewer;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -177,7 +217,9 @@ t:instances-bw
   ] ;
   api:selector [
     api:where " ?item a ?class . " ;
+    api:orderBy "STR(?item)";
   ] ;
+  api:viewer t:definitionViewer, api:describeViewer;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -191,7 +233,9 @@ t:instances-bwq
   ] ;
   api:selector [
     api:where " ?item a ?class . " ;
+    api:orderBy "STR(?item)";
   ] ;
+  api:viewer t:definitionViewer, api:describeViewer;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -204,8 +248,17 @@ t:properties-bw
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "[] a ?class ; ?item [] . " ;
+#
+# use a subquery to bound the number of instances examined - SPARQL 1.1 dependency
+#
+    api:where "{ select ?thing where { ?thing a ?class } limit 1000} ?thing ?item []." ;
+#
+# unbounded class probe performs very badly with large instance populations.
+#
+#    api:where " [] a ?class ; ?item [] . " ;
+    api:orderBy "STR(?item)";
   ] ;
+  api:viewer t:definitionViewer, api:describeViewer;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -218,8 +271,17 @@ t:properties-bwq
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where "[] a ?class ; ?item [] . " ;
+#
+# use a subquery to bound the number of instances examined - SPARQL 1.1 dependency
+#
+    api:where "{ select ?thing where { ?thing a ?class } limit 1000} ?thing ?item []." ;
+#
+# unbounded class probe performs very badly with large instance populations.
+#
+#   api:where " [] a ?class ; ?item [] . " ;
+    api:orderBy "STR(?item)";
   ] ;
+  api:viewer t:definitionViewer, api:describeViewer;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -231,8 +293,7 @@ t:bathingWaters
   api:uriTemplate 		"/doc/bathing-water" ;
   api:exampleRequestPath 	"/doc/bathing-water" ;
   api:viewer
-  	t:bathingWaterViewer,
-	api:describeViewer;
+  	t:bathingWaterViewer, api:describeViewer;
   api:selector [
     api:filter "type=BathingWater" ;
     api:sort   "samplingPoint.samplePointNotation";
@@ -262,6 +323,7 @@ t:inSeasonAssessments
   a	api:ListEndpoint;
   api:uriTemplate				"/doc/bathing-water-quality/in-season/sample" ;
   api:exampleRequestPath		"/doc/bathing-water-quality/in-season/sample" ;
+  api:maxPageSize "1000";
   api:viewer
 	t:inSeasonAssessmentViewer,
 	t:inSeasonAssessmentValuesViewer,
@@ -333,6 +395,7 @@ t:inSeasonAssessmentsBySamplePoint
   a	api:ListEndpoint;
   api:uriTemplate			    "/doc/bathing-water-quality/in-season/point/{bwspid}" ;
   api:exampleRequestPath		"/doc/bathing-water-quality/in-season/point/03600" ;
+  api:maxPageSize "1000";
   api:viewer
 	t:inSeasonAssessmentViewer,
 	t:inSeasonAssessmentValuesViewer,
@@ -347,8 +410,8 @@ t:inSeasonAssessmentsBySamplePoint
     api:filter "bwq_samplingPoint.samplePointNotation={bwspid}&type=SampleAssessment";
     api:sort "sampleDateTime.inXSDDateTime";
   ] ;
-#  api:defaultViewer	api:describeViewer;
-  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
+  api:defaultViewer	api:describeViewer;
+#  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
   .
 ##############################################################################################
 ## In-Season Samples by Bathing Water
@@ -357,6 +420,7 @@ t:inSeasonAssessmentsByBathingWater
   a	api:ListEndpoint;
   api:uriTemplate			    "/doc/bathing-water-quality/in-season/bathing-water/{eubwid}" ;
   api:exampleRequestPath		"/doc/bathing-water-quality/in-season/bathing-water/ukc2102-03600" ;
+  api:maxPageSize "1000";
   api:viewer
 	t:inSeasonAssessmentViewer,
 	t:inSeasonAssessmentValuesViewer,
@@ -371,8 +435,8 @@ t:inSeasonAssessmentsByBathingWater
     api:filter "bwq_bathingWater.eubwidNotation={eubwid}&type=SampleAssessment";
     api:sort "sampleDateTime.inXSDDateTime";
   ] ;
-#  api:defaultViewer	api:describeViewer;
-  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
+  api:defaultViewer	api:describeViewer;
+#  api:defaultViewer	t:inSeasonAssessmentValuesViewer;
   .
 
 ##############################################################################################
@@ -382,7 +446,8 @@ t:latestInSeasonAssessments
   a	api:ListEndpoint;
   api:uriTemplate			    "/doc/bathing-water-quality/in-season/latest" ;
   api:exampleRequestPath		"/doc/bathing-water-quality/in-season/latest" ;
-  api:defaultPageSize			"10";
+  api:defaultPageSize			"50";
+  api:maxPageSize				"50";
   api:viewer
 	t:inSeasonAssessmentViewer,
 	t:inSeasonAssessmentValuesViewer,
@@ -459,37 +524,37 @@ t:latestInSeasonAssessmentByBathingWater
 t:inSeasonAssessmentViewer
 	a				api:Viewer;
 	api:name		"location";
-	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.complianceCodeNotation,sampleClassification.name,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,entrovirusQualifier.countQualifierNotation,entrovirusCount,salmonellaPresent.name,salmonellaPresent.presenceNotation,abnormalWeatherException" .
+	api:properties	"label,source,dataset,bwq_samplingPoint.samplePointNotation,bwq_samplingPoint.name,bwq_samplingPoint.easting,bwq_samplingPoint.northing,bwq_samplingPoint.lat,bwq_samplingPoint.long,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.complianceCodeNotation,sampleClassification.name,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,entrovirusQualifier.countQualifierNotation,entrovirusCount,salmonellaPresent.name,salmonellaPresent.presenceNotation,abnormalWeatherException" .
 	
 t:inSeasonAssessmentValuesViewer
 	a				api:Viewer;
 	api:name		"assessment";
-	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.complianceCodeNotation,sampleClassification.name,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,entrovirusQualifier.countQualifierNotation,entrovirusCount,salmonellaPresent.name,salmonellaPresent.presenceNotation,abnormalWeatherException" .
+	api:properties	"label,source,dataset,bwq_samplingPoint.samplePointNotation,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.complianceCodeNotation,sampleClassification.name,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,entrovirusQualifier.countQualifierNotation,entrovirusCount,salmonellaPresent.name,salmonellaPresent.presenceNotation,abnormalWeatherException" .
 	
 t:inSeasonClassificationViewer
 	a				api:Viewer;
 	api:name		"classification";
-	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.complianceCodeNotation,sampleClassification.name,abnormalWeatherException" .
+	api:properties	"label,source,dataset,bwq_samplingPoint.samplePointNotation,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,sampleClassification.complianceCodeNotation,sampleClassification.name,abnormalWeatherException" .
 	
 t:inSeasonColiformCountViewer
 	a				api:Viewer;
 	api:name		"coliforms";
-	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,abnormalWeatherException" .
+	api:properties	"label,source,dataset,bwq_samplingPoint.samplePointNotation,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,totalColiformQualifier.countQualifierNotation,totalColiformCount,faecalColiformQualifier.countQualifierNotation,faecalColiformCount,abnormalWeatherException" .
 
 t:inSeasonStreptococciCountViewer
 	a				api:Viewer;
 	api:name		"streptococci";
-	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,abnormalWeatherException" .
+	api:properties	"label,source,dataset,bwq_samplingPoint.samplePointNotation,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,faecalStreptococciQualifier.countQualifierNotation,faecalStreptococciCount,abnormalWeatherException" .
 	
 t:inSeasonEntrovirusCountViewer
 	a				api:Viewer;
 	api:name		"entrovirus";
-	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,entrovirusQualifier.countQualifierNotation,entrovirusCount,abnormalWeatherException" .
+	api:properties	"label,source,dataset,bwq_samplingPoint.samplePointNotation,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,entrovirusQualifier.countQualifierNotation,entrovirusCount,abnormalWeatherException" .
 
 t:inSeasonSalmonellaPresentViewer
 	a				api:Viewer;
 	api:name		"salmonella";
-	api:properties	"label,source,dataset,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,salmonellaPresent.name,salmonellaPresent.presenceNotation,abnormalWeatherException" .
+	api:properties	"label,source,dataset,bwq_samplingPoint.samplePointNotation,bwq_samplingPoint.name,bwq_bathingWater.name,sampleDateTime.inXSDDateTime,sampleWeek.label,salmonellaPresent.name,salmonellaPresent.presenceNotation,abnormalWeatherException" .
 
 ##############################################################################################
 ## In-season slices
@@ -559,7 +624,7 @@ t:inSeasonByYearSlice
 #  api:defaultViewer 		t:sliceByYearItemViewer;
   api:defaultViewer api:describeViewer; 
   .
-  
+    
 t:sliceByYearListViewer
 	a			api:Viewer;
 	api:name	"slice-by-year";
