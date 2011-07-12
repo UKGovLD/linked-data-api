@@ -20,18 +20,40 @@
 @prefix bw_def:           <http://environment.data.gov.uk/def/bathing-water/> .
 @prefix ef_def:           <http://location.data.gov.uk/def/ef/SamplingPoint/> .
 @prefix t:                <http://location.data.gov.uk/api#> .
+##
+## Epimorphics LDA extensions vocabulary
+##
+@prefix elda:			  <http://www.epimorphics.com/vocabularies/lda#> .
+
+<http://environment.data.gov.uk/sparql/bwq/query> elda:supportsNestedSelect true . 
 
 t:api
 	a api:API ;
 	rdfs:label "Location (Bathing-Water Sampling Points)"@en ;
+##	api:base "http://location.data.gov.uk/";
+	
 
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
-	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
+##	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
 ##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
-##	api:sparqlEndpoint <http://10.254.65.24/environment/sparql>;
+	api:sparqlEndpoint <http://environment.data.gov.uk/sparql/bwq/query>;
+##
+	api:variable [ api:name "_strip_has"; api:value "yes" ];
+	api:variable [ api:name "_suppress_ipto"; api:value "yes" ];
+##
 	api:defaultFormatter t:HtmlFormatter ;
+	
+	api:variable [ api:name "visibleSparqlEndpoint"; api:value "http://environment.data.gov.uk/sparql/bwq/query" ];
+	api:variable [ api:name "visibleSparqlForm"; api:value "http://environment.data.gov.uk/lab/sparql.html" ];
+	
+##	api:variable [ api:name "visibleSparqlEndpoint"; api:value "http://gov.tso.co.uk/environment/sparql" ];
+##	api:variable [ api:name "visibleSparqlForm"; api:value "http://openuplabs.tso.co.uk/sparql/gov-environment" ];
+
+#  Optional base URI for referencing XSLT/HTML stylesheet resources.
+#	api:variable [ api:name "_resourceRoot"; api:value "/" ];
 	api:formatter t:CsvFormatter ;
+
 	api:endpoint
 		t:scheme ,
 		t:definition ,
@@ -39,24 +61,30 @@ t:api
 		t:instances , 
 		t:properties ,
 		t:samplingPoint,
-		t:samplingPoints,
-		t:samplingDocPoint,
-		t:samplingDocPoints;
+		t:samplingPoints;
 	.
-
 
 #FORMATTERS
 
 t:HtmlFormatter
   a api:XsltFormatter ;
   api:name "html" ;
-  api:mimeType "text/html" , "application/xhtml+xml" ;
+  api:mimeType "text/html";
+# , "application/xhtml+xml" ;
+##
+## elda special
+## 
+  elda:metadataOptions "bindings,versions,execution,formats";
   api:stylesheet "xslt/location.xsl" .
 
 t:CsvFormatter
   a api:XsltFormatter ;
   api:name "csv" ;
   api:mimeType "text/csv" ;
+##
+## elda special
+## 
+  elda:metadataOptions "bindings,versions,execution,formats";
   api:stylesheet "xslt/location-csv.xsl" .
 
 # Viewers #
@@ -102,6 +130,7 @@ t:subclasses
   ] ;
   api:selector [
     api:where " ?item rdfs:subClassOf ?superclass . " ;
+    api:orderBy "STR(?item)";
   ] ;
   api:defaultViewer t:definitionViewer ;
   .
@@ -116,6 +145,7 @@ t:instances
   ] ;
   api:selector [
     api:where " ?item a ?class . " ;
+    api:orderBy "STR(?item)";
   ] ;
   api:defaultViewer t:definitionViewer ;
   .
@@ -129,7 +159,15 @@ t:properties
     api:type rdfs:Resource ;
   ] ;
   api:selector [
-    api:where " [] a ?class ; ?item [] . " ;
+#
+# use a subquery to bound the number of instances examined - SPARQL 1.1 dependency
+#
+    api:where "{ select ?thing where { ?thing a ?class } limit 1000} ?thing ?item []." ;
+#
+# unbounded class probe performs very badly with large instance populations.
+#
+#   api:where " [] a ?class ; ?item [] . " ;
+    api:orderBy "STR(?item)";
   ] ;
   api:defaultViewer t:definitionViewer ;
   .
@@ -141,11 +179,11 @@ t:samplingPoints
   a api:ListEndpoint ;
   api:maxPageSize "100";
   api:viewer	t:samplingPointViewer,api:describeViewer;
-  api:uriTemplate 			"/doc/ef/SamplingPoint/bwsp.eaew/" ;
-  api:exampleRequestPath 	"/doc/ef/SamplingPoint/bwsp.eaew/" ;
+  api:uriTemplate 			"/doc/ef/SamplingPoint/bwsp.eaew" ;
+  api:exampleRequestPath 	"/doc/ef/SamplingPoint/bwsp.eaew" ;
   api:selector [
     api:filter "type=SamplingPoint";
-    api:sort   "northing,easting";
+    api:sort   "samplePointNotation";
   ] ;
   api:defaultViewer t:samplingPointViewer .
 
