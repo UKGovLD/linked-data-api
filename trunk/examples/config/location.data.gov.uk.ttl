@@ -7,10 +7,12 @@
 @prefix api:              <http://purl.org/linked-data/api/vocab#> .
 @prefix skos:             <http://www.w3.org/2004/02/skos/core#> .
 @prefix geo:              <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix geometry:		  <http://data.ordnancesurvey.co.uk/ontology/geometry/> .
 @prefix spatialrelations: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
 @prefix admingeo:         <http://statistics.data.gov.uk/def/administrative-geography/> .
 @prefix qb:               <http://purl.org/linked-data/cube#> .
 @prefix time:             <http://www.w3.org/2006/time#> .
+@prefix dct:			  <http://purl.org/dc/terms/> .
 @prefix interval:         <http://reference.data.gov.uk/def/intervals/> .
 @prefix dgu:              <http://reference.data.gov.uk/def/reference/> .
 @prefix bw:               <http://environment.data.gov.uk/id/bathing-water/> .
@@ -18,26 +20,33 @@
 @prefix bwq:  	          <http://environment.data.gov.uk/def/bathing-water-quality/> .
 @prefix bwq-iss:          <http://environment.data.gov.uk/data/bathing-water-quality/in-season/slice/> .
 @prefix bw_def:           <http://environment.data.gov.uk/def/bathing-water/> .
-@prefix ef_def:           <http://location.data.gov.uk/def/ef/SamplingPoint/> .
+@prefix sp_def:           <http://location.data.gov.uk/def/ef/SamplingPoint/> .
+@prefix zoi_def:          <http://location.data.gov.uk/def/ef/ZoneOfInfluence/> .
+@prefix dgu:			  <http://http://reference.data.gov.uk/def/reference/>	.
+
 @prefix t:                <http://location.data.gov.uk/api#> .
 ##
 ## Epimorphics LDA extensions vocabulary
 ##
 @prefix elda:			  <http://www.epimorphics.com/vocabularies/lda#> .
 
-<http://environment.data.gov.uk/sparql/bwq/query> elda:supportsNestedSelect true . 
+<http://localhost:3030/bwq/query> elda:supportsNestedSelect true . 
 
 t:api
 	a api:API ;
-	rdfs:label "Location (Bathing-Water Sampling Points)"@en ;
+	rdfs:label "Location (Bathing-Water Sampling Points and Zones of Influence)"@en ;
+##	api:base	"/";
 ##	api:base "http://location.data.gov.uk/";
 	
 
 	api:maxPageSize "100";
 	api:defaultPageSize "10" ;
+	api:lang	"en";
 ##	api:sparqlEndpoint <http://services.data.gov.uk/environment/sparql> ;
 ##	api:sparqlEndpoint <http://gov.tso.co.uk/environment/sparql> ;
 	api:sparqlEndpoint <http://environment.data.gov.uk/sparql/bwq/query>;
+##	api:sparqlEndpoint <http://localhost:3030/bwq/query>;
+##	api:sparqlEndpoint <tdb:>;
 ##
 	api:variable [ api:name "_strip_has"; api:value "yes" ];
 	api:variable [ api:name "_suppress_ipto"; api:value "yes" ];
@@ -56,12 +65,17 @@ t:api
 
 	api:endpoint
 		t:scheme ,
+		t:scheme-ns,
+		t:scheme-ef,
 		t:definition ,
 		t:subclasses , 
 		t:instances , 
 		t:properties ,
 		t:samplingPoint,
-		t:samplingPoints;
+		t:samplingPoints,
+		t:zonesOfInfluence,
+		t:zoneOfInfluence,
+		t:zoneOfInfluenceExtent;
 	.
 
 #FORMATTERS
@@ -94,11 +108,35 @@ t:CsvFormatter
 ## Definitions
 ##############################################################################################
 t:scheme
+  a api:ListEndpoint ;
+  api:viewer	api:describeViewer, t:definitionViewer;
+  api:uriTemplate "/def/ef/{featureType}";
+  api:variable [ api:name "vocab";
+                 api:value "http://location.data.gov.uk/def/ef/{featureType}";
+   ];
+  api:selector [
+  	api:where "{?item a owl:Ontology} UNION {?item a rdfs:Property} UNION {?item a rdf:Class} UNION {?item a rdfs:Datatype } UNION {?item a owl:Class} UNION {?item a owl:Restriction} UNION {?item a owl:DatatypeProperty} UNION {?item a owl:ObjectProperty} UNION {?item a skos:Concept} UNION {?item a skos:ConceptScheme} FILTER (regex(STR(?item),?vocab))";
+  	api:orderBy	"str(?item)";
+  ] ;
+  api:defaultViewer	t:definitionViewer;
+  .
+
+t:scheme-ns
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/ef/SamplingPoint";
-  api:itemTemplate "http://location.data.gov.uk/def/ef/SamplingPoint" ;
-  api:defaultViewer	api:describeViewer;
-#  api:defaultViewer t:schemeViewer ;
+  api:viewer	api:describeViewer, t:schemeViewer;
+  api:uriTemplate "/def/ef/{featureType}/";
+  api:itemTemplate "http://location.data.gov.uk/def/ef/{featureType}/" ;
+  api:defaultViewer	t:schemeViewer;
+  .
+
+t:scheme-ef
+  a api:ListEndpoint ;
+  api:viewer	api:describeViewer, t:schemeViewer;
+  api:uriTemplate "/def/ef";
+  api:selector [
+  	api:where	"?item a owl:Ontology . FILTER (regex(STR(?item),'^http://location.data.gov.uk/def/ef/')) ";
+  ];
+  api:defaultViewer	t:schemeViewer;
   .
 
 t:schemeViewer
@@ -109,8 +147,8 @@ t:schemeViewer
 
 t:definition
   a api:ItemEndpoint ;
-  api:uriTemplate "/def/ef/SamplingPoint/{term}" ;
-  api:itemTemplate "http://location.data.gov.uk/def/ef/SamplingPoint/{term}" ;
+  api:uriTemplate "/def/ef/{featureType}/{term}" ;
+  api:itemTemplate "http://location.data.gov.uk/def/ef/{featureType}/{term}" ;
   api:defaultViewer t:definitionViewer ;
   .
 
@@ -122,10 +160,10 @@ t:definitionViewer
 
 t:subclasses
   a api:ListEndpoint ;
-  api:uriTemplate "/def/ef/SamplingPoint/{term}/subclass" ;
+  api:uriTemplate "/def/ef/{featureType}/{term}/subclass" ;
   api:variable [
     api:name "superclass" ;
-    api:value "http://location.data.gov.uk/def/SamplingPoint/{term}" ;
+    api:value "http://location.data.gov.uk/def/{featureType}/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -137,25 +175,25 @@ t:subclasses
 
 t:instances
   a api:ListEndpoint ;
-  api:uriTemplate "/def/ef/SamplingPoint/{term}/instance" ;
+  api:uriTemplate "/def/ef/{featureType}/{term}/instance" ;
   api:variable [
     api:name "class" ;
-    api:value "http://location.data.gov.uk/def/ef/SamplingPoint/{term}" ;
+    api:value "http://location.data.gov.uk/def/ef/{featureType}/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
     api:where " ?item a ?class . " ;
     api:orderBy "STR(?item)";
   ] ;
-  api:defaultViewer t:definitionViewer ;
+  api:defaultViewer api:describeViewer ;
   .
 
 t:properties
   a api:ListEndpoint ;
-  api:uriTemplate "/def/ef/SamplingPoint/{term}/property" ;
+  api:uriTemplate "/def/ef/{featureType}/{term}/property" ;
   api:variable [
     api:name "class" ;
-    api:value "http://location.data.gov.uk/def/ef/SamplingPoint/{term}" ;
+    api:value "http://location.data.gov.uk/def/ef/{featureType}/{term}" ;
     api:type rdfs:Resource ;
   ] ;
   api:selector [
@@ -169,7 +207,7 @@ t:properties
 #   api:where " [] a ?class ; ?item [] . " ;
     api:orderBy "STR(?item)";
   ] ;
-  api:defaultViewer t:definitionViewer ;
+  api:defaultViewer api:describeViewer ;
   .
 
 ##############################################################################################
@@ -197,9 +235,51 @@ t:samplingPoint
   
 t:samplingPointViewer
 	a	            api:Viewer;
-	api:name		"SamplingPoint";
-	api:properties	"name,samplePointNotation,lat,long,easting,northing,bathingWater.name" .
+	api:name		"sampling point";
+	api:properties	"name,samplePointNotation,uriSet,seeAlso,lat,long,easting,northing,bathingWater.name" .
+
+##############################################################################################
+## Zones  of influence
+##############################################################################################
+t:zonesOfInfluence
+  a api:ListEndpoint ;
+  api:maxPageSize "100";
+  api:viewer	t:zoneOfInfluenceViewer,api:describeViewer;
+  api:uriTemplate 			"/doc/ef/ZoneOfInfluence/bwzoi.eaew" ;
+  api:exampleRequestPath 	"/doc/ef/ZoneOfInfluence/bwzoi.eaew" ;
+  api:selector [
+    api:filter "type=ZoneOfInfluence";
+    api:sort   "zoiNotation";
+  ] ;
+  api:defaultViewer t:zoneOfInfluenceViewer .
+
+t:zoneOfInfluence
+  a api:ItemEndpoint ;
+  api:viewer				t:zoneOfInfluenceViewer,api:describeViewer;
+  api:uriTemplate 			"/doc/ef/ZoneOfInfluence/bwzoi.eaew/{eubwid}" ;
+  api:exampleRequestPath 	"/doc/ef/ZoneOfInfluence/bwzoi.eaew/ukc2102-03600:1" ;
+  api:itemTemplate 		    "http://location.data.gov.uk/so/ef/ZoneOfInfluence/bwzoi.eaew/{eubwid}" ;
+  api:defaultViewer 		t:zoneOfInfluenceViewer .
   
+  
+t:zoneOfInfluenceExtent
+  a api:ItemEndpoint ;
+  api:viewer	api:describeViewer;
+  api:uriTemplate 			"/doc/ef/ZoneOfInfluence/bwzoi.eaew/{eubwid}/extent" ;
+  api:exampleRequestPath 	"/doc/ef/ZoneOfInfluence/bwzoi.eaew/ukc2102-03600:1/extent" ;
+  api:itemTemplate 		    "http://location.data.gov.uk/so/ef/ZoneOfInfluence/bwzoi.eaew/{eubwid}/extent" ;
+  api:defaultViewer 		t:zoneOfInfluenceExtentViewer .
+
+t:zoneOfInfluenceViewer
+	a	            api:Viewer;
+	api:name		"zone of influence";
+	api:properties	"name,zoiNotation,uriSet,seeAlso,extent,bathingWater.name,bathingWater.samplingPoint.lat,bathingWater.samplingPoint.long,bathingWater.samplingPoint.easting,bathingWater.samplingPoint.northing" .
+	  
+t:zoneOfInfluenceExtentViewer
+	a	            api:Viewer;
+	api:name		"zone of influence extent";
+	api:properties	"type,asGML" .
+	
 ##############################################################################################
 ## Labels ##
 ##############################################################################################
@@ -236,6 +316,25 @@ skos:hasTopConcept api:label "topConcept" ; api:multiValued true .
 skos:broader 	api:label "broader" .
 skos:narrower 	api:label "narrower" ; api:multiValued true .
 skos:definition	api:label "definition" ; api:multiValued true .
+
+# DC Terms
+dct:source api:label "source" .
+dct:contributor	api:label   "contributor" .
+
+dct:isReplacedBy	api:label	"isReplacedBy" ;
+					a			owl:ObjectProperty .
+			
+dct:replaces		api:label	"replaces" ;
+					a			owl:ObjectProperty .
+
+
+dct:modified	api:label	"modified";
+				a			owl:DatatypeProperty;
+				rdfs:range	xsd:date . 
+				
+dct:created		api:label	"created";
+				a			owl:DatatypeProperty;
+				rdfs:range	xsd:date . 
 
 dgu:uriSet api:label "uriSet" .
 
@@ -277,65 +376,118 @@ admingeo:standardCode
   api:label "snac" ;
   rdfs:range admingeo:StandardCode .
 
-admingeo:LocalAuthority api:label "LocalAuthority" .
+admingeo:LocalAuthority 		api:label "LocalAuthority" .
 admingeo:LocalAuthorityDistrict api:label "LocalAuthorityDistrict" .
 
 admingeo:StandardCode a rdfs:Datatype .
 
 # Bathing Waters #
 
-bw_def:BathingWater	api:label	"BathingWater" .
-bw_def:bathingWater api:label   "bathingWater" .
+bw_def:BathingWater		api:label	"BathingWater"; 
+						a			owl:Class .
+					
+bw_def:bathingWater		api:label   "bathingWater" ;
+						rdfs:range	bw_def:BathingWater .
 
-ef_def:samplingPoint api:label  "samplingPoint" .
-ef_def:SamplingPoint api:label  "SamplingPoint" .
+sp_def:SamplingPoint	api:label  "SamplingPoint" ;
+						a			owl:Class .
+					 
+sp_def:samplingPoint	api:label  "samplingPoint";
+						rdfs:range	sp_def:SamplingPoint .
 
-ef_def:samplePointNotation a owl:DatatypeProperty;
-                           rdfs:range   ef_def:samplePointCode;
+sp_def:samplePointNotation rdfs:range   sp_def:samplePointCode;
                            api:label	"samplePointNotation" .
+
+
+zoi_def:ZoneOfInfluence		api:label	"ZoneOfInfluence" ;
+							a			owl:Class .
+							
+zoi_def:zoneOfInfluence		api:label	"zoneOfInfluence" ;
+							rdfs:range	zoi_def:ZoneOfInfluence .
+							
+zoi_def:zoiCode				a			rdfs:Datatype;
+							api:label	"zoiCode" .
+							
+zoi_def:zoiNotation			api:label	"zoiNotation";
+							rdfs:range	zoi_def:zoiCode .
+
+geometry:extent				api:label	"extent" ; 
+							rdfs:range  geometry:AbstractGeometry .
+							
+geometry:asGML				api:label	"asGML" ;
+							rdfs:range	rdf:XMLLiteral .                     
+
+bwq:SampleAssessment		api:label  "SampleAssessment" ; 
+					 		a			owl:Class .
+					 
+bwq:sampleDateTime	 		api:label  "sampleDateTime" ;
+					 		rdfs:range xsd:dateTime .
+					 
+bwq:sampleWeek	 	 		api:label  "sampleWeek" ;
+					 		rdfs:range	interval:Iso8601Week .
+					 
+bwq:sampleYear	 	 		api:label  "sampleYear" ;
+							rdfs:range	interval:CalendarYear .
+					 
+bwq:samplingPoint			api:label  "bwq_samplingPoint" ;
+							rdfs:range	sp_def:SamplingPoint  .
+					 
+bwq:bathingWater			api:label  "bwq_bathingWater" ;
+							rdfs:range	bw_def:BathingWater .
+
+bwq:sampleClassification	api:label "sampleClassification" ; 
+							rdfs:range  bwq:Compliance .
+
+bwq:complianceCodeNotation	a			owl:DatatypeProperty;
+							api:label	"complianceCodeNotation";
+							rdfs:range	bwq:complianceCode .
                            
+bwq:complianceCode 			api:label 	"complianceCode" ;
+				   			a 		 	rdfs:Datatype.
 
-bwq:SampleAssessment api:label  "SampleAssessment" .
-bwq:sampleDateTime	 api:label  "sampleDateTime" .
-bwq:sampleWeek	 	 api:label  "sampleWeek" .
-bwq:sampleYear	 	 api:label  "sampleYear" .
-bwq:samplingPoint    api:label  "bwq_samplingPoint" .
-bwq:bathingWater     api:label  "bwq_bathingWater" .
+bwq:totalColiformCount		api:label     "totalColiformCount" ;
+							rdfs:range	 xsd:integer .
+						   
+bwq:totalColiformQualifier	api:label 	"totalColiformQualifier" ;;
+							rdfs:range	bwq:CountQualifier . 
+							
+bwq:faecalColiformCount 	api:label 	"faecalColiformCount" ;
+							rdfs:range	xsd:integer .
+							
+bwq:faecalColiformQualifier api:label 	"faecalColiformQualifier" ;
+							rdfs:range	bwq:CountQualifier .
 
-bwq:sampleClassification api:label "sampleClassification" .
+bwq:faecalStreptococciCount api:label 	"faecalStreptococciCount" ;
+							rdfs:range	xsd:integer .
+							
+bwq:faecalStreptococciQualifier 
+							api:label 	"faecalStreptococciQualifier" ;
+							rdfs:range	bwq:CountQualifier .
 
-bwq:complianceCodeNotation a			owl:DatatypeProperty;
-                           api:label	"complianceCodeNotation";
-                           rdfs:range	bwq:complianceCode .
-                           
-bwq:complianceCode api:label "complianceCode" .
+bwq:entrovirusCount 		api:label 	"entrovirusCount" ;
+							rdfs:range	xsd:integer .
 
-bwq:totalColiformCount     api:label     "totalColiformCount" .
-bwq:totalColiformQualifier api:label "totalColiformQualifier" .
+bwq:entrovirusQualifier 	api:label 	"entrovirusQualifier" ;
+							rdfs:range	bwq:CountQualifier .
 
-bwq:faecalColiformCount 		api:label "faecalColiformCount" .
-bwq:faecalColiformQualifier 	api:label "faecalColiformQualifier" .
+bwq:salmonellaPresent		api:label	"salmonellaPresent" ;
+							rdfs:range	xsd:boolean .
 
-bwq:faecalStreptococciCount 	api:label "faecalStreptococciCount" .
-bwq:faecalStreptococciQualifier api:label "faecalStreptococciQualifier" .
-
-bwq:entrovirusCount 			api:label "entrovirusCount" .
-bwq:entrovirusQualifier 		api:label "entrovirusQualifier" .
-
-bwq:salmonellaPresent			api:label	"salmonellaPresent" .
-bwq:presenceNotation			a			owl:DatatypeProperty;
-								api:label	"presenceNotation";
-								rdfs:range	bwq:presenceCode .
+bwq:presenceNotation		a			owl:DatatypeProperty;
+							api:label	"presenceNotation";
+							rdfs:range	bwq:presenceCode .
 								
-bwq:abnormalWeatherException	api:label	"abnormalWeatherException" .
+bwq:abnormalWeatherException
+							api:label	"abnormalWeatherException" ;
+							rdfs:range	xsd:boolean .
 
-rdf:value api:label "value" ;
-  rdfs:range xsd:integer .
   
-time:inXSDDateTime				api:label	"inXSDDateTime" .
+time:inXSDDateTime			api:label	"inXSDDateTime" ;
+							rdfs:range	xsd:dateTime .
 
-interval:ordinalYear			a			owl:DatatypeProperty;
-								rdfs:range	xsd:integer;
-								api:label	"ordinalYear" .
-  
-  
+interval:ordinalYear		a			owl:DatatypeProperty;
+							rdfs:range	xsd:integer;
+							api:label	"ordinalYear" .
+
+dgu:uriSet					api:label  "uriSet" .
+rdfs:seeAlso				api:label  "seeAlso" .
