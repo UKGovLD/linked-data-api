@@ -287,7 +287,10 @@ t:zoneOfInfluenceExtentViewer
 
 rdf:Property api:label "Property" .
 
-rdf:type api:label "type" ; api:multiValued true .
+rdf:type    api:label       "type" ;
+            api:multiValued true;
+            rdfs:range     rdfs:Class .
+            
 rdf:value api:label "value" .
 
 rdfs:Class api:label "Class" .
