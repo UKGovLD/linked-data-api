@@ -1,37 +1,29 @@
-/******************************************************************
- * File:        EncoderDefault.java
- * Created by:  Dave Reynolds
- * Created on:  21 Dec 2009
- * 
- * (c) Copyright 2009, Epimorphics Limited
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * $Id:  $
- *****************************************************************/
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+
+    File:        EncoderDefault.java
+    Created by:  Dave Reynolds
+    Created on:  21 Dec 2009
+*/
 
 package com.epimorphics.jsonrdf.impl;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Iterator;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.openjena.atlas.json.JsonArray;
+import org.openjena.atlas.json.JsonBoolean;
+import org.openjena.atlas.json.JsonException;
+import org.openjena.atlas.json.JsonNumber;
+import org.openjena.atlas.json.JsonObject;
+import org.openjena.atlas.json.JsonString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.epimorphics.jsonrdf.Context;
 import com.epimorphics.jsonrdf.Decoder;
@@ -39,6 +31,7 @@ import com.epimorphics.jsonrdf.EncoderPlugin;
 import com.epimorphics.jsonrdf.EncodingException;
 import com.epimorphics.jsonrdf.JSONWriterFacade;
 import com.epimorphics.jsonrdf.RDFUtil;
+import com.epimorphics.jsonrdf.extras.JsonUtils;
 import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
@@ -60,8 +53,10 @@ import com.hp.hpl.jena.vocabulary.XSD;
  */
 public class EncoderDefault implements EncoderPlugin {
     
+    static Logger log = LoggerFactory.getLogger(EncoderDefault.class);
+    
     /** String used as the property name for identifying resources */
-    public String getPNResourceID() {
+    @Override public String getPNResourceID() {
 //        return "@";
         return "_about";
     }
@@ -70,7 +65,7 @@ public class EncoderDefault implements EncoderPlugin {
     public static final String Format = "linked-data-api"; 
     
     /** version number of format */
-    public static final String Version = "0.1"; 
+    public static final String Version = "0.2"; 
     
     /** property name for the format name property */    
     public static final String PNFormat = "format"; 
@@ -96,16 +91,19 @@ public class EncoderDefault implements EncoderPlugin {
     /** property name for the content/results property */    
     public static final String PNContent  = "results"; 
     
+    /** property name for the single-valued content/results property  */    
+    public static final String PNOneResult  = "result"; 
+    
     /** property name for the named graphs property */    
     public static final String PNgraphs  = "graphs"; 
     
     /** Encode a resource URI */
-    public String encodeResourceURI(String uri) {
+    @Override public String encodeResourceURI(String uri) {
         return uri;
     }
     
     /** Encode a resource URI, shortening it if possible */
-    public String encodeResourceURI(String uri, Context context, boolean shorten) {
+    @Override public String encodeResourceURI(String uri, Context context, boolean shorten) {
         if (shorten) {
             String name = context.getNameForURI(uri);
             if (name != null) return name;
@@ -121,7 +119,7 @@ public class EncoderDefault implements EncoderPlugin {
     }
     
     /** Decode a resource URI */
-    public String decodeResourceURI(String code, Context context) {
+    @Override public String decodeResourceURI(String code, Context context) {
         if (code.startsWith("<") && code.endsWith(">")) {
             String relUri = code.substring(1, code.length()-1);
             return context.getBase() + relUri;
@@ -132,42 +130,68 @@ public class EncoderDefault implements EncoderPlugin {
     }
     
     /** Encode a reference to a bNode via a mapped identifier number */
-    public String encodebNodeId(int id) {
+    @Override public String encodebNodeId(int id) {
         return "_:" + id;
     }
     
     /** Encode a literal as a JSON compatible object */
-    public Object encode(Literal lit) {
-        RDFDatatype dt = lit.getDatatype();
-        if (dt == null) {
-            String lex = escapeString(lit.getLexicalForm());
-            String lang = lit.getLanguage();
-            if (lang == null || lang.isEmpty()) {
-                return lex;
-            } else {
-                return lex + "@" + lang;
-            }
-        } else if (dt.equals( XSDDatatype.XSDstring) ) { 
-            return escapeString( lit.getLexicalForm() );
-        } else if (dt instanceof XSDBaseNumericType || dt.equals( XSDDatatype.XSDfloat) || dt.equals( XSDDatatype.XSDdouble)) {
-            // Basic numbers and floats
-            // I believe that JSON API handles BigInteger and BigDecimal OK
-            return lit.getValue();
-        } else if (dt.equals( XSDDatatype.XSDboolean)) {
-            return lit.getValue();
-        } else if (dt.equals( XSDDatatype.XSDdateTime) || dt.equals( XSDDatatype.XSDdate) ) {
-            return RDFUtil.formatDateTime(lit);
-        } else if (dt.equals( XSDDatatype.XSDanyURI)) {
-            return lit.getLexicalForm();
-        } else if (dt.getURI().startsWith(XSD.getURI())) {
-            return lit.getLexicalForm() + "^^xsd:" + dt.getURI().substring(XSD.getURI().length());
-        } else {
-            return lit.getLexicalForm() + "^^" + dt.getURI();
-        }
+    @Override public void encodeLiteral( JSONWriterFacade jw, boolean isStructured, Literal lit, Context c) {
+    	String spelling = lit.getLexicalForm(), lang = lit.getLanguage();
+    	RDFDatatype dt = lit.getDatatype();
+    	if (isStructured) {
+    		jw.object();
+    		jw.key("_value"); jw.value( spelling );
+    		if (dt != null) { jw.key( "_datatype" ); jw.value( shortName( c, dt ) ); }
+    		if (lang.length() > 0) { jw.key("_lang" ); jw.value( lang ); }
+    		jw.endObject();    		
+    	} else {
+			if (dt == null) {
+				encodeString( jw, spelling, lang );
+			} else if (dt.equals( XSDDatatype.XSDboolean)) {
+				jw.value( (boolean) ((Boolean) lit.getValue()) );
+			} else if (isFloatLike(dt)) {
+				jw.value( Double.parseDouble( spelling ) );
+			} else if (dt instanceof XSDBaseNumericType) {
+				jw.value( Long.parseLong( spelling ) );
+	        } else if (dt.equals( XSDDatatype.XSDdateTime) || dt.equals( XSDDatatype.XSDdate) ) {
+	        	jw.value( RDFUtil.formatDateTime( lit ) );
+	        } else if (dt.equals( XSDDatatype.XSDanyURI)) {
+	            jw.value( spelling );
+	        } else if (dt.equals( XSDDatatype.XSDstring) ) { 
+	            jw.value( spelling ); // ISSUE with escaping things -- hangover?
+			} else {
+				if (showUnhandled)
+					{
+					log.warn( "unhandled datatype '" + dt + "' in literal '" + spelling + "'" );
+					showUnhandled = false;
+					}
+				jw.value( spelling );
+			}
+    	}
+    }
+    
+    private boolean showUnhandled = true;
+
+	private String shortName( Context c, RDFDatatype dt) {
+		String sn = c.getNameForURI( dt.getURI() );
+		if (sn == null) throw new EncodingException( "could not find shortname for datatype " + dt.getURI() );
+		return sn;
+	}
+
+	private boolean isFloatLike(RDFDatatype dt) {
+		return dt.equals( XSDDatatype.XSDfloat) 
+			|| dt.equals( XSDDatatype.XSDdouble) 
+			|| dt.equals( XSDDatatype.XSDdecimal);
+	}
+
+	private void encodeString(JSONWriterFacade jw, String lex, String lang ) {
+        // WAS: jw.value( lang.isEmpty() ? lex : lex + "@" + lang );
+		// (suppressing language tags)
+		jw.value( lex );
     }
 
     /** Write the context object to a JSON stream */
-    public void writeContext(Context context, JSONWriterFacade jw) {
+    @Override public void writeContext(Context context, JSONWriterFacade jw) {
         jw.key(PNContext);
         jw.object();
         String base = context.getBase();
@@ -197,7 +221,7 @@ public class EncoderDefault implements EncoderPlugin {
      * Encode a string to protect characters used to encode types and lang tags.
      */
     public static String escapeString(String lex) {
-        return lex.replaceAll("([@\\^\\\\<])", "\\\\$1");
+        return lex; // TODO fix global issue lex.replaceAll("([@\\^\\\\<])", "\\\\$1");
     }
     
     /**
@@ -210,74 +234,77 @@ public class EncoderDefault implements EncoderPlugin {
     /**
      * Write the outer result wrapper.
      */
-    public void writeHeader(JSONWriterFacade jw)  {
+    @Override public void writeHeader(JSONWriterFacade jw)  {
         jw.object()
-        .key(PNFormat).value(Format)
-        .key(PNVersion).value(Version);
+        	.key(PNFormat).value(Format)
+        	.key(PNVersion).value(Version);
     }
     
     /**
      * Writer header for a results/model array object
      */
-    public void startResults(JSONWriterFacade jw)  {
-        jw.key(PNContent)
-            .array();
+    @Override public void startResults(JSONWriterFacade jw, boolean oneResult )  {
+        if (oneResult) jw.key(PNOneResult);
+        else jw.key(PNContent).array();
     }
+
+	@Override public void endResults(JSONWriterFacade jw, boolean oneResult ) {
+		if (!oneResult) jw.endArray();		
+	}
     
     /** Start a sub-section for outputing named graphs */
-    public void startNamedGraphs(JSONWriterFacade jw)  {
-        jw.key(PNgraphs);
-        jw.array();
+    @Override public void startNamedGraphs(JSONWriterFacade jw)  {
+        jw.key(PNgraphs).array();
     }
     
     /** Start a specific named graph */
-    public void startNamedGraph(JSONWriterFacade jw, String name)  {
+    @Override public void startNamedGraph(JSONWriterFacade jw, String name)  {
         jw.object();
         jw.key(getPNResourceID()).value(encodeResourceURI(name));
     }
     
     /** Finish a specific named graph */
-    public void finishNamedGraph(JSONWriterFacade jw)  {
+    @Override public void finishNamedGraph(JSONWriterFacade jw)  {
         jw.endObject();
     }
     
     /** Finish the entire second of named graphs, assumes last graph has been closed */
-    public void finishNamedGraphs(JSONWriterFacade jw)  {
+    @Override public void finishNamedGraphs(JSONWriterFacade jw)  {
         jw.endArray();
     }
     
     /** Return the array of encoded graphs from a top level JSON results set, or null if there is none */
-    public JSONArray getNamedGraphs(JSONObject jobj) throws JSONException {
-        return jobj.optJSONArray(PNgraphs);
+    @Override public JsonArray getNamedGraphs(JsonObject jobj) throws JsonException {
+        return JsonUtils.getArray(jobj, PNgraphs);
     }
     
     /** Return the name of a named graph */
-    public String getGraphName(JSONObject graph, Context context) throws JSONException {
-        return decodeResourceURI( graph.getString(getPNResourceID()), context );
+    @Override public String getGraphName(JsonObject graph, Context context) throws JsonException {
+        return decodeResourceURI( JsonUtils.getString(graph, getPNResourceID()), context );
     }
     
     /** Extract the context part of a deserialized JSON object  */
-    public Context getContext(JSONObject jObj) throws JSONException {
-        if (jObj.getString(PNFormat).equals(Format) &&
-                jObj.getString(PNVersion).equals(Version)) {
+    @Override public Context getContext(JsonObject jObj) throws JsonException {
+        String format = JsonUtils.getString(jObj, PNFormat);
+		String version = JsonUtils.getString(jObj, PNVersion);
+		if (format.equals(Format) && version.equals(Version)) {
             return getEmbeddedContext(jObj);
         } else {
-            throw new EncodingException("Format and version didn't match. Expecting: " + Format + " - " + Version);
+            throw new EncodingException("Format and version didn't match. Expecting: " + Format + " - " + Version + " but got " + format + " - " + version );
         }
     }
     
     /** Extract the context part of an embedded deserialized JSON object, no version checks  */
-    @SuppressWarnings("unchecked")
-    public Context getEmbeddedContext(JSONObject jObj) throws JSONException {
-        JSONObject cObj = jObj.getJSONObject(PNContext);
-        Context context = new Context(cObj.optString(PNbase));
-        JSONObject mapping = cObj.getJSONObject(PNMapping);
-        Iterator<String> keys = mapping.keys();
+	@Override public Context getEmbeddedContext(JsonObject jObj) throws JsonException {
+    	JsonObject cObj = jObj.get(PNContext).getAsObject();
+        Context context = new Context(JsonUtils.optString(cObj, PNbase, null));
+        JsonObject mapping = cObj.get(PNMapping).getAsObject();
+        Iterator<String> keys = mapping.keys().iterator();
         while (keys.hasNext()) {
             String key = keys.next();
-            JSONObject map = mapping.getJSONObject(key);
-            String uri = map.optString(PNuri);
-            String range = map.optString(PNrange);
+            JsonObject map = mapping.get(key).getAsObject();
+            String uri = JsonUtils.optString( map, PNuri, null );
+            String range = JsonUtils.optString( map, PNrange, null );
             if (range != null) {
                 Context.Prop prop = new Context.Prop(uri, key);
                 prop.setType(range);
@@ -290,16 +317,23 @@ public class EncoderDefault implements EncoderPlugin {
     }
     
     /** Extract the results part of a deserialized JSON object */
-    public JSONArray getResults(JSONObject jobj) throws JSONException {
-        return jobj.getJSONArray(PNContent);
+    @Override public JsonArray getResults(JsonObject jobj) throws JsonException {
+        return JsonUtils.getArray(jobj, PNContent);
     }
     
     /** Decode an RDF value (object of a statement) */
-    public RDFNode decodeValue(Object jsonValue, Decoder decoder, String type) {
+    @Override public RDFNode decodeValue(Object jsonValue, Decoder decoder, String type) {
         if (jsonValue instanceof Number) {
             return ResourceFactory.createTypedLiteral(jsonValue);
-        } if (jsonValue instanceof Boolean) {
+        } else if (jsonValue instanceof JsonBoolean) {
+        	JsonBoolean jb = (JsonBoolean) jsonValue;
+        	return ResourceFactory.createTypedLiteral( jb.value() );
+        } else if (jsonValue instanceof JsonNumber) {
+        	return decodeNumber( (JsonNumber) jsonValue );
+        } else if (jsonValue instanceof Boolean) {
             return ResourceFactory.createTypedLiteral(jsonValue);
+        } else if (jsonValue instanceof JsonString) {
+        	return decodeValue( ((JsonString) jsonValue).value(), decoder, type );
         } else if (jsonValue instanceof String) {
             String lex = (String)jsonValue;  // Check for relative URIs before unescaping
             if (lex.startsWith("<") && lex.endsWith(">")) {
@@ -333,9 +367,19 @@ public class EncoderDefault implements EncoderPlugin {
                 return ResourceFactory.createPlainLiteral(lex);
             }
         }
-        throw new EncodingException("Don't recogize object value: " + jsonValue);
+        throw new EncodingException("Don't recogize object value: " + jsonValue + " [class " + jsonValue.getClass().getSimpleName() + "]" );
     }
 
+	private RDFNode decodeNumber( JsonNumber jn ) {
+		BigDecimal bd = (BigDecimal) jn.value();
+		try { return ResourceFactory.createTypedLiteral( bd.intValueExact() ); }
+		catch (ArithmeticException e) { /* fall through on exception */ }
+		try { return ResourceFactory.createTypedLiteral( bd.longValueExact() ); }
+		catch (ArithmeticException e) { /* fall through on exception */ }
+		try { return ResourceFactory.createTypedLiteral( bd.doubleValue() ); }
+		catch (ArithmeticException e) { /* fall through on exception */ }
+		return ResourceFactory.createTypedLiteral( bd );
+	}
 
 }
 

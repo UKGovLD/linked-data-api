@@ -1,7 +1,15 @@
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+*/
+
 /******************************************************************
- * File:        TestRecursiveEncoder.java
- * Created by:  Dave Reynolds
- * Created on:  3 Feb 2010
+    File:        TestRecursiveEncoder.java
+    Created by:  Dave Reynolds
+    Created on:  3 Feb 2010
  * 
  * (c) Copyright 2010, Epimorphics Limited
  * $Id:  $
@@ -19,11 +27,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
+import org.openjena.atlas.json.JsonArray;
+import org.openjena.atlas.json.JsonException;
 
 import com.epimorphics.jsonrdf.impl.EncoderDefault;
-import com.epimorphics.jsonrdf.org.json.JSONArray;
-import com.epimorphics.jsonrdf.org.json.JSONException;
-import com.epimorphics.jsonrdf.org.json.JSONTokener;
+import com.epimorphics.jsonrdf.utils.ModelIOUtils;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -33,7 +41,7 @@ public class TestRecursiveEncoder {
     
     public static String testRecursiveEncoding(String srcTTL,  String[] roots, String expectedEncoding, String baseUri) throws IOException {
         try {
-            Model src = modelFromTurtle(srcTTL);
+            Model src = ModelIOUtils.modelFromTurtle(srcTTL);
             StringWriter writer = new StringWriter();
             List<Resource> rootsR = modelRoots(roots, src);
             Context context = new Context();
@@ -42,11 +50,11 @@ public class TestRecursiveEncoder {
             Encoder.get(context).encodeRecursive(src, rootsR, writer);
             String encoding = writer.toString();
             
-            JSONArray actual = parseJSON(encoding).getJSONArray(EncoderDefault.PNContent);
+            JsonArray actual = parseJSON(encoding).get(EncoderDefault.PNContent).getAsArray();
             if (expectedEncoding == null) {
                 System.out.println(actual);
             } else {
-                JSONArray expected = new JSONArray( new JSONTokener( new StringReader(expectedEncoding) ) );
+                JsonArray expected = ParseWrapper.stringToJsonArray(expectedEncoding);
                 assertEquals(expected, actual);
             }
             
@@ -74,7 +82,7 @@ public class TestRecursiveEncoder {
             
             
             return encoding;
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
     }

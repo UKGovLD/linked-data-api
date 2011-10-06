@@ -1,11 +1,14 @@
-/******************************************************************
- * File:        TypeUtil.java
- * Created by:  Dave Reynolds
- * Created on:  5 Feb 2010
- * 
- * (c) Copyright 2010, Epimorphics Limited
- * $Id:  $
- *****************************************************************/
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+
+    File:        TypeUtil.java
+    Created by:  Dave Reynolds
+    Created on:  5 Feb 2010
+*/
 
 package com.epimorphics.jsonrdf;
 

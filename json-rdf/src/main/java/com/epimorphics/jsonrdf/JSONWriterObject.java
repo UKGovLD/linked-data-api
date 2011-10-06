@@ -1,24 +1,27 @@
-/******************************************************************
- * File:        JSONWriterObject.java
- * Created by:  Dave Reynolds
- * Created on:  3 Feb 2010
- * 
- * (c) Copyright 2010, Epimorphics Limited
- * $Id:  $
- *****************************************************************/
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+
+    File:        JSONWriterObject.java
+    Created by:  Dave Reynolds
+    Created on:  3 Feb 2010
+*/
 
 package com.epimorphics.jsonrdf;
 
 import java.util.ArrayDeque;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.openjena.atlas.json.JsonException;
+import org.openjena.atlas.json.JsonObject;
+import org.openjena.atlas.json.JsonArray;
 
 /**
- * Implements the JSONWriter emulation by creating a JSONObject
+ * Implements the JSONWriter emulation by creating a JsonObject
  * 
- * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
+ * @author <a href="mailto:der@epimorphics.com">Dave Reynolds</a>
  * @version $Revision: $
  */
 public class JSONWriterObject implements JSONWriterFacade {
@@ -29,82 +32,82 @@ public class JSONWriterObject implements JSONWriterFacade {
     protected String key = "dummy";
     
     /**
-     * Return the created  JSONObject
+     * Return the created  JsonObject
      */
-    public JSONObject getTopObject() {
-        if (! (top instanceof JSONObject)) {
+    public JsonObject getTopObject() {
+        if (! (top instanceof JsonObject)) {
             throw new EncodingException("getTopObject called on non object");
         }
-        return (JSONObject) top;
+        return (JsonObject) top;
     }
     
     /**
-     * Return the created  JSONArray
+     * Return the created  JsonArray
      */
-    public JSONArray getTopArray() {
-        if (! (top instanceof JSONArray)) {
+    public JsonArray getTopArray() {
+        if (! (top instanceof JsonArray)) {
             throw new EncodingException("getTopArray called on non array");
         }
-        return (JSONArray) top;
+        return (JsonArray) top;
     }
     
     @Override
     public JSONWriterFacade array() {
         if (top != null) {
             stack.push( top );
-            top = new JSONArray();
+            top = new JsonArray();
             keystack.push(key);
         } else {
-            top = new JSONArray();
+            top = new JsonArray();
         }
         return this;
     }
 
     @Override
     public JSONWriterFacade endArray() {
-        if (! (top instanceof JSONArray)) {
+        if (! (top instanceof JsonArray)) {
             throw new EncodingException("endArray called on non array");
         }
-        JSONArray o = (JSONArray)top;
+        JsonArray o = (JsonArray)top;
         if (stack.isEmpty()) return this;
         top = stack.pop();
         key = keystack.pop();
-        if (top instanceof JSONObject) {
+        if (top instanceof JsonObject) {
             try {
-                ((JSONObject)top).put(key, o);
-            } catch (JSONException e) {
+                ((JsonObject)top).put(key, o);
+            } catch (JsonException e) {
                 throw new EncodingException(e.getMessage(), e);
             }
         } else {
-            ((JSONArray)top).put(o);
+            ((JsonArray)top).add(o);
         }
         return this;
     }
 
     @Override
     public JSONWriterFacade endObject() {
-        if (! (top instanceof JSONObject)) {
+        if (! (top instanceof JsonObject)) {
             throw new EncodingException("endObject called on non object");
         }
-        JSONObject o = (JSONObject)top;
+        JsonObject o = (JsonObject)top;
         if (stack.isEmpty()) return this;
         top = stack.pop();
         key = keystack.pop();
-        if (top instanceof JSONObject) {
+        if (top instanceof JsonObject) {
             try {
-                ((JSONObject)top).put(key, o);
-            } catch (JSONException e) {
+                ((JsonObject)top).put(key, o);
+            } catch (JsonException e) {
                 throw new EncodingException(e.getMessage(), e);
             }
         } else {
-            ((JSONArray)top).put(o);
+            ((JsonArray)top).add(o);
         }
         return this;
     }
 
     @Override
     public JSONWriterFacade key(String s) {
-        if (! (top instanceof JSONObject)) {
+        if (! (top instanceof JsonObject)) {
             throw new EncodingException("key called on non object");
         }
         key = s;
@@ -116,9 +119,9 @@ public class JSONWriterObject implements JSONWriterFacade {
         if (top != null) {
             stack.push( top );
             keystack.push( key );
-            top = new JSONObject();
+            top = new JsonObject();
         } else {
-            top = new JSONObject();
+            top = new JsonObject();
         }
         return this;
     }
@@ -126,58 +129,66 @@ public class JSONWriterObject implements JSONWriterFacade {
     @Override
     public JSONWriterFacade value(boolean b) {
         try {
-            if (top instanceof JSONObject) {
-                ((JSONObject)top).put(key, b);
+            if (top instanceof JsonObject) {
+                ((JsonObject)top).put(key, b);
             } else {
-                ((JSONArray)top).put(b);
+                ((JsonArray)top).add(b);
             }
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
     }
 
     @Override
-    public JSONWriterFacade value(double d) {
-        try {
-            if (top instanceof JSONObject) {
-                ((JSONObject)top).put(key, d);
-            } else {
-                ((JSONArray)top).put(d);
-            }
-        } catch (JSONException e) {
-            throw new EncodingException(e.getMessage(), e);
-        }
+    public JSONWriterFacade value(double d) {    	
+    	if (true) throw new IllegalArgumentException( "Given a double" );
+//        try {
+//            if (top instanceof JsonObject) {
+//                ((JsonObject)top).put(key, d);
+//            } else {
+//                ((JsonArray)top).put(d);
+//            }
+//        } catch (JsonException e) {
+//            throw new EncodingException(e.getMessage(), e);
+//        }
         return this;
     }
 
     @Override
     public JSONWriterFacade value(long l) {
         try {
-            if (top instanceof JSONObject) {
-                ((JSONObject)top).put(key, l);
+            if (top instanceof JsonObject) {
+                ((JsonObject)top).put(key, l);
             } else {
-                ((JSONArray)top).put(l);
+                ((JsonArray)top).add(l);
             }
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
     }
 
-    @Override
-    public JSONWriterFacade value(Object o) {
-        try {
-            if (top instanceof JSONObject) {
-                ((JSONObject)top).put(key, o);
-            } else {
-                ((JSONArray)top).put(o);
-            }
-        } catch (JSONException e) {
-            throw new EncodingException(e.getMessage(), e);
-        }
+    @Override public JSONWriterFacade value(Object o) {
+    	try {
+    		if (o instanceof String) valueString( (String) o );
+    		else if (o instanceof Integer) valueInteger( (Integer) o );
+    		else throw new IllegalArgumentException( "Given a " + o.getClass().getSimpleName() );
+    	} catch (JsonException e) {
+    		throw new EncodingException(e.getMessage(), e);
+    	}        
         return this;
     }
+
+	private void valueString(String s) {
+		if (top instanceof JsonObject) ((JsonObject)top).put(key, s);
+		else ((JsonArray)top).add(s);		
+		}
+
+	private void valueInteger(Integer i) {
+		if (top instanceof JsonObject) ((JsonObject)top).put(key, i);
+		else ((JsonArray)top).add(i);		
+		}
 
 }
 

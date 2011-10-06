@@ -1,0 +1,64 @@
+# Name/range bindings for defining the API vocabulary mapping to JSON
+
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix api:  <http://purl.org/linked-data/api/vocab#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix :     <http://purl.org/linked-data/api/vocab#> .
+
+rdfs:label api:label "label" .
+rdf:type api:label "type" ; rdf:type rdf:Property; rdfs:range owl:Thing . # force decode of resource shortnames for types
+dct:description api:label "description" .
+
+:API a owl:Class; 
+    rdfs:label "API".
+:sparqlEndpoint a owl:ObjectProperty;
+    rdfs:label "sparqlEndpoint" .
+:vocabulary a owl:ObjectProperty;
+    rdfs:label "vocabulary".
+:endpoint a owl:ObjectProperty;
+    rdfs:label "endpoint" .
+:Endpoint a owl:Class;
+    rdfs:label "Endpoint".
+:ListEndpoint a owl:Class;
+    rdfs:label "ListEndpoint".
+:ItemEndpoint a owl:Class;
+    rdfs:label "ItemEndpoint".
+:uriTemplate a owl:DatatypeProperty;
+    rdfs:label "uriTemplate".
+
+:Selector a owl:Class;
+    rdfs:label "Selector".
+:selector a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:label "selector".
+:type a owl:ObjectProperty;
+    rdfs:label "apiType";
+    rdfs:range owl:Thing.
+:parent a owl:ObjectProperty;
+    rdfs:label "parent" .
+:query a owl:DatatypeProperty;
+    rdfs:label "query" ;
+    rdfs:range  rdf:PlainLiteral .
+:orderby a owl:DatatypeProperty;
+    rdfs:label "orderby";
+    rdfs:range  rdf:PlainLiteral .
+:where a owl:DatatypeProperty;
+    rdfs:label "where";
+    rdfs:range  rdf:PlainLiteral .
+
+:Viewer a owl:Class;
+    rdfs:label "Viewer" .
+:DescribeViewer a owl:Class;
+    rdfs:label "DescribeViewer" .
+:TemplateViewer a owl:Class;
+    rdfs:label "TemplateViewer" .
+:viewer a owl:ObjectProperty;
+    rdfs:label "viewer" .
+:defaultViewer a owl:ObjectProperty;
+    rdfs:label "defaultViewer" .
+:properties a owl:ObjectProperty;
+    rdfs:label "properties" .
+
+         
