@@ -1,34 +1,20 @@
-/******************************************************************
- * File:        EncoderPlugin.java
- * Created by:  Dave Reynolds
- * Created on:  21 Dec 2009
- * 
- * (c) Copyright 2009, Epimorphics Limited
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * $Id:  $
- *****************************************************************/
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+    
+    File:        EncoderPlugin.java
+    Created by:  Dave Reynolds
+    Created on:  21 Dec 2009
+*/
 
 package com.epimorphics.jsonrdf;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.openjena.atlas.json.JsonArray;
+import org.openjena.atlas.json.JsonException;
+import org.openjena.atlas.json.JsonObject;
 
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -52,14 +38,21 @@ public interface EncoderPlugin {
     /** Encode a reference to a bNode via a mapped identifier number */
     public String encodebNodeId(int id);
     
-    /** Encode a literal as a JSON compatible object */
-    public Object encode(Literal lit);
+    /** 
+     	Encode a literal as a JSON compatible object. If isStructured is true,
+     	then encode it as an object with _value, _lang, and/or _datatype
+     	properties. Use c to shorten type names.
+    */
+    public void encodeLiteral( JSONWriterFacade jw, boolean isStructured, Literal lit, Context c );
     
     /** Write the outer result wrapper.  */
     public void writeHeader(JSONWriterFacade jw);
     
-    /** Writer header for a results/model array object   */
-    public void startResults(JSONWriterFacade jw) ;
+    /** Write header for a results/model array object   */
+    public void startResults(JSONWriterFacade jw, boolean oneResult ) ;
+
+    /** end of results */
+	public void endResults( JSONWriterFacade jw, boolean oneResult );
     
     /** Write the context object to a JSON stream */
     public void writeContext(Context context, JSONWriterFacade jw);
@@ -77,20 +70,20 @@ public interface EncoderPlugin {
     public void finishNamedGraphs(JSONWriterFacade jw);
     
     /** Return the array of encoded graphs from a top level JSON results set, or null if there is none */
-    public JSONArray getNamedGraphs(JSONObject jobj)  throws JSONException;
+    public JsonArray getNamedGraphs(JsonObject jobj)  throws JsonException;
     
     /** Return the name of a named graph */
-    public String getGraphName(JSONObject graph, Context context) throws JSONException ;
+    public String getGraphName(JsonObject graph, Context context) throws JsonException ;
     
     /** Extract the context part of a deserialized JSON object 
      * @throws JSONException */
-    public Context getContext(JSONObject jobj) throws JSONException;
+    public Context getContext(JsonObject jobj) throws JsonException;
     
     /** Extract the context part of an embedded deserialized JSON object, no version checks  */
-    public Context getEmbeddedContext(JSONObject jObj) throws JSONException;
+    public Context getEmbeddedContext(JsonObject jObj) throws JsonException;
     
     /** Extract the results part of a deserialized JSON object */
-    public JSONArray getResults(JSONObject jobj) throws JSONException;
+    public JsonArray getResults(JsonObject jobj) throws JsonException;
     
     /** Decode a resource URI */
     public String decodeResourceURI(String code, Context context);

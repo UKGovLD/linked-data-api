@@ -1,59 +1,28 @@
-/******************************************************************
- * File:        Encoder.java
- * Created by:  Dave Reynolds
- * Created on:  21 Dec 2009
- * 
- * (c) Copyright 2009, Epimorphics Limited
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * $Id:  $
- *****************************************************************/
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+
+    File:        Encoder.java
+    Created by:  Dave Reynolds
+    Created on:  21 Dec 2009
+*/
 
 package com.epimorphics.jsonrdf;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import static com.epimorphics.jsonrdf.RDFUtil.getLexicalForm;
+import java.util.*;
 
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.openjena.atlas.json.JsonObject;
+
+import static com.epimorphics.jsonrdf.RDFUtil.getLexicalForm;
 
 import com.epimorphics.jsonrdf.impl.EncoderDefault;
 import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.rdf.model.AnonId;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFList;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.util.OneToManyMap;
 import com.hp.hpl.jena.vocabulary.RDF;
 
@@ -69,12 +38,24 @@ public class Encoder {
     
     protected static EncoderPlugin defaultPlugin = new EncoderDefault();
     
+    public static Encoder getForOneResult( Context c, boolean wantContext ) {
+    	return new Encoder( defaultPlugin, wantContext, c, true );
+    }
+    
+    public static Encoder getForOneResult( boolean wantContext ) {
+    	return getForOneResult( new Context(), wantContext );    	
+    }
+    
     /**
      * Return an encoder using the default rules and no Context, any
      * Context information will be generated on-the-fly.
      */
+    public static Encoder get( boolean wantsContext ) {
+        return get( defaultPlugin, wantsContext );
+    }
+    
     public static Encoder get() {
-        return get(defaultPlugin);
+        return get( defaultPlugin, true );
     }
     
     /**
@@ -85,7 +66,15 @@ public class Encoder {
         return get(rules, new Context());
     }
     
-    /**
+    public static Encoder get( EncoderPlugin rules, boolean wantsContext ) {
+        return get(rules, wantsContext, new Context());
+    }
+    
+    private static Encoder get(EncoderPlugin rules, boolean wantsContext, Context context ) {
+		return new Encoder( rules, wantsContext, context, false );
+	}
+
+	/**
      * Return an encoder using the default rules and the specified 
      * base ontology.
      */
@@ -98,7 +87,7 @@ public class Encoder {
      * base ontology.
      */
     public static Encoder get(EncoderPlugin rules, Model ontology) {
-        return new Encoder(rules, new Context(ontology));
+        return new Encoder(rules, true, new Context(ontology), false );
     }
     
     /**
@@ -112,7 +101,7 @@ public class Encoder {
      * Return an encoder using the specified rules and the specified Context.
      */
     public static Encoder get(EncoderPlugin rules, Context context) {
-        return new Encoder(rules, context);
+        return new Encoder(rules, true, context, false );
     }
 
     /**
@@ -120,13 +109,30 @@ public class Encoder {
      * @param context
      */
     private Encoder(EncoderPlugin rules, Context context) {
+    	this( rules, context, false );
+    }
+
+    /**
+     * @param rules
+     * @param context
+     * @param oneResult true iff the LDA "result: object" style is required
+     */
+    private Encoder(EncoderPlugin rules, Context context, boolean oneResult ) {
+        this( rules, false, context, oneResult );
+    }
+    
+    private Encoder(EncoderPlugin rules, boolean wantsContext, Context context, boolean oneResult ) {
         this.rules = rules;
         this.context = context;
+        this.oneResult = oneResult;
+        this.wantsContext = wantsContext;
     }
 
     // Instance data
     protected EncoderPlugin rules;
     protected Context context;
+    protected final boolean oneResult;
+    protected final boolean wantsContext;
     
     /**
      * Encode the whole of the given RDF model into the writer 
@@ -142,9 +148,8 @@ public class Encoder {
      * Encode the whole of the given RDF model into the writer 
      * @param model The RDF to be encoded
      * @return encoding as a JSON object
-     * @param writer The output writer, ideally platform neutral charset like UTF-8
      */
-    public JSONObject encode(Model model) {
+    public JsonObject encode(Model model) {
         JSONWriterObject jwo = new JSONWriterObject();
         encode(model, null, jwo); 
         return jwo.getTopObject();
@@ -181,7 +186,7 @@ public class Encoder {
      * @param roots the root resources to be encoded
      * @return the JSONObject containing the encoding
      */
-    public JSONObject encode(Model model, List<Resource> roots) {
+    public JsonObject encode(Model model, List<Resource> roots) {
         JSONWriterObject jwo = new JSONWriterObject();
         encode(model, roots, jwo);
         return jwo.getTopObject();
@@ -237,7 +242,7 @@ public class Encoder {
      * @return JSONObject containing the encoding
      * @throws IOException 
      */
-    public JSONObject encodeRecursive(Model model, List<Resource> roots) {
+    public JsonObject encodeRecursive(Model model, List<Resource> roots) {
         JSONWriterObject jwo = new JSONWriterObject();
         encodeRecursive(model, roots, jwo);
         return jwo.getTopObject();
@@ -263,7 +268,7 @@ public class Encoder {
      * @param dataset the collection of models
      * @return ecoded dataset as a JSON object
      */
-    public JSONObject encode(Dataset dataset) {
+    public JsonObject encode(Dataset dataset) {
         JSONWriterObject jwo = new JSONWriterObject();
         try {
             encode(dataset, jwo);
@@ -287,8 +292,7 @@ public class Encoder {
     /**
      * Write out a collection of named graphs plus a default graph
      * @param dataset the collection of models
-     * @param writer writer to output to
-     * @param roots the root resources to be encoded
+     * @param jw JSON writer to output to
      * @throws IOException
      */
     protected void encode(Dataset dataset, JSONWriterFacade jw) throws IOException {
@@ -315,6 +319,7 @@ public class Encoder {
         
         protected boolean recurseOverResources = false;
         protected static final boolean nestResources = true;     // Could be another config option
+		protected static final boolean deferSharedBNodes = false;  // Could be another another config option
         
         // When nesting we need cycle detection
         protected Set<Resource> cycles;
@@ -430,10 +435,12 @@ public class Encoder {
             }
             while (!roots.isEmpty()) {
                 List<Resource> newRoots = new ArrayList<Resource>( roots );
+                // System.err.println( ">> " + roots + " :: " + oneResult );
                 roots.clear();
-                for (Resource r : newRoots) 
+                for (Resource r : newRoots) {
+                	if (oneResult) jw.key( rules.encodebNodeId(bNodeIdFor(r)) ); 
                     encode(r);
-                
+                }                
             }
         }
         
@@ -448,26 +455,26 @@ public class Encoder {
                 rules.startNamedGraphs(jw);
             }
             rules.startNamedGraph(jw, name);
-            rules.startResults(jw);
+            rules.startResults(jw, oneResult );
             encodeAll();
-            finishModelEncode();
+            rules.endResults( jw, oneResult );
             rules.finishNamedGraph(jw);
         }
         
         private void startEncode() {
             rules.writeHeader(jw);
-            rules.startResults(jw);
+            rules.startResults(jw, oneResult );
         }
         
         private void finishModelEncode() {
-            jw.endArray();
+            rules.endResults( jw, oneResult );
         }
         
         private void finishEncode() {
             if (startedGraphs) {
                 rules.finishNamedGraphs(jw);
             }
-            rules.writeContext(context, jw);
+            if (wantsContext) rules.writeContext(context, jw);
             jw.endObject();
         }
         
@@ -484,26 +491,48 @@ public class Encoder {
                 } else {
                     jw.value( rules.encodeResourceURI(r.getURI(), context, isType) );
                 }
-                return;
+            } else {
+            	jw.object();
+	            encodeResource(r);
+	            jw.endObject();
+	            markVisitcompleted(r);
             }
-            jw.object();
-            if (r.isAnon()) {
+        }
+
+		private void encodeResource(Resource r) {
+			if (r.isAnon()) {
                 // Test if this is a root or single referenced bNode
                 if ( isMultiplyReferencedbNode(r) ) {
                     int id = bNodeIdFor(r);
                     jw.key(rules.getPNResourceID()).value(rules.encodebNodeId(id));
                 }
             } else {
-                jw.key(rules.getPNResourceID())
-                   .value(rules.encodeResourceURI(r.getURI(), context, false));
+                jw
+                	.key(rules.getPNResourceID())
+                	.value( rules.encodeResourceURI(r.getURI(), context, false))
+                	;
             }
             
-            OneToManyMap<Property, RDFNode> vals = new OneToManyMap<Property, RDFNode>();
+            OneToManyMap<Property, RDFNode> vals = buildPropertyValueMap(r);
+            List<Property> props = getSortedProperties(vals);
+
+            for (Property p : props) {
+                Context.Prop prop = context.findProperty(p);
+                if (!prop.isHidden()) writePropertyValues( vals, p, prop );
+            }
+		}
+
+		private OneToManyMap<Property, RDFNode> buildPropertyValueMap(Resource r) {
+			OneToManyMap<Property, RDFNode> vals = new OneToManyMap<Property, RDFNode>();
             for (StmtIterator si = r.listProperties(); si.hasNext(); ) {
                 Statement s = si.next();
                 vals.put(s.getPredicate(), s.getObject());
             }
-            List<Property> props = new ArrayList<Property>(vals.keySet());
+			return vals;
+		}
+
+		private List<Property> getSortedProperties(OneToManyMap<Property, RDFNode> vals) {
+			List<Property> props = new ArrayList<Property>(vals.keySet());
             if (context.isSortProperties()) {
                 Collections.sort(props, new Comparator<Property>() {
                     @Override
@@ -512,43 +541,48 @@ public class Encoder {
                     }
                 });
             }
+			return props;
+		}
 
-            for (Property p : props) {
-                Context.Prop prop = context.findProperty(p);
-                if (prop.isHidden()) continue;
-                jw.key(prop.getName());
-                
-                boolean multi = prop.isMultivalued();
-                Iterator<RDFNode> i = vals.getAll(p);
-                RDFNode first = i.next();
-                prop.addType(first);
-                if (!i.hasNext() && !multi) {
-                    // just emit single value
-                    emitNode(first, p.equals(RDF.type));
-                } else {
-                    // Emit as array, do so with sorting
-                    jw.array();
-                    List<RDFNode> nvals = new ArrayList<RDFNode>();
-                    nvals.add(first);
-                    while (i.hasNext()) nvals.add(i.next());
-                    Collections.sort(nvals, new Comparator<RDFNode>() {
-                        @Override
-                        public int compare(RDFNode arg0, RDFNode arg1) {
-                            return getLexicalForm(arg0).compareTo(getLexicalForm(arg1));
-                        }
-                    });
-                    for (RDFNode node : nvals) 
-                        emitNode(node, p.equals(RDF.type));
-                    jw.endArray();
-                }
+		/**
+		    TODO: Retain this for a while, then go through and collapse the code.
+		*/
+		protected static final boolean shortenTypes = false;
+		
+        private void writePropertyValues( OneToManyMap<Property, RDFNode> vals, Property p, Context.Prop prop ) {                
+        	Iterator<RDFNode> i = vals.getAll(p);
+            boolean multi = prop.isMultivalued();
+            boolean isType = shortenTypes && p.equals(RDF.type);
+            boolean isStructured = prop.isStructured();
+            RDFNode first = i.next();
+            prop.addType(first);
+            if (!i.hasNext() && !multi) {
+                // just emit single value
+            	jw.key(prop.getName());
+                emitNode(first, isStructured, isType);
+            } else {
+                // Emit as array, do so with sorting
+                List<RDFNode> nvals = new ArrayList<RDFNode>();
+                nvals.add(first);
+                while (i.hasNext()) nvals.add(i.next());
+                Collections.sort(nvals, new Comparator<RDFNode>() {
+                    @Override
+                    public int compare(RDFNode arg0, RDFNode arg1) {
+                        return getLexicalForm(arg0).compareTo(getLexicalForm(arg1));
+                    }
+                });
+            	jw.key(prop.getName());
+                jw.array();
+                for (RDFNode node : nvals) {
+					emitNode(node, isStructured, isType);
+				}
+                jw.endArray();
             }
-            jw.endObject();
-            markVisitcompleted(r);
         }
-
-        private void emitNode(RDFNode valNode, boolean isType) {
+        
+        private void emitNode(RDFNode valNode, boolean isStructured, boolean isType) {
             if (valNode.isLiteral()) {
-                jw.value( rules.encode((Literal)valNode) );
+            	rules.encodeLiteral( jw, isStructured, (Literal) valNode, context );
             } else {
                 Resource r = (Resource)valNode;
                 if (r.isAnon()) {
@@ -556,10 +590,10 @@ public class Encoder {
                         RDFList list = r.as(RDFList.class);
                         jw.array();
                         for (Iterator<RDFNode> i = list.iterator(); i.hasNext();) {
-                            emitNode(i.next(), false);
+                            emitNode(i.next(), isStructured, false);
                         }
                         jw.endArray();
-                    } else if (isMultiplyReferencedbNode(r)) {
+                    } else if (isMultiplyReferencedbNode(r) && deferSharedBNodes) {
                         if ( ! seenbNode(r)) {
                             roots.add(r);
                         }

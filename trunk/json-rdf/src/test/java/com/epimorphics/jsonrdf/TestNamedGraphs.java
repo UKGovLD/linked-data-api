@@ -1,9 +1,17 @@
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+*/
+
 /******************************************************************
- * File:        TestNamedGraphs.java
- * Created by:  Dave Reynolds
- * Created on:  29 Dec 2009
+    File:        TestNamedGraphs.java
+    Created by:  Dave Reynolds
+    Created on:  29 Dec 2009
  * 
- * (c) Copyright 2009, Epimorphics Limited
+ * (c) Copyright 2011 Epimorphics Limited
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -32,28 +40,30 @@ import java.io.StringWriter;
 import java.util.Iterator;
 
 import org.junit.Test;
+import org.openjena.atlas.json.JsonException;
 
-import com.epimorphics.jsonrdf.org.json.JSONException;
+import com.epimorphics.jsonrdf.utils.ModelCompareUtils;
+import com.epimorphics.jsonrdf.utils.ModelIOUtils;
 import com.hp.hpl.jena.query.DataSource;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 
-import static com.epimorphics.jsonrdf.TestEncoder.modelFromTurtle;
+import static com.epimorphics.jsonrdf.utils.ModelIOUtils.modelFromTurtle;
 import static org.junit.Assert.*;
 
 /**
  * Test the round tripping of named graphs
  * 
- * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
+ * @author <a href="mailto:der@epimorphics.com">Dave Reynolds</a>
  * @version $Revision: $
  */
 public class TestNamedGraphs {
 
-    public void testNamedGraphs(String def, String[] names, String[] graphs) throws IOException, JSONException {
+    public void testNamedGraphs(String def, String[] names, String[] graphs) throws IOException, JsonException {
         Model defM = modelFromTurtle(def);
         DataSource source = DatasetFactory.create(defM);
         for (int i = 0; i < names.length; i++) {
-            source.addNamedModel(names[i], modelFromTurtle(graphs[i]));
+            source.addNamedModel(names[i], ModelIOUtils.modelFromTurtle(graphs[i]));
         }
         StringWriter writer = new StringWriter();
         Encoder.get().encode(source, writer);
@@ -70,16 +80,17 @@ public class TestNamedGraphs {
             assertEquals(expectedName, name);
             Model model = result.getNamedModel(name);
             Model expectedModel = source.getNamedModel(expectedName);
-            boolean match = model.isIsomorphicWith(expectedModel);
-            if (!match) {
-                System.out.println("Model " + name);
-                model.write(System.out, "Turtle");
-            }
-            assertTrue("Check named model", match);
+//            boolean match = model.isIsomorphicWith(expectedModel);
+            boolean match = ModelCompareUtils.compareAndDisplayDifferences( expectedModel, model );
+//            if (!match) {
+//                System.out.println("Model " + name);
+//                model.write(System.out, "Turtle");
+//            }
+            assertTrue("expected and found models must be isomorphic", match);
         }
     }
     
-    @Test public void testNamedGraphs() throws IOException, JSONException {
+    @Test public void testNamedGraphs() throws IOException, JsonException {
         testNamedGraphs(
                 ":r :p 'foo'.", 
                 new String[]{"http://www.epimoporphics.com/graph1", "http://www.epimoporphics.com/graph2"},

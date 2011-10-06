@@ -1,48 +1,54 @@
-/******************************************************************
- * File:        JSONWriterWraper.java
- * Created by:  Dave Reynolds
- * Created on:  3 Feb 2010
- * 
- * (c) Copyright 2010, Epimorphics Limited
- * $Id:  $
- *****************************************************************/
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+
+    File:        JSONWriterWraper.java
+    Created by:  Dave Reynolds
+    Created on:  3 Feb 2010
+*/
 
 package com.epimorphics.jsonrdf;
 
 import java.io.Writer;
+import java.math.BigDecimal;
 
-import com.epimorphics.jsonrdf.org.json.JSONException;
-import com.epimorphics.jsonrdf.org.json.JSONWriter;
+import org.openjena.atlas.json.JsonException;
+
+import com.epimorphics.jsonrdf.extras.JSStreamingWriter;
+
 
 /**
  * Wrap up a JSONWriter to (trivially) implement the JSONWriterFacade interface.
  * Allows for streaming pretty printing.
  * 
- * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
+ * @author <a href="mailto:der@epimorphics.com">Dave Reynolds</a>
  * @version $Revision: $
  */
 public class JSONWriterWrapper implements JSONWriterFacade {
 
-    protected JSONWriter jw;
+    protected JSStreamingWriter jw;
     
     public JSONWriterWrapper(Writer writer) {
-        this.jw = new JSONWriter(writer);
+        this.jw = new JSStreamingWriter(writer);
     }
     
     public JSONWriterWrapper(Writer writer, boolean pretty) {
-        jw = new JSONWriter(writer);
-        jw.setPrettyPrint(pretty);
+        jw = new JSStreamingWriter(writer);
+        // jw.setPrettyPrint(pretty);
     }
         
     public void setPrettyPrint(boolean pretty) {
-        jw.setPrettyPrint(pretty);
+        // jw.setPrettyPrint(pretty);
     }
     
     @Override
     public JSONWriterFacade array() {
         try {
-            jw.array();
-        } catch (JSONException e) {
+            jw.startArray();
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
@@ -51,8 +57,8 @@ public class JSONWriterWrapper implements JSONWriterFacade {
     @Override
     public JSONWriterFacade endArray() {
         try {
-            jw.endArray();
-        } catch (JSONException e) {
+            jw.finishArray();
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
@@ -61,8 +67,8 @@ public class JSONWriterWrapper implements JSONWriterFacade {
     @Override
     public JSONWriterFacade endObject() {
         try {
-            jw.endObject();
-        } catch (JSONException e) {
+            jw.finishObject();
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
@@ -72,7 +78,7 @@ public class JSONWriterWrapper implements JSONWriterFacade {
     public JSONWriterFacade key(String s) {
         try {
             jw.key(s);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
@@ -81,8 +87,8 @@ public class JSONWriterWrapper implements JSONWriterFacade {
     @Override
     public JSONWriterFacade object() {
         try {
-            jw.object();
-        } catch (JSONException e) {
+            jw.startObject();
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
@@ -92,37 +98,42 @@ public class JSONWriterWrapper implements JSONWriterFacade {
     public JSONWriterFacade value(boolean b) {
         try {
             jw.value(b);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
     }
 
-    @Override
-    public JSONWriterFacade value(double d) {
+    @Override public JSONWriterFacade value(double d) {
         try {
             jw.value(d);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
     }
 
-    @Override
-    public JSONWriterFacade value(long l) {
+    @Override public JSONWriterFacade value(long l) {
         try {
             jw.value(l);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;
     }
 
-    @Override
-    public JSONWriterFacade value(Object o) {
+    @Override public JSONWriterFacade value(Object o) {
         try {
-            jw.value(o);
-        } catch (JSONException e) {
+        	if (o instanceof String) jw.value( (String) o );
+        	else if (o instanceof Double) jw.value( ((Double) o).doubleValue() );
+        	else if (o instanceof Integer) jw.value( ((Integer) o).intValue() );
+        	 else if (o instanceof Float) jw.value( ((Float) o).doubleValue() );
+        	 else if (o instanceof Boolean) jw.value( ((Boolean) o).booleanValue() );
+        	 else if (o instanceof BigDecimal) jw.value( ((BigDecimal) o).doubleValue() ); // TODO is this right?
+            // jw.value(o);
+        	else 
+        		throw new RuntimeException( "given value: " + o + " [class " + o.getClass().getSimpleName() + "]" );
+        } catch (JsonException e) {
             throw new EncodingException(e.getMessage(), e);
         }
         return this;

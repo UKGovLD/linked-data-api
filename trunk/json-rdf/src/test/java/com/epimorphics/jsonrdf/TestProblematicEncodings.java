@@ -1,7 +1,15 @@
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+*/
+
 /******************************************************************
- * File:        TestProblematicEncodings.java
- * Created by:  Dave Reynolds
- * Created on:  4 Feb 2010
+    File:        TestProblematicEncodings.java
+    Created by:  Dave Reynolds
+    Created on:  4 Feb 2010
  * 
  * (c) Copyright 2010, Epimorphics Limited
  * $Id:  $

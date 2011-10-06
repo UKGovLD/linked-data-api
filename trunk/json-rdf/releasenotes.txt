@@ -1,9 +1,24 @@
-** 16/2/10 Updates to match Linked Data API specs
-  - recursive serialization now nests referenced resources as far as possible
-    before cycles
-  - context now supports loading of multiple vocabulary files
-  - bug fixes for serialization of empty bNodes and type generalization
-  - support for use of Jettison instead of json.org to enable Jersey
-    compatibility
+Interim revision 3/2/10
+  o changed protocol version number to 0.1 to reflect these changes
+  o modified recursive serialization to do nesting of resources
+  o modified encoding of URIs to not use <> except in the case of relative URIs
+  o improved name allocation to use lda:label, check for JavaScript friendly names and do better fallbacks
+  o added support for encoding to a JSONObject for Jersey compatibility, involving strange
+    dances with different versions of json.org API
+  o allow shortnames for rdf:type values for only full/relative URIs for other object property values
+    
+--
 
-** 8/1/10  Initial release
+TODO
+
+  o Schemagen task (Maven and Ant seem to be fighting)
+    Manual work around
+
+WAS:
+ runjena jena.schemagen -e Turtle -a http://www.epimorphics.com/vocabularies/lda# -i src/main/vocabs/lda.ttl -n LDA -o src/main/java/com/epimorphics/vocabs/LDA.java --package com.epimorphics.vocabs --owl --ontology --nostrict
+
+NOW USING:
+runjena jena.schemagen  -e Turtle -a http://purl.org/linked-data/api/vocab# -i src/main/vocabs/api.ttl -n API -o src/main/java/com/epimorphics/vocabs/API.java --package com.epimorphics.vocabs --rdfs --ontology --nostrict
+
+(note: -rdfs & new namespace)
+

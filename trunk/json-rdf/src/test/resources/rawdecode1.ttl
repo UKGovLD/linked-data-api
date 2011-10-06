@@ -1,0 +1,18 @@
+# Expected output from decode of first TestDecode test case
+<http://www.epimorphics.com/apis/sch>
+      a       <http://purl.org/linked-data/api/vocab#API> ;
+      <http://www.w3.org/2000/01/rdf-schema#label>
+              "name" ;
+      <http://purl.org/dc/terms/description>
+              "longer description" ;
+      <http://purl.org/linked-data/api/vocab#endpoint>
+              <http://www.epimorphics.com/endpoints/sch> ;
+      <http://purl.org/linked-data/api/vocab#sparqlEndpoint>
+              <http://services.data.gov.uk/education/sparql> .
+
+<http://www.epimorphics.com/endpoints/sch>
+      a       <http://purl.org/linked-data/api/vocab#ListEndpoint> ;
+      <http://purl.org/linked-data/api/vocab#selector>
+              [] ;
+      <http://purl.org/linked-data/api/vocab#uriTemplate>
+              "sch" .

@@ -1,45 +1,24 @@
-/******************************************************************
- * File:        Context.java
- * Created by:  Dave Reynolds
- * Created on:  21 Dec 2009
- * 
- * (c) Copyright 2009, Epimorphics Limited
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * $Id:  $
- *****************************************************************/
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+
+    File:        Context.java
+    Created by:  Dave Reynolds
+    Created on:  21 Dec 2009
+*/
 
 package com.epimorphics.jsonrdf;
 
 import static com.epimorphics.jsonrdf.RDFUtil.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import com.epimorphics.vocabs.API;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.rdf.model.impl.Util;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -66,6 +45,15 @@ public class Context {
     protected boolean sortProperties = false;
     protected boolean completedMappingTable = false;
     
+    @Override public String toString() {
+    	return "context:"
+    		+ "\nuriToProp: " + uriToProp
+    		+ "\nuriToName: " + uriToName
+    		+ "\nnameToURI: " + nameToURI
+    		+ "\n"
+    		;
+    }
+    
     /**
      * Construct an empty context
      */
@@ -90,16 +78,6 @@ public class Context {
     }
 
     /**
-     * Construct context with both a base and an ontology defined. 
-     * @param base URI used for relative referencing
-     * @param ontology ontology model used for naming, and annotation to control serializations
-     */
-    public Context(String base, Model ontology) {
-        this.base = base;
-        loadVocabularyAnnotations(ontology);
-    }
-
-    /**
      * Scan the given vocabulary file to find shortname and property type
      * annotations
      */
@@ -109,6 +87,7 @@ public class Context {
         for(Resource r : PROP_TYPES_TO_SHORTEN) 
             loadAnnotations(m, m.listSubjectsWithProperty(RDF.type, r), true, prefixes);
         loadAnnotations(m, m.listSubjectsWithProperty(API.label), false, prefixes);
+        loadAnnotations(m, m.listSubjectsWithProperty(RDFS.range), true, prefixes);
     }
     static Resource[] RES_TYPES_TO_SHORTEN = new Resource[] {RDFS.Class, OWL.Class};
         // TODO add SKOS
@@ -159,6 +138,8 @@ public class Context {
         } 
     }
     
+    static final Literal Literal_TRUE = ResourceFactory.createTypedLiteral( true );
+    
     protected void createPropertyRecord(String name, Resource res) {
         String uri = res.getURI();
         Prop prop = uriToProp.get(uri);
@@ -166,13 +147,15 @@ public class Context {
             prop = makeProp(uri, name);
             uriToProp.put(uri, prop);
         }
-        if (res.hasProperty(RDF.type, API.Multivalued)) 
-            prop.setMultivalued(true);
-        if (res.hasProperty(RDF.type, API.Hidden))
-            prop.setHidden(true);
-        String typeURI = getStringValue(res, RDFS.range);
-        if (typeURI != null)
-            prop.setType(typeURI);
+        if (res.hasProperty(RDF.type, API.Multivalued)) prop.setMultivalued(true);
+        if (res.hasProperty( API.structured, Literal_TRUE ) ) prop.setStructured( true );
+        if (res.hasProperty(RDF.type, API.Hidden)) prop.setHidden(true);
+        if (res.hasProperty(RDF.type, OWL.ObjectProperty)) 
+        	prop.setType(OWL.Thing.getURI());
+        else {
+            String typeURI = getStringValue(res, RDFS.range);
+            if (typeURI != null) prop.setType(typeURI);
+        }
     }
     
     /**
@@ -180,8 +163,7 @@ public class Context {
      * Will only be used when expanding queries, not for generation of shortform listings
      */
     protected void recordAltName(String name, String uri) {
-        if ( ! nameToURI.containsKey(name))
-            nameToURI.put(name, uri);
+        if ( ! nameToURI.containsKey(name)) nameToURI.put(name, uri);
         // Only the preferred name goes in the uriToName mapping
     }
     
@@ -267,7 +249,7 @@ public class Context {
      * Determine an appropriate name for a property resource, creating a new
      * context entry if required. 
      */
-    protected String findNameForProperty(Resource r) {
+    public String findNameForProperty(Resource r) {
         String uri = r.getURI();
         String name = getNameForURI( uri );
         if (name == null) {
@@ -345,13 +327,22 @@ public class Context {
         protected String name;
         protected boolean multivalued = false;
         protected boolean hidden = false;
+        protected boolean structured = false;
+        
         public boolean isHidden() {
             return hidden;
         }
-
-        public void setHidden(boolean hidden) {
+		public void setHidden(boolean hidden) {
             this.hidden = hidden;
         }
+
+        public void setStructured(boolean b) {
+			this.structured = b;			
+		}
+        
+		public boolean isStructured() {
+			return structured;
+		}
 
         protected String type = null;
         protected Property p;
@@ -428,7 +419,7 @@ public class Context {
         /** Returns the assumed range of the property as a URI. Values with particular
          * significance for the serialization are rdfs:Resource, rdfs:List and xsd:* */
         public String getType() {
-            return type;
+            return type; 
         }
         
         /** Get the corresponding RDF property, may cache */
@@ -442,8 +433,7 @@ public class Context {
         /**
          * Compare on names to permit sorting.
          */
-        @Override
-        public int compareTo(Prop o) {
+        @Override public int compareTo(Prop o) {
            return name.compareTo(o.name);     
         }
     }

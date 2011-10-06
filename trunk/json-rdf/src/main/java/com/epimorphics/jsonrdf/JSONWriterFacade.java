@@ -1,11 +1,14 @@
-/******************************************************************
- * File:        JSONWriterFacade.java
- * Created by:  Dave Reynolds
- * Created on:  3 Feb 2010
- * 
- * (c) Copyright 2010, Epimorphics Limited
- * $Id:  $
- *****************************************************************/
+/*
+    See lda-top/LICENCE (or http://elda.googlecode.com/hg/LICENCE)
+    for the licence for this software.
+    
+    (c) Copyright 2011 Epimorphics Limited
+    $Id$
+    
+    File:        JSONWriterFacade.java
+    Created by:  Dave Reynolds
+    Created on:  3 Feb 2010
+*/
 
 package com.epimorphics.jsonrdf;
 
@@ -17,7 +20,7 @@ package com.epimorphics.jsonrdf;
  * which we used to use and has advantages (read from stream, better
  * quoting etc).
  * 
- * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
+ * @author <a href="mailto:der@epimorphics.com">Dave Reynolds</a>
  * @version $Revision: $
  */
 public interface JSONWriterFacade {

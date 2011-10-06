@@ -1,0 +1,3 @@
+Schemagen is used to convert the vocabulary file to a Java class, with an invocation somewhat like:
+
+java -cp THE_CLASSPATH -e TTL -i elda/json-rdf/src/main/vocabs/api.ttl --rdfs -n API --package com.epimorphics.vocabs -a http://purl.org/linked-data/api/vocab# -o WORKDIR 
