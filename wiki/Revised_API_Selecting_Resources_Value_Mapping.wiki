@@ -1,0 +1,43 @@
+#summary Proposal for revision of value-to-object mapping for selecting resources
+
+The value _val_ should be converted to a SPARQL object according to the
+_applied type_ and the _applied language_.
+
+The _applied type_ of a parameter is the type of the parameter if it
+has one, and otherwise the range of the final property in the parameter if
+it has one. (Thus, parameter types over-ride range types; this allows
+settings in the LDA configuration to over-ride range declarations in
+imported vocabularies.)
+
+The _applied languages_ of a parameter `P` are the languages applied to the parameter by `lang-P=`, if there is one; if not, any languages specified by `_lang=`, if there are any; otherwise any languages applied by `api:lang` in the endpoint; otherwise any languages applied by `api:lang` in the spec.
+
+Taken in order:
+
+  * if the applied type is `rdfs:Resource` or `owl:Thing`, then `<val>`. (`Thing` as well as `Resource` so that imported vocabularies can be in RDFS or OWL.)
+
+  * if the applied type is `api:RawLiteral`, then `"val"`. We introduce this new type to allow untyped unlanguaged literals as the objects of properties. (Otherwise we get caught up in the complications of `_lang` and shortname expansion.)
+
+  * if the applied type is `api:PlainLiteral`, then the rules below for untyped  languaged literals, excluding the first ("use `expanded` if defined") rule.
+
+  * if the applied type is a datatype, then `"val"^^type`. "Is a datatype" means:
+    * is any `xsd: class`
+    * or is `rdf:XMLLiteral`
+    * or is of type `rdfs:Datatype`
+    * or is the range of an `owl:DatatypeProperty`
+
+  * if the type is some object type (_ie_ any remaining type -- not one of the types specifically mentioned above), then `<expanded>` if `val` is the short form of the URI `expanded`, otherwise `<val>`.
+
+  * otherwise, the parameter is untyped and will be treated as a literal:
+    * if there are no applied languages, then `"val"`. 
+    * if there are any applied languages L1..Ln, then some new generated variable `?v`, additionally generating a filter
+
+      FILTER( str(?v) && (lang(?v) = "L1" || ... lang(?v) = "Ln") )
+
+    If there is only one language L the variable `?v` can be replaced
+    by `"val"@L` and the filters omitted.
+
+    An alternative way of coding the test, rather than generating the
+    variable v, is for all the triples S P x, where x is the object
+    being created, to be replaced by
+
+        {{S P "val"@L1} UNION ... {S P "val"@Ln}}
