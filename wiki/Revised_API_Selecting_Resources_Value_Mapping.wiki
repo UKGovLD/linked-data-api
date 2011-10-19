@@ -15,19 +15,19 @@ The _applied languages_ of a parameter `P` are the languages applied to the para
 
 Taken in order:
 
-  * if the applied type is `rdfs:Resource` or `owl:Thing`, then `<val>`. (`Thing` as well as `Resource` so that imported vocabularies can be in RDFS or OWL.)
+  * if the applied type is `rdfs:Resource` or `owl:Thing`, then `Resource(val)`. (`Thing` as well as `Resource` so that imported vocabularies can be in RDFS or OWL.)
 
-  * if the applied type is `api:SimpleLiteral`, then `"val"`. We introduce this new type to allow untyped unlanguaged literals as the objects of properties. (Otherwise we get caught up in the complications of `_lang` and shortname expansion.)
+  * if the applied type is `api:SimpleLiteral`, then `Simple(val)`. We introduce this new type to allow untyped unlanguaged literals as the objects of properties. (Otherwise we get caught up in the complications of `_lang` and shortname expansion.)
 
   * if the applied type is `api:PlainLiteral`, then the rules below for untyped  languaged literals, excluding the first ("use `expanded` if defined") rule.
 
-  * if the applied type is a datatype, then `"val"^^type`. "Is a datatype" means:
+  * if the applied type is a datatype, then `Typed(val, type)`. "Is a datatype" means:
     * is any `xsd: class`
     * or is `rdf:XMLLiteral`
     * or is of type `rdfs:Datatype`
     * or is the range of an `owl:DatatypeProperty`
 
-  * if the type is some object type (_ie_ any remaining type -- not one of the types specifically mentioned above), then `<expanded>` if `val` is the short form of the URI `expanded`, otherwise `<val>`.
+  * if the type is some object type (_ie_ any remaining type -- not one of the types specifically mentioned above), then `Resource(val)`.
 
   * otherwise, the parameter is untyped and will be treated as a literal:
     * if there are no applied languages, then `"val"`. 
@@ -43,3 +43,11 @@ Taken in order:
     being created, to be replaced by
 
         {{S P "val"@L1} UNION ... {S P "val"@Ln}}
+
+
+`Resource(val)` is `<expanded>` if `val` is a short name for the
+URI `expanded`, and `<val>` otherwise.
+
+`Simple(val)` is `"val"`.
+
+`Typed(val, type)` is `"val"^^<type>`.
