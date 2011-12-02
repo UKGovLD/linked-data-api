@@ -11,17 +11,17 @@ The API layer is intended to be deployed as a proxy in front of a SPARQL endpoin
 
 == Table of Contents == 
 
-  # [API_Rationale Rationale]
-  # [API_Deployment_Example Deployment Example]
-  # [API_Processing_Model Processing Model]
-   # [API_Identifying_An_Endpoint Identifying An Endpoint]
-   # [API_Binding_Variables Binding Variables]
-   # [API_Selecting_Resources Selecting Resources]
-   # [API_Viewing_Resources Viewing Resources]
-   # [API_Formatting_Graphs Formatting Graphs]
-  # [API_Property_Paths Property Paths]
-  # [API_Query_Parameters Query Parameters]
-  # [API_Vocabulary Vocabulary]
+  # [http://code.google.com/p/linked-data-api/wiki/API_Rationale Rationale]
+  # [http://code.google.com/p/linked-data-api/wiki/API_Deployment_Example Deployment Example]
+  # [http://code.google.com/p/linked-data-api/wiki/API_Processing_Model Processing Model]
+   # [http://code.google.com/p/linked-data-api/wiki/API_Identifying_An_Endpoint Identifying An Endpoint]
+   # [http://code.google.com/p/linked-data-api/wiki/API_Binding_Variables Binding Variables]
+   # [http://code.google.com/p/linked-data-api/wiki/API_Selecting_Resources Selecting Resources]
+   # [http://code.google.com/p/linked-data-api/wiki/API_Viewing_Resources Viewing Resources]
+   # [http://code.google.com/p/linked-data-api/wiki/API_Formatting_Graphs Formatting Graphs]
+  # [http://code.google.com/p/linked-data-api/wiki/API_Property_Paths Property Paths]
+  # [http://code.google.com/p/linked-data-api/wiki/API_Query_Parameters Query Parameters]
+  # [http://code.google.com/p/linked-data-api/wiki/API_Vocabulary Vocabulary]
 
 ==Document Conventions==
 
