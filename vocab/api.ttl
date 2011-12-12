@@ -400,3 +400,10 @@ api:Page a rdfs:Class;
 	rdfs:isDefinedBy api: ;
 .
 
+api:extendedMetadataVersion a rdf:Property ;
+  rdfs:label "Extended Metadata Version"@en ;
+  rdfs:comment "a document containing the same data, plus extra document-centric metadata."@en ;
+  rdfs:isDefinedBy api: ;
+  rdfs:range api:Page ;
+  rdfs:domain api:Page ;
+ .
