@@ -18,7 +18,7 @@
 	rdfs:comment "Configuration vocabulary for the Linked Data API"@en ;
 	foaf:maker <http://www.ldodds.com#me> ;
 	foaf:maker <jeni> ;
-	foaf:maker <der> ;
+	foaf:maker <http://www.amberdown.net/rdf/foaf.rdf#der> ;
 	dcterms:created "2010-01-04"^^xsd:date ;
 	dcterms:modified "2010-02-19"^^xsd:date .
 
@@ -28,7 +28,7 @@
 <jeni> a foaf:Person ;
 	foaf:name "Jeni Tennison" .
 
-<der> a foaf:Person ;
+<http://www.amberdown.net/rdf/foaf.rdf#der> a foaf:Person ;
 	foaf:name "Dave Reynolds" .
 
 ############################################################################
