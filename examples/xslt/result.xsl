@@ -207,7 +207,7 @@ $prefLabel, $altLabel, $title and $name variables.
 </xsl:template>
 
 <xsl:template match="result" mode="showMap">
-	<xsl:param name="items" select="items/item[position() &lt;= 10]/descendant-or-self::*[*] | primaryTopic[not(../items)]/descendant-or-self::*[*]" />
+	<xsl:param name="items" select="items/item[position() &lt;= 5]/descendant-or-self::*[*][position() &lt;= 10] | primaryTopic[not(../items)]/descendant-or-self::*[*][position() &lt;= 50]" />
 	<xsl:variable name="easting" select="key('propertyTerms', $easting-uri)/label" />
 	<xsl:choose>
 		<xsl:when test="not($items)">
