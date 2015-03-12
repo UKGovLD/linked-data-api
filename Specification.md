@@ -8,7 +8,7 @@ The API layer is intended to be deployed as a proxy in front of a SPARQL endpoin
 
 ## Table of Contents ##
 
-  1. [Rationale](http://code.google.com/p/linked-data-api/wiki/API_Rationale)
+  1. [Rationale](API_Rationale)
   1. [Deployment Example](http://code.google.com/p/linked-data-api/wiki/API_Deployment_Example)
   1. [Processing Model](http://code.google.com/p/linked-data-api/wiki/API_Processing_Model)
     1. [Identifying An Endpoint](http://code.google.com/p/linked-data-api/wiki/API_Identifying_An_Endpoint)
