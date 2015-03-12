@@ -8,17 +8,17 @@ The API layer is intended to be deployed as a proxy in front of a SPARQL endpoin
 
 ## Table of Contents ##
 
-  1. [Rationale](API_Rationale)
-  1. [Deployment Example](http://code.google.com/p/linked-data-api/wiki/API_Deployment_Example)
-  1. [Processing Model](http://code.google.com/p/linked-data-api/wiki/API_Processing_Model)
-    1. [Identifying An Endpoint](http://code.google.com/p/linked-data-api/wiki/API_Identifying_An_Endpoint)
-    1. [Binding Variables](http://code.google.com/p/linked-data-api/wiki/API_Binding_Variables)
-    1. [Selecting Resources](http://code.google.com/p/linked-data-api/wiki/API_Selecting_Resources)
-    1. [Viewing Resources](http://code.google.com/p/linked-data-api/wiki/API_Viewing_Resources)
-    1. [Formatting Graphs](http://code.google.com/p/linked-data-api/wiki/API_Formatting_Graphs)
-  1. [Property Paths](http://code.google.com/p/linked-data-api/wiki/API_Property_Paths)
-  1. [Query Parameters](http://code.google.com/p/linked-data-api/wiki/API_Query_Parameters)
-  1. [Vocabulary](http://code.google.com/p/linked-data-api/wiki/API_Vocabulary)
+  1. [Rationale](API_Rationale.md)
+  1. [Deployment Example](API_Deployment_Example.md)
+  1. [Processing Model](API_Processing_Model.md)
+    1. [Identifying An Endpoint](API_Identifying_An_Endpoint.md)
+    1. [Binding Variables](API_Binding_Variables.md)
+    1. [Selecting Resources](API_Selecting_Resources.md)
+    1. [Viewing Resources](API_Viewing_Resources.md)
+    1. [Formatting Graphs](API_Formatting_Graphs.md)
+  1. [Property Paths](API_Property_Paths.md)
+  1. [Query Parameters](API_Query_Parameters.md)
+  1. [Vocabulary](API_Vocabulary.md)
 
 ## Document Conventions ##
 
